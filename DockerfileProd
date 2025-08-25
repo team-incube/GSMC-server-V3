@@ -1,0 +1,11 @@
+FROM openjdk:24-jdk-slim
+
+EXPOSE 8080
+
+WORKDIR /hellogsm-server-v3
+
+COPY build/libs/GSMC-v3-0.0.1-SNAPSHOT.jar GSMC-v3-prod-server.jar
+
+RUN ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
+
+ENTRYPOINT ["java", "-jar", "GSMC-v3-prod-server.jar", "--spring.profiles.active=prod"]
