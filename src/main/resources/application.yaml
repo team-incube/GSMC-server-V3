@@ -11,7 +11,7 @@ spring:
   datasource:
     driver-class-name: ${RDB_DRIVER:com.mysql.cj.jdbc.Driver}
     url: jdbc:${RDB_TYPE:mysql}://${RDB_HOST:localhost}:${RDB_PORT:3306}/${RDB_NAME:gsmc}
-    username: ${RDB_USER:root}
+    username: ${RDB_USER:user}
     password: ${RDB_PASSWORD:123456}
   jpa:
     database-platform: ${RDB_DIALECT:org.hibernate.dialect.MySQLDialect}
