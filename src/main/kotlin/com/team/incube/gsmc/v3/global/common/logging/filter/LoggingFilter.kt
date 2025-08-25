@@ -1,6 +1,7 @@
 package com.team.incube.gsmc.v3.global.common.logging.filter
 
 import com.team.incube.gsmc.v3.global.common.logging.wrapper.CachedBodyRequestWrapper
+import com.team.incube.gsmc.v3.global.config.logger
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
@@ -19,7 +20,6 @@ import java.util.*
 class LoggingFilter : OncePerRequestFilter() {
 
     companion object {
-        private val log = LoggerFactory.getLogger(LoggingFilter::class.java)
         private val NOT_LOGGING_URL = arrayOf(
             "/api-docs/**",
             "/swagger-ui/**"
@@ -57,7 +57,7 @@ class LoggingFilter : OncePerRequestFilter() {
             requestLoggingMultipart(request, logId)
             filterChain.doFilter(request, responseWrapper)
         } catch (e: Exception) {
-            log.error("LoggingFilter의 FilterChain에서 예외가 발생했습니다.", e)
+            logger().error("LoggingFilter의 FilterChain에서 예외가 발생했습니다.", e)
         } finally {
             responseLogging(responseWrapper, startTime, logId)
             copyResponseBody(responseWrapper)
@@ -82,7 +82,7 @@ class LoggingFilter : OncePerRequestFilter() {
             requestLogging(cachedRequest, logId, cachedRequest.cachedBody)
             filterChain.doFilter(cachedRequest, responseWrapper)
         } catch (e: Exception) {
-            log.error("LoggingFilter의 FilterChain에서 예외가 발생했습니다.", e)
+            logger().error("LoggingFilter의 FilterChain에서 예외가 발생했습니다.", e)
         } finally {
             responseLogging(responseWrapper, startTime, logId)
             copyResponseBody(responseWrapper)
@@ -93,7 +93,7 @@ class LoggingFilter : OncePerRequestFilter() {
         return try {
             CachedBodyRequestWrapper(request)
         } catch (e: IOException) {
-            log.error("요청 바디 캐싱 중 예외 발생 - 원본 요청으로 진행합니다.", e)
+            logger().error("요청 바디 캐싱 중 예외 발생 - 원본 요청으로 진행합니다.", e)
             null
         }
     }
@@ -102,7 +102,7 @@ class LoggingFilter : OncePerRequestFilter() {
         try {
             action()
         } catch (e: Exception) {
-            log.error("로깅 제외 경로 예외", e)
+            logger().error("로깅 제외 경로 예외", e)
         }
     }
 
@@ -110,7 +110,7 @@ class LoggingFilter : OncePerRequestFilter() {
         try {
             responseWrapper.copyBodyToResponse()
         } catch (e: IOException) {
-            log.error("LoggingFilter에서 response body를 출력하는 도중 예외가 발생했습니다.", e)
+            logger().error("LoggingFilter에서 response body를 출력하는 도중 예외가 발생했습니다.", e)
         }
     }
 
@@ -121,7 +121,7 @@ class LoggingFilter : OncePerRequestFilter() {
         request.contentType?.lowercase()?.startsWith("multipart/") ?: false
 
     private fun requestLogging(request: HttpServletRequest, logId: UUID, cachedBody: ByteArray) {
-        log.info(
+        logger().info(
             "Log-ID: {}, IP: {}, URI: {}, Http-Method: {}, Params: {}, Content-Type: {}, User-Cookies: {}, User-Agent: {}, Request-Body: {}",
             logId,
             request.remoteAddr,
@@ -138,7 +138,7 @@ class LoggingFilter : OncePerRequestFilter() {
     private fun requestLoggingMultipart(request: HttpServletRequest, logId: UUID) {
         val contentLength = request.getHeader("Content-Length") ?: "[unknown]"
 
-        log.info(
+        logger().info(
             "Log-ID: {}, IP: {}, URI: {}, Http-Method: {}, Params: {}, Content-Type: {}, Content-Length: {}, User-Cookies: {}, User-Agent: {}, Request-Body: {}",
             logId,
             request.remoteAddr,
@@ -157,7 +157,7 @@ class LoggingFilter : OncePerRequestFilter() {
         val responseTime = System.currentTimeMillis() - startTime
         val responseBody = String(response.contentAsByteArray, StandardCharsets.UTF_8)
 
-        log.info(
+        logger().info(
             "Log-ID: {}, Status-Code: {}, Content-Type: {}, Response Time: {}ms, Response-Body: {}",
             logId,
             response.status,
