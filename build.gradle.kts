@@ -23,22 +23,23 @@ repositories {
 extra["springCloudVersion"] = "2025.0.0"
 
 dependencies {
-    implementation(Dependencies.SPRING_DATA_JPA)
-    implementation(Dependencies.SPRING_DATA_REDIS)
-    implementation(Dependencies.SPRING_SECURITY)
-    implementation(Dependencies.SPRING_VALIDATION)
-    implementation(Dependencies.SPRING_WEB)
+    implementation(dependency.Dependencies.SPRING_DATA_JPA)
+    implementation(dependency.Dependencies.SPRING_DATA_REDIS)
+    implementation(dependency.Dependencies.SPRING_SECURITY)
+    implementation(dependency.Dependencies.SPRING_VALIDATION)
+    implementation(dependency.Dependencies.SPRING_WEB)
 
-    implementation(Dependencies.JACKSON_KOTLIN)
-    implementation(Dependencies.KOTLIN_REFLECT)
-    implementation(Dependencies.SPRING_CLOUD_FEIGN)
-    runtimeOnly(Dependencies.MYSQL_CONNECTOR)
+    implementation(dependency.Dependencies.JACKSON_KOTLIN)
+    implementation(dependency.Dependencies.KOTLIN_REFLECT)
+    implementation(dependency.Dependencies.SPRING_CLOUD_FEIGN)
+    runtimeOnly(dependency.Dependencies.MYSQL_CONNECTOR)
 
-    testImplementation(Dependencies.SPRING_TEST)
-    testImplementation(Dependencies.KOTLIN_JUNIT5)
-    testImplementation(Dependencies.KOTEST)
-    testImplementation(Dependencies.SPRING_SECURITY_TEST)
-    testRuntimeOnly(Dependencies.JUNIT_PLATFORM_LAUNCHER)
+    testImplementation(dependency.Dependencies.SPRING_TEST)
+    testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)
+    testImplementation(dependency.Dependencies.KOTEST)
+    testImplementation(dependency.Dependencies.SPRING_SECURITY_TEST)
+    testRuntimeOnly(dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER)
+    testImplementation(dependency.Dependencies.MOCKK)
 }
 
 dependencyManagement {

@@ -1,3 +1,5 @@
+package dependency
+
 object DependencyVersions {
     const val SPRING_CLOUD_FEIGN_VERSION = "4.3.0"
 
