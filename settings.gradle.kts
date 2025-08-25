@@ -1,1 +1,1 @@
-rootProject.name = "gsmc.v3"
+rootProject.name = "GSMC-v3"
