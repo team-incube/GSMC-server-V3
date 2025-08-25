@@ -13,7 +13,7 @@ class CorsConfig(
     private val corsEnvironment: CorsEnvironment
 ) {
     @Bean
-    fun corsConfigurationSource(): CorsConfigurationSource {
+    fun configure(): CorsConfigurationSource {
         val configuration = CorsConfiguration().apply {
             allowedOrigins = corsEnvironment.allowedOrigins
             allowedMethods = HttpMethod.values().map(HttpMethod::name)
