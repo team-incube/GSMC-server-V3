@@ -1,7 +1,7 @@
 plugins {
     id(plugin.Plugins.SPRING_BOOT) version plugin.PluginVersions.SPRING_BOOT_VERSION
     id(plugin.Plugins.DEPENDENCY_MANAGEMENT) version plugin.PluginVersions.DEPENDENCY_MANAGEMENT_VERSION
-    id(plugin.Plugins.KAPT) version plugin.PluginVersions.KOTLIN_VERSION
+    id(plugin.Plugins.KSP) version plugin.PluginVersions.KSP_VERSION
     id(plugin.Plugins.KOTLIN_JVM) version plugin.PluginVersions.KOTLIN_VERSION
     id(plugin.Plugins.KOTLIN_SPRING) version plugin.PluginVersions.KOTLIN_VERSION
     id(plugin.Plugins.KOTLIN_JPA) version plugin.PluginVersions.KOTLIN_VERSION
@@ -82,8 +82,8 @@ tasks.withType<Test> {
 
 idea {
     module {
-        val kaptMain = file("build/generated/source/kapt/main")
-        sourceDirs.add(kaptMain)
-        generatedSourceDirs.add(kaptMain)
+        val kspMain = file("build/generated/ksp/main/kotlin")
+        sourceDirs.add(kspMain)
+        generatedSourceDirs.add(kspMain)
     }
 }
