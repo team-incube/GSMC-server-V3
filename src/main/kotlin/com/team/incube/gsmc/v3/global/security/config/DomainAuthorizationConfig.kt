@@ -9,7 +9,7 @@ class DomainAuthorizationConfig {
     fun configure(authorizeRequests: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry) {
         authorizeRequests
             /* Swagger */
-            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+            .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
             /* Health Check */
             .requestMatchers("/api/v3/health").permitAll()
             /* Others */
