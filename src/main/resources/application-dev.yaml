@@ -5,3 +5,7 @@ spring:
   sql:
     init:
       mode: always
+security:
+  cors:
+    allowed-origins:
+      - '*'

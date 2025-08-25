@@ -1,0 +1,36 @@
+package com.team.incube.gsmc.v3.global.security.config
+
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer
+import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer
+import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer
+import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.web.SecurityFilterChain
+import org.springframework.web.cors.CorsConfigurationSource
+
+@Configuration
+@EnableWebSecurity
+class SecurityConfig(
+    private val domainAuthorizationConfig: DomainAuthorizationConfig,
+    @Qualifier("configure") private val corsConfigurationSource: CorsConfigurationSource
+) {
+
+    @Bean
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        http
+            .csrf(CsrfConfigurer<*>::disable)
+            .cors { it.configurationSource(corsConfigurationSource) }
+            .httpBasic(HttpBasicConfigurer<*>::disable)
+            .formLogin(FormLoginConfigurer<*>::disable)
+            .logout(LogoutConfigurer<*>::disable)
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .authorizeHttpRequests { domainAuthorizationConfig.configure(it) }
+
+        return http.build()
+    }
+}
