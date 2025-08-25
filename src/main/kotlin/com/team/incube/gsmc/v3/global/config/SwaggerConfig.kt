@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.global.config
 
-import com.team.incube.gsmc.v3.global.common.response.CommonApiResponse
+import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import io.swagger.v3.oas.annotations.info.Info
 import io.swagger.v3.oas.models.Operation

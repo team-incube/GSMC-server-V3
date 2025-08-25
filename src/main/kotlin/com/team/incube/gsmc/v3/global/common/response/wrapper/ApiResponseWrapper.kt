@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.global.common.response.wrapper
 
-import com.team.incube.gsmc.v3.global.common.response.CommonApiResponse
+import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import org.springframework.core.MethodParameter
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
