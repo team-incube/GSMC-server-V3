@@ -10,6 +10,15 @@ object Dependencies {
     const val SPRING_DATA_JPA = "org.springframework.boot:spring-boot-starter-data-jpa"
     const val SPRING_DATA_REDIS = "org.springframework.boot:spring-boot-starter-data-redis"
 
+    /* Exposed ORM */
+    const val EXPOSED_CORE = "org.jetbrains.exposed:exposed-core:${DependencyVersions.EXPOSED_VERSION}"
+    const val EXPOSED_DAO = "org.jetbrains.exposed:exposed-dao:${DependencyVersions.EXPOSED_VERSION}"
+    const val EXPOSED_JDBC = "org.jetbrains.exposed:exposed-jdbc:${DependencyVersions.EXPOSED_VERSION}"
+    const val EXPOSED_SPRING_BOOT = "org.jetbrains.exposed:exposed-spring-boot-starter:${DependencyVersions.EXPOSED_VERSION}"
+
+    /* HikariCP */
+    const val HIKARI_CP = "com.zaxxer:HikariCP"
+
     /* Development Tools */
     const val SPRING_DOCKER_SUPPORT = "org.springframework.boot:spring-boot-docker-compose"
     const val SPRING_DEVTOOLS = "org.springframework.boot:spring-boot-devtools"

@@ -35,8 +35,16 @@ dependencies {
     implementation(dependency.Dependencies.SPRING_SECURITY)
 
     /* Spring Data */
-    implementation(dependency.Dependencies.SPRING_DATA_JPA)
     implementation(dependency.Dependencies.SPRING_DATA_REDIS)
+
+    /* Exposed ORM */
+    implementation(dependency.Dependencies.EXPOSED_CORE)
+    implementation(dependency.Dependencies.EXPOSED_DAO)
+    implementation(dependency.Dependencies.EXPOSED_JDBC)
+    implementation(dependency.Dependencies.EXPOSED_SPRING_BOOT)
+
+    /* HikariCP */
+    implementation(dependency.Dependencies.HIKARI_CP)
 
     /* Development Tools */
     developmentOnly(dependency.Dependencies.SPRING_DOCKER_SUPPORT)
