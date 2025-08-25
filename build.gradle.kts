@@ -25,7 +25,7 @@ repositories {
     maven { url = uri("https://jitpack.io") }
 }
 
-extra["springCloudVersion"] = "2025.0.0"
+extra["springCloudVersion"] = plugin.PluginVersions.SPRING_CLOUD_VERSION
 
 dependencies {
     implementation(dependency.Dependencies.SPRING_DATA_JPA)
