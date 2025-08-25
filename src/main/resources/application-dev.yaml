@@ -9,3 +9,6 @@ security:
   cors:
     allowed-origins:
       - "*"
+logging:
+  level:
+    org.jetbrains.exposed.sql.transactions: DEBUG

@@ -13,16 +13,15 @@ spring:
     url: jdbc:${RDB_TYPE:mysql}://${RDB_HOST:localhost}:${RDB_PORT:3306}/${RDB_NAME:gsmc}
     username: ${RDB_USER:user}
     password: ${RDB_PASSWORD:123456}
-  jpa:
-    database-platform: ${RDB_DIALECT:org.hibernate.dialect.MySQLDialect}
-    hibernate:
-      ddl-auto: ${DDL_AUTO:update}
-    show-sql: true
-    properties:
-      hibernate:
-        default_batch_fetch_size: 100
-        format_sql: true
-        use_sql_comments: true
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  exposed:
+    generate-ddl: ${EXPOSED_DDL:true}
+    show-sql: ${EXPOSED_SHOW_SQL:true}
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -30,3 +29,6 @@ spring:
       password: ${REDIS_PASSWORD:}
 server:
   port: ${SERVER_PORT:8080}
+logging:
+  level:
+    Exposed: ${EXPOSED_LOG_LEVEL:DEBUG}
