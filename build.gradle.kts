@@ -28,17 +28,30 @@ repositories {
 extra["springCloudVersion"] = plugin.PluginVersions.SPRING_CLOUD_VERSION
 
 dependencies {
+    /* Spring Starters */
+    implementation(dependency.Dependencies.SPRING_WEB)
+    implementation(dependency.Dependencies.SPRING_VALIDATION)
+    implementation(dependency.Dependencies.SPRING_SECURITY)
+
+    /* Spring Data */
     implementation(dependency.Dependencies.SPRING_DATA_JPA)
     implementation(dependency.Dependencies.SPRING_DATA_REDIS)
-    implementation(dependency.Dependencies.SPRING_SECURITY)
-    implementation(dependency.Dependencies.SPRING_VALIDATION)
-    implementation(dependency.Dependencies.SPRING_WEB)
 
+    /* Development Tools */
+    developmentOnly(dependency.Dependencies.SPRING_DOCKER_SUPPORT)
+    developmentOnly(dependency.Dependencies.SPRING_DEVTOOLS)
+
+    /* Kotlin */
     implementation(dependency.Dependencies.JACKSON_KOTLIN)
     implementation(dependency.Dependencies.KOTLIN_REFLECT)
+
+    /* Spring Cloud */
     implementation(dependency.Dependencies.SPRING_CLOUD_FEIGN)
+
+    /* Database */
     runtimeOnly(dependency.Dependencies.MYSQL_CONNECTOR)
 
+    /* Testing */
     testImplementation(dependency.Dependencies.SPRING_TEST)
     testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)
     testImplementation(dependency.Dependencies.KOTEST)
