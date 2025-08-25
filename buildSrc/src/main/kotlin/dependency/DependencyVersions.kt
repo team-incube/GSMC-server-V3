@@ -5,4 +5,6 @@ object DependencyVersions {
 
     const val KOTEST_VERSION = "6.0.1"
     const val MOCKK_VERSION = "1.14.5"
+
+    const val SWAGGER_VERSION = "2.8.11"
 }
