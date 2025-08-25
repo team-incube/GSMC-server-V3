@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.global.security.config
 
-import org.springframework.beans.factory.annotation.Value
+import com.team.incube.gsmc.v3.global.security.data.CorsEnvironment
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -10,15 +10,15 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 class CorsConfig(
-    @Value("\${security.cors.allowed-origins}") private val allowedOrigins: List<String>
+    private val corsEnvironment: CorsEnvironment
 ) {
     @Bean
-    fun configure(): CorsConfigurationSource {
+    fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration().apply {
-            this.allowedOrigins = this@CorsConfig.allowedOrigins
-            this.allowedMethods = HttpMethod.values().map(HttpMethod::name)
-            this.addAllowedHeader("*")
-            this.allowCredentials = true
+            allowedOrigins = corsEnvironment.allowedOrigins
+            allowedMethods = HttpMethod.values().map(HttpMethod::name)
+            addAllowedHeader("*")
+            allowCredentials = true
         }
 
         return UrlBasedCorsConfigurationSource().apply {

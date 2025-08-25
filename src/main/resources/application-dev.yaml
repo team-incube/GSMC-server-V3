@@ -8,4 +8,4 @@ spring:
 security:
   cors:
     allowed-origins:
-      - '*'
+      - "*"
