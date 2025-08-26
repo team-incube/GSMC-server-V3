@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.global.config
 
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-inline fun <reified T> T.logger() = LoggerFactory.getLogger(T::class.java)!!
+fun Any.logger(): Logger = LoggerFactory.getLogger(this.javaClass)
