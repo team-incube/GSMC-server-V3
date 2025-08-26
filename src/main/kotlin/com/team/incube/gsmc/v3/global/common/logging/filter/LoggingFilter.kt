@@ -13,16 +13,16 @@ import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.util.ContentCachingResponseWrapper
 import java.io.IOException
 import java.nio.charset.StandardCharsets
-import java.util.*
+import java.util.UUID
 
 @Component
 class LoggingFilter : OncePerRequestFilter() {
-
     companion object {
-        private val NOT_LOGGING_URL = arrayOf(
-            "/api-docs/**",
-            "/swagger-ui/**"
-        )
+        private val NOT_LOGGING_URL =
+            arrayOf(
+                "/api-docs/**",
+                "/swagger-ui/**",
+            )
     }
 
     private val matcher = AntPathMatcher()
@@ -30,7 +30,7 @@ class LoggingFilter : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
         if (isNotLoggingURL(request.requestURI)) {
             executeFilterWithExceptionHandling { filterChain.doFilter(request, response) }
@@ -46,7 +46,7 @@ class LoggingFilter : OncePerRequestFilter() {
     private fun handleMultipartRequest(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
         val responseWrapper = ContentCachingResponseWrapper(response)
         val logId = UUID.randomUUID()
@@ -66,12 +66,13 @@ class LoggingFilter : OncePerRequestFilter() {
     private fun handleRegularRequest(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
-        val cachedRequest = createCachedRequest(request) ?: run {
-            executeFilterWithExceptionHandling { filterChain.doFilter(request, response) }
-            return
-        }
+        val cachedRequest =
+            createCachedRequest(request) ?: run {
+                executeFilterWithExceptionHandling { filterChain.doFilter(request, response) }
+                return
+            }
 
         val responseWrapper = ContentCachingResponseWrapper(response)
         val logId = UUID.randomUUID()
@@ -88,14 +89,13 @@ class LoggingFilter : OncePerRequestFilter() {
         }
     }
 
-    private fun createCachedRequest(request: HttpServletRequest): CachedBodyRequestWrapper? {
-        return try {
+    private fun createCachedRequest(request: HttpServletRequest): CachedBodyRequestWrapper? =
+        try {
             CachedBodyRequestWrapper(request)
         } catch (e: IOException) {
             logger().error("요청 바디 캐싱 중 예외 발생 - 원본 요청으로 진행합니다.", e)
             null
         }
-    }
 
     private fun executeFilterWithExceptionHandling(action: () -> Unit) {
         try {
@@ -119,7 +119,11 @@ class LoggingFilter : OncePerRequestFilter() {
     private fun isMultipart(request: HttpServletRequest): Boolean =
         request.contentType?.lowercase()?.startsWith("multipart/") ?: false
 
-    private fun requestLogging(request: HttpServletRequest, logId: UUID, cachedBody: ByteArray) {
+    private fun requestLogging(
+        request: HttpServletRequest,
+        logId: UUID,
+        cachedBody: ByteArray,
+    ) {
         logger().info(
             "Log-ID: {}, IP: {}, URI: {}, Http-Method: {}, Params: {}, Content-Type: {}, User-Cookies: {}, User-Agent: {}, Request-Body: {}",
             logId,
@@ -130,11 +134,14 @@ class LoggingFilter : OncePerRequestFilter() {
             request.contentType,
             formatCookies(request.cookies),
             request.getHeader("User-Agent"),
-            getRequestBody(cachedBody)
+            getRequestBody(cachedBody),
         )
     }
 
-    private fun requestLoggingMultipart(request: HttpServletRequest, logId: UUID) {
+    private fun requestLoggingMultipart(
+        request: HttpServletRequest,
+        logId: UUID,
+    ) {
         val contentLength = request.getHeader("Content-Length") ?: "[unknown]"
 
         logger().info(
@@ -148,11 +155,15 @@ class LoggingFilter : OncePerRequestFilter() {
             contentLength,
             formatCookies(request.cookies),
             request.getHeader("User-Agent"),
-            "[multipart omitted]"
+            "[multipart omitted]",
         )
     }
 
-    private fun responseLogging(response: ContentCachingResponseWrapper, startTime: Long, logId: UUID) {
+    private fun responseLogging(
+        response: ContentCachingResponseWrapper,
+        startTime: Long,
+        logId: UUID,
+    ) {
         val responseTime = System.currentTimeMillis() - startTime
         val responseBody = String(response.contentAsByteArray, StandardCharsets.UTF_8)
 
@@ -162,13 +173,14 @@ class LoggingFilter : OncePerRequestFilter() {
             response.status,
             response.contentType,
             responseTime,
-            responseBody
+            responseBody,
         )
     }
 
     private fun getRequestBody(byteArrayContent: ByteArray): String {
-        val oneLineContent = String(byteArrayContent, StandardCharsets.UTF_8)
-            .replace("\\s".toRegex(), "")
+        val oneLineContent =
+            String(byteArrayContent, StandardCharsets.UTF_8)
+                .replace("\\s".toRegex(), "")
         return if (StringUtils.hasText(oneLineContent)) oneLineContent else "[empty]"
     }
 

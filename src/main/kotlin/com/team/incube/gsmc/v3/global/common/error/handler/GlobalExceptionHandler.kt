@@ -17,7 +17,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc
 @EnableWebMvc
 @RestControllerAdvice
 class GlobalExceptionHandler {
-
     companion object {
         private val objectMapper = ObjectMapper()
     }
@@ -35,7 +34,7 @@ class GlobalExceptionHandler {
         logger().trace("Validation Failed Details : ", ex)
         return CommonApiResponse.error(
             message = createValidationErrorMessage(ex),
-            status = HttpStatus.BAD_REQUEST
+            status = HttpStatus.BAD_REQUEST,
         )
     }
 
@@ -45,7 +44,7 @@ class GlobalExceptionHandler {
         logger().trace("Field validation failed : ", ex)
         return CommonApiResponse.error(
             message = "field validation failed : ${ex.message}",
-            status = HttpStatus.BAD_REQUEST
+            status = HttpStatus.BAD_REQUEST,
         )
     }
 
@@ -54,7 +53,7 @@ class GlobalExceptionHandler {
         logger().error("UnexpectedException Occur : ", ex)
         return CommonApiResponse.error(
             message = "internal server error has occurred",
-            status = HttpStatus.INTERNAL_SERVER_ERROR
+            status = HttpStatus.INTERNAL_SERVER_ERROR,
         )
     }
 
@@ -71,7 +70,7 @@ class GlobalExceptionHandler {
         logger().trace("The file is too big Details : ", ex)
         return CommonApiResponse.error(
             message = "The file is too big, limited file size : ${ex.maxUploadSize}",
-            status = HttpStatus.BAD_REQUEST
+            status = HttpStatus.BAD_REQUEST,
         )
     }
 
@@ -79,21 +78,23 @@ class GlobalExceptionHandler {
         val bindingResult = ex.bindingResult
         val objectName = bindingResult.objectName
 
-        val errorMap = buildMap<String, Any> {
-            // Global errors
-            bindingResult.globalErrors.forEach { error ->
-                put(objectName, error.defaultMessage ?: "Validation error")
-            }
+        val errorMap =
+            buildMap<String, Any> {
+                // Global errors
+                bindingResult.globalErrors.forEach { error ->
+                    put(objectName, error.defaultMessage ?: "Validation error")
+                }
 
-            // Field errors
-            val fieldErrors = bindingResult.fieldErrors.associate { error ->
-                error.field to (error.defaultMessage ?: "Invalid field")
-            }
+                // Field errors
+                val fieldErrors =
+                    bindingResult.fieldErrors.associate { error ->
+                        error.field to (error.defaultMessage ?: "Invalid field")
+                    }
 
-            if (fieldErrors.isNotEmpty()) {
-                put(objectName, fieldErrors)
+                if (fieldErrors.isNotEmpty()) {
+                    put(objectName, fieldErrors)
+                }
             }
-        }
 
         return try {
             objectMapper.writeValueAsString(errorMap).replace("\"", "'")

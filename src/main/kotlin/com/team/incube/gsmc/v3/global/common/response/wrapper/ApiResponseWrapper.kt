@@ -14,18 +14,19 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 
 @RestControllerAdvice
 class ApiResponseWrapper : ResponseBodyAdvice<Any> {
-
     companion object {
-        private val NOT_WRAPPING_URL = arrayOf(
-            "/api-docs/**", "/swagger-ui/**"
-        )
+        private val NOT_WRAPPING_URL =
+            arrayOf(
+                "/api-docs/**",
+                "/swagger-ui/**",
+            )
     }
 
     private val matcher = AntPathMatcher()
 
     override fun supports(
         returnType: MethodParameter,
-        converterType: Class<out HttpMessageConverter<*>>
+        converterType: Class<out HttpMessageConverter<*>>,
     ): Boolean = true
 
     override fun beforeBodyWrite(
@@ -34,7 +35,7 @@ class ApiResponseWrapper : ResponseBodyAdvice<Any> {
         selectedContentType: MediaType,
         selectedConverterType: Class<out HttpMessageConverter<*>>,
         request: ServerHttpRequest,
-        response: ServerHttpResponse
+        response: ServerHttpResponse,
     ): Any? {
         if (isNotWrappingURL(request.uri.path)) {
             return body
@@ -63,18 +64,21 @@ class ApiResponseWrapper : ResponseBodyAdvice<Any> {
             status = HttpStatus.OK,
             code = HttpStatus.OK.value(),
             message = "OK",
-            data = body
+            data = body,
         )
     }
 
-    private fun byPassResponse(body: CommonApiResponse<*>, response: ServerHttpResponse): Any {
+    private fun byPassResponse(
+        body: CommonApiResponse<*>,
+        response: ServerHttpResponse,
+    ): Any {
         response.setStatusCode(body.status)
         return body
     }
 
     private fun exceptionResponse(
         response: ServerHttpResponse,
-        bodyMap: Map<String, Any>
+        bodyMap: Map<String, Any>,
     ): CommonApiResponse<Nothing>? {
         val statusValue = bodyMap["status"]
         if (statusValue is Int && statusValue in 400..599) {
@@ -85,11 +89,10 @@ class ApiResponseWrapper : ResponseBodyAdvice<Any> {
         return null
     }
 
-    private fun isNotWrappingURL(requestURI: String?): Boolean {
-        return requestURI?.let { uri ->
+    private fun isNotWrappingURL(requestURI: String?): Boolean =
+        requestURI?.let { uri ->
             NOT_WRAPPING_URL.any { pattern ->
                 matcher.match(pattern, uri)
             }
         } ?: false
-    }
 }

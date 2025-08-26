@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @ConfigurationPropertiesScan(
     basePackages = [
-        "com.team.incube.gsmc.v3.global.security.data"]
+        "com.team.incube.gsmc.v3.global.security.data",
+    ],
 )
-class PropertiesScanConfig {
-}
+class PropertiesScanConfig

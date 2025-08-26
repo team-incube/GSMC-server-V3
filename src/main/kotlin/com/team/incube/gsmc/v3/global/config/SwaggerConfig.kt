@@ -11,18 +11,19 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @OpenAPIDefinition(
-    info = Info(
-        title = "GSMC V3",
-        description = "GSM 인증제 관리 서비스",
-        version = "v3"
-    )
+    info =
+        Info(
+            title = "GSMC V3",
+            description = "GSM 인증제 관리 서비스",
+            version = "v3",
+        ),
 )
 @Configuration
 class SwaggerConfig {
-
     @Bean
     fun api(operationCustomizer: OperationCustomizer): GroupedOpenApi =
-        GroupedOpenApi.builder()
+        GroupedOpenApi
+            .builder()
             .group("GSMC V3 API")
             .pathsToMatch("/api/v3/**")
             .addOperationCustomizer(operationCustomizer)
@@ -38,7 +39,10 @@ class SwaggerConfig {
             operation
         }
 
-    private fun addResponseBodyWrapperSchemaExample(operation: Operation, hideDataField: Boolean) {
+    private fun addResponseBodyWrapperSchemaExample(
+        operation: Operation,
+        hideDataField: Boolean,
+    ) {
         operation.responses["200"]?.content?.let { content ->
             content.forEach { (_, mediaType) ->
                 val originalSchema = mediaType.schema
@@ -47,7 +51,10 @@ class SwaggerConfig {
         }
     }
 
-    private fun wrapSchema(originalSchema: Schema<*>?, hideDataField: Boolean): Schema<*> =
+    private fun wrapSchema(
+        originalSchema: Schema<*>?,
+        hideDataField: Boolean,
+    ): Schema<*> =
         Schema<Any>().apply {
             addProperty("status", Schema<String>().type("string").example("OK"))
             addProperty("code", Schema<Int>().type("integer").example(200))

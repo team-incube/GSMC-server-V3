@@ -12,29 +12,29 @@ import java.io.InputStreamReader
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 
+class CachedBodyRequestWrapper
+    @Throws(IOException::class)
+    constructor(
+        request: HttpServletRequest,
+    ) : HttpServletRequestWrapper(request) {
+        val cachedBody: ByteArray = StreamUtils.copyToByteArray(request.inputStream)
 
-class CachedBodyRequestWrapper @Throws(IOException::class) constructor(
-    request: HttpServletRequest
-) : HttpServletRequestWrapper(request) {
+        override fun getInputStream(): ServletInputStream {
+            val byteArrayInputStream = ByteArrayInputStream(cachedBody)
+            return object : ServletInputStream() {
+                override fun read(): Int = byteArrayInputStream.read()
 
-    val cachedBody: ByteArray = StreamUtils.copyToByteArray(request.inputStream)
+                override fun isFinished(): Boolean = byteArrayInputStream.available() == 0
 
-    override fun getInputStream(): ServletInputStream {
-        val byteArrayInputStream = ByteArrayInputStream(cachedBody)
-        return object : ServletInputStream() {
-            override fun read(): Int = byteArrayInputStream.read()
+                override fun isReady(): Boolean = true
 
-            override fun isFinished(): Boolean = byteArrayInputStream.available() == 0
-
-            override fun isReady(): Boolean = true
-
-            override fun setReadListener(readListener: ReadListener?) {
+                override fun setReadListener(readListener: ReadListener?) {
+                }
             }
         }
-    }
 
-    override fun getReader(): BufferedReader {
-        val charset = characterEncoding?.let { Charset.forName(it) } ?: StandardCharsets.UTF_8
-        return BufferedReader(InputStreamReader(inputStream, charset))
+        override fun getReader(): BufferedReader {
+            val charset = characterEncoding?.let { Charset.forName(it) } ?: StandardCharsets.UTF_8
+            return BufferedReader(InputStreamReader(inputStream, charset))
+        }
     }
-}
