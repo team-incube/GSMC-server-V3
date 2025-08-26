@@ -9,4 +9,5 @@ object Plugins {
     const val KOTLIN_ALLOPEN = "org.jetbrains.kotlin.plugin.allopen"
     const val KSP = "com.google.devtools.ksp"
     const val KOTEST = "io.kotest"
+    const val KTLINT = "org.jlleitschuh.gradle.ktlint"
 }

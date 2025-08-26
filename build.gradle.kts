@@ -7,6 +7,7 @@ plugins {
     id(plugin.Plugins.KOTLIN_JPA) version plugin.PluginVersions.KOTLIN_VERSION
     id(plugin.Plugins.KOTLIN_ALLOPEN) version plugin.PluginVersions.KOTLIN_VERSION
     id(plugin.Plugins.KOTEST) version plugin.PluginVersions.KOTEST_VERSION
+    id(plugin.Plugins.KTLINT) version plugin.PluginVersions.KTLINT_VERSION
     idea
 }
 
