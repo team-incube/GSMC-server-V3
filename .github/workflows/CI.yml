@@ -1,4 +1,4 @@
-name: CI.yml
+name: GSMC-CI
 on:
   pull_request:
     types: [opened, synchronize, reopened]
