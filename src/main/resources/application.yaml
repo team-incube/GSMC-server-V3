@@ -29,6 +29,12 @@ spring:
       password: ${REDIS_PASSWORD:}
 server:
   port: ${SERVER_PORT:8080}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+      base-path: /api/v3/health
 logging:
   level:
     Exposed: ${EXPOSED_LOG_LEVEL:DEBUG}

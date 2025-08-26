@@ -5,6 +5,7 @@ object Dependencies {
     const val SPRING_WEB = "org.springframework.boot:spring-boot-starter-web"
     const val SPRING_VALIDATION = "org.springframework.boot:spring-boot-starter-validation"
     const val SPRING_SECURITY = "org.springframework.boot:spring-boot-starter-security"
+    const val SPRING_ACTUATOR = "org.springframework.boot:spring-boot-starter-actuator"
 
     /* Spring Data */
     const val SPRING_DATA_JPA = "org.springframework.boot:spring-boot-starter-data-jpa"

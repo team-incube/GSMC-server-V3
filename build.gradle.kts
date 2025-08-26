@@ -33,6 +33,7 @@ dependencies {
     implementation(dependency.Dependencies.SPRING_WEB)
     implementation(dependency.Dependencies.SPRING_VALIDATION)
     implementation(dependency.Dependencies.SPRING_SECURITY)
+    implementation(dependency.Dependencies.SPRING_ACTUATOR)
 
     /* Spring Data */
     implementation(dependency.Dependencies.SPRING_DATA_REDIS)
