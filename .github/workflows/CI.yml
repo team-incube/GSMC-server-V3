@@ -19,5 +19,5 @@ jobs:
       - name: Ktlint Format
         uses: ScaCap/action-ktlint@master
         with:
-          github_token: ${{ secret.GITHUB_TOKEN }}
+          github_token: ${{ github.token }}
           reporter: github-pr-check
