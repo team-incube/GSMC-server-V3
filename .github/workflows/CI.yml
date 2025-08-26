@@ -1,0 +1,23 @@
+name: CI.yml
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
+
+jobs:
+  Code-Format:
+    name: Code Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Ktlint Format
+        uses: ScaCap/action-ktlint@master
+        with:
+          github_token: ${{ secret.GITHUB_TOKEN }}
+          reporter: github-pr-check
