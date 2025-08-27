@@ -61,34 +61,4 @@ class DiscordNotificationService(
             logger().error("서버 종료 알림 전송 실패", exception)
         }
     }
-
-    fun sendCustomNotification(
-        title: String,
-        description: String,
-        color: EmbedColor = EmbedColor.INFO,
-        additionalFields: List<DiscordField> = emptyList(),
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            runCatching {
-                val fields =
-                    mutableListOf<DiscordField>().apply {
-                        add(DiscordField("내용", description, false))
-                        addAll(additionalFields)
-                    }
-
-                val embed =
-                    DiscordEmbed(
-                        title = title,
-                        color = color.color,
-                        fields = fields,
-                        timestamp = Instant.now().toString(),
-                    )
-
-                val payload = DiscordWebhookPayload.embedMessage(embed)
-                discordWebhookClient.sendMessage(payload)
-            }.onFailure { exception ->
-                logger().error("사용자 정의 알림 전송 실패", exception)
-            }
-        }
-    }
 }

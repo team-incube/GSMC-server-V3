@@ -13,15 +13,6 @@ import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import java.time.Instant
 
-/**
- * 애플리케이션에서 발생하는 에러를 Discord로 알림 전송하는 서비스 클래스입니다.
- *
- * Feign 클라이언트를 사용하여 Discord 웹훅으로 에러 메시지를 전송하며,
- * 비동기 처리를 통해 성능 영향을 최소화합니다.
- *
- * @property discordWebhookClient Discord 웹훅 Feign 클라이언트
- * @author snowykte0426
- */
 @Profile("prod")
 @Component
 class DiscordErrorNotificationService(
@@ -44,36 +35,6 @@ class DiscordErrorNotificationService(
                 discordWebhookClient.sendMessage(payload)
             }.onFailure { sendException ->
                 logger().error("Discord 에러 알림 전송 실패", sendException)
-            }
-        }
-    }
-
-    fun notifyCustomError(
-        title: String,
-        description: String,
-        severity: EmbedColor = EmbedColor.ERROR,
-        additionalFields: List<DiscordField> = emptyList(),
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            runCatching {
-                val fields =
-                    mutableListOf<DiscordField>().apply {
-                        add(DiscordField("Description", description.truncateField(), false))
-                        addAll(additionalFields)
-                    }
-
-                val embed =
-                    DiscordEmbed(
-                        title = "⚠️ $title",
-                        color = severity.color,
-                        fields = fields,
-                        timestamp = Instant.now().toString(),
-                    )
-
-                val payload = DiscordWebhookPayload.embedMessage(embed)
-                discordWebhookClient.sendMessage(payload)
-            }.onFailure { sendException ->
-                logger().error("Discord 커스텀 에러 알림 전송 실패", sendException)
             }
         }
     }
