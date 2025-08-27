@@ -1,0 +1,37 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import: .env
+  sql:
+    init:
+      mode: never
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      s3:
+        bucket-name: ${AWS_BUCKET_NAME}
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: ${GOOGLE_REDIRECT_URI}
+            authorization-grant-type: authorization_code
+            scope:
+              - email
+    cors:
+      allowed-origins:
+        - "https://gsmc.io.kr"
+        - "https://gsmc-admin.vercel.app"
+logging:
+  config: classpath:logback-spring.xml
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
