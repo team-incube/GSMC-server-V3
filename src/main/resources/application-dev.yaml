@@ -25,7 +25,10 @@ spring:
               - email
     cors:
       allowed-origins:
-        - "*"
+        - "http://localhost:3000"
+        - "http://localhost:3001"
+        - "https://gsmc.io.kr"
+        - "https://gsmc-admin.vercel.app"
 logging:
   level:
     org.jetbrains.exposed.sql.transactions: DEBUG
