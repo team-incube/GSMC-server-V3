@@ -2,7 +2,7 @@ spring:
   config:
     activate:
       on-profile: prod
-    import: .env
+    import: optional:.env[.properties]
   sql:
     init:
       mode: never
@@ -13,6 +13,9 @@ spring:
         secret-key: ${AWS_SECRET_KEY}
       s3:
         bucket-name: ${AWS_BUCKET_NAME}
+    discord:
+      webhook:
+        url: ${DISCORD_WEBHOOK_URL}
   security:
     oauth2:
       client:
