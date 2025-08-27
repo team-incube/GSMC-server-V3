@@ -13,4 +13,6 @@ object DependencyVersions {
 
     const val AWS_S3_SDK_VERSION = "3.4.0"
     const val AWS_LOGBACK_APPENDER_VERSION = "1.6.0"
+
+    const val DOTENV_VERSION = "4.0.0"
 }

@@ -67,10 +67,12 @@ dependencies {
     // Swagger
     implementation(dependency.Dependencies.SWAGGER_UI)
 
-    implementation("me.paulschwarz:spring-dotenv:4.0.0")
     // AWS
     implementation(dependency.Dependencies.AWS_S3_SDK)
     implementation(dependency.Dependencies.AWS_LOGBACK_APPENDER)
+
+    // Environment Variables
+    implementation(dependency.Dependencies.DOTENV)
 
     // Testing
     testImplementation(dependency.Dependencies.SPRING_TEST)

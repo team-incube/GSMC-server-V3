@@ -43,6 +43,9 @@ object Dependencies {
     const val AWS_S3_SDK = "io.awspring.cloud:spring-cloud-aws-starter-s3:${DependencyVersions.AWS_S3_SDK_VERSION}"
     const val AWS_LOGBACK_APPENDER = "ca.pjer:logback-awslogs-appender:${DependencyVersions.AWS_LOGBACK_APPENDER_VERSION}"
 
+    /* Environment Variables */
+    const val DOTENV = "me.paulschwarz:spring-dotenv:${DependencyVersions.DOTENV_VERSION}"
+
     /* Testing */
     const val SPRING_TEST = "org.springframework.boot:spring-boot-starter-test"
     const val KOTLIN_JUNIT5 = "org.jetbrains.kotlin:kotlin-test-junit5"
