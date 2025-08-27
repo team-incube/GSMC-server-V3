@@ -14,10 +14,20 @@ spring:
         bucket-name: ${AWS_BUCKET_NAME}
       region:
         static: ${AWS_REGION:ap-northeast-2}
-security:
-  cors:
-    allowed-origins:
-      - "*"
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:3000/callback}
+            authorization-grant-type: authorization_code
+            scope:
+              - email
+    cors:
+      allowed-origins:
+        - "*"
 logging:
   level:
     org.jetbrains.exposed.sql.transactions: DEBUG
