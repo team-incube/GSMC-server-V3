@@ -49,5 +49,4 @@ management:
         include: health
       base-path: /api/v3/health
 logging:
-  level:
-    Exposed: ${EXPOSED_LOG_LEVEL:DEBUG}
+  config: classpath:logback-spring.xml

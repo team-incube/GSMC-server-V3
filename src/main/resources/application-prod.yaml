@@ -28,8 +28,6 @@ spring:
       allowed-origins:
         - "https://gsmc.io.kr"
         - "https://gsmc-admin.vercel.app"
-logging:
-  config: classpath:logback-spring.xml
 springdoc:
   swagger-ui:
     enabled: false
