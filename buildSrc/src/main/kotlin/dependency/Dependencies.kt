@@ -31,6 +31,7 @@ object Dependencies {
 
     /* Spring Cloud */
     const val SPRING_CLOUD_FEIGN = "org.springframework.cloud:spring-cloud-starter-openfeign:${DependencyVersions.SPRING_CLOUD_FEIGN_VERSION}"
+    const val FEIGN_JACKSON = "io.github.openfeign:feign-jackson:${DependencyVersions.FEIGN_JACKSON_VERSION}"
 
     /* Database */
     const val MYSQL_CONNECTOR = "com.mysql:mysql-connector-j"

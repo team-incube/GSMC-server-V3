@@ -59,6 +59,7 @@ dependencies {
 
     // Spring Cloud
     implementation(dependency.Dependencies.SPRING_CLOUD_FEIGN)
+    implementation(dependency.Dependencies.FEIGN_JACKSON)
 
     // Database
     runtimeOnly(dependency.Dependencies.MYSQL_CONNECTOR)
@@ -66,6 +67,7 @@ dependencies {
     // Swagger
     implementation(dependency.Dependencies.SWAGGER_UI)
 
+    implementation("me.paulschwarz:spring-dotenv:4.0.0")
     // AWS
     implementation(dependency.Dependencies.AWS_S3_SDK)
     implementation(dependency.Dependencies.AWS_LOGBACK_APPENDER)
