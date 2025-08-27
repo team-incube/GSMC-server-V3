@@ -1,6 +1,7 @@
 package com.team.incube.gsmc.v3.global.common.error.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.team.incube.gsmc.v3.global.common.error.exception.FeignClientException
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import com.team.incube.gsmc.v3.global.config.logger
@@ -25,7 +26,7 @@ class GlobalExceptionHandler {
     fun handleGsmcException(ex: GsmcException): CommonApiResponse<Nothing> {
         logger().warn("GsmcException : {}", ex.message)
         logger().trace("GsmcException Details : ", ex)
-        return CommonApiResponse.error(ex.message ?: "Unknown error", ex.statusCode)
+        return CommonApiResponse.error(ex.message ?: "알 수 없는 오류", ex.statusCode)
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class, HttpMessageNotReadableException::class)
@@ -43,16 +44,23 @@ class GlobalExceptionHandler {
         logger().warn("Field validation failed : {}", ex.message)
         logger().trace("Field validation failed : ", ex)
         return CommonApiResponse.error(
-            message = "field validation failed : ${ex.message}",
+            message = "필드 유효성 검사 실패 : ${ex.message}",
             status = HttpStatus.BAD_REQUEST,
         )
+    }
+
+    @ExceptionHandler(FeignClientException::class)
+    fun handleFeignClientException(ex: FeignClientException): CommonApiResponse<Nothing> {
+        logger().warn("FeignClientException : {}", ex.message)
+        logger().trace("FeignClientException Details : ", ex)
+        return CommonApiResponse.error(ex.message ?: "Feign 클라이언트 오류", ex.statusCode)
     }
 
     @ExceptionHandler(RuntimeException::class)
     fun handleUnexpectedException(ex: RuntimeException): CommonApiResponse<Nothing> {
         logger().error("UnexpectedException Occur : ", ex)
         return CommonApiResponse.error(
-            message = "internal server error has occurred",
+            message = "서버 내부 오류가 발생했습니다.",
             status = HttpStatus.INTERNAL_SERVER_ERROR,
         )
     }
@@ -61,7 +69,7 @@ class GlobalExceptionHandler {
     fun handleNoHandlerFoundException(ex: NoHandlerFoundException): CommonApiResponse<Nothing> {
         logger().warn("Not Found Endpoint : {}", ex.message)
         logger().trace("Not Found Endpoint Details : ", ex)
-        return CommonApiResponse.error(ex.message ?: "Endpoint not found", HttpStatus.NOT_FOUND)
+        return CommonApiResponse.error(ex.message ?: "올바르지 않은 엔드포인트입니다", HttpStatus.NOT_FOUND)
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException::class)
@@ -69,7 +77,7 @@ class GlobalExceptionHandler {
         logger().warn("The file is too big : {}", ex.message)
         logger().trace("The file is too big Details : ", ex)
         return CommonApiResponse.error(
-            message = "The file is too big, limited file size : ${ex.maxUploadSize}",
+            message = "파일이 너무 큽니다, 최대 파일 용량 : ${ex.maxUploadSize}",
             status = HttpStatus.BAD_REQUEST,
         )
     }
@@ -82,13 +90,13 @@ class GlobalExceptionHandler {
             buildMap<String, Any> {
                 // Global errors
                 bindingResult.globalErrors.forEach { error ->
-                    put(objectName, error.defaultMessage ?: "Validation error")
+                    put(objectName, error.defaultMessage ?: "유효성 검사 오류")
                 }
 
                 // Field errors
                 val fieldErrors =
                     bindingResult.fieldErrors.associate { error ->
-                        error.field to (error.defaultMessage ?: "Invalid field")
+                        error.field to (error.defaultMessage ?: "유효성 검사 오류")
                     }
 
                 if (fieldErrors.isNotEmpty()) {
