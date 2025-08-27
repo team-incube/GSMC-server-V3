@@ -1,4 +1,5 @@
 package com.team.incube.gsmc.v3.global.thirdparty.feign.error
+
 import com.team.incube.gsmc.v3.global.common.error.exception.FeignClientException
 import com.team.incube.gsmc.v3.global.config.logger
 import feign.FeignException
@@ -35,7 +36,6 @@ class FeignErrorDecoder : ErrorDecoder {
         return FeignClientException(userMessage, httpStatus)
     }
 
-    // 상태코드 -> (메시지, HttpStatus) 매핑 확장
     private fun Int.toUserMessageAndStatus(): Pair<String, HttpStatus> =
         when (this) {
             400 -> "잘못된 요청입니다." to HttpStatus.BAD_REQUEST
@@ -49,7 +49,6 @@ class FeignErrorDecoder : ErrorDecoder {
             else -> "외부 요청 처리 중 오류가 발생했습니다." to HttpStatus.INTERNAL_SERVER_ERROR
         }
 
-    // 응답 Body 안전 추출 확장
     private fun Response.safeBodyAsString(): String =
         runCatching {
             body()?.asInputStream()?.use { StreamUtils.copyToString(it, StandardCharsets.UTF_8) }
