@@ -22,27 +22,41 @@ class GlobalExceptionHandler {
         private val objectMapper = ObjectMapper()
     }
 
+    private fun warnTrace(
+        prefix: String,
+        ex: Throwable,
+    ) {
+        logger().warn("$prefix : {}", ex.message)
+        logger().trace("$prefix Details : ", ex)
+    }
+
     @ExceptionHandler(GsmcException::class)
     fun handleGsmcException(ex: GsmcException): CommonApiResponse<Nothing> {
-        logger().warn("GsmcException : {}", ex.message)
-        logger().trace("GsmcException Details : ", ex)
+        warnTrace("GsmcException", ex)
         return CommonApiResponse.error(ex.message ?: "알 수 없는 오류", ex.statusCode)
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException::class, HttpMessageNotReadableException::class)
-    fun handleValidationException(ex: MethodArgumentNotValidException): CommonApiResponse<Nothing> {
-        logger().warn("Validation Failed : {}", ex.message)
-        logger().trace("Validation Failed Details : ", ex)
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleMethodArgumentNotValid(ex: MethodArgumentNotValidException): CommonApiResponse<Nothing> {
+        warnTrace("Validation Failed", ex)
         return CommonApiResponse.error(
             message = createValidationErrorMessage(ex),
             status = HttpStatus.BAD_REQUEST,
         )
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleHttpMessageNotReadable(ex: HttpMessageNotReadableException): CommonApiResponse<Nothing> {
+        warnTrace("HttpMessageNotReadable", ex)
+        return CommonApiResponse.error(
+            message = "요청 본문을 읽을 수 없습니다: ${ex.mostSpecificCause.message}",
+            status = HttpStatus.BAD_REQUEST,
+        )
+    }
+
     @ExceptionHandler(ConstraintViolationException::class)
     fun handleConstraintViolationException(ex: ConstraintViolationException): CommonApiResponse<Nothing> {
-        logger().warn("Field validation failed : {}", ex.message)
-        logger().trace("Field validation failed : ", ex)
+        warnTrace("Field validation failed", ex)
         return CommonApiResponse.error(
             message = "필드 유효성 검사 실패 : ${ex.message}",
             status = HttpStatus.BAD_REQUEST,
@@ -51,9 +65,8 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(FeignClientException::class)
     fun handleFeignClientException(ex: FeignClientException): CommonApiResponse<Nothing> {
-        logger().warn("FeignClientException : {}", ex.message)
-        logger().trace("FeignClientException Details : ", ex)
-        return CommonApiResponse.error(ex.message ?: "Feign 클라이언트 오류", ex.statusCode)
+        warnTrace("FeignClientException", ex)
+        return CommonApiResponse.error(ex.message ?: "Feign 클라이언트 오류", ex.status)
     }
 
     @ExceptionHandler(RuntimeException::class)
@@ -67,15 +80,13 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(NoHandlerFoundException::class)
     fun handleNoHandlerFoundException(ex: NoHandlerFoundException): CommonApiResponse<Nothing> {
-        logger().warn("Not Found Endpoint : {}", ex.message)
-        logger().trace("Not Found Endpoint Details : ", ex)
+        warnTrace("Not Found Endpoint", ex)
         return CommonApiResponse.error(ex.message ?: "올바르지 않은 엔드포인트입니다", HttpStatus.NOT_FOUND)
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException::class)
     fun handleMaxUploadSizeExceededException(ex: MaxUploadSizeExceededException): CommonApiResponse<Nothing> {
-        logger().warn("The file is too big : {}", ex.message)
-        logger().trace("The file is too big Details : ", ex)
+        warnTrace("The file is too big", ex)
         return CommonApiResponse.error(
             message = "파일이 너무 큽니다, 최대 파일 용량 : ${ex.maxUploadSize}",
             status = HttpStatus.BAD_REQUEST,
@@ -88,27 +99,18 @@ class GlobalExceptionHandler {
 
         val errorMap =
             buildMap<String, Any> {
-                // Global errors
-                bindingResult.globalErrors.forEach { error ->
-                    put(objectName, error.defaultMessage ?: "유효성 검사 오류")
-                }
-
-                // Field errors
+                bindingResult.globalErrors.firstOrNull()?.let { put(objectName, it.defaultMessage ?: "유효성 검사 오류") }
                 val fieldErrors =
-                    bindingResult.fieldErrors.associate { error ->
-                        error.field to (error.defaultMessage ?: "유효성 검사 오류")
-                    }
-
-                if (fieldErrors.isNotEmpty()) {
-                    put(objectName, fieldErrors)
-                }
+                    bindingResult.fieldErrors
+                        .associate { it.field to (it.defaultMessage ?: "유효성 검사 오류") }
+                        .takeIf { it.isNotEmpty() }
+                fieldErrors?.let { put(objectName, it) }
             }
 
-        return try {
-            objectMapper.writeValueAsString(errorMap).replace("\"", "'")
-        } catch (e: Exception) {
-            logger().error("Error serializing validation errors", e)
-            "Validation failed"
-        }
+        return runCatching { objectMapper.writeValueAsString(errorMap).replace('"', '\'') }
+            .getOrElse {
+                logger().error("Error serializing validation errors", it)
+                "Validation failed"
+            }
     }
 }
