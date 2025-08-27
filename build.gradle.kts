@@ -35,6 +35,7 @@ dependencies {
     implementation(dependency.Dependencies.SPRING_VALIDATION)
     implementation(dependency.Dependencies.SPRING_SECURITY)
     implementation(dependency.Dependencies.SPRING_ACTUATOR)
+    implementation(dependency.Dependencies.SPRING_OAUTH2_CLIENT)
 
     // Spring Data
     implementation(dependency.Dependencies.SPRING_DATA_REDIS)
@@ -64,6 +65,10 @@ dependencies {
 
     // Swagger
     implementation(dependency.Dependencies.SWAGGER_UI)
+
+    // AWS
+    implementation(dependency.Dependencies.AWS_S3_SDK)
+    implementation(dependency.Dependencies.AWS_LOGBACK_APPENDER)
 
     // Testing
     testImplementation(dependency.Dependencies.SPRING_TEST)

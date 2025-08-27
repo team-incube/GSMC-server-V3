@@ -9,4 +9,7 @@ object DependencyVersions {
     const val MOCKK_VERSION = "1.14.5"
 
     const val SWAGGER_VERSION = "2.8.11"
+
+    const val AWS_S3_SDK_VERSION = "3.4.0"
+    const val AWS_LOGBACK_APPENDER_VERSION = "1.6.0"
 }

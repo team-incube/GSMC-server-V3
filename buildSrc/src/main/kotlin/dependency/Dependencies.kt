@@ -6,6 +6,7 @@ object Dependencies {
     const val SPRING_VALIDATION = "org.springframework.boot:spring-boot-starter-validation"
     const val SPRING_SECURITY = "org.springframework.boot:spring-boot-starter-security"
     const val SPRING_ACTUATOR = "org.springframework.boot:spring-boot-starter-actuator"
+    const val SPRING_OAUTH2_CLIENT = "org.springframework.boot:spring-boot-starter-oauth2-client"
 
     /* Spring Data */
     const val SPRING_DATA_JPA = "org.springframework.boot:spring-boot-starter-data-jpa"
@@ -36,6 +37,10 @@ object Dependencies {
 
     /* Swagger */
     const val SWAGGER_UI = "org.springdoc:springdoc-openapi-starter-webmvc-ui:${DependencyVersions.SWAGGER_VERSION}"
+
+    /* AWS */
+    const val AWS_S3_SDK = "io.awspring.cloud:spring-cloud-aws-starter-s3:${DependencyVersions.AWS_S3_SDK_VERSION}"
+    const val AWS_LOGBACK_APPENDER = "ca.pjer:logback-awslogs-appender:${DependencyVersions.AWS_LOGBACK_APPENDER_VERSION}"
 
     /* Testing */
     const val SPRING_TEST = "org.springframework.boot:spring-boot-starter-test"
