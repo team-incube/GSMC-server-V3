@@ -1,4 +1,4 @@
-package com.team.incube.gsmc.v3.global.thirdParty.aws.s3.data
+package com.team.incube.gsmc.v3.global.thirdparty.aws.s3.data
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
