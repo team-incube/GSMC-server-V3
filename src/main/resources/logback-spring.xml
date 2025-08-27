@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration packagingData="true">
+  <timestamp key="timestamp" datePattern="yyyy-MM-dd-HH-mm-ssSSS"/>
+  <appender name="prod_aws_cloud_watch_log" class="ca.pjer.logback.AwsLogsAppender">
+    <layout>
+      <pattern>[%thread] [%date] [%level] [%file:%line] - %msg%n</pattern>
+    </layout>
+    <logGroupName>gsmc-prod-log</logGroupName>
+    <logStreamUuidPrefix>[gsmc-v3]-</logStreamUuidPrefix>
+    <logRegion>ap-northeast-2</logRegion>
+    <maxBatchLogEvents>50</maxBatchLogEvents>
+    <maxFlushTimeMillis>15000</maxFlushTimeMillis>
+    <maxBlockTimeMillis>5000</maxBlockTimeMillis>
+    <retentionTimeDays>30</retentionTimeDays>
+  </appender>
+  <property name="CONSOLE_LOG_PATTERN"
+            value="%highlight(%-5level) %date [%thread] %cyan([%C{0} :: %M :: %L]) - %msg%n"/>
+  <appender name="console_log" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+  <springProfile name="dev,default">
+    <root level="INFO">
+      <appender-ref ref="console_log"/>
+    </root>
+  </springProfile>
+  <springProfile name="prod">
+    <root level="INFO">
+      <appender-ref ref="prod_aws_cloud_watch_log"/>
+    </root>
+  </springProfile>
+</configuration>
