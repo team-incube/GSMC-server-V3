@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel target="24" />
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_STRING" value="-parameters" />
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="GSMC-v3.buildSrc" options="" />
+      <module name="GSMC-v3.buildSrc.main" options="" />
+      <module name="GSMC-v3.buildSrc.test" options="" />
+      <module name="gsmc.v3.buildSrc" options="" />
+      <module name="gsmc.v3.buildSrc.main" options="" />
+      <module name="gsmc.v3.buildSrc.test" options="" />
+    </option>
+  </component>
+</project>
