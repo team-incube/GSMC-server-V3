@@ -68,6 +68,17 @@ class GlobalExceptionHandler(
         )
     }
 
+    @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
+    fun handleHttpRequestMethodNotSupportedException(
+        ex: HttpRequestMethodNotSupportedException,
+    ): CommonApiResponse<Nothing> {
+        warnTrace("HTTP Method Not Supported", ex)
+        return CommonApiResponse.error(
+            message = "지원하지 않는 HTTP 메서드입니다: ${ex.method}",
+            status = HttpStatus.METHOD_NOT_ALLOWED,
+        )
+    }
+
     @ExceptionHandler(FeignClientException::class)
     fun handleFeignClientException(ex: FeignClientException): CommonApiResponse<Nothing> {
         warnTrace("FeignClientException", ex)
