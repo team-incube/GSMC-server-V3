@@ -9,6 +9,7 @@ import com.team.incube.gsmc.v3.global.config.logger
 import jakarta.validation.ConstraintViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -122,23 +123,18 @@ class GlobalExceptionHandler(
 
     private fun createValidationErrorMessage(ex: MethodArgumentNotValidException): String {
         val bindingResult = ex.bindingResult
-        val objectName = bindingResult.objectName
 
-        val errorMap =
-            buildMap<String, Any> {
-                bindingResult.globalErrors.firstOrNull()?.let { put(objectName, it.defaultMessage ?: "유효성 검사 오류") }
-                val fieldErrors =
-                    bindingResult.fieldErrors
-                        .associate { it.field to (it.defaultMessage ?: "유효성 검사 오류") }
-                        .takeIf { it.isNotEmpty() }
-                fieldErrors?.let { put(objectName, it) }
-            }
+        val globalError = bindingResult.globalErrors.firstOrNull()
+        if (globalError != null) {
+            return globalError.defaultMessage ?: "유효성 검사에 실패했습니다"
+        }
 
-        return runCatching { objectMapper.writeValueAsString(errorMap).replace('"', '\'') }
-            .getOrElse {
-                logger().error("Error serializing validation errors", it)
-                "Validation failed"
-            }
+        val fieldError = bindingResult.fieldErrors.firstOrNull()
+        if (fieldError != null) {
+            return fieldError.defaultMessage ?: "유효성 검사에 실패했습니다"
+        }
+
+        return "유효성 검사에 실패했습니다"
     }
 
     private fun getCurrentRequestUri(): String =
