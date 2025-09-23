@@ -44,6 +44,7 @@ dependencies {
     implementation(dependency.Dependencies.EXPOSED_CORE)
     implementation(dependency.Dependencies.EXPOSED_DAO)
     implementation(dependency.Dependencies.EXPOSED_JDBC)
+    implementation(dependency.Dependencies.EXPOSED_JAVA_TIME)
     implementation(dependency.Dependencies.EXPOSED_SPRING_BOOT)
 
     // HikariCP

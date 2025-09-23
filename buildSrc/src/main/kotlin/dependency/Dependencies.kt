@@ -16,6 +16,7 @@ object Dependencies {
     const val EXPOSED_CORE = "org.jetbrains.exposed:exposed-core:${DependencyVersions.EXPOSED_VERSION}"
     const val EXPOSED_DAO = "org.jetbrains.exposed:exposed-dao:${DependencyVersions.EXPOSED_VERSION}"
     const val EXPOSED_JDBC = "org.jetbrains.exposed:exposed-jdbc:${DependencyVersions.EXPOSED_VERSION}"
+    const val EXPOSED_JAVA_TIME = "org.jetbrains.exposed:exposed-java-time:${DependencyVersions.EXPOSED_VERSION}"
     const val EXPOSED_SPRING_BOOT = "org.jetbrains.exposed:exposed-spring-boot-starter:${DependencyVersions.EXPOSED_VERSION}"
 
     /* HikariCP */
