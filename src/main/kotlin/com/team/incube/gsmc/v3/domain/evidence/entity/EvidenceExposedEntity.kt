@@ -8,8 +8,6 @@ object EvidenceExposedEntity : Table(name = "tb_evidence") {
     val id = long(name = "evidence_id").autoIncrement()
     val title = varchar(name = "evidence_title", length = 100)
     val content = text(name = "evidence_content")
-    val filePath = varchar(name = "evidence_file_path", length = 255).nullable()
-    val fileName = varchar(name = "evidence_file_name", length = 100).nullable()
     val createdAt = datetime(name = "created_at").default(LocalDateTime.now())
     val updatedAt = datetime(name = "updated_at").default(LocalDateTime.now())
 
