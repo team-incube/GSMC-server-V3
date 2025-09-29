@@ -17,7 +17,7 @@ import org.springframework.web.cors.CorsConfigurationSource
 @EnableWebSecurity
 class SecurityConfig(
     private val domainAuthorizationConfig: DomainAuthorizationConfig,
-    @Qualifier("configure") private val corsConfigurationSource: CorsConfigurationSource,
+    @param:Qualifier("configure") private val corsConfigurationSource: CorsConfigurationSource,
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
