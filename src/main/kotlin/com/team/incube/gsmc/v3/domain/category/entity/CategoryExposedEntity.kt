@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.category.entity
 
-import com.team.incube.gsmc.v3.domain.evidence.dto.constant.EvidenceType
+import com.team.incube.gsmc.v3.domain.category.dto.constant.EvidenceType
 import org.jetbrains.exposed.sql.Table
 
 object CategoryExposedEntity : Table(name = "tb_category") {
