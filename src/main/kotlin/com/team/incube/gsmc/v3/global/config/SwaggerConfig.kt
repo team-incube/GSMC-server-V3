@@ -2,7 +2,9 @@ package com.team.incube.gsmc.v3.global.config
 
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
 import io.swagger.v3.oas.annotations.info.Info
+import io.swagger.v3.oas.annotations.security.SecurityScheme
 import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.media.Schema
 import org.springdoc.core.customizers.OperationCustomizer
@@ -17,6 +19,12 @@ import org.springframework.context.annotation.Configuration
             description = "GSM 인증제 관리 서비스",
             version = "v3",
         ),
+)
+@SecurityScheme(
+    name = "bearerAuth",
+    type = SecuritySchemeType.HTTP,
+    scheme = "bearer",
+    bearerFormat = "JWT",
 )
 @Configuration
 class SwaggerConfig {
