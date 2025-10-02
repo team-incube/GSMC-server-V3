@@ -5,27 +5,26 @@ import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedReposit
 import com.team.incube.gsmc.v3.domain.evidence.service.FindEvidenceByIdService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
-import java.time.LocalDateTime
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional(readOnly = true)
 class FindEvidenceByIdServiceImpl(
-    private val evidenceRepository: EvidenceExposedRepository,
+    private val evidenceExposedRepository: EvidenceExposedRepository,
 ) : FindEvidenceByIdService {
-    override fun execute(evidenceId: Long): GetEvidenceResponse =
-        transaction {
-            val evidence =
-                evidenceRepository.findByEvidenceId(evidenceId)
-                    ?: throw GsmcException(ErrorCode.EVIDENCE_NOT_FOUND)
+    override fun execute(evidenceId: Long): GetEvidenceResponse {
+        val evidence =
+            evidenceExposedRepository.findById(evidenceId)
+                ?: throw GsmcException(ErrorCode.EVIDENCE_NOT_FOUND)
 
-            GetEvidenceResponse(
-                id = evidence.id,
-                title = evidence.title,
-                content = evidence.content,
-                createdAt = LocalDateTime.ofInstant(evidence.createdAt, java.time.ZoneId.systemDefault()),
-                updatedAt = LocalDateTime.ofInstant(evidence.updatedAt, java.time.ZoneId.systemDefault()),
-                files = evidence.files,
-            )
-        }
+        return GetEvidenceResponse(
+            id = evidence.id,
+            title = evidence.title,
+            content = evidence.content,
+            createdAt = evidence.createdAt,
+            updatedAt = evidence.updatedAt,
+            files = evidence.files,
+        )
+    }
 }
