@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.evidence.service
 
-import com.team.incube.gsmc.v3.domain.evidence.dto.Evidence
+import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.CreateEvidenceResponse
 
 interface CreateEvidenceService {
     fun execute(
@@ -8,5 +8,5 @@ interface CreateEvidenceService {
         title: String,
         content: String,
         fileIds: List<Long>,
-    ): Evidence
+    ): CreateEvidenceResponse
 }
