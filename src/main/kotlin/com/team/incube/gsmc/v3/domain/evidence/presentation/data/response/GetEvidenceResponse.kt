@@ -9,5 +9,5 @@ data class GetEvidenceResponse(
     val content: String,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
-    val file: List<File>
+    val file: List<File>,
 )
