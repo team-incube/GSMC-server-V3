@@ -42,7 +42,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                 .selectAll()
                 .where {
                     (ScoreExposedEntity.id inList scoreIds) and
-                    ScoreExposedEntity.evidenceId.isNotNull()
+                        ScoreExposedEntity.evidenceId.isNotNull()
                 }
                 .count() > 0
         }

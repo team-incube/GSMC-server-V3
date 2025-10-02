@@ -62,7 +62,6 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
         transaction {
             val now = Instant.now()
 
-            // 증빙자료 생성
             val evidenceId =
                 EvidenceExposedEntity.insert {
                     it[this.title] = title
@@ -71,7 +70,6 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                     it[updatedAt] = now
                 } get EvidenceExposedEntity.id
 
-            // 파일 매핑
             if (fileIds.isNotEmpty()) {
                 EvidenceFileExposedEntity.batchInsert(fileIds) { fileId ->
                     this[EvidenceFileExposedEntity.evidenceId] = evidenceId
@@ -79,7 +77,6 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                 }
             }
 
-            // 생성된 증빙자료와 파일 정보 조회
             val files =
                 if (fileIds.isNotEmpty()) {
                     FileExposedEntity
