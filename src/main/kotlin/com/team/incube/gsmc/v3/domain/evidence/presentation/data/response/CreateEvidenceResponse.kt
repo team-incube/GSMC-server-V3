@@ -8,9 +8,9 @@ import java.time.LocalDateTime
 data class CreateEvidenceResponse(
     @field:Schema(description = "증빙자료 ID", example = "1")
     val id: Long,
-    @field:Schema(description = "증빙자료 제목", example = "대회 참가 증빙")
+    @field:Schema(description = "증빙자료 제목", example = "2025년 전국 SW 마이스터고 연합 해커톤")
     val title: String,
-    @field:Schema(description = "증빙자료 내용", example = "2024년 전국 프로그래밍 대회 참가 증빙자료입니다.")
+    @field:Schema(description = "증빙자료 내용", example = "2025년 전국 SW 마이스터고 연합 해커톤 참가했습니다!.")
     val content: String,
     @field:Schema(description = "생성 일시", example = "2024-10-02T10:30:00")
     val createAt: LocalDateTime,

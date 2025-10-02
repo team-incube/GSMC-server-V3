@@ -28,7 +28,10 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
             existingScoreIds.size == scoreIds.size
         }
 
-    override fun updateEvidenceId(scoreIds: List<Long>, evidenceId: Long) {
+    override fun updateEvidenceId(
+        scoreIds: List<Long>,
+        evidenceId: Long,
+    ) {
         transaction {
             ScoreExposedEntity.update({ ScoreExposedEntity.id inList scoreIds }) {
                 it[ScoreExposedEntity.evidenceId] = evidenceId
@@ -43,7 +46,6 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                 .where {
                     (ScoreExposedEntity.id inList scoreIds) and
                         ScoreExposedEntity.evidenceId.isNotNull()
-                }
-                .count() > 0
+                }.count() > 0
         }
 }

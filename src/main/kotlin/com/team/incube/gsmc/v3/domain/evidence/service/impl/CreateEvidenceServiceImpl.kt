@@ -35,11 +35,12 @@ class CreateEvidenceServiceImpl(
             throw GsmcException(ErrorCode.FILE_NOT_FOUND)
         }
 
-        val evidence = evidenceExposedRepository.save(
-            title = title,
-            content = content,
-            fileIds = fileIds,
-        )
+        val evidence =
+            evidenceExposedRepository.save(
+                title = title,
+                content = content,
+                fileIds = fileIds,
+            )
 
         scoreExposedRepository.updateEvidenceId(scoreIds, evidence.id)
 
