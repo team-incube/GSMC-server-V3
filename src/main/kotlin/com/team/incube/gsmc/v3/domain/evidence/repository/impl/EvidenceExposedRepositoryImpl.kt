@@ -6,6 +6,7 @@ import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedReposit
 import com.team.incube.gsmc.v3.domain.file.dto.File
 import com.team.incube.gsmc.v3.domain.file.entity.EvidenceFileExposedEntity
 import com.team.incube.gsmc.v3.domain.file.entity.FileExposedEntity
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
@@ -110,17 +111,14 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
     ): Evidence {
         val now = Instant.now()
 
-        // 증빙자료 정보 업데이트
         EvidenceExposedEntity.update({ EvidenceExposedEntity.id eq id }) {
             it[this.title] = title
             it[this.content] = content
             it[updatedAt] = now
         }
 
-        // 기존 파일 연결 삭제
-        EvidenceFileExposedEntity.deleteWhere { evidenceId eq id }
+        EvidenceFileExposedEntity.deleteWhere { EvidenceFileExposedEntity.evidenceId eq id }
 
-        // 새로운 파일 연결 추가
         if (fileIds.isNotEmpty()) {
             EvidenceFileExposedEntity.batchInsert(fileIds) { fileId ->
                 this[EvidenceFileExposedEntity.evidenceId] = id
@@ -128,7 +126,6 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
             }
         }
 
-        // 업데이트된 증빙자료 조회
         val rows =
             EvidenceExposedEntity
                 .leftJoin(EvidenceFileExposedEntity)
@@ -164,10 +161,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
     }
 
     override fun deleteById(evidenceId: Long) {
-        // 연결된 파일 관계 먼저 삭제
-        EvidenceFileExposedEntity.deleteWhere { evidenceId eq evidenceId }
-
-        // 증빙자료 삭제
-        EvidenceExposedEntity.deleteWhere { id eq evidenceId }
+        EvidenceFileExposedEntity.deleteWhere { EvidenceFileExposedEntity.evidenceId eq evidenceId }
+        EvidenceExposedEntity.deleteWhere { EvidenceExposedEntity.id eq evidenceId }
     }
 }

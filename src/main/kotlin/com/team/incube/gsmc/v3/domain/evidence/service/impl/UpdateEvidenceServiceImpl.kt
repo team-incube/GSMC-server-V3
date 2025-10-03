@@ -26,25 +26,18 @@ class UpdateEvidenceServiceImpl(
         val evidence = evidenceExposedRepository.findById(evidenceId)
             ?: throw GsmcException(ErrorCode.EVIDENCE_NOT_FOUND)
 
-        // 파일 ID 검증
         if (!fileIds.isNullOrEmpty() && !fileExposedRepository.existsByIdIn(fileIds)) {
             throw GsmcException(ErrorCode.FILE_NOT_FOUND)
         }
 
-        // 참가자 검증 (participants가 scoreIds를 의미한다고 가정)
         if (!participants.isNullOrEmpty()) {
             if (!scoreExposedRepository.existsByIdIn(participants)) {
                 throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
             }
-
-            // 기존 연결된 점수들의 증빙자료 연결 해제
             scoreExposedRepository.updateEvidenceIdToNull(evidenceId)
-
-            // 새로운 점수들과 연결
             scoreExposedRepository.updateEvidenceId(participants, evidenceId)
         }
 
-        // 증빙자료 업데이트
         val updatedEvidence = evidenceExposedRepository.update(
             id = evidenceId,
             title = title ?: evidence.title,

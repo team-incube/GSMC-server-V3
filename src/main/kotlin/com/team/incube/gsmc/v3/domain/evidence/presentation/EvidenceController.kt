@@ -9,6 +9,7 @@ import com.team.incube.gsmc.v3.domain.evidence.service.CreateEvidenceService
 import com.team.incube.gsmc.v3.domain.evidence.service.DeleteEvidenceService
 import com.team.incube.gsmc.v3.domain.evidence.service.FindEvidenceByIdService
 import com.team.incube.gsmc.v3.domain.evidence.service.UpdateEvidenceService
+import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -50,6 +51,7 @@ class EvidenceController(
             ),
         ],
     )
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/{evidenceId}")
     fun getEvidence(
         @PathVariable evidenceId: Long,
@@ -100,11 +102,6 @@ class EvidenceController(
                 description = "존재하지 않는 참가자를 매핑함 또는 존재하지 않는 증빙자료를 사용함",
                 content = [Content()],
             ),
-            ApiResponse(
-                responseCode = "500",
-                description = "서버 내부 오류",
-                content = [Content()],
-            ),
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
@@ -127,16 +124,10 @@ class EvidenceController(
             ApiResponse(
                 responseCode = "200",
                 description = "증빙자료 삭제 성공",
-                content = [Content()],
             ),
             ApiResponse(
                 responseCode = "404",
                 description = "존재하지 않는 증빙자료를 매핑함",
-                content = [Content()],
-            ),
-            ApiResponse(
-                responseCode = "500",
-                description = "서버 내부 오류",
                 content = [Content()],
             ),
         ],
@@ -145,7 +136,8 @@ class EvidenceController(
     @DeleteMapping("/{evidenceId}")
     fun deleteEvidence(
         @PathVariable evidenceId: Long,
-    ) {
+    ): CommonApiResponse<Nothing> {
         deleteEvidenceService.execute(evidenceId)
+        return CommonApiResponse.success("OK")
     }
 }
