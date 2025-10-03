@@ -10,4 +10,11 @@ interface EvidenceExposedRepository {
         content: String,
         fileIds: List<Long>,
     ): Evidence
+
+    fun update(
+        id: Long,
+        title: String,
+        content: String,
+        fileIds: List<Long>,
+    ): Evidence
 }

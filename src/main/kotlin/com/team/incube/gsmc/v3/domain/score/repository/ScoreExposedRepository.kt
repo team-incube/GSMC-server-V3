@@ -10,5 +10,7 @@ interface ScoreExposedRepository {
         evidenceId: Long,
     )
 
+    fun updateEvidenceIdToNull(evidenceId: Long)
+
     fun existsAnyWithEvidence(scoreIds: List<Long>): Boolean
 }

@@ -39,6 +39,14 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         }
     }
 
+    override fun updateEvidenceIdToNull(evidenceId: Long) {
+        transaction {
+            ScoreExposedEntity.update({ ScoreExposedEntity.evidenceId eq evidenceId }) {
+                it[ScoreExposedEntity.evidenceId] = null
+            }
+        }
+    }
+
     override fun existsAnyWithEvidence(scoreIds: List<Long>): Boolean =
         transaction {
             ScoreExposedEntity
