@@ -13,10 +13,11 @@ class DeleteEvidenceServiceImpl(
     private val evidenceExposedRepository: EvidenceExposedRepository,
     private val scoreExposedRepository: ScoreExposedRepository,
 ) : DeleteEvidenceService {
-    override fun execute(evidenceId: Long) = transaction {
-        evidenceExposedRepository.findById(evidenceId)
-            ?: throw GsmcException(ErrorCode.EVIDENCE_NOT_FOUND)
-        scoreExposedRepository.updateEvidenceIdToNull(evidenceId)
-        evidenceExposedRepository.deleteById(evidenceId)
-    }
+    override fun execute(evidenceId: Long) =
+        transaction {
+            evidenceExposedRepository.findById(evidenceId)
+                ?: throw GsmcException(ErrorCode.EVIDENCE_NOT_FOUND)
+            scoreExposedRepository.updateEvidenceIdToNull(evidenceId)
+            evidenceExposedRepository.deleteById(evidenceId)
+        }
 }

@@ -22,36 +22,39 @@ class UpdateEvidenceServiceImpl(
         title: String?,
         content: String?,
         fileIds: List<Long>?,
-    ): PatchEvidenceResponse = transaction {
-        val evidence = evidenceExposedRepository.findById(evidenceId)
-            ?: throw GsmcException(ErrorCode.EVIDENCE_NOT_FOUND)
+    ): PatchEvidenceResponse =
+        transaction {
+            val evidence =
+                evidenceExposedRepository.findById(evidenceId)
+                    ?: throw GsmcException(ErrorCode.EVIDENCE_NOT_FOUND)
 
-        if (!fileIds.isNullOrEmpty() && !fileExposedRepository.existsByIdIn(fileIds)) {
-            throw GsmcException(ErrorCode.FILE_NOT_FOUND)
-        }
-
-        if (!participants.isNullOrEmpty()) {
-            if (!scoreExposedRepository.existsByIdIn(participants)) {
-                throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
+            if (!fileIds.isNullOrEmpty() && !fileExposedRepository.existsByIdIn(fileIds)) {
+                throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }
-            scoreExposedRepository.updateEvidenceIdToNull(evidenceId)
-            scoreExposedRepository.updateEvidenceId(participants, evidenceId)
+
+            if (!participants.isNullOrEmpty()) {
+                if (!scoreExposedRepository.existsByIdIn(participants)) {
+                    throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
+                }
+                scoreExposedRepository.updateEvidenceIdToNull(evidenceId)
+                scoreExposedRepository.updateEvidenceId(participants, evidenceId)
+            }
+
+            val updatedEvidence =
+                evidenceExposedRepository.update(
+                    id = evidenceId,
+                    title = title ?: evidence.title,
+                    content = content ?: evidence.content,
+                    fileIds = fileIds ?: evidence.files.map { it.fileId!! },
+                )
+
+            PatchEvidenceResponse(
+                id = updatedEvidence.id,
+                title = updatedEvidence.title,
+                content = updatedEvidence.content,
+                createAt = updatedEvidence.createdAt,
+                updateAt = updatedEvidence.updatedAt,
+                file = updatedEvidence.files,
+            )
         }
-
-        val updatedEvidence = evidenceExposedRepository.update(
-            id = evidenceId,
-            title = title ?: evidence.title,
-            content = content ?: evidence.content,
-            fileIds = fileIds ?: evidence.files.map { it.fileId!! }
-        )
-
-        PatchEvidenceResponse(
-            id = updatedEvidence.id,
-            title = updatedEvidence.title,
-            content = updatedEvidence.content,
-            createAt = updatedEvidence.createdAt,
-            updateAt = updatedEvidence.updatedAt,
-            file = updatedEvidence.files,
-        )
-    }
 }

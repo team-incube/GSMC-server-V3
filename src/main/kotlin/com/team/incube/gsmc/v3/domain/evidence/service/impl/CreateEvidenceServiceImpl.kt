@@ -21,35 +21,36 @@ class CreateEvidenceServiceImpl(
         title: String,
         content: String,
         fileIds: List<Long>,
-    ): CreateEvidenceResponse = transaction {
-        if (!scoreExposedRepository.existsByIdIn(scoreIds)) {
-            throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
-        }
+    ): CreateEvidenceResponse =
+        transaction {
+            if (!scoreExposedRepository.existsByIdIn(scoreIds)) {
+                throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
+            }
 
-        if (scoreExposedRepository.existsAnyWithEvidence(scoreIds)) {
-            throw GsmcException(ErrorCode.SCORE_ALREADY_HAS_EVIDENCE)
-        }
+            if (scoreExposedRepository.existsAnyWithEvidence(scoreIds)) {
+                throw GsmcException(ErrorCode.SCORE_ALREADY_HAS_EVIDENCE)
+            }
 
-        if (fileIds.isNotEmpty() && !fileExposedRepository.existsByIdIn(fileIds)) {
-            throw GsmcException(ErrorCode.FILE_NOT_FOUND)
-        }
+            if (fileIds.isNotEmpty() && !fileExposedRepository.existsByIdIn(fileIds)) {
+                throw GsmcException(ErrorCode.FILE_NOT_FOUND)
+            }
 
-        val evidence =
-            evidenceExposedRepository.save(
-                title = title,
-                content = content,
-                fileIds = fileIds,
+            val evidence =
+                evidenceExposedRepository.save(
+                    title = title,
+                    content = content,
+                    fileIds = fileIds,
+                )
+
+            scoreExposedRepository.updateEvidenceId(scoreIds, evidence.id)
+
+            CreateEvidenceResponse(
+                id = evidence.id,
+                title = evidence.title,
+                content = evidence.content,
+                createAt = evidence.createdAt,
+                updateAt = evidence.updatedAt,
+                file = evidence.files,
             )
-
-        scoreExposedRepository.updateEvidenceId(scoreIds, evidence.id)
-
-        CreateEvidenceResponse(
-            id = evidence.id,
-            title = evidence.title,
-            content = evidence.content,
-            createAt = evidence.createdAt,
-            updateAt = evidence.updatedAt,
-            file = evidence.files,
-        )
-    }
+        }
 }
