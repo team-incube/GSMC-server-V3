@@ -6,6 +6,7 @@ import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.Create
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvidenceResponse
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.PatchEvidenceResponse
 import com.team.incube.gsmc.v3.domain.evidence.service.CreateEvidenceService
+import com.team.incube.gsmc.v3.domain.evidence.service.DeleteEvidenceService
 import com.team.incube.gsmc.v3.domain.evidence.service.FindEvidenceByIdService
 import com.team.incube.gsmc.v3.domain.evidence.service.UpdateEvidenceService
 import io.swagger.v3.oas.annotations.Operation
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PatchMapping
@@ -31,8 +33,9 @@ class EvidenceController(
     private val findEvidenceByIdService: FindEvidenceByIdService,
     private val createEvidenceService: CreateEvidenceService,
     private val updateEvidenceService: UpdateEvidenceService,
+    private val deleteEvidenceService: DeleteEvidenceService,
 ) {
-    @Operation(summary = "증빙자료 단건���회", description = "ID를 통해 증빙자료를 조회합니다")
+    @Operation(summary = "증빙자료 단건 조회", description = "ID를 통해 증빙자료를 조회합니다")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -117,4 +120,32 @@ class EvidenceController(
             content = request.content,
             fileIds = request.fileId,
         )
+
+    @Operation(summary = "증빙자료 삭제", description = "기존 증빙자료를 삭제합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "증빙자료 삭제 성공",
+                content = [Content()],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 증빙자료를 매핑함",
+                content = [Content()],
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "서버 내부 오류",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @DeleteMapping("/{evidenceId}")
+    fun deleteEvidence(
+        @PathVariable evidenceId: Long,
+    ) {
+        deleteEvidenceService.execute(evidenceId)
+    }
 }

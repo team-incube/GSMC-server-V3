@@ -167,4 +167,14 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                 files = files,
             )
         }
+
+    override fun deleteById(evidenceId: Long) {
+        transaction {
+            // 연결된 파일 관계 먼저 삭제
+            EvidenceFileExposedEntity.deleteWhere { evidenceId eq evidenceId }
+
+            // 증빙자료 삭제
+            EvidenceExposedEntity.deleteWhere { id eq evidenceId }
+        }
+    }
 }

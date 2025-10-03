@@ -17,4 +17,6 @@ interface EvidenceExposedRepository {
         content: String,
         fileIds: List<Long>,
     ): Evidence
+
+    fun deleteById(evidenceId: Long)
 }
