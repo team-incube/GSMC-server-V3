@@ -7,10 +7,6 @@ import jakarta.validation.constraints.Size
 
 @Schema(description = "증빙자료 생성 요청")
 data class CreateEvidenceRequest(
-    @field:Schema(description = "참가자 ID 목록", example = "[1, 2, 3]")
-    @field:NotNull(message = "참가자 목록은 필수입니다")
-    @field:Size(min = 1, message = "최소 1명의 참가자가 필요합니다")
-    val participants: List<Long>,
     @field:Schema(description = "점수 ID 목록", example = "[1, 2, 3]")
     @field:NotNull(message = "점수 ID 목록은 필수입니다")
     @field:Size(min = 1, message = "최소 1개의 점수 ID가 필요합니다")
