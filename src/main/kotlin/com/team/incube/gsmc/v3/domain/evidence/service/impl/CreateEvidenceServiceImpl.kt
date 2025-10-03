@@ -7,11 +7,10 @@ import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 @Service
-@Transactional
 class CreateEvidenceServiceImpl(
     private val evidenceExposedRepository: EvidenceExposedRepository,
     private val scoreExposedRepository: ScoreExposedRepository,
@@ -22,7 +21,7 @@ class CreateEvidenceServiceImpl(
         title: String,
         content: String,
         fileIds: List<Long>,
-    ): CreateEvidenceResponse {
+    ): CreateEvidenceResponse = transaction {
         if (!scoreExposedRepository.existsByIdIn(scoreIds)) {
             throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
         }
@@ -44,7 +43,7 @@ class CreateEvidenceServiceImpl(
 
         scoreExposedRepository.updateEvidenceId(scoreIds, evidence.id)
 
-        return CreateEvidenceResponse(
+        CreateEvidenceResponse(
             id = evidence.id,
             title = evidence.title,
             content = evidence.content,

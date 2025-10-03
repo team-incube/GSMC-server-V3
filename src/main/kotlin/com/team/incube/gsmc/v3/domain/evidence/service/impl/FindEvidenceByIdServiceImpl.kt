@@ -5,20 +5,19 @@ import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedReposit
 import com.team.incube.gsmc.v3.domain.evidence.service.FindEvidenceByIdService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 @Service
-@Transactional(readOnly = true)
 class FindEvidenceByIdServiceImpl(
     private val evidenceExposedRepository: EvidenceExposedRepository,
 ) : FindEvidenceByIdService {
-    override fun execute(evidenceId: Long): GetEvidenceResponse {
+    override fun execute(evidenceId: Long): GetEvidenceResponse = transaction {
         val evidence =
             evidenceExposedRepository.findById(evidenceId)
                 ?: throw GsmcException(ErrorCode.EVIDENCE_NOT_FOUND)
 
-        return GetEvidenceResponse(
+        GetEvidenceResponse(
             id = evidence.id,
             title = evidence.title,
             content = evidence.content,
