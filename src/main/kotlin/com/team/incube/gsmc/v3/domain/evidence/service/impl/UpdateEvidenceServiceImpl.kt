@@ -1,0 +1,60 @@
+package com.team.incube.gsmc.v3.domain.evidence.service.impl
+
+import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.PatchEvidenceResponse
+import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
+import com.team.incube.gsmc.v3.domain.evidence.service.UpdateEvidenceService
+import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
+import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
+import com.team.incube.gsmc.v3.global.common.error.ErrorCode
+import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.springframework.stereotype.Service
+
+@Service
+class UpdateEvidenceServiceImpl(
+    private val evidenceExposedRepository: EvidenceExposedRepository,
+    private val scoreExposedRepository: ScoreExposedRepository,
+    private val fileExposedRepository: FileExposedRepository,
+) : UpdateEvidenceService {
+    override fun execute(
+        evidenceId: Long,
+        participants: List<Long>?,
+        title: String?,
+        content: String?,
+        fileIds: List<Long>?,
+    ): PatchEvidenceResponse =
+        transaction {
+            val evidence =
+                evidenceExposedRepository.findById(evidenceId)
+                    ?: throw GsmcException(ErrorCode.EVIDENCE_NOT_FOUND)
+
+            if (!fileIds.isNullOrEmpty() && !fileExposedRepository.existsByIdIn(fileIds)) {
+                throw GsmcException(ErrorCode.FILE_NOT_FOUND)
+            }
+
+            if (!participants.isNullOrEmpty()) {
+                if (!scoreExposedRepository.existsByIdIn(participants)) {
+                    throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
+                }
+                scoreExposedRepository.updateEvidenceIdToNull(evidenceId)
+                scoreExposedRepository.updateEvidenceId(participants, evidenceId)
+            }
+
+            val updatedEvidence =
+                evidenceExposedRepository.update(
+                    id = evidenceId,
+                    title = title ?: evidence.title,
+                    content = content ?: evidence.content,
+                    fileIds = fileIds ?: evidence.files.map { it.fileId!! },
+                )
+
+            PatchEvidenceResponse(
+                id = updatedEvidence.id,
+                title = updatedEvidence.title,
+                content = updatedEvidence.content,
+                createAt = updatedEvidence.createdAt,
+                updateAt = updatedEvidence.updatedAt,
+                file = updatedEvidence.files,
+            )
+        }
+}

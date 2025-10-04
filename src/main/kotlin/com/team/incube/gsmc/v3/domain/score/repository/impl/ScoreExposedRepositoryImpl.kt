@@ -1,0 +1,49 @@
+package com.team.incube.gsmc.v3.domain.score.repository.impl
+
+import com.team.incube.gsmc.v3.domain.score.entity.ScoreExposedEntity
+import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.update
+import org.springframework.stereotype.Repository
+
+@Repository
+class ScoreExposedRepositoryImpl : ScoreExposedRepository {
+    override fun existsById(scoreId: Long): Boolean =
+        ScoreExposedEntity
+            .selectAll()
+            .where { ScoreExposedEntity.id eq scoreId }
+            .count() > 0
+
+    override fun existsByIdIn(scoreIds: List<Long>): Boolean {
+        val existingScoreIds =
+            ScoreExposedEntity
+                .selectAll()
+                .where { ScoreExposedEntity.id inList scoreIds }
+                .map { it[ScoreExposedEntity.id] }
+        return existingScoreIds.size == scoreIds.size
+    }
+
+    override fun updateEvidenceId(
+        scoreIds: List<Long>,
+        evidenceId: Long,
+    ) {
+        ScoreExposedEntity.update({ ScoreExposedEntity.id inList scoreIds }) {
+            it[ScoreExposedEntity.evidenceId] = evidenceId
+        }
+    }
+
+    override fun updateEvidenceIdToNull(evidenceId: Long) {
+        ScoreExposedEntity.update({ ScoreExposedEntity.evidenceId eq evidenceId }) {
+            it[ScoreExposedEntity.evidenceId] = null
+        }
+    }
+
+    override fun existsAnyWithEvidence(scoreIds: List<Long>): Boolean =
+        ScoreExposedEntity
+            .selectAll()
+            .where {
+                (ScoreExposedEntity.id inList scoreIds) and
+                    ScoreExposedEntity.evidenceId.isNotNull()
+            }.count() > 0
+}
