@@ -8,9 +8,6 @@ data class CreateFileResponse(
     @field:Schema(description = "파일 ID", example = "1")
     val id: Long,
 
-    @field:Schema(description = "증빙자료 ID (선택적)", example = "1")
-    val evidenceId: Long? = null,
-
     @field:Schema(description = "파일 원본명", example = "증빙자료.pdf")
     val fileOriginalName: String,
 
@@ -21,9 +18,8 @@ data class CreateFileResponse(
     val fileUri: String,
 ) {
     companion object {
-        fun from(file: File, evidenceId: Long? = null) = CreateFileResponse(
+        fun from(file: File) = CreateFileResponse(
             id = file.fileId ?: 0,
-            evidenceId = evidenceId,
             fileOriginalName = file.fileOriginalName ?: "",
             fileStoredName = file.fileStoredName ?: "",
             fileUri = file.fileUri ?: ""

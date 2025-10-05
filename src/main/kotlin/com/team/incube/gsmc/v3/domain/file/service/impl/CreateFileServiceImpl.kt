@@ -3,7 +3,9 @@ package com.team.incube.gsmc.v3.domain.file.service.impl
 import com.team.incube.gsmc.v3.domain.file.dto.File
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.file.service.CreateFileService
-import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.S3Service
+import com.team.incube.gsmc.v3.global.common.error.ErrorCode
+import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.S3UploadService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -13,7 +15,7 @@ import java.util.*
 
 @Service
 class CreateFileServiceImpl(
-    private val s3Service: S3Service,
+    private val s3UploadService: S3UploadService,
     private val fileExposedRepository: FileExposedRepository,
 ) : CreateFileService {
 
@@ -21,10 +23,10 @@ class CreateFileServiceImpl(
     override fun execute(file: MultipartFile): File {
         validateFile(file)
 
-        val originalName = file.originalFilename ?: throw IllegalArgumentException("파일명이 없습니다")
+        val originalName = file.originalFilename ?: throw GsmcException(ErrorCode.FILE_NOT_FOUND)
         val storedName = generateStoredFileName(originalName)
 
-        val fileUri = s3Service.uploadFile(file)
+        val fileUri = s3UploadService.execute(file)
 
         return fileExposedRepository.saveFile(
             originalName = originalName,
@@ -35,18 +37,14 @@ class CreateFileServiceImpl(
 
     private fun validateFile(file: MultipartFile) {
         if (file.isEmpty) {
-            throw IllegalArgumentException("파일이 비어있습니다")
+            throw GsmcException(ErrorCode.FILE_EMPTY)
         }
 
-        if (file.size > MAX_FILE_SIZE) {
-            throw IllegalArgumentException("파일 크기는 10MB를 초과할 수 없습니다")
-        }
-
-        val originalFilename = file.originalFilename ?: throw IllegalArgumentException("파일명이 없습니다")
+        val originalFilename = file.originalFilename ?: throw GsmcException(ErrorCode.FILE_NOT_FOUND)
         val extension = originalFilename.substringAfterLast(".", "").lowercase()
 
         if (extension !in ALLOWED_EXTENSIONS) {
-            throw IllegalArgumentException("허용되지 않는 파일 형식입니다. 허용되는 형식: ${ALLOWED_EXTENSIONS.joinToString(", ")}")
+            throw GsmcException(ErrorCode.FILE_EXTENSION_NOT_ALLOWED)
         }
     }
 
@@ -58,10 +56,9 @@ class CreateFileServiceImpl(
     }
 
     companion object {
-        private const val MAX_FILE_SIZE = 10 * 1024 * 1024L // 10MB
         private val ALLOWED_EXTENSIONS = setOf(
-            "jpg", "jpeg", "png", "gif", "bmp", "webp", // 이미지
-            "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", // 문서
+            "jpg", "jpeg", "png", "gif", "bmp", "webp",
+            "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx",
             "txt", "hwp" // 기타
         )
     }
