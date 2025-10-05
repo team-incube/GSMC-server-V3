@@ -15,7 +15,6 @@ enum class ErrorCode(
     FILE_NOT_FOUND("존재하지 않는 파일입니다.", 404),
     FILE_EMPTY("파일이 비어있습니다.", 400),
     FILE_EXTENSION_NOT_FOUND("파일 확장자가 없습니다.", 400),
-    FILE_SIZE_EXCEEDED("파일 크기가 제한을 초과했습니다.", 400),
     FILE_EXTENSION_NOT_ALLOWED("허용되지 않는 파일 형식입니다.", 400),
 
     // S3

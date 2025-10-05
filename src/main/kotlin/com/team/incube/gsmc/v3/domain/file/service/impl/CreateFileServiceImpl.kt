@@ -47,10 +47,6 @@ class CreateFileServiceImpl(
             throw GsmcException(ErrorCode.FILE_EMPTY)
         }
 
-        if (file.size > MAX_FILE_SIZE) {
-            throw GsmcException(ErrorCode.FILE_SIZE_EXCEEDED)
-        }
-
         val originalFilename = file.originalFilename ?: throw GsmcException(ErrorCode.FILE_NOT_FOUND)
         val extension = originalFilename.substringAfterLast(".", "").lowercase()
 
