@@ -31,23 +31,16 @@ class FileController(
             ApiResponse(
                 responseCode = "200",
                 description = "파일 업로드 성공",
-                content = [Content(schema = Schema(implementation = CreateFileResponse::class))],
             ),
             ApiResponse(
                 responseCode = "400",
                 description = "잘못된 파일 형식 또는 파일 크기 초과",
                 content = [Content()],
             ),
-            ApiResponse(
-                responseCode = "500",
-                description = "서버 내부 오류",
-                content = [Content()],
-            ),
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/upload")
-    @ResponseStatus(HttpStatus.OK)
+    @PostMapping
     fun uploadFile(
         @RequestParam("file") file: MultipartFile,
     ): CommonApiResponse<CreateFileResponse> {
