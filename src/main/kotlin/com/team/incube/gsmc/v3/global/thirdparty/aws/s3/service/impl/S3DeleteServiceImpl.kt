@@ -2,7 +2,7 @@ package com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.impl
 
 import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.data.S3Environment
 import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.S3DeleteService
-import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.util.S3ExceptionHandler
+import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.handler.S3ExceptionHandler
 import io.awspring.cloud.s3.S3Template
 import org.springframework.stereotype.Service
 

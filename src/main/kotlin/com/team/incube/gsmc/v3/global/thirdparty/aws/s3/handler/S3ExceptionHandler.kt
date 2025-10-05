@@ -1,4 +1,4 @@
-package com.team.incube.gsmc.v3.global.thirdparty.aws.s3.util
+package com.team.incube.gsmc.v3.global.thirdparty.aws.s3.handler
 
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
