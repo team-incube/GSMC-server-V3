@@ -10,4 +10,8 @@ interface FileExposedRepository {
         storedName: String,
         uri: String,
     ): File
+
+    fun findById(fileId: Long): File?
+
+    fun deleteById(fileId: Long)
 }
