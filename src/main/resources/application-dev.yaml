@@ -11,7 +11,7 @@ spring:
         access-key: ${AWS_ACCESS_KEY}
         secret-key: ${AWS_SECRET_KEY}
       s3:
-        bucket-name: ${AWS_BUCKET_NAME}
+        bucket-name: ${AWS_S3_BUCKET_NAME}
   security:
     oauth2:
       client:
