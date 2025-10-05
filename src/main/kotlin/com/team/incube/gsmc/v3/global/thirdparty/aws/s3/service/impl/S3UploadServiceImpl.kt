@@ -12,33 +12,36 @@ import org.springframework.util.StringUtils
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.UUID
 
 @Service
 class S3UploadServiceImpl(
     private val s3Template: S3Template,
     private val s3Environment: S3Environment,
 ) : S3UploadService {
-
     override fun execute(file: MultipartFile): String {
         validateFile(file)
 
-        val originalFilename = file.originalFilename
-            ?: throw GsmcException(ErrorCode.FILE_NOT_FOUND)
-        val fileExtension = StringUtils.getFilenameExtension(originalFilename)
-            ?: throw GsmcException(ErrorCode.FILE_EXTENSION_NOT_FOUND)
+        val originalFilename =
+            file.originalFilename
+                ?: throw GsmcException(ErrorCode.FILE_NOT_FOUND)
+        val fileExtension =
+            StringUtils.getFilenameExtension(originalFilename)
+                ?: throw GsmcException(ErrorCode.FILE_EXTENSION_NOT_FOUND)
 
         val storedFilename = generateStoredFilename(fileExtension)
 
         return S3ExceptionHandler.handleUploadOperation {
-            val s3Resource = s3Template.upload(
-                s3Environment.bucketName,
-                storedFilename,
-                file.inputStream,
-                ObjectMetadata.builder()
-                    .contentType(file.contentType)
-                    .build()
-            )
+            val s3Resource =
+                s3Template.upload(
+                    s3Environment.bucketName,
+                    storedFilename,
+                    file.inputStream,
+                    ObjectMetadata
+                        .builder()
+                        .contentType(file.contentType)
+                        .build(),
+                )
             s3Resource.url.toString()
         }
     }
@@ -52,6 +55,6 @@ class S3UploadServiceImpl(
     private fun generateStoredFilename(fileExtension: String): String {
         val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
         val uuid = UUID.randomUUID().toString().replace("-", "")
-        return "evidences/${timestamp}_${uuid}.${fileExtension}"
+        return "evidences/${timestamp}_$uuid.$fileExtension"
     }
 }

@@ -16,18 +16,23 @@ class FileExposedRepositoryImpl : FileExposedRepository {
             .map { it[FileExposedEntity.id] }
             .size == fileIds.size
 
-    override fun saveFile(originalName: String, storedName: String, uri: String): File {
-        val insertedId = FileExposedEntity.insert {
-            it[this.originalName] = originalName
-            it[this.storedName] = storedName
-            it[this.uri] = uri
-        } get FileExposedEntity.id
+    override fun saveFile(
+        originalName: String,
+        storedName: String,
+        uri: String,
+    ): File {
+        val insertedId =
+            FileExposedEntity.insert {
+                it[this.originalName] = originalName
+                it[this.storedName] = storedName
+                it[this.uri] = uri
+            } get FileExposedEntity.id
 
         return File(
             fileId = insertedId,
             fileOriginalName = originalName,
             fileStoredName = storedName,
-            fileUri = uri
+            fileUri = uri,
         )
     }
 }

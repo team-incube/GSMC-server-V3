@@ -11,7 +11,6 @@ class S3DeleteServiceImpl(
     private val s3Template: S3Template,
     private val s3Environment: S3Environment,
 ) : S3DeleteService {
-
     override fun execute(fileUri: String) {
         val key = extractKeyFromUri(fileUri)
 
@@ -20,7 +19,5 @@ class S3DeleteServiceImpl(
         }
     }
 
-    private fun extractKeyFromUri(fileUri: String): String {
-        return fileUri.substringAfter(".com/")
-    }
+    private fun extractKeyFromUri(fileUri: String): String = fileUri.substringAfter(".com/")
 }
