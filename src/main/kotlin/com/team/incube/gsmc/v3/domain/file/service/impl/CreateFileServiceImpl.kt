@@ -63,7 +63,6 @@ class CreateFileServiceImpl(
     }
 
     companion object {
-        private const val MAX_FILE_SIZE = 10 * 1024 * 1024L // 10MB
         private val ALLOWED_EXTENSIONS =
             setOf(
                 "jpg",
@@ -71,16 +70,18 @@ class CreateFileServiceImpl(
                 "png",
                 "gif",
                 "bmp",
-                "webp", // 이미지
+                "webp",
                 "pdf",
                 "doc",
                 "docx",
+                "csv",
                 "xls",
                 "xlsx",
                 "ppt",
-                "pptx", // 문서
+                "pptx",
                 "txt",
-                "hwp", // 기타
+                "hwp",
+                "hwpx",
             )
     }
 }
