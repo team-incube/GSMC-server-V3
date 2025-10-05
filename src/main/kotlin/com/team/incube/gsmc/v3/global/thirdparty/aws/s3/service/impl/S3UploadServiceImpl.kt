@@ -55,6 +55,6 @@ class S3UploadServiceImpl(
     private fun generateStoredFilename(fileExtension: String): String {
         val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
         val uuid = UUID.randomUUID().toString().replace("-", "")
-        return "evidences/${timestamp}_$uuid.$fileExtension"
+        return "file/${timestamp}_$uuid.$fileExtension"
     }
 }
