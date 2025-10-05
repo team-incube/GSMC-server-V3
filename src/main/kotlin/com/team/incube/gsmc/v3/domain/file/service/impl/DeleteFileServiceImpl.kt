@@ -15,17 +15,12 @@ class DeleteFileServiceImpl(
 ) : DeleteFileService {
     @Transactional
     override fun execute(fileId: Long) {
-        // 파일 존재 여부 확인
         val file =
             fileExposedRepository.findById(fileId)
                 ?: throw GsmcException(ErrorCode.FILE_NOT_FOUND)
 
-        // S3에서 파일 삭제
-        file.fileUri?.let { uri ->
-            s3DeleteService.execute(uri)
-        }
+        s3DeleteService.execute(file.fileUri)
 
-        // 데이터베이스에서 파일 정보 삭제
         fileExposedRepository.deleteById(fileId)
     }
 }

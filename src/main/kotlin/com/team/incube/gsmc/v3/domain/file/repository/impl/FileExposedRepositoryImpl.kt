@@ -38,11 +38,12 @@ class FileExposedRepositoryImpl : FileExposedRepository {
         )
     }
 
-    override fun findById(fileId: Long): File? {
-        return FileExposedEntity
+    override fun findById(fileId: Long): File? =
+        FileExposedEntity
             .selectAll()
             .where { FileExposedEntity.id eq fileId }
-            .singleOrNull()?.let { row ->
+            .singleOrNull()
+            ?.let { row ->
                 File(
                     fileId = row[FileExposedEntity.id],
                     fileOriginalName = row[FileExposedEntity.originalName],
@@ -50,7 +51,6 @@ class FileExposedRepositoryImpl : FileExposedRepository {
                     fileUri = row[FileExposedEntity.uri],
                 )
             }
-    }
 
     override fun deleteById(fileId: Long) {
         FileExposedEntity.deleteWhere {
