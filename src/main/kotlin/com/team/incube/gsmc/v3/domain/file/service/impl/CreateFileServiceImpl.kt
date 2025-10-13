@@ -6,8 +6,8 @@ import com.team.incube.gsmc.v3.domain.file.service.CreateFileService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.S3UploadService
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -18,29 +18,29 @@ class CreateFileServiceImpl(
     private val s3UploadService: S3UploadService,
     private val fileExposedRepository: FileExposedRepository,
 ) : CreateFileService {
-    @Transactional
-    override fun execute(file: MultipartFile): CreateFileResponse {
-        validateFile(file)
+    override fun execute(file: MultipartFile): CreateFileResponse =
+        transaction {
+            validateFile(file)
 
-        val originalName = file.originalFilename ?: throw GsmcException(ErrorCode.FILE_NOT_FOUND)
-        val storedName = generateStoredFileName(originalName)
+            val originalName = file.originalFilename ?: throw GsmcException(ErrorCode.FILE_NOT_FOUND)
+            val storedName = generateStoredFileName(originalName)
 
-        val fileUri = s3UploadService.execute(file)
+            val fileUri = s3UploadService.execute(file)
 
-        val savedFile =
-            fileExposedRepository.saveFile(
-                originalName = originalName,
-                storedName = storedName,
-                uri = fileUri,
+            val savedFile =
+                fileExposedRepository.saveFile(
+                    originalName = originalName,
+                    storedName = storedName,
+                    uri = fileUri,
+                )
+
+            CreateFileResponse(
+                id = savedFile.fileId,
+                fileOriginalName = savedFile.fileOriginalName,
+                fileStoredName = savedFile.fileStoredName,
+                fileUri = savedFile.fileUri,
             )
-
-        return CreateFileResponse(
-            id = savedFile.fileId,
-            fileOriginalName = savedFile.fileOriginalName,
-            fileStoredName = savedFile.fileStoredName,
-            fileUri = savedFile.fileUri,
-        )
-    }
+        }
 
     private fun validateFile(file: MultipartFile) {
         if (file.isEmpty) {
