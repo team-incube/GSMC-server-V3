@@ -22,7 +22,7 @@ class CreateFileServiceImpl(
         transaction {
             validateFile(file)
 
-            val originalName = file.originalFilename ?: throw GsmcException(ErrorCode.FILE_NOT_FOUND)
+            val originalName = file.originalFilename!!
             val storedName = generateStoredFileName(originalName)
 
             val fileUri = s3UploadService.execute(file)
