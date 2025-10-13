@@ -18,22 +18,19 @@ class CreateFileServiceImpl(
     private val s3UploadService: S3UploadService,
     private val fileExposedRepository: FileExposedRepository,
 ) : CreateFileService {
-    override fun execute(file: MultipartFile): CreateFileResponse =
-        transaction {
-            validateFile(file)
+    override fun execute(file: MultipartFile): CreateFileResponse {
+        validateFile(file)
+        val originalName = file.originalFilename!!
+        val storedName = generateStoredFileName(originalName)
+        val fileUri = s3UploadService.execute(file)
 
-            val originalName = file.originalFilename!!
-            val storedName = generateStoredFileName(originalName)
-
-            val fileUri = s3UploadService.execute(file)
-
+        return transaction {
             val savedFile =
                 fileExposedRepository.saveFile(
                     originalName = originalName,
                     storedName = storedName,
                     uri = fileUri,
                 )
-
             CreateFileResponse(
                 id = savedFile.fileId,
                 fileOriginalName = savedFile.fileOriginalName,
@@ -41,6 +38,7 @@ class CreateFileServiceImpl(
                 fileUri = savedFile.fileUri,
             )
         }
+    }
 
     private fun validateFile(file: MultipartFile) {
         if (file.isEmpty) {
