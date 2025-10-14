@@ -33,12 +33,15 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
             rows
                 .mapNotNull { row ->
                     val fileId = row.getOrNull(FileExposedEntity.id)
-                    if (fileId != null) {
+                    val originalName = row.getOrNull(FileExposedEntity.originalName)
+                    val storedName = row.getOrNull(FileExposedEntity.storedName)
+                    val uri = row.getOrNull(FileExposedEntity.uri)
+                    if (fileId != null && originalName != null && storedName != null && uri != null) {
                         File(
                             fileId = fileId,
-                            fileOriginalName = row.getOrNull(FileExposedEntity.originalName),
-                            fileStoredName = row.getOrNull(FileExposedEntity.storedName),
-                            fileUri = row.getOrNull(FileExposedEntity.uri),
+                            fileOriginalName = originalName,
+                            fileStoredName = storedName,
+                            fileUri = uri,
                         )
                     } else {
                         null
@@ -81,13 +84,20 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                 FileExposedEntity
                     .selectAll()
                     .where { FileExposedEntity.id inList fileIds }
-                    .map { row ->
-                        File(
-                            fileId = row[FileExposedEntity.id],
-                            fileOriginalName = row[FileExposedEntity.originalName],
-                            fileStoredName = row[FileExposedEntity.storedName],
-                            fileUri = row[FileExposedEntity.uri],
-                        )
+                    .mapNotNull { row ->
+                        val originalName = row.getOrNull(FileExposedEntity.originalName)
+                        val storedName = row.getOrNull(FileExposedEntity.storedName)
+                        val uri = row.getOrNull(FileExposedEntity.uri)
+                        if (originalName != null && storedName != null && uri != null) {
+                            File(
+                                fileId = row[FileExposedEntity.id],
+                                fileOriginalName = originalName,
+                                fileStoredName = storedName,
+                                fileUri = uri,
+                            )
+                        } else {
+                            null
+                        }
                     }
             } else {
                 emptyList()
@@ -138,12 +148,15 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
             rows
                 .mapNotNull { row ->
                     val fileId = row.getOrNull(FileExposedEntity.id)
-                    if (fileId != null) {
+                    val originalName = row.getOrNull(FileExposedEntity.originalName)
+                    val storedName = row.getOrNull(FileExposedEntity.storedName)
+                    val uri = row.getOrNull(FileExposedEntity.uri)
+                    if (fileId != null && originalName != null && storedName != null && uri != null) {
                         File(
                             fileId = fileId,
-                            fileOriginalName = row.getOrNull(FileExposedEntity.originalName),
-                            fileStoredName = row.getOrNull(FileExposedEntity.storedName),
-                            fileUri = row.getOrNull(FileExposedEntity.uri),
+                            fileOriginalName = originalName,
+                            fileStoredName = storedName,
+                            fileUri = uri,
                         )
                     } else {
                         null
