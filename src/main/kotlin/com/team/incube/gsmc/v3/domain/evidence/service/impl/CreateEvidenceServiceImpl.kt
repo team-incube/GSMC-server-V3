@@ -27,7 +27,7 @@ class CreateEvidenceServiceImpl(
                 throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
             }
 
-            if (scoreExposedRepository.existsAnyWithEvidence(scoreIds)) {
+            if (scoreExposedRepository.existsAnyWithSource(scoreIds)) {
                 throw GsmcException(ErrorCode.SCORE_ALREADY_HAS_EVIDENCE)
             }
 
@@ -42,7 +42,7 @@ class CreateEvidenceServiceImpl(
                     fileIds = fileIds,
                 )
 
-            scoreExposedRepository.updateEvidenceId(scoreIds, evidence.id)
+            scoreExposedRepository.updateSourceId(scoreIds, evidence.id)
 
             CreateEvidenceResponse(
                 id = evidence.id,
