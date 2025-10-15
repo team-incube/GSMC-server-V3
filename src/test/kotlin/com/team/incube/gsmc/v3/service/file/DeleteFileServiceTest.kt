@@ -13,6 +13,7 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import io.mockk.verify
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -20,14 +21,12 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class DeleteFileServiceTest :
     BehaviorSpec({
 
-        // Data - 테스트에 필요한 데이터 정의
         data class TestData(
             val mockFileRepository: FileExposedRepository,
             val mockS3DeleteService: S3DeleteService,
             val deleteFileService: DeleteFileServiceImpl,
         )
 
-        // Context - 테스트 컨텍스트 초기화
         fun createTestContext(): TestData {
             val mockFileRepository = mockk<FileExposedRepository>()
             val mockS3DeleteService = mockk<S3DeleteService>()
@@ -40,14 +39,17 @@ class DeleteFileServiceTest :
             )
         }
 
-        beforeSpec {
-            // transaction 블록을 mock하여 실제 트랜잭션 없이 코드 실행
+        beforeTest {
             mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
             every {
                 transaction(db = any(), statement = any<Transaction.() -> Any>())
             } answers {
                 secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
             }
+        }
+
+        afterTest {
+            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
         }
 
         Given("존재하는 파일 ID가 주어졌을 때") {
@@ -62,7 +64,6 @@ class DeleteFileServiceTest :
                     fileUri = testFileUri,
                 )
 
-            // Interaction - Mock 객체 동작 정의
             every { context.mockFileRepository.findById(fileId) } returns existingFile
             justRun { context.mockS3DeleteService.execute(testFileUri) }
             justRun { context.mockFileRepository.deleteById(fileId) }
@@ -88,7 +89,6 @@ class DeleteFileServiceTest :
             val context = createTestContext()
             val nonExistentFileId = 999L
 
-            // Interaction - Mock 객체 동작 정의
             every { context.mockFileRepository.findById(nonExistentFileId) } returns null
 
             When("파일 삭제를 실행하면") {

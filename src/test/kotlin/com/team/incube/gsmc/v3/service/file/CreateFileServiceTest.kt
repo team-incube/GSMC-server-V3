@@ -15,6 +15,7 @@ import io.kotest.matchers.string.shouldEndWith
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import io.mockk.verify
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -23,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile
 class CreateFileServiceTest :
     BehaviorSpec({
 
-        // Data - 테스트에 필요한 데이터 정의
         data class TestData(
             val validFile: MultipartFile,
             val emptyFile: MultipartFile,
@@ -34,7 +34,6 @@ class CreateFileServiceTest :
             val createFileService: CreateFileServiceImpl,
         )
 
-        // Context - 테스트 컨텍스트 초기화
         fun createTestContext(): TestData {
             val mockS3UploadService = mockk<S3UploadService>()
             val mockFileRepository = mockk<FileExposedRepository>()
@@ -75,8 +74,7 @@ class CreateFileServiceTest :
             )
         }
 
-        beforeSpec {
-            // transaction 블록을 mock하여 실제 트랜잭션 없이 코드 실행
+        beforeTest {
             mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
             every {
                 transaction(db = any(), statement = any<Transaction.() -> Any>())
@@ -85,11 +83,14 @@ class CreateFileServiceTest :
             }
         }
 
+        afterTest {
+            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        }
+
         Given("유효한 파일이 주어졌을 때") {
             val context = createTestContext()
             val testFileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/test-file.pdf"
 
-            // Interaction - Mock 객체 동작 정의
             every { context.mockS3UploadService.execute(context.validFile) } returns testFileUri
             every {
                 context.mockFileRepository.saveFile(
