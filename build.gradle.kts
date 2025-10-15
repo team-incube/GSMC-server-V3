@@ -80,7 +80,6 @@ dependencies {
     testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)
     testImplementation(dependency.Dependencies.KOTEST)
     testImplementation(dependency.Dependencies.KOTEST_RUNNER)
-    testImplementation(dependency.Dependencies.KOTEST_EXTENSIONS_SPRING)
     testImplementation(dependency.Dependencies.SPRING_SECURITY_TEST)
     testRuntimeOnly(dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER)
     testImplementation(dependency.Dependencies.MOCKK)
