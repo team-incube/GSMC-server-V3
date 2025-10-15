@@ -52,7 +52,6 @@ object Dependencies {
     const val KOTLIN_JUNIT5 = "org.jetbrains.kotlin:kotlin-test-junit5"
     const val KOTEST = "io.kotest:kotest-assertions-core:${DependencyVersions.KOTEST_VERSION}"
     const val KOTEST_RUNNER = "io.kotest:kotest-runner-junit5:${DependencyVersions.KOTEST_VERSION}"
-    const val KOTEST_EXTENSIONS_SPRING = "io.kotest.extensions:kotest-extensions-spring:${DependencyVersions.KOTEST_EXTENSIONS_VERSION}"
     const val SPRING_SECURITY_TEST = "org.springframework.security:spring-security-test"
     const val JUNIT_PLATFORM_LAUNCHER = "org.junit.platform:junit-platform-launcher"
     const val MOCKK = "io.mockk:mockk:${DependencyVersions.MOCKK_VERSION}"

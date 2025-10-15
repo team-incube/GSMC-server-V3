@@ -7,7 +7,6 @@ object DependencyVersions {
     const val FEIGN_JACKSON_VERSION = "13.5"
 
     const val KOTEST_VERSION = "5.9.1"
-    const val KOTEST_EXTENSIONS_VERSION = "1.3.0"
     const val MOCKK_VERSION = "1.14.5"
 
     const val SWAGGER_VERSION = "2.8.11"
