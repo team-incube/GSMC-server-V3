@@ -18,7 +18,7 @@ interface ScoreExposedRepository {
     fun updateStatusByScoreId(
         scoreId: Long,
         status: ScoreStatus,
-    )
+    ): Int
 
     fun updateSourceIdToNull(sourceId: Long)
 

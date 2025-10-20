@@ -16,9 +16,9 @@ class UpdateScoreStatusServiceImpl(
         scoreId: Long,
         scoreStatus: ScoreStatus,
     ) = transaction {
-        if (!scoreExposedRepository.existsById(scoreId)) {
+        val updatedCount = scoreExposedRepository.updateStatusByScoreId(scoreId, scoreStatus)
+        if (updatedCount == 0) {
             throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
         }
-        scoreExposedRepository.updateStatusByScoreId(scoreId, scoreStatus)
     }
 }

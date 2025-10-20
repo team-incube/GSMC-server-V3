@@ -93,11 +93,10 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
     override fun updateStatusByScoreId(
         scoreId: Long,
         status: ScoreStatus,
-    ) {
+    ): Int =
         ScoreExposedEntity.update({ ScoreExposedEntity.id eq scoreId }) {
             it[ScoreExposedEntity.status] = status
         }
-    }
 
     override fun existsAnyWithSource(scoreIds: List<Long>): Boolean =
         ScoreExposedEntity
