@@ -26,6 +26,7 @@ class FindEvidenceByIdServiceTest :
             val repo: EvidenceExposedRepository,
             val service: FindEvidenceByIdServiceImpl,
         )
+
         fun ctx(): Ctx {
             val r = mockk<EvidenceExposedRepository>()
             val s = FindEvidenceByIdServiceImpl(r)
@@ -82,4 +83,3 @@ class FindEvidenceByIdServiceTest :
             }
         }
     })
-

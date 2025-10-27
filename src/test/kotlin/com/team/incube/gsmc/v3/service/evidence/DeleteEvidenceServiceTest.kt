@@ -27,6 +27,7 @@ class DeleteEvidenceServiceTest :
             val scoreRepo: ScoreExposedRepository,
             val service: DeleteEvidenceServiceImpl,
         )
+
         fun ctx(): Ctx {
             val e = mockk<EvidenceExposedRepository>()
             val s = mockk<ScoreExposedRepository>()
@@ -102,4 +103,3 @@ class DeleteEvidenceServiceTest :
             }
         }
     })
-

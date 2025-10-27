@@ -31,6 +31,7 @@ class UpdateEvidenceServiceTest :
             val fileRepo: FileExposedRepository,
             val service: UpdateEvidenceServiceImpl,
         )
+
         fun ctx(): Ctx {
             val e = mockk<EvidenceExposedRepository>()
             val s = mockk<ScoreExposedRepository>()
@@ -57,10 +58,11 @@ class UpdateEvidenceServiceTest :
             val found = Evidence(id, "old-title", "old-content", now, now, originFiles)
             val newParticipants = listOf(100L, 101L)
             val newFileIds = listOf(20L, 21L)
-            val updatedFiles = listOf(
-                File(20, "b.pdf", "sb.pdf", "uri-b"),
-                File(21, "c.jpg", "sc.jpg", "uri-c"),
-            )
+            val updatedFiles =
+                listOf(
+                    File(20, "b.pdf", "sb.pdf", "uri-b"),
+                    File(21, "c.jpg", "sc.jpg", "uri-c"),
+                )
             val updated = Evidence(id, "new-title", "new-content", now, now, updatedFiles)
 
             every { c.evidenceRepo.findById(id) } returns found
@@ -89,7 +91,14 @@ class UpdateEvidenceServiceTest :
                     verify(exactly = 1) { c.scoreRepo.existsByIdIn(newParticipants) }
                     verify(exactly = 1) { c.scoreRepo.updateSourceIdToNull(id) }
                     verify(exactly = 1) { c.scoreRepo.updateSourceId(newParticipants, id) }
-                    verify(exactly = 1) { c.evidenceRepo.update(id = id, title = "new-title", content = "new-content", fileIds = newFileIds) }
+                    verify(exactly = 1) {
+                        c.evidenceRepo.update(
+                            id = id,
+                            title = "new-title",
+                            content = "new-content",
+                            fileIds = newFileIds,
+                        )
+                    }
                 }
             }
         }
@@ -134,7 +143,16 @@ class UpdateEvidenceServiceTest :
 
             When("execute를 호출하면") {
                 Then("SCORE_NOT_FOUND 예외가 발생한다") {
-                    val ex = shouldThrow<GsmcException> { c.service.execute(id, listOf(100L, 200L), "nt", "nc", listOf(10L)) }
+                    val ex =
+                        shouldThrow<GsmcException> {
+                            c.service.execute(
+                                id,
+                                listOf(100L, 200L),
+                                "nt",
+                                "nc",
+                                listOf(10L),
+                            )
+                        }
                     ex.errorCode shouldBe ErrorCode.SCORE_NOT_FOUND
                     verify(exactly = 0) { c.scoreRepo.updateSourceIdToNull(any()) }
                     verify(exactly = 0) { c.scoreRepo.updateSourceId(any(), any()) }
@@ -160,7 +178,9 @@ class UpdateEvidenceServiceTest :
 
                 Then("원본 값으로 업데이트 호출되고 반환된다") {
                     res.id shouldBe id
-                    verify(exactly = 1) { c.evidenceRepo.update(id = id, title = "t0", content = "c0", fileIds = listOf(10L)) }
+                    verify(
+                        exactly = 1,
+                    ) { c.evidenceRepo.update(id = id, title = "t0", content = "c0", fileIds = listOf(10L)) }
                     verify(exactly = 0) { c.fileRepo.existsByIdIn(any()) }
                     verify(exactly = 0) { c.scoreRepo.updateSourceIdToNull(any()) }
                     verify(exactly = 0) { c.scoreRepo.updateSourceId(any(), any()) }
@@ -176,7 +196,8 @@ class UpdateEvidenceServiceTest :
             val found = Evidence(id, "old", "keep", now, now, originFiles)
             val updated = Evidence(id, "new", "keep", now, now, originFiles)
             every { c.evidenceRepo.findById(id) } returns found
-            every { c.evidenceRepo.update(id = id, title = "new", content = "keep", fileIds = listOf(10L)) } returns updated
+            every { c.evidenceRepo.update(id = id, title = "new", content = "keep", fileIds = listOf(10L)) } returns
+                updated
 
             When("execute를 호출하면") {
                 val res = c.service.execute(id, null, "new", null, null)

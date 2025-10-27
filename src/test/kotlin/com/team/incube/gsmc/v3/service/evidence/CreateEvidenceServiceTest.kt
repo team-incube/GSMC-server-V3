@@ -58,11 +58,20 @@ class CreateEvidenceServiceTest :
             val now = LocalDateTime.of(2025, 10, 1, 12, 0, 0)
             val scoreIds = listOf(1L, 2L)
             val fileIds = listOf(10L, 11L)
-            val files = listOf(
-                File(fileId = 10L, fileOriginalName = "a.pdf", fileStoredName = "s-a.pdf", fileUri = "uri-a"),
-                File(fileId = 11L, fileOriginalName = "b.jpg", fileStoredName = "s-b.jpg", fileUri = "uri-b"),
-            )
-            val saved = Evidence(id = 100L, title = "title", content = "content", createdAt = now, updatedAt = now, files = files)
+            val files =
+                listOf(
+                    File(fileId = 10L, fileOriginalName = "a.pdf", fileStoredName = "s-a.pdf", fileUri = "uri-a"),
+                    File(fileId = 11L, fileOriginalName = "b.jpg", fileStoredName = "s-b.jpg", fileUri = "uri-b"),
+                )
+            val saved =
+                Evidence(
+                    id = 100L,
+                    title = "title",
+                    content = "content",
+                    createdAt = now,
+                    updatedAt = now,
+                    files = files,
+                )
 
             every { c.scoreRepo.existsByIdIn(scoreIds) } returns true
             every { c.scoreRepo.existsAnyWithSource(scoreIds) } returns false
@@ -143,7 +152,8 @@ class CreateEvidenceServiceTest :
             val now = LocalDateTime.of(2025, 10, 1, 12, 0, 0)
             val scoreIds = listOf(1L, 2L)
             val fileIds = emptyList<Long>()
-            val saved = Evidence(id = 101L, title = "t", content = "c", createdAt = now, updatedAt = now, files = emptyList())
+            val saved =
+                Evidence(id = 101L, title = "t", content = "c", createdAt = now, updatedAt = now, files = emptyList())
 
             every { c.scoreRepo.existsByIdIn(scoreIds) } returns true
             every { c.scoreRepo.existsAnyWithSource(scoreIds) } returns false
@@ -163,4 +173,3 @@ class CreateEvidenceServiceTest :
             }
         }
     })
-
