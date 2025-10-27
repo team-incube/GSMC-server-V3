@@ -17,7 +17,7 @@ class DeleteEvidenceServiceImpl(
         transaction {
             evidenceExposedRepository.findById(evidenceId)
                 ?: throw GsmcException(ErrorCode.EVIDENCE_NOT_FOUND)
-            scoreExposedRepository.updateEvidenceIdToNull(evidenceId)
+            scoreExposedRepository.updateSourceIdToNull(evidenceId)
             evidenceExposedRepository.deleteById(evidenceId)
         }
 }

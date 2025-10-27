@@ -36,8 +36,8 @@ class UpdateEvidenceServiceImpl(
                 if (!scoreExposedRepository.existsByIdIn(participants)) {
                     throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
                 }
-                scoreExposedRepository.updateEvidenceIdToNull(evidenceId)
-                scoreExposedRepository.updateEvidenceId(participants, evidenceId)
+                scoreExposedRepository.updateSourceIdToNull(evidenceId)
+                scoreExposedRepository.updateSourceId(participants, evidenceId)
             }
 
             val updatedEvidence =
@@ -45,7 +45,7 @@ class UpdateEvidenceServiceImpl(
                     id = evidenceId,
                     title = title ?: evidence.title,
                     content = content ?: evidence.content,
-                    fileIds = fileIds ?: evidence.files.map { it.fileId!! },
+                    fileIds = fileIds ?: evidence.files.map { it.fileId },
                 )
 
             PatchEvidenceResponse(
