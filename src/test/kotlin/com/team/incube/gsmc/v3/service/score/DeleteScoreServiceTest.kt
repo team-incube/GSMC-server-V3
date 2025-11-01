@@ -52,7 +52,8 @@ class DeleteScoreServiceTest :
             every {
                 transaction(db = any(), statement = any<Transaction.() -> Any>())
             } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
+                val stmt = invocation.args[1] as Transaction.() -> Any
+                stmt.invoke(mockk(relaxed = true))
             }
         }
         afterTest { unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt") }
@@ -258,6 +259,48 @@ class DeleteScoreServiceTest :
                     verify(exactly = 0) { c.fileRepo.findById(any()) }
                     verify(exactly = 0) { c.s3.execute(any()) }
                     verify(exactly = 0) { c.scoreRepo.deleteById(any()) }
+                }
+            }
+        }
+
+        Given("증빙형(EVIDENCE) 점수인데 파일 리스트가 비어있으면 S3/파일 삭제 없이 증빙과 점수만 삭제된다") {
+            val c = ctx()
+            val scoreId = 6L
+            val sourceId = 600L
+            val now = LocalDateTime.of(2025, 10, 1, 12, 0)
+            val score =
+                Score(
+                    id = scoreId,
+                    member = member(),
+                    category = category(EvidenceType.EVIDENCE),
+                    status = ScoreStatus.PENDING,
+                    sourceId = sourceId,
+                )
+            val evidence =
+                Evidence(
+                    id = sourceId,
+                    title = "t",
+                    content = "c",
+                    createdAt = now,
+                    updatedAt = now,
+                    files = emptyList(),
+                )
+
+            every { c.scoreRepo.findById(scoreId) } returns score
+            every { c.evidenceRepo.findById(sourceId) } returns evidence
+            justRun { c.evidenceRepo.deleteById(sourceId) }
+            justRun { c.scoreRepo.deleteById(scoreId) }
+
+            When("execute를 호출하면") {
+                c.service.execute(scoreId)
+
+                Then("S3/파일 삭제 없이 증빙 삭제 후 점수 삭제만 호출된다") {
+                    verify(exactly = 1) { c.scoreRepo.findById(scoreId) }
+                    verify(exactly = 1) { c.evidenceRepo.findById(sourceId) }
+                    verify(exactly = 0) { c.s3.execute(any()) }
+                    verify(exactly = 0) { c.fileRepo.deleteById(any()) }
+                    verify(exactly = 1) { c.evidenceRepo.deleteById(sourceId) }
+                    verify(exactly = 1) { c.scoreRepo.deleteById(scoreId) }
                 }
             }
         }
