@@ -34,7 +34,8 @@ class UpdateScoreStatusServiceTest :
             every {
                 transaction(db = any(), statement = any<Transaction.() -> Any>())
             } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
+                val stmt = invocation.args[1] as Transaction.() -> Any
+                stmt.invoke(mockk(relaxed = true))
             }
         }
         afterTest { unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt") }
@@ -65,6 +66,23 @@ class UpdateScoreStatusServiceTest :
                     val ex = shouldThrow<GsmcException> { c.service.execute(scoreId, status) }
                     ex.errorCode shouldBe ErrorCode.SCORE_NOT_FOUND
                     verify(exactly = 1) { c.scoreRepo.updateStatusByScoreId(scoreId, status) }
+                }
+            }
+        }
+
+        Given("모든 상태 값이 정확히 전달되어 업데이트되는지 검증한다") {
+            val scoreIdBase = 1000L
+            ScoreStatus.entries.forEachIndexed { idx, status ->
+                val c = ctx()
+                val scoreId = scoreIdBase + idx
+                every { c.scoreRepo.updateStatusByScoreId(scoreId, status) } returns 1
+
+                When("status=$status 로 execute 호출") {
+                    c.service.execute(scoreId, status)
+
+                    Then("updateStatusByScoreId(scoreId, $status)가 정확히 1회 호출된다") {
+                        verify(exactly = 1) { c.scoreRepo.updateStatusByScoreId(scoreId, status) }
+                    }
                 }
             }
         }
