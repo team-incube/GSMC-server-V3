@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.member.service.impl
 
-import com.team.incube.gsmc.v3.domain.member.presentation.data.response.FindMemberResponse
+import com.team.incube.gsmc.v3.domain.member.presentation.data.response.SearchMemberResponse
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.member.service.CurrentMemberService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
@@ -12,12 +12,12 @@ import org.springframework.stereotype.Service
 class CurrentMemberServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
 ) : CurrentMemberService {
-    override fun execute(memberId: Long): FindMemberResponse =
+    override fun execute(memberId: Long): SearchMemberResponse =
         transaction {
             val member =
                 memberExposedRepository.findById(memberId)
                     ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
 
-            FindMemberResponse.from(member)
+            SearchMemberResponse.from(member)
         }
 }

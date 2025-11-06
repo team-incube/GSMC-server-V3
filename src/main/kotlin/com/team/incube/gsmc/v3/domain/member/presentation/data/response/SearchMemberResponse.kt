@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 
-class FindMemberResponse(
+class SearchMemberResponse(
     val id: String,
     val name: String,
     val email: String,
@@ -15,8 +15,8 @@ class FindMemberResponse(
     val role: MemberRole,
 ) {
     companion object {
-        fun from(member: Member): FindMemberResponse =
-            FindMemberResponse(
+        fun from(member: Member): SearchMemberResponse =
+            SearchMemberResponse(
                 id = member.id.toString(),
                 name = member.name,
                 email = member.email,
@@ -26,6 +26,6 @@ class FindMemberResponse(
                 role = member.role,
             )
 
-        fun fromList(members: List<Member>): List<FindMemberResponse> = members.map { from(it) }
+        fun fromList(members: List<Member>): List<SearchMemberResponse> = members.map { from(it) }
     }
 }

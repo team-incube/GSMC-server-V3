@@ -2,7 +2,7 @@ package com.team.incube.gsmc.v3.domain.member.repository.impl
 
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
-import com.team.incube.gsmc.v3.domain.member.presentation.data.request.FindMemberRequest
+import com.team.incube.gsmc.v3.domain.member.presentation.data.request.SearchMemberRequest
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class MemberExposedRepositoryImpl : MemberExposedRepository {
-    override fun findMembers(query: FindMemberRequest): List<Member> {
+    override fun findMembers(query: SearchMemberRequest): List<Member> {
         val conditions =
             buildList<Op<Boolean>> {
                 query.email?.let { add(MemberExposedEntity.email eq it) }

@@ -1,10 +1,10 @@
 package com.team.incube.gsmc.v3.domain.member.presentation.controller
 
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
-import com.team.incube.gsmc.v3.domain.member.presentation.data.request.FindMemberRequest
-import com.team.incube.gsmc.v3.domain.member.presentation.data.response.FindMemberResponse
+import com.team.incube.gsmc.v3.domain.member.presentation.data.request.SearchMemberRequest
+import com.team.incube.gsmc.v3.domain.member.presentation.data.response.SearchMemberResponse
 import com.team.incube.gsmc.v3.domain.member.service.CurrentMemberService
-import com.team.incube.gsmc.v3.domain.member.service.FindMemberService
+import com.team.incube.gsmc.v3.domain.member.service.SearchMemberService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v3/members")
 class MemberController(
-    private val findMemberService: FindMemberService,
+    private val searchMemberService: SearchMemberService,
     private val currentMemberService: CurrentMemberService,
 ) {
     @Operation(
@@ -37,7 +37,7 @@ class MemberController(
                 description = "사용자 정보 검색 성공",
                 content = [
                     Content(
-                        array = ArraySchema(schema = Schema(implementation = FindMemberResponse::class)),
+                        array = ArraySchema(schema = Schema(implementation = SearchMemberResponse::class)),
                     ),
                 ],
             ),
@@ -50,7 +50,7 @@ class MemberController(
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/search")
-    fun findMember(
+    fun searchMember(
         @RequestParam(required = false) email: String?,
         @RequestParam(required = false) name: String?,
         @RequestParam(required = false) role: MemberRole?,
@@ -59,9 +59,9 @@ class MemberController(
         @RequestParam(required = false) number: Int?,
         @RequestParam(required = false) maxScore: Int?,
         @RequestParam(required = false) minScore: Int?,
-    ): List<FindMemberResponse> {
+    ): List<SearchMemberResponse> {
         val request =
-            FindMemberRequest(
+            SearchMemberRequest(
                 email = email,
                 name = name,
                 role = role,
@@ -72,7 +72,7 @@ class MemberController(
                 minScore = minScore,
             )
 
-        return findMemberService.execute(request)
+        return searchMemberService.execute(request)
     }
 
     @Operation(
@@ -86,7 +86,7 @@ class MemberController(
                 description = "현재 로그인된 사용자 정보 검색 성공",
                 content = [
                     Content(
-                        schema = Schema(implementation = FindMemberResponse::class),
+                        schema = Schema(implementation = SearchMemberResponse::class),
                     ),
                 ],
             ),
@@ -101,5 +101,5 @@ class MemberController(
     @GetMapping("/current")
     fun getCurrentMember(
         @AuthenticationPrincipal memberId: Long,
-    ): FindMemberResponse = currentMemberService.execute(memberId)
+    ): SearchMemberResponse = currentMemberService.execute(memberId)
 }
