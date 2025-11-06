@@ -4,5 +4,5 @@ import com.team.incube.gsmc.v3.domain.member.presentation.data.request.SearchMem
 import com.team.incube.gsmc.v3.domain.member.presentation.data.response.SearchMemberResponse
 
 interface SearchMemberService {
-    fun execute(memberId: SearchMemberRequest): List<SearchMemberResponse>
+    fun execute(request: SearchMemberRequest): List<SearchMemberResponse>
 }
