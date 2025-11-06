@@ -3,7 +3,6 @@ package com.team.incube.gsmc.v3.domain.member.presentation.controller
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.presentation.data.request.SearchMemberRequest
 import com.team.incube.gsmc.v3.domain.member.presentation.data.response.SearchMemberResponse
-import com.team.incube.gsmc.v3.domain.member.service.CurrentMemberService
 import com.team.incube.gsmc.v3.domain.member.service.SearchMemberService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema
@@ -23,8 +22,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v3/members")
 class MemberController(
-    private val searchMemberService: SearchMemberService,
-    private val currentMemberService: CurrentMemberService,
+    private val searchMemberService: SearchMemberService
 ) {
     @Operation(
         summary = "사용자 정보 검색",
@@ -75,31 +73,31 @@ class MemberController(
         return searchMemberService.execute(request)
     }
 
-    @Operation(
-        summary = "현재 로그인된 사용자 정보 조회",
-        description = " JWT 토큰을 통해 현재 로그인된 사용자의 정보를 조회합니다",
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "현재 로그인된 사용자 정보 검색 성공",
-                content = [
-                    Content(
-                        schema = Schema(implementation = SearchMemberResponse::class),
-                    ),
-                ],
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "사용자를 찾을 수 없음",
-                content = [Content()],
-            ),
-        ],
-    )
-    @SecurityRequirement(name = "bearerAuth")
-    @GetMapping("/current")
-    fun getCurrentMember(
-        @AuthenticationPrincipal memberId: Long,
-    ): SearchMemberResponse = currentMemberService.execute(memberId)
+//    @Operation(
+//        summary = "현재 로그인된 사용자 정보 조회",
+//        description = " JWT 토큰을 통해 현재 로그인된 사용자의 정보를 조회합니다",
+//    )
+//    @ApiResponses(
+//        value = [
+//            ApiResponse(
+//                responseCode = "200",
+//                description = "현재 로그인된 사용자 정보 검색 성공",
+//                content = [
+//                    Content(
+//                        schema = Schema(implementation = SearchMemberResponse::class),
+//                    ),
+//                ],
+//            ),
+//            ApiResponse(
+//                responseCode = "404",
+//                description = "사용자를 찾을 수 없음",
+//                content = [Content()],
+//            ),
+//        ],
+//    )
+//    @SecurityRequirement(name = "bearerAuth")
+//    @GetMapping("/current")
+//    fun getCurrentMember(
+//        @AuthenticationPrincipal memberId: Long,
+//    ): SearchMemberResponse = currentMemberService.execute(memberId)
 }
