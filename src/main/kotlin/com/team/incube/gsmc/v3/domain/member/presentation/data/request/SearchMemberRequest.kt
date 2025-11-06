@@ -16,4 +16,3 @@ data class SearchMemberRequest(
     val page: Int = 0,
     val size: Int = 20,
 )
-

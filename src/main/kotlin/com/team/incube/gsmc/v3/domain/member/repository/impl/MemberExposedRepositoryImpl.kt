@@ -25,10 +25,18 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
 
         val whereClause = conditions.reduceOrNull { acc, condition -> acc and condition }
 
+        val page = query.page ?: 0
+        val size = query.size ?: 20
+        val offset = page * size
+
         val queryResult =
-            MemberExposedEntity.selectAll().apply {
-                whereClause?.let { where { it } }
-            }
+            MemberExposedEntity
+                .selectAll()
+                .apply {
+                    whereClause?.let { where { it } }
+                    limit(size)
+                    offset(offset.toLong())
+                }
         return queryResult.map { row ->
             Member(
                 id = row[MemberExposedEntity.id],
