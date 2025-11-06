@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class MemberExposedRepositoryImpl : MemberExposedRepository {
-
     override fun findMembers(query: FindMemberRequest): List<Member> {
         val conditions =
             buildList<Op<Boolean>> {
