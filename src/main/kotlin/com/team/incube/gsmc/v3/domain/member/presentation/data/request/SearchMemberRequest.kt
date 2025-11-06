@@ -13,4 +13,7 @@ data class SearchMemberRequest(
     val number: Int? = null,
     val maxScore: Int? = null,
     val minScore: Int? = null,
+    val page: Int = 0,
+    val size: Int = 20,
 )
+
