@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -25,7 +27,7 @@ class MemberController(
 ) {
     @Operation(
         summary = "사용자 정보 검색",
-        description = "이메일, 이름, 학년, 반, 번호 , 가장높은점수, 가장낮은점수로 회원을 검색합니다",
+        description = "이메일, 이름, 학년, 반, 번호 , 가장 높은 점수, 가장 낮은 점수로 회원을 검색합니다",
     )
     @ApiResponses(
         value = [
@@ -54,9 +56,8 @@ class MemberController(
         @RequestParam(required = false) grade: Int?,
         @RequestParam(name = "class", required = false) classNumber: Int?,
         @RequestParam(required = false) number: Int?,
-        @RequestParam(required = false) maxScore: Int?,
-        @RequestParam(required = false) minScore: Int?,
-    ): List<SearchMemberResponse> {
+        pageable: Pageable,
+    ): Page<SearchMemberResponse> {
         val request =
             SearchMemberRequest(
                 email = email,
@@ -65,11 +66,9 @@ class MemberController(
                 grade = grade,
                 classNumber = classNumber,
                 number = number,
-                maxScore = maxScore,
-                minScore = minScore,
             )
 
-        return searchMemberService.execute(request)
+        return searchMemberService.execute(request, pageable)
     }
 
 //    @Operation(
