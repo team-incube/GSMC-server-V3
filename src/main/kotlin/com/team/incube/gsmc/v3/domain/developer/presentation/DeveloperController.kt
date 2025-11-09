@@ -22,7 +22,6 @@ class DeveloperController(
     private val changeMemberRoleService: ChangeMemberRoleService,
     private val withdrawMemberService: WithdrawMemberService,
 ) {
-
     @Operation(
         summary = "사용자 권한 변경",
         description = "query parameter email, role 로 사용자의 권한을 변경합니다.",

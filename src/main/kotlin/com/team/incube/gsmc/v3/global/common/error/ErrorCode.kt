@@ -14,7 +14,6 @@ enum class ErrorCode(
     // MEMBER
     MEMBER_NOT_FOUND("존재하지 않는 사용자입니다.", 404),
 
-
     // File
     FILE_NOT_FOUND("존재하지 않는 파일입니다.", 404),
     FILE_EMPTY("파일이 비어있습니다.", 400),

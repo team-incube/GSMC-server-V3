@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service
 class ChangeMemberRoleServiceImpl(
     private val developerExposedRepository: DeveloperExposedRepository,
 ) : ChangeMemberRoleService {
-
     override fun execute(
         email: String,
         role: MemberRole,

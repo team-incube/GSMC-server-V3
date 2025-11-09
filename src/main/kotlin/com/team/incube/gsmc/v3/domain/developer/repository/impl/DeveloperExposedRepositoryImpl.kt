@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class DeveloperExposedRepositoryImpl : DeveloperExposedRepository {
-
     override fun updateMemberRoleByEmail(
         email: String,
         role: MemberRole,

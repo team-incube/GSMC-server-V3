@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service
 class WithdrawMemberServiceImpl(
     private val developerExposedRepository: DeveloperExposedRepository,
 ) : WithdrawMemberService {
-
     override fun execute(email: String) {
         transaction {
             val deleted = developerExposedRepository.deleteMemberByEmail(email)
