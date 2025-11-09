@@ -9,15 +9,19 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotBlank
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
-@Tag(name = "Developer API", description = "개발자 전용 사용자 관리 API")
+@Tag(name = "Developer API", description = "개발자 전용 API")
 @RestController
 @RequestMapping("/api/v3/developer")
+@Validated
 class DeveloperController(
     private val changeMemberRoleService: ChangeMemberRoleService,
     private val withdrawMemberService: WithdrawMemberService,
@@ -35,7 +39,7 @@ class DeveloperController(
     )
     @PatchMapping("/member/role")
     fun changeMemberRole(
-        @RequestParam email: String,
+        @RequestParam @NotBlank @Email(message = "유효한 이메일 형식이 아닙니다.") email: String,
         @RequestParam role: MemberRole,
     ): CommonApiResponse<Nothing> {
         changeMemberRoleService.execute(email, role)
@@ -55,7 +59,7 @@ class DeveloperController(
     )
     @DeleteMapping("/withdrawal")
     fun withdraw(
-        @RequestParam email: String,
+        @RequestParam @NotBlank @Email(message = "유효한 이메일 형식이 아닙니다.") email: String,
     ): CommonApiResponse<Nothing> {
         withdrawMemberService.execute(email)
         return CommonApiResponse.success("OK")
