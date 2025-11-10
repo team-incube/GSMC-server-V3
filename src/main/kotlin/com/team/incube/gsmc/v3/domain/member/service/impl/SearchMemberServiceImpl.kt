@@ -13,7 +13,10 @@ import org.springframework.stereotype.Service
 class SearchMemberServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
 ) : SearchMemberService {
-    override fun execute(request: SearchMemberRequest, pageable: Pageable): Page<SearchMemberResponse> =
+    override fun execute(
+        request: SearchMemberRequest,
+        pageable: Pageable,
+    ): Page<SearchMemberResponse> =
         transaction {
             val member = memberExposedRepository.findMembers(request, pageable)
             member.map { SearchMemberResponse.from(it) }
