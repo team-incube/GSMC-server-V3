@@ -43,7 +43,7 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
                 .selectAll()
                 .apply {
                     whereClause?.let { where { it } }
-                }.limit(pageable.pageSize) // Set the limit (pageSize)
+                }.limit(pageable.pageSize)
                 .offset(pageable.offset.toLong())
                 .map { row ->
                     Member(
