@@ -28,7 +28,6 @@ class DeveloperController(
     private val patchMemberRoleService: UpdateMemberRoleService,
     private val withdrawMemberService: WithdrawMemberService,
 ) {
-
     @Operation(
         summary = "사용자 권한 변경",
         description = "요청 바디의 email, role 로 사용자의 권한을 변경합니다.",
