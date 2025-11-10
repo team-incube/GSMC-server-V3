@@ -1,9 +1,9 @@
 package com.team.incube.gsmc.v3.domain.developer.presentation
 
 import com.team.incube.gsmc.v3.domain.developer.presentation.data.request.PatchMemberRoleRequest
-import com.team.incube.gsmc.v3.domain.developer.presentation.data.request.WithdrawMemberRequest
+import com.team.incube.gsmc.v3.domain.developer.presentation.data.request.DeleteMemberRequest
 import com.team.incube.gsmc.v3.domain.developer.service.UpdateMemberRoleService
-import com.team.incube.gsmc.v3.domain.developer.service.WithdrawMemberService
+import com.team.incube.gsmc.v3.domain.developer.service.DeleteMemberService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -26,7 +26,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody as SwaggerRequestBod
 @Validated
 class DeveloperController(
     private val patchMemberRoleService: UpdateMemberRoleService,
-    private val withdrawMemberService: WithdrawMemberService,
+    private val withdrawMemberService: DeleteMemberService,
 ) {
     @Operation(
         summary = "사용자 권한 변경",
@@ -62,7 +62,7 @@ class DeveloperController(
         required = true,
         content = [
             Content(
-                schema = Schema(implementation = WithdrawMemberRequest::class),
+                schema = Schema(implementation = DeleteMemberRequest::class),
             ),
         ],
     )
@@ -72,9 +72,9 @@ class DeveloperController(
             ApiResponse(responseCode = "404", description = "존재하지 않는 사용자", content = [Content()]),
         ],
     )
-    @DeleteMapping("/withdrawal")
-    fun withdraw(
-        @RequestBody @Valid request: WithdrawMemberRequest,
+    @DeleteMapping("/member")
+    fun delete(
+        @RequestBody @Valid request: DeleteMemberRequest,
     ): CommonApiResponse<Nothing> {
         withdrawMemberService.execute(request.email)
         return CommonApiResponse.success("OK")
