@@ -8,46 +8,55 @@ import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.selectAll
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 
 @Repository
 class MemberExposedRepositoryImpl : MemberExposedRepository {
-    override fun findMembers(query: SearchMemberRequest): List<Member> {
+    override fun findMembers(
+        condition: SearchMemberRequest,
+        pageable: Pageable,
+    ): Page<Member> {
         val conditions =
             buildList<Op<Boolean>> {
-                query.email?.let { add(MemberExposedEntity.email eq it) }
-                query.name?.let { add(MemberExposedEntity.name eq it) }
-                query.role?.let { add(MemberExposedEntity.role eq it) }
-                query.grade?.let { add(MemberExposedEntity.grade eq it) }
-                query.classNumber?.let { add(MemberExposedEntity.classNumber eq it) }
-                query.number?.let { add(MemberExposedEntity.number eq it) }
+                condition.email?.let { add(MemberExposedEntity.email eq it) }
+                condition.name?.let { add(MemberExposedEntity.name eq it) }
+                condition.role?.let { add(MemberExposedEntity.role eq it) }
+                condition.grade?.let { add(MemberExposedEntity.grade eq it) }
+                condition.classNumber?.let { add(MemberExposedEntity.classNumber eq it) }
+                condition.number?.let { add(MemberExposedEntity.number eq it) }
             }
 
         val whereClause = conditions.reduceOrNull { acc, condition -> acc and condition }
 
-        val page = query.page ?: 0
-        val size = query.size ?: 20
-        val offset = page * size
-
-        val queryResult =
+        val totalCount =
             MemberExposedEntity
                 .selectAll()
                 .apply {
                     whereClause?.let { where { it } }
-                    limit(size)
-                    offset(offset.toLong())
+                }.count()
+
+        val members =
+            MemberExposedEntity
+                .selectAll()
+                .apply {
+                    whereClause?.let { where { it } }
+                }.limit(pageable.pageSize) // Set the limit (pageSize)
+                .offset(pageable.offset.toLong())
+                .map { row ->
+                    Member(
+                        id = row[MemberExposedEntity.id],
+                        name = row[MemberExposedEntity.name],
+                        email = row[MemberExposedEntity.email],
+                        grade = row[MemberExposedEntity.grade],
+                        classNumber = row[MemberExposedEntity.classNumber],
+                        number = row[MemberExposedEntity.number],
+                        role = row[MemberExposedEntity.role],
+                    )
                 }
-        return queryResult.map { row ->
-            Member(
-                id = row[MemberExposedEntity.id],
-                name = row[MemberExposedEntity.name],
-                email = row[MemberExposedEntity.email],
-                grade = row[MemberExposedEntity.grade],
-                classNumber = row[MemberExposedEntity.classNumber],
-                number = row[MemberExposedEntity.number],
-                role = row[MemberExposedEntity.role],
-            )
-        }
+        return PageImpl(members, pageable, totalCount)
     }
 
     override fun findById(memberId: Long): Member? =
