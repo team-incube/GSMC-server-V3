@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.developer.service.impl
 
-import com.team.incube.gsmc.v3.domain.developer.service.WithdrawMemberService
+import com.team.incube.gsmc.v3.domain.developer.service.DeleteMemberService
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
@@ -9,10 +9,10 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class WithdrawMemberServiceImpl(
+class DeleteMemberServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
-) : WithdrawMemberService {
-    private val log = LoggerFactory.getLogger(WithdrawMemberServiceImpl::class.java)
+) : DeleteMemberService {
+    private val log = LoggerFactory.getLogger(DeleteMemberServiceImpl::class.java)
 
     override fun execute(email: String) {
         transaction {
