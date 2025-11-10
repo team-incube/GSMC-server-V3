@@ -1,8 +1,8 @@
 package com.team.incube.gsmc.v3.domain.member.repository.impl
 
 import com.team.incube.gsmc.v3.domain.member.dto.Member
+import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
-import com.team.incube.gsmc.v3.domain.member.presentation.data.request.SearchMemberRequest
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -15,18 +15,25 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class MemberExposedRepositoryImpl : MemberExposedRepository {
-    override fun findMembers(
-        condition: SearchMemberRequest,
+    override fun searchMembers(
+        email: String?,
+        name: String?,
+        role: MemberRole?,
+        grade: Int?,
+        classNumber: Int?,
+        number: Int?,
+        maxScore: Int?,
+        minScore: Int?,
         pageable: Pageable,
     ): Page<Member> {
         val conditions =
             buildList<Op<Boolean>> {
-                condition.email?.let { add(MemberExposedEntity.email eq it) }
-                condition.name?.let { add(MemberExposedEntity.name eq it) }
-                condition.role?.let { add(MemberExposedEntity.role eq it) }
-                condition.grade?.let { add(MemberExposedEntity.grade eq it) }
-                condition.classNumber?.let { add(MemberExposedEntity.classNumber eq it) }
-                condition.number?.let { add(MemberExposedEntity.number eq it) }
+                email?.let { add(MemberExposedEntity.email eq it) }
+                name?.let { add(MemberExposedEntity.name eq it) }
+                role?.let { add(MemberExposedEntity.role eq it) }
+                grade?.let { add(MemberExposedEntity.grade eq it) }
+                classNumber?.let { add(MemberExposedEntity.classNumber eq it) }
+                number?.let { add(MemberExposedEntity.number eq it) }
             }
 
         val whereClause = conditions.reduceOrNull { acc, condition -> acc and condition }
@@ -59,7 +66,7 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
         return PageImpl(members, pageable, totalCount)
     }
 
-    override fun findById(memberId: Long): Member? =
+    override fun searchById(memberId: Long): Member? =
         MemberExposedEntity
             .selectAll()
             .where {

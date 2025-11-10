@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.member.service.impl
 
-import com.team.incube.gsmc.v3.domain.member.presentation.data.request.SearchMemberRequest
+import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.presentation.data.response.SearchMemberResponse
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.member.service.SearchMemberService
@@ -14,11 +14,29 @@ class SearchMemberServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
 ) : SearchMemberService {
     override fun execute(
-        request: SearchMemberRequest,
+        email: String?,
+        name: String?,
+        role: MemberRole?,
+        grade: Int?,
+        classNumber: Int?,
+        number: Int?,
+        maxScore: Int?,
+        minScore: Int?,
         pageable: Pageable,
     ): Page<SearchMemberResponse> =
         transaction {
-            val member = memberExposedRepository.findMembers(request, pageable)
-            member.map { SearchMemberResponse.from(it) }
+            val members =
+                memberExposedRepository.searchMembers(
+                    email = email,
+                    name = name,
+                    role = role,
+                    grade = grade,
+                    classNumber = classNumber,
+                    number = number,
+                    maxScore = maxScore,
+                    minScore = minScore,
+                    pageable = pageable,
+                )
+            members.map { SearchMemberResponse.from(it) }
         }
 }

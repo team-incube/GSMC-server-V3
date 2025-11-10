@@ -1,7 +1,6 @@
 package com.team.incube.gsmc.v3.domain.member.presentation.controller
 
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
-import com.team.incube.gsmc.v3.domain.member.presentation.data.request.SearchMemberRequest
 import com.team.incube.gsmc.v3.domain.member.presentation.data.response.SearchMemberResponse
 import com.team.incube.gsmc.v3.domain.member.service.SearchMemberService
 import io.swagger.v3.oas.annotations.Operation
@@ -41,7 +40,7 @@ class MemberController(
                 ],
             ),
             ApiResponse(
-                responseCode = "500",
+                responseCode = "404",
                 description = "사용자를 찾을 수 없음",
                 content = [Content()],
             ),
@@ -56,20 +55,21 @@ class MemberController(
         @RequestParam(required = false) grade: Int?,
         @RequestParam(name = "class", required = false) classNumber: Int?,
         @RequestParam(required = false) number: Int?,
+        @RequestParam(required = false) maxScore: Int?,
+        @RequestParam(required = false) minScore: Int?,
         pageable: Pageable,
-    ): Page<SearchMemberResponse> {
-        val request =
-            SearchMemberRequest(
-                email = email,
-                name = name,
-                role = role,
-                grade = grade,
-                classNumber = classNumber,
-                number = number,
-            )
-
-        return searchMemberService.execute(request, pageable)
-    }
+    ): Page<SearchMemberResponse> =
+        searchMemberService.execute(
+            email = email,
+            name = name,
+            role = role,
+            grade = grade,
+            classNumber = classNumber,
+            number = number,
+            maxScore = maxScore,
+            minScore = minScore,
+            pageable = pageable,
+        )
 
 //    @Operation(
 //        summary = "현재 로그인된 사용자 정보 조회",

@@ -1,15 +1,22 @@
 package com.team.incube.gsmc.v3.domain.member.repository
 
 import com.team.incube.gsmc.v3.domain.member.dto.Member
-import com.team.incube.gsmc.v3.domain.member.presentation.data.request.SearchMemberRequest
+import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface MemberExposedRepository {
-    fun findMembers(
-        condition: SearchMemberRequest,
+    fun searchMembers(
+        email: String?,
+        name: String?,
+        role: MemberRole?,
+        grade: Int?,
+        classNumber: Int?,
+        number: Int?,
+        maxScore: Int?,
+        minScore: Int?,
         pageable: Pageable,
     ): Page<Member>
 
-    fun findById(memberId: Long): Member?
+    fun searchById(memberId: Long): Member?
 }
