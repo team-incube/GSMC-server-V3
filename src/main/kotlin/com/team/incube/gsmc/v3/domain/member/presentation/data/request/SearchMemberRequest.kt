@@ -11,4 +11,6 @@ data class SearchMemberRequest(
     @JsonProperty("class")
     val classNumber: Int? = null,
     val number: Int? = null,
+    val maxScore: Int? = null,
+    val minScore: Int? = null,
 )
