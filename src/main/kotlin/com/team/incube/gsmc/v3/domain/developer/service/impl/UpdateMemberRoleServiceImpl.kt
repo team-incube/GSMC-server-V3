@@ -1,8 +1,8 @@
 package com.team.incube.gsmc.v3.domain.developer.service.impl
 
-import com.team.incube.gsmc.v3.domain.developer.repository.DeveloperExposedRepository
 import com.team.incube.gsmc.v3.domain.developer.service.UpdateMemberRoleService
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class UpdateMemberRoleServiceImpl(
-    private val developerExposedRepository: DeveloperExposedRepository,
+    private val memberExposedRepository: MemberExposedRepository,
 ) : UpdateMemberRoleService {
     private val log = LoggerFactory.getLogger(UpdateMemberRoleServiceImpl::class.java)
 
@@ -20,14 +20,14 @@ class UpdateMemberRoleServiceImpl(
         role: MemberRole,
     ) {
         transaction {
-            val updated = developerExposedRepository.updateMemberRoleByEmail(email, role)
+            val updated = memberExposedRepository.updateMemberRoleByEmail(email, role)
 
             if (updated == 0) {
-                log.info("Developer role change failed: member not found. email={}", email)
+                log.info("Member role change failed: member not found. email={}", email)
                 throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
             }
 
-            log.info("Developer role changed successfully. email={}, newRole={}", email, role)
+            log.info("Member role changed successfully. email={}, newRole={}", email, role)
         }
     }
 }
