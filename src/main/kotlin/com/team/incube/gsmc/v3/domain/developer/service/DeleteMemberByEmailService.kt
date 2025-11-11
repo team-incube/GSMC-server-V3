@@ -1,5 +1,5 @@
 package com.team.incube.gsmc.v3.domain.developer.service
 
-interface DeleteMemberService {
+interface DeleteMemberByEmailService {
     fun execute(email: String)
 }
