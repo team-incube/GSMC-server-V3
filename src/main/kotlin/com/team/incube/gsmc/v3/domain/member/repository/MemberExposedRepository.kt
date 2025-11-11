@@ -13,8 +13,6 @@ interface MemberExposedRepository {
         grade: Int?,
         classNumber: Int?,
         number: Int?,
-        maxScore: Int?,
-        minScore: Int?,
         pageable: Pageable,
     ): Page<Member>
 

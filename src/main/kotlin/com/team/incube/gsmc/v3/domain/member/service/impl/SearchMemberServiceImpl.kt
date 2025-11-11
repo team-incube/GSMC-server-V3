@@ -20,8 +20,6 @@ class SearchMemberServiceImpl(
         grade: Int?,
         classNumber: Int?,
         number: Int?,
-        maxScore: Int?,
-        minScore: Int?,
         pageable: Pageable,
     ): Page<SearchMemberResponse> =
         transaction {
@@ -33,8 +31,6 @@ class SearchMemberServiceImpl(
                     grade = grade,
                     classNumber = classNumber,
                     number = number,
-                    maxScore = maxScore,
-                    minScore = minScore,
                     pageable = pageable,
                 )
             members.map { SearchMemberResponse.from(it) }

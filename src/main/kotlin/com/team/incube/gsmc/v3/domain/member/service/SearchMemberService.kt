@@ -13,8 +13,6 @@ interface SearchMemberService {
         grade: Int?,
         classNumber: Int?,
         number: Int?,
-        maxScore: Int?,
-        minScore: Int?,
         pageable: Pageable,
     ): Page<SearchMemberResponse>
 }

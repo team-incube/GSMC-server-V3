@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
-@Tag(name = "Member API", description = "사용자 조회API")
+@Tag(name = "Member API", description = "사용자 조회 API")
 @RestController
 @RequestMapping("/api/v3/members")
 class MemberController(
@@ -26,7 +26,7 @@ class MemberController(
 ) {
     @Operation(
         summary = "사용자 정보 검색",
-        description = "이메일, 이름, 학년, 반, 번호 , 가장 높은 점수, 가장 낮은 점수로 회원을 검색합니다",
+        description = "이메일, 이름, 학년, 반, 번호로 회원을 검색합니다",
     )
     @ApiResponses(
         value = [
@@ -55,8 +55,6 @@ class MemberController(
         @RequestParam(required = false) grade: Int?,
         @RequestParam(required = false) classNumber: Int?,
         @RequestParam(required = false) number: Int?,
-        @RequestParam(required = false) maxScore: Int?,
-        @RequestParam(required = false) minScore: Int?,
         pageable: Pageable,
     ): Page<SearchMemberResponse> =
         searchMemberService.execute(
@@ -66,8 +64,6 @@ class MemberController(
             grade = grade,
             classNumber = classNumber,
             number = number,
-            maxScore = maxScore,
-            minScore = minScore,
             pageable = pageable,
         )
 
