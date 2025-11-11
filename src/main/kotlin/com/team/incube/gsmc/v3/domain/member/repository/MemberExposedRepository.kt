@@ -17,14 +17,13 @@ interface MemberExposedRepository {
     ): Page<Member>
 
     fun searchById(memberId: Long): Member?
-  
+
     fun existsByIdIn(memberIds: List<Long>): Boolean
-  
+
     fun updateMemberRoleByEmail(
         email: String,
         role: MemberRole,
     ): Int
-  
-  
+
     fun deleteMemberByEmail(email: String): Int
 }

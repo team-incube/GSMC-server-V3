@@ -7,17 +7,12 @@ import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.selectAll
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.Pageable
-import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
-import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
-import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -88,6 +83,7 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
                     role = row[MemberExposedEntity.role],
                 )
             }.singleOrNull()
+
     override fun existsByIdIn(memberIds: List<Long>): Boolean =
         MemberExposedEntity
             .selectAll()

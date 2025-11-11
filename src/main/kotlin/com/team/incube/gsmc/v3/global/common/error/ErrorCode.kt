@@ -20,9 +20,6 @@ enum class ErrorCode(
     FILE_EXTENSION_NOT_FOUND("파일 확장자가 없습니다.", 400),
     FILE_EXTENSION_NOT_ALLOWED("허용되지 않는 파일 형식입니다.", 400),
 
-    // Member
-    MEMBER_NOT_FOUND("해당 사용자를 찾을 수 없습니다.", 404),
-
     // S3
     S3_FILE_UPLOAD_FAILED("파일 업로드 중 오류가 발생했습니다.", 500),
     S3_FILE_DELETE_FAILED("파일 삭제 중 오류가 발생했습니다.", 500),
