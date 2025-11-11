@@ -11,6 +11,9 @@ enum class ErrorCode(
     SCORE_NOT_FOUND("존재하지 않는 점수 객체입니다.", 404),
     SCORE_ALREADY_HAS_EVIDENCE("이미 증빙을 가진 점수가 포함되어 있습니다.", 409),
 
+    // MEMBER
+    MEMBER_NOT_FOUND("존재하지 않는 사용자입니다.", 404),
+
     // File
     FILE_NOT_FOUND("존재하지 않는 파일입니다.", 404),
     FILE_EMPTY("파일이 비어있습니다.", 400),
