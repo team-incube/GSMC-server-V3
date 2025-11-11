@@ -55,9 +55,16 @@ class MemberController(
         @RequestParam(required = false) grade: Int?,
         @RequestParam(required = false) classNumber: Int?,
         @RequestParam(required = false) number: Int?,
+        @RequestParam(required = false) limit: Int? = 100,
+        @RequestParam(required = false) page: Int = 0,
         pageable: Pageable,
-    ): Page<SearchMemberResponse> =
-        searchMemberService.execute(
+    ): Page<SearchMemberResponse> {
+        val pageable =
+            org.springframework.data.domain.PageRequest.of(
+                page,
+                limit ?: 100,
+            )
+        return searchMemberService.execute(
             email = email,
             name = name,
             role = role,
@@ -66,6 +73,7 @@ class MemberController(
             number = number,
             pageable = pageable,
         )
+    }
 
 //    @Operation(
 //        summary = "현재 로그인된 사용자 정보 조회",
