@@ -37,10 +37,11 @@ jobs:
       - name: Remove Existing Profile File
         run: |
           rm -f src/main/resources/application-*.yaml
+          rm -f src/main/resources/application.yaml
 
       - name: Create Dev Profile File
         run: |
-          cat <<'EOF' > ./src/main/resources/application-deploy.yml
+          cat <<'EOF' > ./src/main/resources/application.yml
           ${{ secrets.DEV_APPLICATION_YAML }}
           EOF
         shell: bash
