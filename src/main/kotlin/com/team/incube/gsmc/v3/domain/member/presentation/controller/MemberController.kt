@@ -55,7 +55,7 @@ class MemberController(
         @RequestParam(required = false) grade: Int?,
         @RequestParam(required = false) classNumber: Int?,
         @RequestParam(required = false) number: Int?,
-        @RequestParam(required = false) limit: Int? = 100,
+        @RequestParam(required = false) limit: Int = 100,
         @RequestParam(required = false) page: Int = 0,
     ): Page<SearchMemberResponse> {
         val pageable =
