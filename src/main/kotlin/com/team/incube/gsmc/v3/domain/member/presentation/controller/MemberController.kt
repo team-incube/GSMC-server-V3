@@ -53,7 +53,7 @@ class MemberController(
         @RequestParam(required = false) name: String?,
         @RequestParam(required = false) role: MemberRole?,
         @RequestParam(required = false) grade: Int?,
-        @RequestParam(name = "class", required = false) classNumber: Int?,
+        @RequestParam(required = false) classNumber: Int?,
         @RequestParam(required = false) number: Int?,
         @RequestParam(required = false) maxScore: Int?,
         @RequestParam(required = false) minScore: Int?,
