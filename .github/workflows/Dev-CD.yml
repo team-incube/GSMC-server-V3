@@ -45,6 +45,18 @@ jobs:
           EOF
         shell: bash
 
+      - name: Setup JDK 24
+        uses: actions/setup-java@v5
+        with:
+          java-version: '24'
+          distribution: temurin
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Build with Gradle
+        run: ./gradlew --build-cache clean build -x test
+
       - name: Deploy to Dev Server
         uses: 8G4B/GSM-SV-Deploy@v1.2.1
         with:
