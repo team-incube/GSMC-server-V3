@@ -57,7 +57,6 @@ class MemberController(
         @RequestParam(required = false) number: Int?,
         @RequestParam(required = false) limit: Int? = 100,
         @RequestParam(required = false) page: Int = 0,
-        pageable: Pageable,
     ): Page<SearchMemberResponse> {
         val pageable =
             org.springframework.data.domain.PageRequest.of(
