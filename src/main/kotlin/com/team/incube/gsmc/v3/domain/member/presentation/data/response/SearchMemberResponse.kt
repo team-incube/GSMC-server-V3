@@ -25,7 +25,5 @@ class SearchMemberResponse(
                 number = member.number,
                 role = member.role,
             )
-
-        fun fromList(members: List<Member>): List<SearchMemberResponse> = members.map { from(it) }
     }
 }
