@@ -22,8 +22,6 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
         grade: Int?,
         classNumber: Int?,
         number: Int?,
-        maxScore: Int?,
-        minScore: Int?,
         pageable: Pageable,
     ): Page<Member> {
         val conditions =
@@ -62,18 +60,7 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
                         number = row[MemberExposedEntity.number],
                         role = row[MemberExposedEntity.role],
                     )
-                }.filter { _ ->
-                    (maxScore == null && minScore == null) || true
                 }
-        val start = pageable.offset.toInt()
-        val end = (start + pageable.pageSize).coerceAtMost(members.size)
-
-        val pageContent =
-            if (start < members.size) {
-                members.subList(start, end)
-            } else {
-                emptyList()
-            }
 
         return PageImpl(members, pageable, totalCount)
     }
