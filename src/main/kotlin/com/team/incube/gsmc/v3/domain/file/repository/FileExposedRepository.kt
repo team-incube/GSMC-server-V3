@@ -6,6 +6,7 @@ interface FileExposedRepository {
     fun existsByIdIn(fileIds: List<Long>): Boolean
 
     fun saveFile(
+        userId: Long,
         originalName: String,
         storedName: String,
         uri: String,
