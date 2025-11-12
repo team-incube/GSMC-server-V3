@@ -83,6 +83,11 @@ dependencies {
     testImplementation(dependency.Dependencies.SPRING_SECURITY_TEST)
     testRuntimeOnly(dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER)
     testImplementation(dependency.Dependencies.MOCKK)
+
+    // Jwt
+    implementation(dependency.Dependencies.JJWT_API)
+    runtimeOnly(dependency.Dependencies.JJWT_IMPL)
+    runtimeOnly(dependency.Dependencies.JJWT_JACKSON)
 }
 
 dependencyManagement {
