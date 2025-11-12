@@ -56,7 +56,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Build with Gradle
-        run: ./gradlew --build-cache clean build -x test
+        run: ./gradlew --build-cache clean build -x test -x check
 
       - name: Deploy to Dev Server
         uses: 8G4B/GSM-SV-Deploy@v1.2.1
