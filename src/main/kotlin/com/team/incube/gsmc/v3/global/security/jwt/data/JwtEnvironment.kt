@@ -2,7 +2,7 @@ package com.team.incube.gsmc.v3.global.security.jwt.data
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-@ConfigurationProperties(prefix = "jwt")
+@ConfigurationProperties(prefix = "spring.security.jwt")
 data class JwtEnvironment(
     val issuer: String,
     val accessToken: AccessToken,
