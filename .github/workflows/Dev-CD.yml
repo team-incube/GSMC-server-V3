@@ -2,7 +2,7 @@ name: GSMC-Dev-CD
 
 on:
   push:
-    branches: [ "develop", "feature/*" ]
+    branches: [ "develop" ]
 
 jobs:
   test:
