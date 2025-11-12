@@ -16,6 +16,9 @@ class DomainAuthorizationConfig {
             // Health Check
             .requestMatchers("/api/v3/health")
             .permitAll()
+            // Auth
+            .requestMatchers("/api/v3/auth/**")
+            .permitAll()
             // Others
             .anyRequest()
             .permitAll()
