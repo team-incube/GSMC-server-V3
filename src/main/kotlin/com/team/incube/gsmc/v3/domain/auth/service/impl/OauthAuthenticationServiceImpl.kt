@@ -30,13 +30,13 @@ class OauthAuthenticationServiceImpl(
     private val tokenResponseClient: OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>,
     private val oauth2UserService: OAuth2UserService<OAuth2UserRequest, OAuth2User>,
 ) : OauthAuthenticationService {
-
     override fun execute(code: String): AuthTokenResponse {
         val decodedCode = URLDecoder.decode(code, StandardCharsets.UTF_8)
 
         try {
-            val clientRegistration = clientRegistrationRepository.findByRegistrationId("google")
-                ?: throw GsmcException(ErrorCode.OAUTH2_AUTHORIZATION_FAILED)
+            val clientRegistration =
+                clientRegistrationRepository.findByRegistrationId("google")
+                    ?: throw GsmcException(ErrorCode.OAUTH2_AUTHORIZATION_FAILED)
 
             val authorizationRequest =
                 OAuth2AuthorizationRequest
@@ -64,21 +64,23 @@ class OauthAuthenticationServiceImpl(
             val userRequest = OAuth2UserRequest(clientRegistration, tokenResponse.accessToken)
             val oauth2User = oauth2UserService.loadUser(userRequest)
 
-            val email = (oauth2User.attributes["email"] as? String)
-                ?: throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
+            val email =
+                (oauth2User.attributes["email"] as? String)
+                    ?: throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
             val name = (oauth2User.attributes["name"] as? String) ?: ""
 
-            val member = transaction {
-                memberExposedRepository.findByEmail(email)
-                    ?: memberExposedRepository.save(
-                        name = name,
-                        email = email,
-                        grade = null,
-                        classNumber = null,
-                        number = null,
-                        role = MemberRole.UNAUTHORIZED,
-                    )
-            }
+            val member =
+                transaction {
+                    memberExposedRepository.findByEmail(email)
+                        ?: memberExposedRepository.save(
+                            name = name,
+                            email = email,
+                            grade = null,
+                            classNumber = null,
+                            number = null,
+                            role = MemberRole.UNAUTHORIZED,
+                        )
+                }
 
             val access = jwtProvider.issueAccessToken(member.id, member.role)
             val refresh = jwtProvider.issueRefreshToken(member.id)

@@ -12,7 +12,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User
 
 @Configuration
 class OAuth2ClientConfig {
-
     @Bean
     fun oauth2AccessTokenResponseClient(): OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> =
         DefaultAuthorizationCodeTokenResponseClient()
