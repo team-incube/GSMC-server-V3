@@ -55,7 +55,7 @@ class GlobalExceptionHandler(
     fun handleHttpMessageNotReadable(ex: HttpMessageNotReadableException): CommonApiResponse<Nothing> {
         warnTrace("HttpMessageNotReadable", ex)
         return CommonApiResponse.error(
-            message = "요청 본문을 읽을 수 없습니다: ${ex.mostSpecificCause.message}",
+            message = "요청 본문을 읽을 수 없습니다.",
             status = HttpStatus.BAD_REQUEST,
         )
     }
