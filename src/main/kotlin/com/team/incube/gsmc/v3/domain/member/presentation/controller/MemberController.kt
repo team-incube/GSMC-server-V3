@@ -65,7 +65,7 @@ class MemberController(
             grade = grade,
             classNumber = classNumber,
             number = number,
-            pageable = PageRequest.of(page, limit ?: 100),
+            pageable = PageRequest.of(page, limit),
         )
 
 //    @Operation(
