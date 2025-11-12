@@ -59,6 +59,7 @@ class DeleteFileServiceTest :
             val existingFile =
                 File(
                     fileId = fileId,
+                    userId = 0L,
                     fileOriginalName = "test-document.pdf",
                     fileStoredName = "20251015120000_abc123def456.pdf",
                     fileUri = testFileUri,
@@ -124,6 +125,7 @@ class DeleteFileServiceTest :
                 val file =
                     File(
                         fileId = fileId,
+                        userId = 0L,
                         fileOriginalName = "file$fileId.pdf",
                         fileStoredName = "stored-file$fileId.pdf",
                         fileUri = fileUris[index],
@@ -165,6 +167,7 @@ class DeleteFileServiceTest :
             val existingFile =
                 File(
                     fileId = fileId,
+                    userId = 0L,
                     fileOriginalName = "test-document.pdf",
                     fileStoredName = "20251015120000_abc123def456.pdf",
                     fileUri = testFileUri,
@@ -202,6 +205,7 @@ class DeleteFileServiceTest :
                     val file =
                         File(
                             fileId = fileId,
+                            userId = 0L,
                             fileOriginalName = fileName,
                             fileStoredName = "stored-$fileName",
                             fileUri = fileUri,
@@ -229,6 +233,7 @@ class DeleteFileServiceTest :
             val existingFile =
                 File(
                     fileId = fileId,
+                    userId = 0L,
                     fileOriginalName = "test-document.pdf",
                     fileStoredName = "20251015120000_abc123def456.pdf",
                     fileUri = testFileUri,

@@ -94,6 +94,7 @@ class CreateFileServiceTest :
             every { context.mockS3UploadService.execute(context.validFile) } returns testFileUri
             every {
                 context.mockFileRepository.saveFile(
+                    userId = 0L,
                     originalName = "test-document.pdf",
                     storedName = any(),
                     uri = testFileUri,
@@ -101,6 +102,7 @@ class CreateFileServiceTest :
             } returns
                 File(
                     fileId = 1L,
+                    userId = 0L,
                     fileOriginalName = "test-document.pdf",
                     fileStoredName = "20251015120000_abc123def456.pdf",
                     fileUri = testFileUri,
@@ -129,6 +131,7 @@ class CreateFileServiceTest :
                 Then("파일 저장소에 저장되어야 한다") {
                     verify(exactly = 1) {
                         context.mockFileRepository.saveFile(
+                            userId = 0L,
                             originalName = "test-document.pdf",
                             storedName = any(),
                             uri = testFileUri,
@@ -154,6 +157,7 @@ class CreateFileServiceTest :
                     every { context.mockS3UploadService.execute(testFile) } returns testFileUri
                     every {
                         context.mockFileRepository.saveFile(
+                            userId = 0L,
                             originalName = "test-file.$extension",
                             storedName = any(),
                             uri = testFileUri,
@@ -161,6 +165,7 @@ class CreateFileServiceTest :
                     } returns
                         File(
                             fileId = 1L,
+                            userId = 0L,
                             fileOriginalName = "test-file.$extension",
                             fileStoredName = "20251015120000_test.$extension",
                             fileUri = testFileUri,
@@ -253,6 +258,7 @@ class CreateFileServiceTest :
             every { context.mockS3UploadService.execute(upperCaseFile) } returns testFileUri
             every {
                 context.mockFileRepository.saveFile(
+                    userId = 0L,
                     originalName = "TEST-FILE.PDF",
                     storedName = any(),
                     uri = testFileUri,
@@ -260,6 +266,7 @@ class CreateFileServiceTest :
             } returns
                 File(
                     fileId = 1L,
+                    userId = 0L,
                     fileOriginalName = "TEST-FILE.PDF",
                     fileStoredName = "20251015120000_test.PDF",
                     fileUri = testFileUri,

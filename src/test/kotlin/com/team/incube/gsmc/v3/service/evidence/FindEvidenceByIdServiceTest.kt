@@ -47,8 +47,8 @@ class FindEvidenceByIdServiceTest :
             val c = ctx()
             val id = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val files = listOf(File(10, "a.pdf", "sa.pdf", "uri-a"))
-            val evidence = Evidence(id, "title", "content", now, now, files)
+            val files = listOf(File(10, 0L, "a.pdf", "sa.pdf", "uri-a"))
+            val evidence = Evidence(id, 0L, "title", "content", now, now, files)
             every { c.repo.findById(id) } returns evidence
 
             When("execute를 호출하면") {
