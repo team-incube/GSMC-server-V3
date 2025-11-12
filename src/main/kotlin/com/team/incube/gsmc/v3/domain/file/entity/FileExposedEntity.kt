@@ -10,5 +10,5 @@ object FileExposedEntity : Table(name = "tb_file") {
     val storedName = varchar(name = "file_stored_name", length = 255)
     val uri = varchar(name = "file_uri", length = 512)
 
-    override val primaryKey = PrimaryKey(id, userId)
+    override val primaryKey = PrimaryKey(id)
 }
