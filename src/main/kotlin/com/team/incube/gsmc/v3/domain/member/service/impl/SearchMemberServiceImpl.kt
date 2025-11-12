@@ -34,7 +34,7 @@ class SearchMemberServiceImpl(
                 )
             SearchMemberResponse(
                 totalPage = members.totalPages,
-                totalElements = members.totalElements.toInt(),
+                totalElements = members.totalElements,
                 data = members.content,
             )
         }
