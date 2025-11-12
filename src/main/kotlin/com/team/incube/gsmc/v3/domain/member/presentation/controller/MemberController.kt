@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -57,7 +56,7 @@ class MemberController(
         @RequestParam(required = false) number: Int?,
         @RequestParam(required = false) limit: Int = 100,
         @RequestParam(required = false) page: Int = 0,
-    ): Page<SearchMemberResponse> =
+    ): SearchMemberResponse =
         searchMemberService.execute(
             email = email,
             name = name,
