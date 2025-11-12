@@ -1,20 +1,20 @@
 package com.team.incube.gsmc.v3.domain.auth.presentation
 
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.request.OAuthCodeRequest
-import org.springframework.web.bind.annotation.CookieValue
-import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.enums.ParameterIn
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.response.AuthTokenResponse
 import com.team.incube.gsmc.v3.domain.auth.service.OauthAuthenticationService
 import com.team.incube.gsmc.v3.domain.auth.service.TokenRefreshService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
