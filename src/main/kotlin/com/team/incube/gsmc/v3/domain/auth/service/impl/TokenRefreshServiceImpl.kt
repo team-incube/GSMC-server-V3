@@ -35,29 +35,29 @@ class TokenRefreshServiceImpl(
                     ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
             }
 
-        val newAccessToken = jwtProvider.issueAccessToken(memberId, member.role)
-        val newRefreshToken = jwtProvider.issueRefreshToken(memberId)
+        val newAccess = jwtProvider.issueAccessToken(memberId, member.role)
+        val newRefresh = jwtProvider.issueRefreshToken(memberId)
 
-        refreshTokenRedisRepository.deleteByToken(refreshToken)
+        refreshTokenRedisRepository.deleteById(refreshToken)
 
-        val refreshToken =
+        val newRefreshToken =
             RefreshTokenRedisEntity(
-                token = newRefreshToken.token,
+                token = newRefresh.token,
                 memberId = memberId,
                 expiration =
-                    newRefreshToken.expiration
+                    newRefresh.expiration
                         .atZone(java.time.ZoneId.systemDefault())
                         .toInstant()
                         .toEpochMilli(),
             )
 
-        refreshTokenRedisRepository.save(refreshToken)
+        refreshTokenRedisRepository.save(newRefreshToken)
 
         return AuthTokenResponse(
-            accessToken = newAccessToken.token,
-            accessTokenExpiresAt = newAccessToken.expiration,
+            accessToken = newAccess.token,
+            accessTokenExpiresAt = newAccess.expiration,
             refreshToken = newRefreshToken.token,
-            refreshTokenExpiresAt = newRefreshToken.expiration,
+            refreshTokenExpiresAt = newRefresh.expiration,
             role = member.role,
         )
     }
