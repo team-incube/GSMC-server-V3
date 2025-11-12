@@ -39,6 +39,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                     if (fileId != null && originalName != null && storedName != null && uri != null) {
                         File(
                             fileId = fileId,
+                            userId = row[EvidenceExposedEntity.userId],
                             fileOriginalName = originalName,
                             fileStoredName = storedName,
                             fileUri = uri,
@@ -49,6 +50,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                 }.distinctBy { it.fileId }
         return Evidence(
             id = firstRow[EvidenceExposedEntity.id],
+            userId = firstRow[EvidenceExposedEntity.userId],
             title = firstRow[EvidenceExposedEntity.title],
             content = firstRow[EvidenceExposedEntity.content],
             createdAt = firstRow[EvidenceExposedEntity.createdAt].atOffset(ZoneOffset.UTC).toLocalDateTime(),
@@ -58,6 +60,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
     }
 
     override fun save(
+        userId: Long,
         title: String,
         content: String,
         fileIds: List<Long>,
@@ -66,6 +69,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
 
         val evidenceId =
             EvidenceExposedEntity.insert {
+                it[this.userId] = userId
                 it[this.title] = title
                 it[this.content] = content
                 it[createdAt] = now
@@ -91,6 +95,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                         if (originalName != null && storedName != null && uri != null) {
                             File(
                                 fileId = row[FileExposedEntity.id],
+                                userId = row[FileExposedEntity.userId],
                                 fileOriginalName = originalName,
                                 fileStoredName = storedName,
                                 fileUri = uri,
@@ -105,6 +110,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
 
         return Evidence(
             id = evidenceId,
+            userId = userId,
             title = title,
             content = content,
             createdAt = now.atOffset(ZoneOffset.UTC).toLocalDateTime(),
@@ -154,6 +160,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                     if (fileId != null && originalName != null && storedName != null && uri != null) {
                         File(
                             fileId = fileId,
+                            userId = row[EvidenceExposedEntity.userId],
                             fileOriginalName = originalName,
                             fileStoredName = storedName,
                             fileUri = uri,
@@ -165,6 +172,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
 
         return Evidence(
             id = firstRow[EvidenceExposedEntity.id],
+            userId = firstRow[EvidenceExposedEntity.userId],
             title = firstRow[EvidenceExposedEntity.title],
             content = firstRow[EvidenceExposedEntity.content],
             createdAt = firstRow[EvidenceExposedEntity.createdAt].atOffset(ZoneOffset.UTC).toLocalDateTime(),

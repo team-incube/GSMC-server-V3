@@ -49,7 +49,7 @@ class DeleteEvidenceServiceTest :
             val c = ctx()
             val id = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val evidence = Evidence(id, "t", "c", now, now, listOf(File(1, "a", "sa", "uri")))
+            val evidence = Evidence(id, 0L, "t", "c", now, now, listOf(File(1, 0L, "a", "sa", "uri")))
             every { c.evidenceRepo.findById(id) } returns evidence
             justRun { c.scoreRepo.updateSourceIdToNull(id) }
             justRun { c.evidenceRepo.deleteById(id) }
@@ -85,7 +85,7 @@ class DeleteEvidenceServiceTest :
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
             val ids = listOf(1L, 2L, 3L)
             ids.forEach { i ->
-                every { c.evidenceRepo.findById(i) } returns Evidence(i, "t$i", "c$i", now, now, emptyList())
+                every { c.evidenceRepo.findById(i) } returns Evidence(i, 0L, "t$i", "c$i", now, now, emptyList())
                 justRun { c.scoreRepo.updateSourceIdToNull(i) }
                 justRun { c.evidenceRepo.deleteById(i) }
             }

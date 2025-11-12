@@ -6,6 +6,7 @@ interface EvidenceExposedRepository {
     fun findById(evidenceId: Long): Evidence?
 
     fun save(
+        userId: Long,
         title: String,
         content: String,
         fileIds: List<Long>,

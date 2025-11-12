@@ -53,17 +53,18 @@ class UpdateEvidenceServiceTest :
         Given("증빙이 존재하고 참여자와 파일이 모두 변경되는 경우") {
             val c = ctx()
             val id = 1L
+            val userId = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val originFiles = listOf(File(10, "a.pdf", "sa.pdf", "uri-a"))
-            val found = Evidence(id, "old-title", "old-content", now, now, originFiles)
+            val originFiles = listOf(File(10, userId, "a.pdf", "sa.pdf", "uri-a"))
+            val found = Evidence(id, userId, "old-title", "old-content", now, now, originFiles)
             val newParticipants = listOf(100L, 101L)
             val newFileIds = listOf(20L, 21L)
             val updatedFiles =
                 listOf(
-                    File(20, "b.pdf", "sb.pdf", "uri-b"),
-                    File(21, "c.jpg", "sc.jpg", "uri-c"),
+                    File(20, userId, "b.pdf", "sb.pdf", "uri-b"),
+                    File(21, userId, "c.jpg", "sc.jpg", "uri-c"),
                 )
-            val updated = Evidence(id, "new-title", "new-content", now, now, updatedFiles)
+            val updated = Evidence(id, userId, "new-title", "new-content", now, now, updatedFiles)
 
             every { c.evidenceRepo.findById(id) } returns found
             every { c.fileRepo.existsByIdIn(newFileIds) } returns true
@@ -119,8 +120,9 @@ class UpdateEvidenceServiceTest :
         Given("파일 IDs가 주어졌지만 존재하지 않을 때") {
             val c = ctx()
             val id = 1L
+            val userId = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val found = Evidence(id, "t", "c", now, now, emptyList())
+            val found = Evidence(id, userId, "t", "c", now, now, emptyList())
             every { c.evidenceRepo.findById(id) } returns found
             every { c.fileRepo.existsByIdIn(listOf(999L)) } returns false
 
@@ -135,8 +137,9 @@ class UpdateEvidenceServiceTest :
         Given("참여자 IDs가 주어졌지만 일부 또는 전부가 존재하지 않을 때") {
             val c = ctx()
             val id = 1L
+            val userId = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val found = Evidence(id, "t", "c", now, now, emptyList())
+            val found = Evidence(id, userId, "t", "c", now, now, emptyList())
             every { c.evidenceRepo.findById(id) } returns found
             every { c.fileRepo.existsByIdIn(any()) } returns true
             every { c.scoreRepo.existsByIdIn(listOf(100L, 200L)) } returns false
@@ -163,10 +166,11 @@ class UpdateEvidenceServiceTest :
         Given("타이틀/내용/파일/참여자 모두 null이면 기존 값으로 업데이트 된다") {
             val c = ctx()
             val id = 1L
+            val userId = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val originFiles = listOf(File(10, "a.pdf", "sa.pdf", "uri-a"))
-            val found = Evidence(id, "t0", "c0", now, now, originFiles)
-            val updated = Evidence(id, "t0", "c0", now, now, originFiles)
+            val originFiles = listOf(File(10, userId, "a.pdf", "sa.pdf", "uri-a"))
+            val found = Evidence(id, userId, "t0", "c0", now, now, originFiles)
+            val updated = Evidence(id, userId, "t0", "c0", now, now, originFiles)
 
             every { c.evidenceRepo.findById(id) } returns found
             every {
@@ -191,10 +195,11 @@ class UpdateEvidenceServiceTest :
         Given("제목만 변경하고 나머지는 유지하는 경우") {
             val c = ctx()
             val id = 2L
+            val userId = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val originFiles = listOf(File(10, "a.pdf", "sa.pdf", "uri-a"))
-            val found = Evidence(id, "old", "keep", now, now, originFiles)
-            val updated = Evidence(id, "new", "keep", now, now, originFiles)
+            val originFiles = listOf(File(10, userId, "a.pdf", "sa.pdf", "uri-a"))
+            val found = Evidence(id, userId, "old", "keep", now, now, originFiles)
+            val updated = Evidence(id, userId, "new", "keep", now, now, originFiles)
             every { c.evidenceRepo.findById(id) } returns found
             every { c.evidenceRepo.update(id = id, title = "new", content = "keep", fileIds = listOf(10L)) } returns
                 updated

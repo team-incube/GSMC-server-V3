@@ -19,12 +19,14 @@ class FileExposedRepositoryImpl : FileExposedRepository {
             .size == fileIds.size
 
     override fun saveFile(
+        userId: Long,
         originalName: String,
         storedName: String,
         uri: String,
     ): File {
         val insertedId =
             FileExposedEntity.insert {
+                it[this.userId] = userId
                 it[this.originalName] = originalName
                 it[this.storedName] = storedName
                 it[this.uri] = uri
@@ -32,6 +34,7 @@ class FileExposedRepositoryImpl : FileExposedRepository {
 
         return File(
             fileId = insertedId,
+            userId = userId,
             fileOriginalName = originalName,
             fileStoredName = storedName,
             fileUri = uri,
@@ -46,6 +49,7 @@ class FileExposedRepositoryImpl : FileExposedRepository {
             ?.let { row ->
                 File(
                     fileId = row[FileExposedEntity.id],
+                    userId = row[FileExposedEntity.userId],
                     fileOriginalName = row[FileExposedEntity.originalName],
                     fileStoredName = row[FileExposedEntity.storedName],
                     fileUri = row[FileExposedEntity.uri],

@@ -60,12 +60,25 @@ class CreateEvidenceServiceTest :
             val fileIds = listOf(10L, 11L)
             val files =
                 listOf(
-                    File(fileId = 10L, fileOriginalName = "a.pdf", fileStoredName = "s-a.pdf", fileUri = "uri-a"),
-                    File(fileId = 11L, fileOriginalName = "b.jpg", fileStoredName = "s-b.jpg", fileUri = "uri-b"),
+                    File(
+                        fileId = 10L,
+                        userId = 0L,
+                        fileOriginalName = "a.pdf",
+                        fileStoredName = "s-a.pdf",
+                        fileUri = "uri-a",
+                    ),
+                    File(
+                        fileId = 11L,
+                        userId = 0L,
+                        fileOriginalName = "b.jpg",
+                        fileStoredName = "s-b.jpg",
+                        fileUri = "uri-b",
+                    ),
                 )
             val saved =
                 Evidence(
                     id = 100L,
+                    userId = 0L,
                     title = "title",
                     content = "content",
                     createdAt = now,
@@ -76,7 +89,8 @@ class CreateEvidenceServiceTest :
             every { c.scoreRepo.existsByIdIn(scoreIds) } returns true
             every { c.scoreRepo.existsAnyWithSource(scoreIds) } returns false
             every { c.fileRepo.existsByIdIn(fileIds) } returns true
-            every { c.evidenceRepo.save(title = "title", content = "content", fileIds = fileIds) } returns saved
+            every { c.evidenceRepo.save(userId = 0L, title = "title", content = "content", fileIds = fileIds) } returns
+                saved
             justRun { c.scoreRepo.updateSourceId(scoreIds, saved.id) }
 
             When("execute를 호출하면") {
@@ -96,7 +110,9 @@ class CreateEvidenceServiceTest :
                     verify(exactly = 1) { c.scoreRepo.existsByIdIn(scoreIds) }
                     verify(exactly = 1) { c.scoreRepo.existsAnyWithSource(scoreIds) }
                     verify(exactly = 1) { c.fileRepo.existsByIdIn(fileIds) }
-                    verify(exactly = 1) { c.evidenceRepo.save(title = "title", content = "content", fileIds = fileIds) }
+                    verify(
+                        exactly = 1,
+                    ) { c.evidenceRepo.save(userId = 0L, title = "title", content = "content", fileIds = fileIds) }
                     verify(exactly = 1) { c.scoreRepo.updateSourceId(scoreIds, saved.id) }
                 }
             }
@@ -153,12 +169,19 @@ class CreateEvidenceServiceTest :
             val scoreIds = listOf(1L, 2L)
             val fileIds = emptyList<Long>()
             val saved =
-                Evidence(id = 101L, title = "t", content = "c", createdAt = now, updatedAt = now, files = emptyList())
+                Evidence(
+                    id = 101L,
+                    userId = 0L,
+                    title = "t",
+                    content = "c",
+                    createdAt = now,
+                    updatedAt = now,
+                    files = emptyList(),
+                )
 
             every { c.scoreRepo.existsByIdIn(scoreIds) } returns true
             every { c.scoreRepo.existsAnyWithSource(scoreIds) } returns false
-            // fileRepo.existsByIdIn는 호출되지 않아야 함
-            every { c.evidenceRepo.save(title = "t", content = "c", fileIds = fileIds) } returns saved
+            every { c.evidenceRepo.save(userId = 0L, title = "t", content = "c", fileIds = fileIds) } returns saved
             justRun { c.scoreRepo.updateSourceId(scoreIds, saved.id) }
 
             When("execute를 호출하면") {
@@ -167,7 +190,9 @@ class CreateEvidenceServiceTest :
                 Then("정상적으로 생성되고 파일 검증은 호출되지 않는다") {
                     res.id shouldBe 101L
                     verify(exactly = 0) { c.fileRepo.existsByIdIn(any()) }
-                    verify(exactly = 1) { c.evidenceRepo.save(title = "t", content = "c", fileIds = fileIds) }
+                    verify(
+                        exactly = 1,
+                    ) { c.evidenceRepo.save(userId = 0L, title = "t", content = "c", fileIds = fileIds) }
                     verify(exactly = 1) { c.scoreRepo.updateSourceId(scoreIds, saved.id) }
                 }
             }
