@@ -36,3 +36,11 @@ springdoc:
     enabled: false
   api-docs:
     enabled: false
+jwt:
+  issuer: ${JWT_ISSUER}
+  access-token:
+    secret: ${JWT_ACCESS_TOKEN_SECRET}
+    expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:}
+  refresh-token:
+    secret: ${JWT_REFRESH_TOKEN_SECRET}
+    expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}

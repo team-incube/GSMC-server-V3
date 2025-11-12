@@ -47,3 +47,11 @@ springdoc:
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
   writer-with-default-pretty-printer: true
+jwt:
+  issuer: ${JWT_ISSUER:gsmc}
+  access-token:
+    secret: ${JWT_ACCESS_TOKEN_SECRET:f2ba6a534025117d28f915841d241bb1ecb758550803220812374020ef48d3cf}
+    expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:86400}
+  refresh-token:
+    secret: ${JWT_REFRESH_TOKEN_SECRET:f1b1ce8f8c978ab7b6bab79cf406c51fdf2383d1cd1b10bd1080dad3ceb1dda3}
+    expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800}
