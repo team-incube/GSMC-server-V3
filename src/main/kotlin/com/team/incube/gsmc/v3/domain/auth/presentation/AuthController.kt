@@ -1,7 +1,9 @@
 package com.team.incube.gsmc.v3.domain.auth.presentation
 
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.request.OAuthCodeRequest
-import com.team.incube.gsmc.v3.domain.auth.presentation.data.request.TokenRefreshRequest
+import org.springframework.web.bind.annotation.CookieValue
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.enums.ParameterIn
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.response.AuthTokenResponse
 import com.team.incube.gsmc.v3.domain.auth.service.OauthAuthenticationService
 import com.team.incube.gsmc.v3.domain.auth.service.TokenRefreshService
@@ -66,9 +68,10 @@ class AuthController(
     )
     @PutMapping("/refresh")
     fun tokenRefresh(
-        @RequestBody @Valid request: TokenRefreshRequest,
+        @Parameter(name = "refreshToken", `in` = ParameterIn.COOKIE, required = true, description = "Refresh token cookie")
+        @CookieValue("refreshToken") refreshToken: String,
     ): CommonApiResponse<AuthTokenResponse> {
-        val response = tokenRefreshService.execute(request.refreshToken)
+        val response = tokenRefreshService.execute(refreshToken)
         return CommonApiResponse.success("OK", response)
     }
 }
