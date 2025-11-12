@@ -2,7 +2,6 @@ package com.team.incube.gsmc.v3.domain.member.service
 
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.presentation.data.response.SearchMemberResponse
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface SearchMemberService {
@@ -14,5 +13,5 @@ interface SearchMemberService {
         classNumber: Int?,
         number: Int?,
         pageable: Pageable,
-    ): Page<SearchMemberResponse>
+    ): SearchMemberResponse
 }
