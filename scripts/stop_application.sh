@@ -20,3 +20,4 @@ if [ "$(docker ps -aq -f name=$CONTAINER_NAME)" ]; then
 
 else
     echo "> No container to remove"
+fi
