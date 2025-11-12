@@ -35,8 +35,8 @@ class AuthController(
                 content = [Content(schema = Schema(implementation = AuthTokenResponse::class))],
             ),
             ApiResponse(
-                responseCode = "404",
-                description = "증빙자료를 찾을 수 없음",
+                responseCode = "400",
+                description = "OAuth 인증에 실패함",
                 content = [Content()],
             ),
         ],
@@ -49,6 +49,21 @@ class AuthController(
         return CommonApiResponse.success("OK", response)
     }
 
+    @Operation(summary = "JWT 토큰 재발급", description = "RefreshToken을 이용하여 JWT 토큰을 재발급합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "토큰 재발급 성공",
+                content = [Content(schema = Schema(implementation = AuthTokenResponse::class))],
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "JWT 인증 실패",
+                content = [Content()],
+            ),
+        ],
+    )
     @PutMapping("/refresh")
     fun tokenRefresh(
         @RequestHeader("refreshToken") refreshToken: String,
