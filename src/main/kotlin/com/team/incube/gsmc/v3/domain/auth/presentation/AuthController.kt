@@ -1,6 +1,7 @@
 package com.team.incube.gsmc.v3.domain.auth.presentation
 
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.request.OAuthCodeRequest
+import com.team.incube.gsmc.v3.domain.auth.presentation.data.request.TokenRefreshRequest
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.response.AuthTokenResponse
 import com.team.incube.gsmc.v3.domain.auth.service.OauthAuthenticationService
 import com.team.incube.gsmc.v3.domain.auth.service.TokenRefreshService
@@ -15,7 +16,6 @@ import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -66,9 +66,9 @@ class AuthController(
     )
     @PutMapping("/refresh")
     fun tokenRefresh(
-        @RequestHeader("refreshToken") refreshToken: String,
+        @RequestBody @Valid request: TokenRefreshRequest,
     ): CommonApiResponse<AuthTokenResponse> {
-        val response = tokenRefreshService.execute(refreshToken)
+        val response = tokenRefreshService.execute(request.refreshToken)
         return CommonApiResponse.success("OK", response)
     }
 }
