@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.domain.auth.service.impl
 
+import com.team.incube.gsmc.v3.domain.auth.entity.RefreshTokenRedisEntity
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.response.AuthTokenResponse
 import com.team.incube.gsmc.v3.domain.auth.repository.RefreshTokenRedisRepository
 import com.team.incube.gsmc.v3.domain.auth.service.TokenRefreshService
@@ -23,6 +24,10 @@ class TokenRefreshServiceImpl(
             throw GsmcException(ErrorCode.REFRESH_TOKEN_INVALID)
         }
 
+        if (!refreshTokenRedisRepository.existsById(refreshToken)) {
+            throw GsmcException(ErrorCode.REFRESH_TOKEN_INVALID)
+        }
+
         val memberId = jwtParser.getUserIdFromRefreshToken(refreshToken).toLong()
         val member =
             transaction {
@@ -34,6 +39,19 @@ class TokenRefreshServiceImpl(
         val newRefreshToken = jwtProvider.issueRefreshToken(memberId)
 
         refreshTokenRedisRepository.deleteByToken(refreshToken)
+
+        val refreshToken =
+            RefreshTokenRedisEntity(
+                token = newRefreshToken.token,
+                memberId = memberId,
+                expiration =
+                    newRefreshToken.expiration
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .toInstant()
+                        .toEpochMilli(),
+            )
+
+        refreshTokenRedisRepository.save(refreshToken)
 
         return AuthTokenResponse(
             accessToken = newAccessToken.token,
