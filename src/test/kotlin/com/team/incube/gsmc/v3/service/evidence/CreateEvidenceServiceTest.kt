@@ -89,7 +89,8 @@ class CreateEvidenceServiceTest :
             every { c.scoreRepo.existsByIdIn(scoreIds) } returns true
             every { c.scoreRepo.existsAnyWithSource(scoreIds) } returns false
             every { c.fileRepo.existsByIdIn(fileIds) } returns true
-            every { c.evidenceRepo.save(userId = 0L, title = "title", content = "content", fileIds = fileIds) } returns saved
+            every { c.evidenceRepo.save(userId = 0L, title = "title", content = "content", fileIds = fileIds) } returns
+                saved
             justRun { c.scoreRepo.updateSourceId(scoreIds, saved.id) }
 
             When("execute를 호출하면") {
