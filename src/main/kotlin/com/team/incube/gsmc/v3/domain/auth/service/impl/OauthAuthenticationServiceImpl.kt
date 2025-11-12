@@ -1,6 +1,8 @@
 package com.team.incube.gsmc.v3.domain.auth.service.impl
 
+import com.team.incube.gsmc.v3.domain.auth.entity.RefreshTokenRedisEntity
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.response.AuthTokenResponse
+import com.team.incube.gsmc.v3.domain.auth.repository.RefreshTokenRedisRepository
 import com.team.incube.gsmc.v3.domain.auth.service.OauthAuthenticationService
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
@@ -21,6 +23,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Service
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
+import java.time.ZoneId
 
 @Service
 class OauthAuthenticationServiceImpl(
@@ -29,6 +32,7 @@ class OauthAuthenticationServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
     private val tokenResponseClient: OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>,
     private val oauth2UserService: OAuth2UserService<OAuth2UserRequest, OAuth2User>,
+    private val refreshTokenRedisRepository: RefreshTokenRedisRepository,
 ) : OauthAuthenticationService {
     override fun execute(code: String): AuthTokenResponse {
         val decodedCode = URLDecoder.decode(code, StandardCharsets.UTF_8)
@@ -45,14 +49,12 @@ class OauthAuthenticationServiceImpl(
                     .authorizationUri(clientRegistration.providerDetails.authorizationUri)
                     .redirectUri(clientRegistration.redirectUri)
                     .scopes(clientRegistration.scopes)
-                    .state("state")
                     .build()
 
             val authorizationResponse =
                 OAuth2AuthorizationResponse
                     .success(decodedCode)
                     .redirectUri(clientRegistration.redirectUri)
-                    .state("state")
                     .build()
 
             val authorizationExchange = OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse)
@@ -84,6 +86,19 @@ class OauthAuthenticationServiceImpl(
 
             val access = jwtProvider.issueAccessToken(member.id, member.role)
             val refresh = jwtProvider.issueRefreshToken(member.id)
+
+            val refreshToken =
+                RefreshTokenRedisEntity(
+                    token = refresh.token,
+                    memberId = member.id,
+                    expiration =
+                        refresh.expiration
+                            .atZone(ZoneId.systemDefault())
+                            .toInstant()
+                            .toEpochMilli(),
+                )
+
+            refreshTokenRedisRepository.save(refreshToken)
 
             return AuthTokenResponse(
                 accessToken = access.token,
