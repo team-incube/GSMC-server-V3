@@ -56,7 +56,7 @@ object Dependencies {
     const val JUNIT_PLATFORM_LAUNCHER = "org.junit.platform:junit-platform-launcher"
     const val MOCKK = "io.mockk:mockk:${DependencyVersions.MOCKK_VERSION}"
 
-    /* JWT */
+    // JWT
     const val JJWT_API = "io.jsonwebtoken:jjwt-api:${DependencyVersions.JJWT_VERSION}"
     const val JJWT_IMPL = "io.jsonwebtoken:jjwt-impl:${DependencyVersions.JJWT_VERSION}"
     const val JJWT_JACKSON = "io.jsonwebtoken:jjwt-jackson:${DependencyVersions.JJWT_VERSION}"
