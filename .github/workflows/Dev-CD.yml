@@ -62,7 +62,7 @@ jobs:
         uses: 8G4B/GSM-SV-Deploy@v1.2.1
         with:
           host: ${{ secrets.SERVER_HOST }}
-          target_path: /home/ubuntu/moadream-server
+          target_path: /home/ubuntu/gsmc-dev
           user: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
