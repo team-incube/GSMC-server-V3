@@ -4,8 +4,8 @@ import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
-import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.selectAll
@@ -27,9 +27,9 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
         pageable: Pageable,
     ): Page<Member> {
         val conditions =
-            buildList<Op<Boolean>> {
-                email?.let { add(MemberExposedEntity.email eq it) }
-                name?.let { add(MemberExposedEntity.name eq it) }
+            buildList {
+                email?.let { add(MemberExposedEntity.email like "%$it%") }
+                name?.let { add(MemberExposedEntity.name like "%$it%") }
                 role?.let { add(MemberExposedEntity.role eq it) }
                 grade?.let { add(MemberExposedEntity.grade eq it) }
                 classNumber?.let { add(MemberExposedEntity.classNumber eq it) }
@@ -41,16 +41,14 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
         val totalCount =
             MemberExposedEntity
                 .selectAll()
-                .apply {
-                    whereClause?.let { where { it } }
-                }.count()
+                .apply { whereClause?.let { where { it } } }
+                .count()
 
         val members =
             MemberExposedEntity
                 .selectAll()
-                .apply {
-                    whereClause?.let { where { it } }
-                }.limit(pageable.pageSize)
+                .apply { whereClause?.let { where { it } } }
+                .limit(pageable.pageSize)
                 .offset(pageable.offset.toLong())
                 .map { row ->
                     Member(
@@ -66,30 +64,6 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
 
         return PageImpl(members, pageable, totalCount)
     }
-
-    override fun searchById(memberId: Long): Member? =
-        MemberExposedEntity
-            .selectAll()
-            .where {
-                MemberExposedEntity.id eq memberId
-            }.map { row ->
-                Member(
-                    id = row[MemberExposedEntity.id],
-                    name = row[MemberExposedEntity.name],
-                    email = row[MemberExposedEntity.email],
-                    grade = row[MemberExposedEntity.grade],
-                    classNumber = row[MemberExposedEntity.classNumber],
-                    number = row[MemberExposedEntity.number],
-                    role = row[MemberExposedEntity.role],
-                )
-            }.singleOrNull()
-
-    override fun existsByIdIn(memberIds: List<Long>): Boolean =
-        MemberExposedEntity
-            .selectAll()
-            .where { MemberExposedEntity.id inList memberIds }
-            .map { it[MemberExposedEntity.id] }
-            .size == memberIds.size
 
     override fun updateMemberRoleByEmail(
         email: String,

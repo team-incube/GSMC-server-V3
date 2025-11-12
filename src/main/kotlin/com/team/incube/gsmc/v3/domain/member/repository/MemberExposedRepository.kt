@@ -16,10 +16,6 @@ interface MemberExposedRepository {
         pageable: Pageable,
     ): Page<Member>
 
-    fun searchById(memberId: Long): Member?
-
-    fun existsByIdIn(memberIds: List<Long>): Boolean
-
     fun updateMemberRoleByEmail(
         email: String,
         role: MemberRole,
