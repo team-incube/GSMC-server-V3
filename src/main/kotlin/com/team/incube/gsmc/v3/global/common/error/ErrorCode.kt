@@ -26,7 +26,7 @@ enum class ErrorCode(
 
     // Auth
     REFRESH_TOKEN_INVALID("리프레시 토큰이 만료되었거나 유효하지 않습니다.", 401),
-    OAUTH2_AUTHORIZATION_FAILED("OAuth2 인증에 실패했습니다.", 401),
+    OAUTH2_AUTHORIZATION_FAILED("OAuth 2.0 인증에 실패했습니다.", 401),
     AUTHENTICATION_FAILED("인증 과정에서 오류가 발생했습니다.", 401),
 
     // Member
