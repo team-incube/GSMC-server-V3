@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.global.security.config
 
+import com.team.incube.gsmc.v3.global.security.handler.CustomAuthenticationEntryPoint
 import com.team.incube.gsmc.v3.global.security.jwt.JwtParser
 import com.team.incube.gsmc.v3.global.security.jwt.filter.JwtAuthenticationFilter
 import org.springframework.beans.factory.annotation.Qualifier
@@ -22,6 +23,7 @@ class SecurityConfig(
     private val domainAuthorizationConfig: DomainAuthorizationConfig,
     @param:Qualifier("configure") private val corsConfigurationSource: CorsConfigurationSource,
     private val jwtParser: JwtParser,
+    private val customAuthenticationEntryPoint: CustomAuthenticationEntryPoint,
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -32,6 +34,7 @@ class SecurityConfig(
             .formLogin(FormLoginConfigurer<*>::disable)
             .logout(LogoutConfigurer<*>::disable)
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .exceptionHandling { it.authenticationEntryPoint(customAuthenticationEntryPoint) }
             .authorizeHttpRequests { domainAuthorizationConfig.configure(it) }
             .addFilterBefore(JwtAuthenticationFilter(jwtParser), UsernamePasswordAuthenticationFilter::class.java)
 
