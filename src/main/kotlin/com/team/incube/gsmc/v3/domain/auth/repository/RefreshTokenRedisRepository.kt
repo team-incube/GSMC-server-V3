@@ -6,5 +6,4 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface RefreshTokenRedisRepository : CrudRepository<RefreshTokenRedisEntity, String> {
-    fun deleteByToken(token: String)
 }
