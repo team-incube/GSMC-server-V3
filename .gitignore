@@ -43,3 +43,6 @@ out/
 
 ### Environment ###
 .env
+.env.*
+!.env.example
+.env.backup

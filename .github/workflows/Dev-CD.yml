@@ -1,0 +1,83 @@
+name: GSMC-Dev-CD
+
+on:
+  push:
+    branches: [ "develop" ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup JDK 24
+        uses: actions/setup-java@v5
+        with:
+          java-version: '24'
+          distribution: temurin
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Run KtLint Check
+        run: ./gradlew ktlintCheck
+
+      - name: Run Tests
+        run: ./gradlew test
+
+  deploy:
+    runs-on: ubuntu-latest
+    environment: Dev-CD
+    needs: test
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Remove Existing Profile File
+        run: |
+          rm -f src/main/resources/application-*.yaml
+          rm -f src/main/resources/application.yaml
+
+      - name: Create Dev Profile File
+        run: |
+          cat <<'EOF' > ./src/main/resources/application.yml
+          ${{ secrets.DEV_APPLICATION_YAML }}
+          EOF
+        shell: bash
+
+      - name: Setup JDK 24
+        uses: actions/setup-java@v5
+        with:
+          java-version: '24'
+          distribution: temurin
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Build with Gradle
+        run: ./gradlew --build-cache clean build -x test -x check
+
+      - name: Deploy to Dev Server
+        uses: 8G4B/GSM-SV-Deploy@v1.2.1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          target_path: /home/ubuntu/gsmc-dev
+          user: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: ${{ secrets.SERVER_PORT }}
+
+      - name: CD Success Notification
+        uses: sarisia/actions-status-discord@v1
+        if: success()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          color: 0x4CAF50
+
+      - name: CD Failure Notification
+        uses: sarisia/actions-status-discord@v1
+        if: failure()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          color: 0xFF4C4C
