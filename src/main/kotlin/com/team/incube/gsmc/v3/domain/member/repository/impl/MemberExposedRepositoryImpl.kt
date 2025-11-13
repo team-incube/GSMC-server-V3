@@ -165,6 +165,5 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
             it[MemberExposedEntity.role] = role
         }
 
-    override fun deleteMemberByEmail(email: String): Int =
-        MemberExposedEntity.deleteWhere { MemberExposedEntity.email eq email }
+    override fun deleteMemberByEmail(email: String): Int = MemberExposedEntity.deleteWhere { MemberExposedEntity.email eq email }
 }
