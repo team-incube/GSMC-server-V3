@@ -19,23 +19,6 @@ class JwtAuthenticationFilter(
 ) : OncePerRequestFilter() {
     private val pathMatcher = AntPathMatcher()
 
-    companion object {
-        private val EXCLUDED_PATHS =
-            listOf(
-                "/api/v3/auth/**",
-                "/actuator/prometheus/**",
-                "/api/v3/health/**",
-                "/swagger-ui/**",
-                "/v3/api-docs/**",
-                "/swagger-ui.html",
-            )
-    }
-
-    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
-        val uri = request.requestURI
-        return EXCLUDED_PATHS.any { pattern -> pathMatcher.match(pattern, uri) }
-    }
-
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -52,11 +35,8 @@ class JwtAuthenticationFilter(
                 UsernamePasswordAuthenticationToken(userId, null, authorities)
             authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
             SecurityContextHolder.getContext().authentication = authentication
-            filterChain.doFilter(request, response)
         }
 
-        response.status = HttpServletResponse.SC_UNAUTHORIZED
-        response.contentType = "application/json"
-        response.writer.write("{\"message\": \"Unauthorized or invalid token.\"}")
+        filterChain.doFilter(request, response)
     }
 }
