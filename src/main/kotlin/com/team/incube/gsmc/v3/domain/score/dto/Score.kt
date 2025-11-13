@@ -10,4 +10,5 @@ data class Score(
     val category: Category,
     val status: ScoreStatus,
     val sourceId: Long?,
+    val activityName: String?,
 )

@@ -57,6 +57,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                     category = category,
                     status = row[ScoreExposedEntity.status],
                     sourceId = sourceId,
+                    activityName = row[ScoreExposedEntity.activityName],
                 )
             }.singleOrNull()
 

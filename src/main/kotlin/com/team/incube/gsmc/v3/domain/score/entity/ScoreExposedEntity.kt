@@ -11,6 +11,7 @@ object ScoreExposedEntity : Table(name = "tb_score") {
     val categoryId = long(name = "category_id").references(CategoryExposedEntity.id)
     val status = enumeration<ScoreStatus>(name = "score_status").default(ScoreStatus.PENDING)
     val sourceId = long(name = "source_id").nullable()
+    val activityName = varchar(name = "activity_name", length = 255).nullable()
 
     override val primaryKey = PrimaryKey(id, memberId, categoryId)
 }
