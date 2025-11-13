@@ -11,6 +11,13 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class FileExposedRepositoryImpl : FileExposedRepository {
+    override fun existsById(fileId: Long): Boolean {
+        return FileExposedEntity
+            .selectAll()
+            .where { FileExposedEntity.id eq fileId }
+            .any()
+    }
+
     override fun existsByIdIn(fileIds: List<Long>): Boolean =
         FileExposedEntity
             .selectAll()

@@ -10,6 +10,8 @@ interface ScoreExposedRepository {
 
     fun existsByIdIn(scoreIds: List<Long>): Boolean
 
+    fun save(score: Score): Score
+
     fun updateSourceId(
         scoreIds: List<Long>,
         sourceId: Long,

@@ -12,6 +12,7 @@ import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 import org.springframework.stereotype.Repository
@@ -74,6 +75,18 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                 .where { ScoreExposedEntity.id inList scoreIds }
                 .map { it[ScoreExposedEntity.id] }
         return existingScoreIds.size == scoreIds.size
+    }
+
+    override fun save(score: Score): Score {
+        val generatedId =
+            ScoreExposedEntity.insert {
+                it[memberId] = score.member.id
+                it[categoryId] = score.category.id
+                it[status] = score.status
+                it[sourceId] = score.sourceId
+                it[activityName] = score.activityName
+            } get ScoreExposedEntity.id
+        return score.copy(id = generatedId)
     }
 
     override fun updateSourceId(
