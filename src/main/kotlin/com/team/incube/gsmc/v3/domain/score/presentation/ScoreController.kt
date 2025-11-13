@@ -91,11 +91,10 @@ class ScoreController(
                 responseCode = "409",
                 description = "이미 해당 영역에 대한 인증제 점수를 전부 취득함",
                 content = [Content()],
-            )
+            ),
         ],
-    )@SecurityRequirement(name = "bearerAuth")
+    )
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/certificates")
-    fun addCertificateScore(): CommonApiResponse<Nothing> {
-        return CommonApiResponse.success("OK")
-    }
+    fun addCertificateScore(): CommonApiResponse<Nothing> = CommonApiResponse.success("OK")
 }
