@@ -4,12 +4,10 @@ import com.team.incube.gsmc.v3.domain.auth.presentation.data.request.OAuthCodeRe
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.response.AuthTokenResponse
 import com.team.incube.gsmc.v3.domain.auth.service.OauthAuthenticationService
 import com.team.incube.gsmc.v3.domain.auth.service.TokenRefreshService
-import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -34,10 +32,9 @@ class AuthController(
             ApiResponse(
                 responseCode = "200",
                 description = "OAuth 인증 성공",
-                content = [Content(schema = Schema(implementation = AuthTokenResponse::class))],
             ),
             ApiResponse(
-                responseCode = "400",
+                responseCode = "401",
                 description = "OAuth 인증에 실패함",
                 content = [Content()],
             ),
@@ -46,10 +43,7 @@ class AuthController(
     @PostMapping
     fun oauthAuthentication(
         @Valid @RequestBody request: OAuthCodeRequest,
-    ): CommonApiResponse<AuthTokenResponse> {
-        val response = oauthAuthenticationService.execute(request.code)
-        return CommonApiResponse.success("OK", response)
-    }
+    ): AuthTokenResponse = oauthAuthenticationService.execute(request.code)
 
     @Operation(summary = "JWT 토큰 재발급", description = "RefreshToken을 이용하여 JWT 토큰을 재발급합니다")
     @ApiResponses(
@@ -57,7 +51,6 @@ class AuthController(
             ApiResponse(
                 responseCode = "200",
                 description = "토큰 재발급 성공",
-                content = [Content(schema = Schema(implementation = AuthTokenResponse::class))],
             ),
             ApiResponse(
                 responseCode = "401",
@@ -70,8 +63,5 @@ class AuthController(
     fun tokenRefresh(
         @Parameter(name = "refreshToken", `in` = ParameterIn.COOKIE, required = true, description = "Refresh token cookie")
         @CookieValue("refreshToken") refreshToken: String,
-    ): CommonApiResponse<AuthTokenResponse> {
-        val response = tokenRefreshService.execute(refreshToken)
-        return CommonApiResponse.success("OK", response)
-    }
+    ): AuthTokenResponse = tokenRefreshService.execute(refreshToken)
 }
