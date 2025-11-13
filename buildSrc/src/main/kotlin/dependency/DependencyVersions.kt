@@ -15,4 +15,6 @@ object DependencyVersions {
     const val AWS_LOGBACK_APPENDER_VERSION = "1.6.0"
 
     const val DOTENV_VERSION = "4.0.0"
+
+    const val JJWT_VERSION = "0.12.5"
 }

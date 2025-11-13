@@ -20,6 +20,19 @@ interface MemberExposedRepository {
 
     fun existsByIdIn(memberIds: List<Long>): Boolean
 
+    fun findByEmail(email: String): Member?
+
+    fun save(
+        name: String,
+        email: String,
+        grade: Int?,
+        classNumber: Int?,
+        number: Int?,
+        role: MemberRole,
+    ): Member
+
+    fun findById(id: Long): Member?
+
     fun updateMemberRoleByEmail(
         email: String,
         role: MemberRole,

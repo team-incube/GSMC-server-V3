@@ -11,9 +11,6 @@ enum class ErrorCode(
     SCORE_NOT_FOUND("존재하지 않는 점수 객체입니다.", 404),
     SCORE_ALREADY_HAS_EVIDENCE("이미 증빙을 가진 점수가 포함되어 있습니다.", 409),
 
-    // MEMBER
-    MEMBER_NOT_FOUND("존재하지 않는 사용자입니다.", 404),
-
     // File
     FILE_NOT_FOUND("존재하지 않는 파일입니다.", 404),
     FILE_EMPTY("파일이 비어있습니다.", 400),
@@ -26,4 +23,12 @@ enum class ErrorCode(
     S3_IO_ERROR("파일 입출력 중 오류가 발생했습니다.", 500),
     S3_SERVICE_ERROR("AWS 서비스에서 오류가 발생했습니다.", 500),
     S3_CLIENT_ERROR("AWS SDK 클라이언트에서 오류가 발생했습니다.", 500),
+
+    // Auth
+    REFRESH_TOKEN_INVALID("리프레시 토큰이 만료되었거나 유효하지 않습니다.", 401),
+    OAUTH2_AUTHORIZATION_FAILED("OAuth 2.0 인증에 실패했습니다.", 401),
+    AUTHENTICATION_FAILED("인증 과정에서 오류가 발생했습니다.", 401),
+
+    // Member
+    MEMBER_NOT_FOUND("존재하지 않는 사용자입니다.", 404),
 }
