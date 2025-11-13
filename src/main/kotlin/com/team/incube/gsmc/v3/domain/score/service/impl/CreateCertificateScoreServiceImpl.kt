@@ -19,38 +19,43 @@ import org.springframework.stereotype.Service
 class CreateCertificateScoreServiceImpl(
     private final val scoreExposedRepository: ScoreExposedRepository,
     private final val fileExposedRepository: FileExposedRepository,
-    private final val currentMemberProvider: CurrentMemberProvider
+    private final val currentMemberProvider: CurrentMemberProvider,
 ) : CreateCertificateScoreService {
-    override fun execute(certificateName: String, fileId: Long): CreateScoreResponse =
+    override fun execute(
+        certificateName: String,
+        fileId: Long,
+    ): CreateScoreResponse =
         transaction {
             val member = currentMemberProvider.getCurrentUser()
             if (fileExposedRepository.existsById(fileId).not()) {
                 throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }
-            val savedScore = scoreExposedRepository.save(
-                Score(
-                    id = null,
-                    member = member,
-                    category = mockCategory(),
-                    status = ScoreStatus.PENDING,
-                    sourceId = fileId,
-                    activityName = certificateName,
+            val savedScore =
+                scoreExposedRepository.save(
+                    Score(
+                        id = null,
+                        member = member,
+                        category = mockCategory(),
+                        status = ScoreStatus.PENDING,
+                        sourceId = fileId,
+                        activityName = certificateName,
+                    ),
                 )
-            )
             CreateScoreResponse(
                 scoreId = savedScore.id!!,
-                categoryNames = CategoryNames(
-                    koreanName = savedScore.category.koreanName,
-                    englishName = savedScore.category.englishName
-                ),
+                categoryNames =
+                    CategoryNames(
+                        koreanName = savedScore.category.koreanName,
+                        englishName = savedScore.category.englishName,
+                    ),
                 scoreStatus = savedScore.status,
                 sourceId = savedScore.sourceId,
-                activityName = savedScore.activityName
+                activityName = savedScore.activityName,
             )
         }
 
-    private fun mockCategory(): Category {
-        return Category(
+    private fun mockCategory(): Category =
+        Category(
             id = 1L,
             englishName = "",
             koreanName = "",
@@ -59,5 +64,4 @@ class CreateCertificateScoreServiceImpl(
             isAccumulated = false,
             evidenceType = EvidenceType.FILE,
         )
-    }
 }

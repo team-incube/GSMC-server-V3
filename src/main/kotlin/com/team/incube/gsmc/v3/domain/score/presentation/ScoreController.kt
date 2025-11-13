@@ -52,7 +52,7 @@ class ScoreController(
     ): CommonApiResponse<Nothing> {
         updateScoreStatusService.execute(
             scoreId = scoreId,
-            scoreStatus = request.scoreStatus
+            scoreStatus = request.scoreStatus,
         )
         return CommonApiResponse.success("OK")
     }
@@ -102,7 +102,9 @@ class ScoreController(
     )
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/certificates")
-    fun addCertificateScore(@RequestBody request: CreateCertificateScoreRequest): CreateScoreResponse =
+    fun addCertificateScore(
+        @RequestBody request: CreateCertificateScoreRequest,
+    ): CreateScoreResponse =
         createCertificateScoreService.execute(
             certificateName = request.certificateName,
             fileId = request.fileId,
