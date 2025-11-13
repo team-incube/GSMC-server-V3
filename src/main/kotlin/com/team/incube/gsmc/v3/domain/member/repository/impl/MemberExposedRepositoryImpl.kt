@@ -50,7 +50,7 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
                 .selectAll()
                 .apply { whereClause?.let { where { it } } }
                 .limit(pageable.pageSize)
-                .offset(pageable.offset.toLong())
+                .offset(pageable.offset)
                 .map { row ->
                     Member(
                         id = row[MemberExposedEntity.id],
