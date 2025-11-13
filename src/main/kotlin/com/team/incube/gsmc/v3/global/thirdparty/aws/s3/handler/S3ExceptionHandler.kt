@@ -30,8 +30,7 @@ object S3ExceptionHandler {
             throw GsmcException(ErrorCode.S3_CLIENT_ERROR)
         }
 
-    fun handleUploadOperation(operation: () -> String): String =
-        handleS3Operation(uploadOperation = true, operation = operation)
+    fun handleUploadOperation(operation: () -> String): String = handleS3Operation(uploadOperation = true, operation = operation)
 
     fun handleDeleteOperation(operation: () -> Unit) {
         handleS3Operation(uploadOperation = false, operation = operation)

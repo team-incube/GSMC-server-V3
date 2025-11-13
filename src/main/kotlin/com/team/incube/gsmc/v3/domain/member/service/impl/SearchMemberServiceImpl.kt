@@ -5,7 +5,6 @@ import com.team.incube.gsmc.v3.domain.member.presentation.data.response.SearchMe
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.member.service.SearchMemberService
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
@@ -21,7 +20,7 @@ class SearchMemberServiceImpl(
         classNumber: Int?,
         number: Int?,
         pageable: Pageable,
-    ): Page<SearchMemberResponse> =
+    ): SearchMemberResponse =
         transaction {
             val members =
                 memberExposedRepository.searchMembers(
@@ -33,6 +32,10 @@ class SearchMemberServiceImpl(
                     number = number,
                     pageable = pageable,
                 )
-            members.map { SearchMemberResponse.from(it) }
+            SearchMemberResponse(
+                totalPage = members.totalPages,
+                totalElements = members.totalElements,
+                data = members.content,
+            )
         }
 }
