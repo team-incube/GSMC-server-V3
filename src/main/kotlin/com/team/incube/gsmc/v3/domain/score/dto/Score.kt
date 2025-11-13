@@ -5,7 +5,7 @@ import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 
 data class Score(
-    val id: Long,
+    val id: Long?,
     val member: Member,
     val category: Category,
     val status: ScoreStatus,
