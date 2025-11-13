@@ -6,9 +6,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class DomainAuthorizationConfig {
-    fun configure(
-        authorizeRequests: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry,
-    ) {
+    fun configure(authorizeRequests: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry) {
         authorizeRequests
             // Swagger
             .requestMatchers("/swagger-ui/**", "/api-docs/**")

@@ -4,7 +4,6 @@ import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
-import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.and
@@ -140,6 +139,5 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
             it[MemberExposedEntity.role] = role
         }
 
-    override fun deleteMemberByEmail(email: String): Int =
-        MemberExposedEntity.deleteWhere { MemberExposedEntity.email eq email }
+    override fun deleteMemberByEmail(email: String): Int = MemberExposedEntity.deleteWhere { MemberExposedEntity.email eq email }
 }
