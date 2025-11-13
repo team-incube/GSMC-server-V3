@@ -1,4 +1,4 @@
-package com.team.incube.gsmc.v3.global.security.util
+package com.team.incube.gsmc.v3.global.security.jwt.util
 
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
