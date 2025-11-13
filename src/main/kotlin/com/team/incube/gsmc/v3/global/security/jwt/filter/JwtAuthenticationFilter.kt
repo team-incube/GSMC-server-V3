@@ -28,7 +28,7 @@ class JwtAuthenticationFilter(
         val token = jwtParser.resolveToken(request)
 
         if (token != null && jwtParser.validateAccessToken(token)) {
-            val userId = jwtParser.getUserIdFromAccessToken(token)
+            val userId = jwtParser.getUserIdFromAccessToken(token).toLong()
             val role = jwtParser.getRoleFromAccessToken(token)
             val authorities: List<GrantedAuthority> = listOf(SimpleGrantedAuthority(role.name))
             val authentication =
