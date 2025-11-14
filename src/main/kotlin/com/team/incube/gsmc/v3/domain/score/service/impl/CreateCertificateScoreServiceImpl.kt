@@ -1,7 +1,6 @@
 package com.team.incube.gsmc.v3.domain.score.service.impl
 
-import com.team.incube.gsmc.v3.domain.category.dto.Category
-import com.team.incube.gsmc.v3.domain.category.dto.constant.EvidenceType
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.score.dto.Score
@@ -11,7 +10,7 @@ import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.CreateCertificateScoreService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
-import com.team.incube.gsmc.v3.global.security.util.CurrentMemberProvider
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
 
@@ -35,7 +34,7 @@ class CreateCertificateScoreServiceImpl(
                     Score(
                         id = null,
                         member = member,
-                        category = mockCategory(),
+                        categoryType = CategoryType.CERTIFICATE,
                         status = ScoreStatus.PENDING,
                         sourceId = fileId,
                         activityName = certificateName,
@@ -45,23 +44,12 @@ class CreateCertificateScoreServiceImpl(
                 scoreId = savedScore.id!!,
                 categoryNames =
                     CategoryNames(
-                        koreanName = savedScore.category.koreanName,
-                        englishName = savedScore.category.englishName,
+                        koreanName = savedScore.categoryType.koreanName,
+                        englishName = savedScore.categoryType.englishName,
                     ),
                 scoreStatus = savedScore.status,
                 sourceId = savedScore.sourceId,
                 activityName = savedScore.activityName,
             )
         }
-
-    private fun mockCategory(): Category =
-        Category(
-            id = 1L,
-            englishName = "",
-            koreanName = "",
-            weight = 1,
-            maximumValue = 1,
-            isAccumulated = false,
-            evidenceType = EvidenceType.FILE,
-        )
 }
