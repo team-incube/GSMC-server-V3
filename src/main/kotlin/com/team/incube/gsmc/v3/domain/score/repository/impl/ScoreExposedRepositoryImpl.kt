@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.score.repository.impl
 
-import com.team.incube.gsmc.v3.domain.category.service.CategoryManager
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
@@ -17,9 +17,7 @@ import org.jetbrains.exposed.sql.update
 import org.springframework.stereotype.Repository
 
 @Repository
-class ScoreExposedRepositoryImpl(
-    private val categoryManager: CategoryManager,
-) : ScoreExposedRepository {
+class ScoreExposedRepositoryImpl : ScoreExposedRepository {
     override fun findById(scoreId: Long): Score? =
         ScoreExposedEntity
             .join(MemberExposedEntity, joinType = JoinType.INNER) {
@@ -38,7 +36,7 @@ class ScoreExposedRepositoryImpl(
                         role = row[MemberExposedEntity.role],
                     )
 
-                val categoryType = categoryManager.getByEnglishName(row[ScoreExposedEntity.categoryEnglishName])
+                val categoryType = CategoryType.fromEnglishName(row[ScoreExposedEntity.categoryEnglishName])
 
                 Score(
                     id = row[ScoreExposedEntity.id],

@@ -1,5 +1,8 @@
 package com.team.incube.gsmc.v3.domain.category.constant
 
+import com.team.incube.gsmc.v3.global.common.error.ErrorCode
+import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+
 enum class CategoryType(
     val englishName: String,
     val koreanName: String,
@@ -45,12 +48,15 @@ enum class CategoryType(
     companion object {
         fun fromEnglishName(englishName: String): CategoryType =
             entries.firstOrNull { it.englishName.equals(englishName, ignoreCase = true) }
-                ?: throw IllegalArgumentException("Invalid category english name: $englishName")
+                ?: throw GsmcException(ErrorCode.INVALID_CATEGORY)
 
         fun fromKoreanName(koreanName: String): CategoryType =
             entries.firstOrNull { it.koreanName == koreanName }
-                ?: throw IllegalArgumentException("Invalid category korean name: $koreanName")
+                ?: throw GsmcException(ErrorCode.INVALID_CATEGORY)
 
         fun getAllCategories(): List<CategoryType> = entries
+
+        fun exists(englishName: String): Boolean =
+            entries.any { it.englishName.equals(englishName, ignoreCase = true) }
     }
 }
