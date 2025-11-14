@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component
 class CategoryManager {
     private val categories: Map<String, CategoryType> = CategoryType.entries.associateBy { it.englishName }
 
-    fun getByEnglishName(englishName: String): CategoryType =
-        categories[englishName] ?: throw GsmcException(ErrorCode.INVALID_CATEGORY)
+    fun getByEnglishName(englishName: String): CategoryType = categories[englishName] ?: throw GsmcException(ErrorCode.INVALID_CATEGORY)
 
     fun getByKoreanName(koreanName: String): CategoryType =
         CategoryType.entries.firstOrNull { it.koreanName == koreanName }
