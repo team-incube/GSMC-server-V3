@@ -56,7 +56,6 @@ enum class CategoryType(
 
         fun getAllCategories(): List<CategoryType> = entries
 
-        fun exists(englishName: String): Boolean =
-            entries.any { it.englishName.equals(englishName, ignoreCase = true) }
+        fun exists(englishName: String): Boolean = entries.any { it.englishName.equals(englishName, ignoreCase = true) }
     }
 }
