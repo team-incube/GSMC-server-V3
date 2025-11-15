@@ -103,7 +103,7 @@ class ScoreController(
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/certificates")
     fun addCertificateScore(
-        @RequestBody request: CreateCertificateScoreRequest,
+        @RequestBody @Valid request: CreateCertificateScoreRequest,
     ): CreateScoreResponse =
         createCertificateScoreService.execute(
             certificateName = request.certificateName,
