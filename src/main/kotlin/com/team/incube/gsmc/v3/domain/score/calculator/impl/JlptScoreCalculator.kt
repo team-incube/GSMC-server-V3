@@ -6,6 +6,17 @@ import com.team.incube.gsmc.v3.domain.score.calculator.CategoryScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 import kotlin.math.min
 
+/**
+ * JLPT 등급은 Score.activityName에 저장됩니다 (N1, N2, N3, N4, N5).
+ * 등급별 점수 변환:
+ * - N1: 10점
+ * - N2: 8점
+ * - N3: 6점
+ * - N4: 4점
+ * - N5: 2점
+ *
+ * 토익사관학교 참여 시 +1점 보너스가 추가되며, 최대 점수는 10점입니다.
+ */
 class JlptScoreCalculator : CategoryScoreCalculator() {
     override fun calculate(
         scores: List<Score>,
