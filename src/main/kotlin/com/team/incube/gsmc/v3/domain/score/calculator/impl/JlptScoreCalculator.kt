@@ -7,13 +7,13 @@ import com.team.incube.gsmc.v3.domain.score.dto.Score
 import kotlin.math.min
 
 /**
- * JLPT 등급은 Score.activityName에 저장됩니다 (N1, N2, N3, N4, N5).
+ * JLPT 등급은 Score.scoreValue에 정수(1-5)로 저장됩니다.
  * 등급별 점수 변환:
- * - N1: 10점
- * - N2: 8점
- * - N3: 6점
- * - N4: 4점
- * - N5: 2점
+ * - 1 (N1): 10점
+ * - 2 (N2): 8점
+ * - 3 (N3): 6점
+ * - 4 (N4): 4점
+ * - 5 (N5): 2점
  *
  * 토익사관학교 참여 시 +1점 보너스가 추가되며, 최대 점수는 10점입니다.
  */
@@ -37,7 +37,7 @@ class JlptScoreCalculator : CategoryScoreCalculator() {
         val maxJlptScore =
             targetScores
                 .filter { it.categoryType == CategoryType.JLPT }
-                .maxOfOrNull { convertGradeToScore(it.activityName) } ?: 0
+                .maxOfOrNull { convertGradeToScore(it.scoreValue) } ?: 0
 
         val hasToeicAcademy =
             targetScores.any { it.categoryType == CategoryType.TOEIC_ACADEMY }
@@ -47,15 +47,15 @@ class JlptScoreCalculator : CategoryScoreCalculator() {
         return min(maxJlptScore + bonusScore, 10)
     }
 
-    private fun convertGradeToScore(grade: String?): Int {
+    private fun convertGradeToScore(grade: Int?): Int {
         if (grade == null) return 0
 
-        return when (grade.uppercase().trim()) {
-            "N1" -> 10
-            "N2" -> 8
-            "N3" -> 6
-            "N4" -> 4
-            "N5" -> 2
+        return when (grade) {
+            1 -> 10 // N1
+            2 -> 8  // N2
+            3 -> 6  // N3
+            4 -> 4  // N4
+            5 -> 2  // N5
             else -> 0
         }
     }

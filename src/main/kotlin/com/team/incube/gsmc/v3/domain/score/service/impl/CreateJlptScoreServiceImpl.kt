@@ -17,8 +17,8 @@ import org.springframework.stereotype.Service
 /**
  * JLPT 점수 생성/갱신 서비스
  *
- * JLPT 등급(N1-N5)은 Score.activityName 필드에 저장됩니다.
- * scoreValue는 사용하지 않습니다 (null).
+ * JLPT 등급(1-5)은 Score.scoreValue 필드에 저장됩니다.
+ * activityName은 사용하지 않습니다 (null).
  */
 @Service
 class CreateJlptScoreServiceImpl(
@@ -27,7 +27,7 @@ class CreateJlptScoreServiceImpl(
     private val currentMemberProvider: CurrentMemberProvider,
 ) : CreateJlptScoreService {
     override fun execute(
-        grade: String,
+        grade: Int,
         fileId: Long,
     ): CreateScoreResponse =
         transaction {
@@ -43,14 +43,13 @@ class CreateJlptScoreServiceImpl(
                     categoryType = CategoryType.JLPT,
                 )
 
-            // JLPT 등급은 activityName에 저장 (N1, N2, N3, N4, N5)
             val savedScore =
                 if (existingScore != null) {
                     scoreExposedRepository.update(
                         existingScore.copy(
                             status = ScoreStatus.PENDING,
                             sourceId = fileId,
-                            activityName = grade,
+                            scoreValue = grade,
                         ),
                     )
                 } else {
@@ -61,8 +60,8 @@ class CreateJlptScoreServiceImpl(
                             categoryType = CategoryType.JLPT,
                             status = ScoreStatus.PENDING,
                             sourceId = fileId,
-                            activityName = grade, // JLPT 등급 저장
-                            scoreValue = null,
+                            activityName = null,
+                            scoreValue = grade,
                         ),
                     )
                 }
