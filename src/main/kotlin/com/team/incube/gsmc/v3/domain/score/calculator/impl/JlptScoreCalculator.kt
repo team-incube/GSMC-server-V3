@@ -52,10 +52,10 @@ class JlptScoreCalculator : CategoryScoreCalculator() {
 
         return when (grade) {
             1 -> 10 // N1
-            2 -> 8  // N2
-            3 -> 6  // N3
-            4 -> 4  // N4
-            5 -> 2  // N5
+            2 -> 8 // N2
+            3 -> 6 // N3
+            4 -> 4 // N4
+            5 -> 2 // N5
             else -> 0
         }
     }
