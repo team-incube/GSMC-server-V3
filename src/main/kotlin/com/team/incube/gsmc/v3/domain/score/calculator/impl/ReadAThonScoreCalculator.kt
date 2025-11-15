@@ -28,12 +28,7 @@ class ReadAThonScoreCalculator : CategoryScoreCalculator() {
     ): Int {
         val targetScore =
             scores.firstOrNull { score ->
-                score.categoryType == categoryType &&
-                    if (includeApprovedOnly) {
-                        score.status == ScoreStatus.APPROVED
-                    } else {
-                        score.status == ScoreStatus.APPROVED || score.status == ScoreStatus.PENDING
-                    }
+                score.categoryType == categoryType && score.isValidStatus(includeApprovedOnly)
             }
 
         return targetScore?.scoreValue?.toInt() ?: 0

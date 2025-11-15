@@ -27,14 +27,7 @@ class JlptScoreCalculator : CategoryScoreCalculator() {
         categoryType: CategoryType,
         includeApprovedOnly: Boolean,
     ): Int {
-        val targetScores =
-            scores.filter { score ->
-                if (includeApprovedOnly) {
-                    score.status == ScoreStatus.APPROVED
-                } else {
-                    score.status == ScoreStatus.APPROVED || score.status == ScoreStatus.PENDING
-                }
-            }
+        val targetScores = scores.filter { it.isValidStatus(includeApprovedOnly) }
 
         if (targetScores.isEmpty()) return 0
 

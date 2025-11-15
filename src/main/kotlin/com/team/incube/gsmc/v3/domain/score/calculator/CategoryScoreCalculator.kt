@@ -1,6 +1,7 @@
 package com.team.incube.gsmc.v3.domain.score.calculator
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
+import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 
 abstract class CategoryScoreCalculator {
@@ -9,4 +10,11 @@ abstract class CategoryScoreCalculator {
         categoryType: CategoryType,
         includeApprovedOnly: Boolean,
     ): Int
+
+    protected fun Score.isValidStatus(includeApprovedOnly: Boolean): Boolean =
+        if (includeApprovedOnly) {
+            status == ScoreStatus.APPROVED
+        } else {
+            status == ScoreStatus.APPROVED || status == ScoreStatus.PENDING
+        }
 }
