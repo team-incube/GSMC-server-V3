@@ -74,6 +74,16 @@ enum class CategoryType(
         calculationType = ScoreCalculationType.SCORE_BASED,
         isForeignLanguage = false,
     ),
+    VOLUNTEER(
+        englishName = "VOLUNTEER",
+        koreanName = "봉사활동",
+        weight = null,
+        maxRecordCount = 1,
+        isAccumulated = false,
+        evidenceType = EvidenceType.UNREQUIRED,
+        calculationType = ScoreCalculationType.SCORE_BASED,
+        isForeignLanguage = false,
+    ),
     ;
 
     companion object {

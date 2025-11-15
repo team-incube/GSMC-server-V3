@@ -5,6 +5,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateJlpt
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateReadAThonScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateToeicScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateTopcitScoreRequest
+import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateVolunteerScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScoreStatusRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
@@ -14,6 +15,7 @@ import com.team.incube.gsmc.v3.domain.score.service.CreateJlptScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateReadAThonScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateToeicScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateTopcitScoreService
+import com.team.incube.gsmc.v3.domain.score.service.CreateVolunteerScoreService
 import com.team.incube.gsmc.v3.domain.score.service.DeleteScoreService
 import com.team.incube.gsmc.v3.domain.score.service.UpdateScoreStatusService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
@@ -46,6 +48,7 @@ class ScoreController(
     private val createToeicScoreService: CreateToeicScoreService,
     private val createJlptScoreService: CreateJlptScoreService,
     private val createReadAThonScoreService: CreateReadAThonScoreService,
+    private val createVolunteerScoreService: CreateVolunteerScoreService,
     private val calculateTotalScoreService: CalculateTotalScoreService,
     private val currentMemberProvider: CurrentMemberProvider,
 ) {
@@ -223,6 +226,24 @@ class ScoreController(
         createReadAThonScoreService.execute(
             grade = request.grade,
             fileId = request.fileId,
+        )
+
+    @Operation(summary = "봉사활동 영역 인증제 점수 추가 또는 갱신", description = "현재 인증된 사용자의 봉사활동 영역에 대한 인증제 점수를 추가하거나 갱신합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/volunteer")
+    fun addVolunteerScore(
+        @Valid @RequestBody request: CreateVolunteerScoreRequest,
+    ): CreateScoreResponse =
+        createVolunteerScoreService.execute(
+            hours = request.hours,
         )
 
     @Operation(summary = "현재 사용자의 총점 조회", description = "현재 인증된 사용자의 인증제 총점을 조회합니다")
