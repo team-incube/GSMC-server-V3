@@ -26,28 +26,26 @@ abstract class BaseScoreService(
             )
 
         val savedScore =
-            if (existingScore != null) {
+            existingScore?.let {
                 scoreExposedRepository.update(
-                    existingScore.copy(
+                    it.copy(
                         status = ScoreStatus.PENDING,
                         sourceId = sourceId,
                         scoreValue = scoreValue,
                         activityName = null,
                     ),
                 )
-            } else {
-                scoreExposedRepository.save(
-                    Score(
-                        id = null,
-                        member = member,
-                        categoryType = categoryType,
-                        status = ScoreStatus.PENDING,
-                        sourceId = sourceId,
-                        activityName = null,
-                        scoreValue = scoreValue,
-                    ),
-                )
-            }
+            } ?: scoreExposedRepository.save(
+                Score(
+                    id = null,
+                    member = member,
+                    categoryType = categoryType,
+                    status = ScoreStatus.PENDING,
+                    sourceId = sourceId,
+                    activityName = null,
+                    scoreValue = scoreValue,
+                ),
+            )
 
         return CreateScoreResponse(
             scoreId = savedScore.id!!,
