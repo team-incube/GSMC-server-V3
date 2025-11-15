@@ -43,7 +43,7 @@ class FileController(
     @PostMapping
     fun uploadFile(
         @RequestParam("file") file: MultipartFile,
-    ): CreateFileResponse = createFileService.execute(file)
+    ): CreateFileResponse = createFileService.execute(file = file)
 
     @Operation(summary = "파일 삭제", description = "업로드된 파일을 삭제합니다")
     @ApiResponses(
@@ -64,7 +64,7 @@ class FileController(
     fun deleteFile(
         @PathVariable fileId: Long,
     ): CommonApiResponse<Nothing> {
-        deleteFileService.execute(fileId)
+        deleteFileService.execute(fileId = fileId)
         return CommonApiResponse.success("OK")
     }
 }
