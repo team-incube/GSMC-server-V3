@@ -2,6 +2,7 @@ package com.team.incube.gsmc.v3.domain.score.presentation
 
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateCertificateScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateJlptScoreRequest
+import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateReadAThonScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateToeicScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateTopcitScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScoreStatusRequest
@@ -10,6 +11,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalS
 import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateCertificateScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateJlptScoreService
+import com.team.incube.gsmc.v3.domain.score.service.CreateReadAThonScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateToeicScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateTopcitScoreService
 import com.team.incube.gsmc.v3.domain.score.service.DeleteScoreService
@@ -43,6 +45,7 @@ class ScoreController(
     private val createTopcitScoreService: CreateTopcitScoreService,
     private val createToeicScoreService: CreateToeicScoreService,
     private val createJlptScoreService: CreateJlptScoreService,
+    private val createReadAThonScoreService: CreateReadAThonScoreService,
     private val calculateTotalScoreService: CalculateTotalScoreService,
     private val currentMemberProvider: CurrentMemberProvider,
 ) {
@@ -194,6 +197,30 @@ class ScoreController(
         @Valid @RequestBody request: CreateJlptScoreRequest,
     ): CreateScoreResponse =
         createJlptScoreService.execute(
+            grade = request.grade,
+            fileId = request.fileId,
+        )
+
+    @Operation(summary = "빛고을독서마라톤 영역 인증제 점수 추가 또는 갱신", description = "현재 인증된 사용자의 빛고을독서마라톤 영역에 대한 인증제 점수를 추가하거나 갱신합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 파일을 매핑함",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/readathon")
+    fun addReadAThonScore(
+        @Valid @RequestBody request: CreateReadAThonScoreRequest,
+    ): CreateScoreResponse =
+        createReadAThonScoreService.execute(
             grade = request.grade,
             fileId = request.fileId,
         )
