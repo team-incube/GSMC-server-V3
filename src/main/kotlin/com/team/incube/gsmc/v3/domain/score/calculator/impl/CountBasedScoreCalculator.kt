@@ -28,6 +28,6 @@ class CountBasedScoreCalculator : CategoryScoreCalculator() {
             count * categoryType.weight!!
         } else {
             if (count > 0) categoryType.weight else 0
-        }!!
+        } ?: 0
     }
 }
