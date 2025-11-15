@@ -30,7 +30,7 @@ class CreateJlptScoreServiceImpl(
         fileId: Long,
     ): CreateScoreResponse =
         transaction {
-            if (fileExposedRepository.existsById(fileId).not()) {
+            if (!fileExposedRepository.existsById(fileId)) {
                 throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }
 
