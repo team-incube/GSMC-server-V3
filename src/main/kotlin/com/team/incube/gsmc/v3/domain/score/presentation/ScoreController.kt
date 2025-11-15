@@ -130,16 +130,16 @@ class ScoreController(
     @GetMapping("/total")
     fun getTotalScore(
         @RequestParam(
-            name = "approvedOnly",
+            name = "includeApprovedOnly",
             defaultValue = "true",
             required = false,
-        ) approvedOnly: Boolean,
+        ) includeApprovedOnly: Boolean,
     ): GetTotalScoreResponse {
         val member = currentMemberProvider.getCurrentUser()
         val totalScore =
             calculateTotalScoreService.execute(
                 memberId = member.id,
-                includeApprovedOnly = approvedOnly,
+                includeApprovedOnly = includeApprovedOnly,
             )
         return GetTotalScoreResponse(totalScore = totalScore)
     }
