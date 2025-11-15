@@ -22,15 +22,9 @@ class CountBasedScoreCalculator : CategoryScoreCalculator() {
         includeApprovedOnly: Boolean,
     ): Int {
         val targetScores =
-            scores
-                .filter { it.categoryType == categoryType }
-                .filter { score ->
-                    if (includeApprovedOnly) {
-                        score.status == ScoreStatus.APPROVED
-                    } else {
-                        score.status == ScoreStatus.APPROVED || score.status == ScoreStatus.PENDING
-                    }
-                }
+            scores.filter { score ->
+                score.categoryType == categoryType && score.isValidStatus(includeApprovedOnly)
+            }
 
         val count = targetScores.size
         val weight = categoryType.weight ?: return 0
