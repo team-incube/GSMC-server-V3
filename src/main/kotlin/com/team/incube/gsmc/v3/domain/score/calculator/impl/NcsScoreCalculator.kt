@@ -16,7 +16,7 @@ import kotlin.math.round
  * - 4.6 → 5점
  * - 3.5 → 4점
  * - 3.2 → 3점
- * - 2.5 → 2점
+ * - 2.5 → 3점
  *
  * maxRecordCount=1이므로 레코드는 1개만 존재합니다.
  */
