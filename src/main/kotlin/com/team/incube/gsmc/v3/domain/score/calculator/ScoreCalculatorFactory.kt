@@ -7,15 +7,20 @@ import com.team.incube.gsmc.v3.domain.score.calculator.impl.ToeicScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.calculator.impl.TopcitScoreCalculator
 
 object ScoreCalculatorFactory {
+    private val topcitScoreCalculator = TopcitScoreCalculator()
+    private val toeicScoreCalculator = ToeicScoreCalculator()
+    private val jlptScoreCalculator = JlptScoreCalculator()
+    private val countBasedScoreCalculator = CountBasedScoreCalculator()
+
     fun getCalculator(categoryType: CategoryType): CategoryScoreCalculator =
         when (categoryType) {
-            CategoryType.TOPCIT -> TopcitScoreCalculator()
-            CategoryType.TOEIC -> ToeicScoreCalculator()
-            CategoryType.JLPT -> JlptScoreCalculator()
+            CategoryType.TOPCIT -> topcitScoreCalculator
+            CategoryType.TOEIC -> toeicScoreCalculator
+            CategoryType.JLPT -> jlptScoreCalculator
             CategoryType.VOLUNTEER,
             CategoryType.CERTIFICATE,
             CategoryType.CLUB_ACTIVITY,
             CategoryType.TOEIC_ACADEMY,
-            -> CountBasedScoreCalculator()
+            -> countBasedScoreCalculator
         }
 }
