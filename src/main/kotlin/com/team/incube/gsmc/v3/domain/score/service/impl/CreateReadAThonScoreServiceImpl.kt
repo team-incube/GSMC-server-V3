@@ -7,7 +7,7 @@ import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.CategoryNames
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
-import com.team.incube.gsmc.v3.domain.score.service.CreateJlptScoreService
+import com.team.incube.gsmc.v3.domain.score.service.CreateReadAThonScoreService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
@@ -15,17 +15,17 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
 
 /**
- * JLPT 점수 생성/갱신 서비스
+ * 빛고을독서마라톤 점수 생성/갱신 서비스
  *
- * JLPT 등급(1-5)은 Score.scoreValue 필드에 저장됩니다.
+ * 단계(1-7)는 Score.scoreValue 필드에 저장됩니다.
  * activityName은 사용하지 않습니다 (null).
  */
 @Service
-class CreateJlptScoreServiceImpl(
+class CreateReadAThonScoreServiceImpl(
     private val scoreExposedRepository: ScoreExposedRepository,
     private val fileExposedRepository: FileExposedRepository,
     private val currentMemberProvider: CurrentMemberProvider,
-) : CreateJlptScoreService {
+) : CreateReadAThonScoreService {
     override fun execute(
         grade: Int,
         fileId: Long,
@@ -40,7 +40,7 @@ class CreateJlptScoreServiceImpl(
             val existingScore =
                 scoreExposedRepository.findByMemberIdAndCategoryType(
                     memberId = member.id,
-                    categoryType = CategoryType.JLPT,
+                    categoryType = CategoryType.READ_A_THON,
                 )
 
             val savedScore =
@@ -57,7 +57,7 @@ class CreateJlptScoreServiceImpl(
                         Score(
                             id = null,
                             member = member,
-                            categoryType = CategoryType.JLPT,
+                            categoryType = CategoryType.READ_A_THON,
                             status = ScoreStatus.PENDING,
                             sourceId = fileId,
                             activityName = null,

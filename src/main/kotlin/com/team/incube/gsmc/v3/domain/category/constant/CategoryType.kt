@@ -7,7 +7,7 @@ import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 enum class CategoryType(
     val englishName: String,
     val koreanName: String,
-    val weight: Int,
+    val weight: Int?,
     val maxRecordCount: Int,
     val isAccumulated: Boolean,
     val evidenceType: EvidenceType,
@@ -27,7 +27,7 @@ enum class CategoryType(
     TOPCIT(
         englishName = "TOPCIT",
         koreanName = "TOPCIT",
-        weight = 1,
+        weight = null,
         maxRecordCount = 1,
         isAccumulated = true,
         evidenceType = EvidenceType.FILE,
@@ -37,7 +37,7 @@ enum class CategoryType(
     TOEIC(
         englishName = "TOEIC",
         koreanName = "TOEIC",
-        weight = 1,
+        weight = null,
         maxRecordCount = 1,
         isAccumulated = true,
         evidenceType = EvidenceType.FILE,
@@ -47,7 +47,7 @@ enum class CategoryType(
     JLPT(
         englishName = "JLPT",
         koreanName = "JLPT",
-        weight = 1,
+        weight = null,
         maxRecordCount = 1,
         isAccumulated = true,
         evidenceType = EvidenceType.FILE,
@@ -64,14 +64,14 @@ enum class CategoryType(
         calculationType = ScoreCalculationType.COUNT_BASED,
         isForeignLanguage = true,
     ),
-    CLUB_ACTIVITY(
-        englishName = "CLUB_ACTIVITY",
-        koreanName = "동아리 활동",
-        weight = 5,
-        maxRecordCount = 10,
+    READ_A_THON(
+        englishName = "READ_A_THON",
+        koreanName = "빛고을독서마라톤",
+        weight = null,
+        maxRecordCount = 1,
         isAccumulated = false,
-        evidenceType = EvidenceType.EVIDENCE,
-        calculationType = ScoreCalculationType.COUNT_BASED,
+        evidenceType = EvidenceType.FILE,
+        calculationType = ScoreCalculationType.SCORE_BASED,
         isForeignLanguage = false,
     ),
     ;

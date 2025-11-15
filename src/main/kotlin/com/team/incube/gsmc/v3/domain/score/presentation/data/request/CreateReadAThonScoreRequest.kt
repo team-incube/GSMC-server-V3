@@ -5,10 +5,10 @@ import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotNull
 
-data class CreateJlptScoreRequest(
-    @param:Schema(description = "JLPT 등급 (1=N1, 2=N2, 3=N3, 4=N4, 5=N5)", example = "1")
+data class CreateReadAThonScoreRequest(
+    @param:Schema(description = "빛고을독서마라톤 단계 (1=거북이, 2=악어, 3=토끼, 4=타조, 5=사자, 6=호랑이, 7=월계관)", example = "2")
     @field:Min(value = 1)
-    @field:Max(value = 5)
+    @field:Max(value = 7)
     @field:NotNull
     val grade: Int,
     @param:Schema(description = "업로드된 파일의 ID", example = "1")
