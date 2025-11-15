@@ -33,6 +33,7 @@ class DeleteScoreServiceImpl(
                         }
                         evidenceExposedRepository.deleteById(sourceId)
                     }
+
                     EvidenceType.FILE -> {
                         val file = fileExposedRepository.findById(sourceId)
                         file?.let {
@@ -40,6 +41,7 @@ class DeleteScoreServiceImpl(
                             fileExposedRepository.deleteById(it.fileId)
                         }
                     }
+
                     EvidenceType.UNREQUIRED -> {
                     }
                 }

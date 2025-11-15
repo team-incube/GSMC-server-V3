@@ -19,6 +19,7 @@ object ScoreCalculatorFactory {
             CategoryType.TOEIC -> toeicScoreCalculator
 
             CategoryType.JLPT -> jlptScoreCalculator
+
             CategoryType.VOLUNTEER,
             CategoryType.CERTIFICATE,
             CategoryType.CLUB_ACTIVITY,
