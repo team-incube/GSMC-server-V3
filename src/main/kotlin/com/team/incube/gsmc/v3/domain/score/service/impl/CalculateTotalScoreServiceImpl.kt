@@ -43,7 +43,7 @@ class CalculateTotalScoreServiceImpl(
                         0
                     } else {
                         val calculator = ScoreCalculatorFactory.getCalculator(categoryType)
-                        calculator.calculate(scores, includeApprovedOnly)
+                        calculator.calculate(scores, categoryType, includeApprovedOnly)
                     }
                 }
 
@@ -60,8 +60,17 @@ class CalculateTotalScoreServiceImpl(
         val toeicCalculator = ScoreCalculatorFactory.getCalculator(CategoryType.TOEIC)
         val jlptCalculator = ScoreCalculatorFactory.getCalculator(CategoryType.JLPT)
 
-        val toeicScore = if (toeicScores.isNotEmpty()) toeicCalculator.calculate(toeicScores, includeApprovedOnly) else 0
-        val jlptScore = if (jlptScores.isNotEmpty()) jlptCalculator.calculate(jlptScores, includeApprovedOnly) else 0
+        val toeicScore =
+            if (toeicScores.isNotEmpty()) {
+                toeicCalculator.calculate(
+                    toeicScores,
+                    CategoryType.TOEIC,
+                    includeApprovedOnly,
+                )
+            } else {
+                0
+            }
+        val jlptScore = if (jlptScores.isNotEmpty()) jlptCalculator.calculate(jlptScores, CategoryType.JLPT, includeApprovedOnly) else 0
 
         return maxOf(toeicScore, jlptScore)
     }
