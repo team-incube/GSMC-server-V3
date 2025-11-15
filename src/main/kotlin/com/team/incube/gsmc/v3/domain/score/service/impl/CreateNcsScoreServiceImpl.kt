@@ -4,6 +4,7 @@ import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
+import com.team.incube.gsmc.v3.domain.score.service.BaseScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateNcsScoreService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
@@ -31,7 +32,6 @@ class CreateNcsScoreServiceImpl(
                 categoryType = CategoryType.NCS,
                 scoreValue = averageScore,
                 sourceId = fileId,
-                activityName = null,
             )
         }
 }

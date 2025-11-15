@@ -1,4 +1,4 @@
-package com.team.incube.gsmc.v3.domain.score.service.impl
+package com.team.incube.gsmc.v3.domain.score.service
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
@@ -16,7 +16,6 @@ abstract class BaseScoreService(
         categoryType: CategoryType,
         scoreValue: Double?,
         sourceId: Long?,
-        activityName: String?,
     ): CreateScoreResponse {
         val member = currentMemberProvider.getCurrentUser()
 
@@ -33,7 +32,7 @@ abstract class BaseScoreService(
                         status = ScoreStatus.PENDING,
                         sourceId = sourceId,
                         scoreValue = scoreValue,
-                        activityName = activityName,
+                        activityName = null,
                     ),
                 )
             } else {
@@ -44,7 +43,7 @@ abstract class BaseScoreService(
                         categoryType = categoryType,
                         status = ScoreStatus.PENDING,
                         sourceId = sourceId,
-                        activityName = activityName,
+                        activityName = null,
                         scoreValue = scoreValue,
                     ),
                 )
