@@ -84,6 +84,16 @@ enum class CategoryType(
         calculationType = ScoreCalculationType.SCORE_BASED,
         isForeignLanguage = false,
     ),
+    NCS(
+        englishName = "NCS",
+        koreanName = "직업기초능력평가",
+        weight = null,
+        maxRecordCount = 1,
+        isAccumulated = false,
+        evidenceType = EvidenceType.FILE,
+        calculationType = ScoreCalculationType.SCORE_BASED,
+        isForeignLanguage = false,
+    ),
     ;
 
     companion object {

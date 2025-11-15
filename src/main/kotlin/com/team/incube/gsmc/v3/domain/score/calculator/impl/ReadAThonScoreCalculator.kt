@@ -37,6 +37,6 @@ class ReadAThonScoreCalculator : CategoryScoreCalculator() {
                     }
                 }
 
-        return targetScore?.scoreValue ?: 0
+        return targetScore?.scoreValue?.toInt() ?: 0
     }
 }

@@ -53,10 +53,10 @@ class JlptScoreCalculator : CategoryScoreCalculator() {
         return min(maxJlptScore + bonusScore, 10)
     }
 
-    private fun convertGradeToScore(grade: Int?): Int {
+    private fun convertGradeToScore(grade: Double?): Int {
         if (grade == null) return 0
 
-        return when (grade) {
+        return when (grade.toInt()) {
             1 -> 10
 
             // N1
