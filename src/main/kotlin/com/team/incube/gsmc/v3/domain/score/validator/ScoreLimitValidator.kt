@@ -14,7 +14,7 @@ class ScoreLimitValidator(
         memberId: Long,
         categoryType: CategoryType,
     ) {
-        if (scoreExposedRepository.countByMemberIdAndCategoryType(memberId, categoryType) >= categoryType.maximumValue) {
+        if (scoreExposedRepository.countByMemberIdAndCategoryType(memberId, categoryType) >= categoryType.maxRecordCount) {
             throw GsmcException(ErrorCode.SCORE_MAX_LIMIT_EXCEEDED)
         }
     }
