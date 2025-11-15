@@ -35,4 +35,14 @@ interface MemberExposedRepository {
     ): Int
 
     fun deleteMemberByEmail(email: String): Int
+
+    fun update(
+        id: Long,
+        name: String,
+        email: String,
+        grade: Int?,
+        classNumber: Int?,
+        number: Int?,
+        role: MemberRole,
+    ): Int
 }
