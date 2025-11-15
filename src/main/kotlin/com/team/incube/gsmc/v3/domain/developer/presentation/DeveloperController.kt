@@ -50,7 +50,7 @@ class DeveloperController(
     fun changeMemberRole(
         @RequestBody @Valid request: PatchMemberRoleRequest,
     ): CommonApiResponse<Nothing> {
-        patchMemberRoleService.execute(email = request.email,role = request.role)
+        patchMemberRoleService.execute(email = request.email, role = request.role)
         return CommonApiResponse.success("OK")
     }
 
