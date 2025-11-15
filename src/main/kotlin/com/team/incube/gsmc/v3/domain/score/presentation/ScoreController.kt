@@ -120,7 +120,7 @@ class ScoreController(
             fileId = request.fileId,
         )
 
-    @Operation(summary = "TOPCIT 영역 인증제 점수 추가", description = "현재 인증된 사용자의 TOPCIT 영역에 대한 인증제 점수를 추가합니다")
+    @Operation(summary = "TOPCIT 영역 인증제 점수 추가 또는 갱신", description = "현재 인증된 사용자의 TOPCIT 영역에 대한 인증제 점수를 추가하거나 갱신합니다")
     @ApiResponses(
         value = [
             ApiResponse(
