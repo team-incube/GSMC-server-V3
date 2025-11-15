@@ -13,6 +13,8 @@ interface ScoreExposedRepository {
 
     fun save(score: Score): Score
 
+    fun update(score: Score): Score
+
     fun updateSourceId(
         scoreIds: List<Long>,
         sourceId: Long,
@@ -33,6 +35,11 @@ interface ScoreExposedRepository {
     ): Long
 
     fun findAllByMemberId(memberId: Long): List<Score>
+
+    fun findByMemberIdAndCategoryType(
+        memberId: Long,
+        categoryType: CategoryType,
+    ): Score?
 
     fun deleteById(scoreId: Long)
 }

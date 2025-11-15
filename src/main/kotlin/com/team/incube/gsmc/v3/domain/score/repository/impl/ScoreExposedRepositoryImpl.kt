@@ -77,6 +77,16 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         return score.copy(id = generatedId)
     }
 
+    override fun update(score: Score): Score {
+        ScoreExposedEntity.update({ ScoreExposedEntity.id eq score.id!! }) {
+            it[status] = score.status
+            it[sourceId] = score.sourceId
+            it[activityName] = score.activityName
+            it[scoreValue] = score.scoreValue
+        }
+        return score
+    }
+
     override fun updateSourceId(
         scoreIds: List<Long>,
         sourceId: Long,
@@ -156,6 +166,40 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
             )
         }
     }
+
+    override fun findByMemberIdAndCategoryType(
+        memberId: Long,
+        categoryType: CategoryType,
+    ): Score? =
+        ScoreExposedEntity
+            .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                ScoreExposedEntity.memberId eq MemberExposedEntity.id
+            }.selectAll()
+            .where {
+                (ScoreExposedEntity.memberId eq memberId) and
+                    (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName)
+            }.map { row ->
+                val member =
+                    Member(
+                        id = row[MemberExposedEntity.id],
+                        name = row[MemberExposedEntity.name],
+                        email = row[MemberExposedEntity.email],
+                        grade = row[MemberExposedEntity.grade],
+                        classNumber = row[MemberExposedEntity.classNumber],
+                        number = row[MemberExposedEntity.number],
+                        role = row[MemberExposedEntity.role],
+                    )
+
+                Score(
+                    id = row[ScoreExposedEntity.id],
+                    member = member,
+                    categoryType = categoryType,
+                    status = row[ScoreExposedEntity.status],
+                    sourceId = row[ScoreExposedEntity.sourceId],
+                    activityName = row[ScoreExposedEntity.activityName],
+                    scoreValue = row[ScoreExposedEntity.scoreValue],
+                )
+            }.singleOrNull()
 
     override fun deleteById(scoreId: Long) {
         ScoreExposedEntity.deleteWhere { ScoreExposedEntity.id eq scoreId }
