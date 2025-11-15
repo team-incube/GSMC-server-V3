@@ -27,7 +27,7 @@ class CountBasedScoreCalculator : CategoryScoreCalculator() {
         return if (categoryType.isAccumulated) {
             count * categoryType.weight!!
         } else {
-            if (count > 0) categoryType.weight else 0
-        } ?: 0
+            if (count > 0) categoryType.weight ?: 0 else 0
+        }
     }
 }
