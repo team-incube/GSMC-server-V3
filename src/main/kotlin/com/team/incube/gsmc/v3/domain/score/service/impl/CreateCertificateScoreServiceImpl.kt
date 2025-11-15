@@ -8,6 +8,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.CategoryNames
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.CreateCertificateScoreService
+import com.team.incube.gsmc.v3.domain.score.validator.ScoreLimitValidator
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
@@ -29,6 +30,7 @@ class CreateCertificateScoreServiceImpl(
             if (fileExposedRepository.existsById(fileId).not()) {
                 throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }
+            ScoreLimitValidator.validateScoreLimit(scoreExposedRepository, member.id, CategoryType.CERTIFICATE)
             val savedScore =
                 scoreExposedRepository.save(
                     Score(

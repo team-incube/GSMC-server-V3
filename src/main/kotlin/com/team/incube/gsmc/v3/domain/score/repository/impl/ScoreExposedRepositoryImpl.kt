@@ -106,6 +106,17 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                     ScoreExposedEntity.sourceId.isNotNull()
             }.count() > 0
 
+    override fun countByMemberIdAndCategoryType(
+        memberId: Long,
+        categoryType: CategoryType,
+    ): Long =
+        ScoreExposedEntity
+            .selectAll()
+            .where {
+                (ScoreExposedEntity.memberId eq memberId) and
+                    (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName)
+            }.count()
+
     override fun deleteById(scoreId: Long) {
         ScoreExposedEntity.deleteWhere { ScoreExposedEntity.id eq scoreId }
     }

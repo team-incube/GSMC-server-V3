@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.domain.score.repository
 
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 
@@ -25,6 +26,11 @@ interface ScoreExposedRepository {
     fun updateSourceIdToNull(sourceId: Long)
 
     fun existsAnyWithSource(scoreIds: List<Long>): Boolean
+
+    fun countByMemberIdAndCategoryType(
+        memberId: Long,
+        categoryType: CategoryType,
+    ): Long
 
     fun deleteById(scoreId: Long)
 }
