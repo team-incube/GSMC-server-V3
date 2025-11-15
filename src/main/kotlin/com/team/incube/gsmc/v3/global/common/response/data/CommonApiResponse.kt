@@ -52,6 +52,24 @@ data class CommonApiResponse<T>(
                 data = data,
             )
 
+        fun accepted(message: String): CommonApiResponse<Nothing> =
+            CommonApiResponse(
+                status = HttpStatus.ACCEPTED,
+                code = HttpStatus.ACCEPTED.value(),
+                message = message,
+            )
+
+        fun <T> accepted(
+            message: String,
+            data: T,
+        ): CommonApiResponse<T> =
+            CommonApiResponse(
+                status = HttpStatus.ACCEPTED,
+                code = HttpStatus.ACCEPTED.value(),
+                message = message,
+                data = data,
+            )
+
         fun error(
             message: String,
             status: HttpStatus,
