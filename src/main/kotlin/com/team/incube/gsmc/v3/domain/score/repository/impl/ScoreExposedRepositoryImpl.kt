@@ -45,6 +45,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                     status = row[ScoreExposedEntity.status],
                     sourceId = row[ScoreExposedEntity.sourceId],
                     activityName = row[ScoreExposedEntity.activityName],
+                    scoreValue = row[ScoreExposedEntity.scoreValue],
                 )
             }.singleOrNull()
 
@@ -71,6 +72,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                 it[status] = score.status
                 it[sourceId] = score.sourceId
                 it[activityName] = score.activityName
+                it[scoreValue] = score.scoreValue
             } get ScoreExposedEntity.id
         return score.copy(id = generatedId)
     }
@@ -116,6 +118,37 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                 (ScoreExposedEntity.memberId eq memberId) and
                     (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName)
             }.count()
+
+    override fun findAllByMemberId(memberId: Long): List<Score> =
+        ScoreExposedEntity
+            .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                ScoreExposedEntity.memberId eq MemberExposedEntity.id
+            }.selectAll()
+            .where { ScoreExposedEntity.memberId eq memberId }
+            .map { row ->
+                val member =
+                    Member(
+                        id = row[MemberExposedEntity.id],
+                        name = row[MemberExposedEntity.name],
+                        email = row[MemberExposedEntity.email],
+                        grade = row[MemberExposedEntity.grade],
+                        classNumber = row[MemberExposedEntity.classNumber],
+                        number = row[MemberExposedEntity.number],
+                        role = row[MemberExposedEntity.role],
+                    )
+
+                val categoryType = CategoryType.fromEnglishName(row[ScoreExposedEntity.categoryEnglishName])
+
+                Score(
+                    id = row[ScoreExposedEntity.id],
+                    member = member,
+                    categoryType = categoryType,
+                    status = row[ScoreExposedEntity.status],
+                    sourceId = row[ScoreExposedEntity.sourceId],
+                    activityName = row[ScoreExposedEntity.activityName],
+                    scoreValue = row[ScoreExposedEntity.scoreValue],
+                )
+            }
 
     override fun deleteById(scoreId: Long) {
         ScoreExposedEntity.deleteWhere { ScoreExposedEntity.id eq scoreId }

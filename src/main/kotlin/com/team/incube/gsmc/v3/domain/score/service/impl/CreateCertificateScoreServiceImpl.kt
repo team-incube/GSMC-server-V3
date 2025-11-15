@@ -40,6 +40,7 @@ class CreateCertificateScoreServiceImpl(
                         status = ScoreStatus.PENDING,
                         sourceId = fileId,
                         activityName = certificateName,
+                        scoreValue = null,
                     ),
                 )
             CreateScoreResponse(

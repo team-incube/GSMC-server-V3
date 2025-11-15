@@ -32,5 +32,7 @@ interface ScoreExposedRepository {
         categoryType: CategoryType,
     ): Long
 
+    fun findAllByMemberId(memberId: Long): List<Score>
+
     fun deleteById(scoreId: Long)
 }
