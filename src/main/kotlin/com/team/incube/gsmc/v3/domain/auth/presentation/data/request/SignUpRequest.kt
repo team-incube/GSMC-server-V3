@@ -2,7 +2,6 @@ package com.team.incube.gsmc.v3.domain.auth.presentation.data.request
 
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Positive
 
 data class SignUpRequest(

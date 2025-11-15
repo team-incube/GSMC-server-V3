@@ -148,13 +148,14 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
         grade: Int?,
         classNumber: Int?,
         number: Int?,
-        role: MemberRole
-    ): Int = MemberExposedEntity.update({ MemberExposedEntity.id eq id }) {
+        role: MemberRole,
+    ): Int =
+        MemberExposedEntity.update({ MemberExposedEntity.id eq id }) {
             it[this.name] = name
             it[this.email] = email
             it[this.grade] = grade
             it[this.classNumber] = classNumber
             it[this.number] = number
             it[this.role] = role
-    }
+        }
 }
