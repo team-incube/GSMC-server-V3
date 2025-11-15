@@ -12,7 +12,6 @@ class SignUpServiceImpl(
     private val currentMemberProvider: CurrentMemberProvider,
     private val memberExposedRepository: MemberExposedRepository,
 ) : SignUpService {
-    private val log = org.slf4j.LoggerFactory.getLogger(SignUpServiceImpl::class.java)
     override fun execute(
         name: String,
         studentNumber: Int,
@@ -23,8 +22,6 @@ class SignUpServiceImpl(
             val grade = studentNumber / 1000
             val classNumber = (studentNumber / 100) % 10
             val number = studentNumber % 100
-
-            log.info("$name grade $grade classNumber $classNumber number $number")
 
             memberExposedRepository.update(
                 id = member.id,
