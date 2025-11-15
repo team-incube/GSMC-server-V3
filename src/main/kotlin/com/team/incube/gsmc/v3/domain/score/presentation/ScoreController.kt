@@ -1,6 +1,9 @@
 package com.team.incube.gsmc.v3.domain.score.presentation
 
+import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateCertificateScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScoreStatusRequest
+import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
+import com.team.incube.gsmc.v3.domain.score.service.CreateCertificateScoreService
 import com.team.incube.gsmc.v3.domain.score.service.DeleteScoreService
 import com.team.incube.gsmc.v3.domain.score.service.UpdateScoreStatusService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController
 class ScoreController(
     private val updateScoreStatusService: UpdateScoreStatusService,
     private val deleteScoreService: DeleteScoreService,
+    private val createCertificateScoreService: CreateCertificateScoreService,
 ) {
     @Operation(summary = "인증제 점수 상태 업데이트", description = "인증제 점수의 승인/거절 상태를 업데이트합니다")
     @ApiResponses(
@@ -46,7 +50,10 @@ class ScoreController(
         @PathVariable scoreId: Long,
         @Valid @RequestBody request: UpdateScoreStatusRequest,
     ): CommonApiResponse<Nothing> {
-        updateScoreStatusService.execute(scoreId, request.scoreStatus)
+        updateScoreStatusService.execute(
+            scoreId = scoreId,
+            scoreStatus = request.scoreStatus,
+        )
         return CommonApiResponse.success("OK")
     }
 
@@ -70,7 +77,7 @@ class ScoreController(
     fun deleteScore(
         @PathVariable scoreId: Long,
     ): CommonApiResponse<Nothing> {
-        deleteScoreService.execute(scoreId)
+        deleteScoreService.execute(scoreId = scoreId)
         return CommonApiResponse.success("OK")
     }
 
@@ -80,7 +87,6 @@ class ScoreController(
             ApiResponse(
                 responseCode = "200",
                 description = "요청이 성공함",
-                content = [Content()],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -96,5 +102,11 @@ class ScoreController(
     )
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/certificates")
-    fun addCertificateScore(): CommonApiResponse<Nothing> = CommonApiResponse.success("OK")
+    fun addCertificateScore(
+        @RequestBody @Valid request: CreateCertificateScoreRequest,
+    ): CreateScoreResponse =
+        createCertificateScoreService.execute(
+            certificateName = request.certificateName,
+            fileId = request.fileId,
+        )
 }

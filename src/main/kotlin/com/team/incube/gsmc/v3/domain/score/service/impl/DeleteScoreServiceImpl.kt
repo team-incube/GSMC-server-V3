@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.score.service.impl
 
-import com.team.incube.gsmc.v3.domain.category.dto.constant.EvidenceType
+import com.team.incube.gsmc.v3.domain.category.constant.EvidenceType
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
@@ -24,7 +24,7 @@ class DeleteScoreServiceImpl(
                 scoreExposedRepository.findById(scoreId)
                     ?: throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
             score.sourceId?.let { sourceId ->
-                when (score.category.evidenceType) {
+                when (score.categoryType.evidenceType) {
                     EvidenceType.EVIDENCE -> {
                         val evidence = evidenceExposedRepository.findById(sourceId)
                         evidence?.files?.forEach { file ->
