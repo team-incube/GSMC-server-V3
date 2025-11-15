@@ -7,6 +7,8 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateSco
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
 import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateCertificateScoreService
+import com.team.incube.gsmc.v3.domain.score.service.CreateJlptScoreService
+import com.team.incube.gsmc.v3.domain.score.service.CreateToeicScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateTopcitScoreService
 import com.team.incube.gsmc.v3.domain.score.service.DeleteScoreService
 import com.team.incube.gsmc.v3.domain.score.service.UpdateScoreStatusService
@@ -37,6 +39,8 @@ class ScoreController(
     private val deleteScoreService: DeleteScoreService,
     private val createCertificateScoreService: CreateCertificateScoreService,
     private val createTopcitScoreService: CreateTopcitScoreService,
+    private val createToeicScoreService: CreateToeicScoreService,
+    private val createJlptScoreService: CreateJlptScoreService,
     private val calculateTotalScoreService: CalculateTotalScoreService,
     private val currentMemberProvider: CurrentMemberProvider,
 ) {
