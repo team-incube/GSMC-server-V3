@@ -4,10 +4,13 @@ import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import org.springframework.stereotype.Component
 
-object ScoreLimitValidator {
+@Component
+class ScoreLimitValidator(
+    private val scoreExposedRepository: ScoreExposedRepository,
+) {
     fun validateScoreLimit(
-        scoreExposedRepository: ScoreExposedRepository,
         memberId: Long,
         categoryType: CategoryType,
     ) {

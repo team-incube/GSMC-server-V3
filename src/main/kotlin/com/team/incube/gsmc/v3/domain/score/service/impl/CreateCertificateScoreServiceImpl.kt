@@ -20,6 +20,7 @@ class CreateCertificateScoreServiceImpl(
     private final val scoreExposedRepository: ScoreExposedRepository,
     private final val fileExposedRepository: FileExposedRepository,
     private final val currentMemberProvider: CurrentMemberProvider,
+    private final val scoreLimitValidator: ScoreLimitValidator,
 ) : CreateCertificateScoreService {
     override fun execute(
         certificateName: String,
@@ -30,7 +31,7 @@ class CreateCertificateScoreServiceImpl(
             if (fileExposedRepository.existsById(fileId).not()) {
                 throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }
-            ScoreLimitValidator.validateScoreLimit(scoreExposedRepository, member.id, CategoryType.CERTIFICATE)
+            scoreLimitValidator.validateScoreLimit(member.id, CategoryType.CERTIFICATE)
             val savedScore =
                 scoreExposedRepository.save(
                     Score(
