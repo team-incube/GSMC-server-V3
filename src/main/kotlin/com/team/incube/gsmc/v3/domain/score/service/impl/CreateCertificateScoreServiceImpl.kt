@@ -17,10 +17,10 @@ import org.springframework.stereotype.Service
 
 @Service
 class CreateCertificateScoreServiceImpl(
-    private final val scoreExposedRepository: ScoreExposedRepository,
-    private final val fileExposedRepository: FileExposedRepository,
-    private final val currentMemberProvider: CurrentMemberProvider,
-    private final val scoreLimitValidator: ScoreLimitValidator,
+    private val scoreExposedRepository: ScoreExposedRepository,
+    private val fileExposedRepository: FileExposedRepository,
+    private val currentMemberProvider: CurrentMemberProvider,
+    private val scoreLimitValidator: ScoreLimitValidator,
 ) : CreateCertificateScoreService {
     override fun execute(
         certificateName: String,
