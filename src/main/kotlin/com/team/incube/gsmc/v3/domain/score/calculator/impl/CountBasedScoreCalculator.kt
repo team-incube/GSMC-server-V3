@@ -25,9 +25,9 @@ class CountBasedScoreCalculator : CategoryScoreCalculator() {
         val count = targetScores.size
 
         return if (categoryType.isAccumulated) {
-            count * categoryType.weight
+            count * categoryType.weight!!
         } else {
             if (count > 0) categoryType.weight else 0
-        }
+        }!!
     }
 }

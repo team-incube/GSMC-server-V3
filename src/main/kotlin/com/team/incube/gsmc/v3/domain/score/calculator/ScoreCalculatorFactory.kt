@@ -21,7 +21,7 @@ object ScoreCalculatorFactory {
             CategoryType.JLPT -> jlptScoreCalculator
 
             CategoryType.CERTIFICATE,
-            CategoryType.CLUB_ACTIVITY,
+            CategoryType.READ_A_THON,
             CategoryType.TOEIC_ACADEMY,
             -> countBasedScoreCalculator
         }
