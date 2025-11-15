@@ -7,11 +7,20 @@ import kotlin.math.min
 import kotlin.math.round
 
 class TopcitScoreCalculator : CategoryScoreCalculator() {
-    override fun calculate(scores: List<Score>): Int {
-        val approvedScores = scores.filter { it.status == ScoreStatus.APPROVED }
-        if (approvedScores.isEmpty()) return 0
+    override fun calculate(
+        scores: List<Score>,
+        includeApprovedOnly: Boolean,
+    ): Int {
+        val targetScores =
+            if (includeApprovedOnly) {
+                scores.filter { it.status == ScoreStatus.APPROVED }
+            } else {
+                scores.filter { it.status == ScoreStatus.APPROVED || it.status == ScoreStatus.PENDING }
+            }
 
-        val maxScoreValue = approvedScores.mapNotNull { it.scoreValue }.maxOrNull() ?: return 0
+        if (targetScores.isEmpty()) return 0
+
+        val maxScoreValue = targetScores.mapNotNull { it.scoreValue }.maxOrNull() ?: return 0
 
         val convertedScore = round(maxScoreValue / 100.0).toInt()
 

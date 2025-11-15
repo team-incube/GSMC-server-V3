@@ -7,16 +7,25 @@ import com.team.incube.gsmc.v3.domain.score.dto.Score
 import kotlin.math.min
 
 class JlptScoreCalculator : CategoryScoreCalculator() {
-    override fun calculate(scores: List<Score>): Int {
-        val approvedScores = scores.filter { it.status == ScoreStatus.APPROVED }
-        if (approvedScores.isEmpty()) return 0
+    override fun calculate(
+        scores: List<Score>,
+        includeApprovedOnly: Boolean,
+    ): Int {
+        val targetScores =
+            if (includeApprovedOnly) {
+                scores.filter { it.status == ScoreStatus.APPROVED }
+            } else {
+                scores.filter { it.status == ScoreStatus.APPROVED || it.status == ScoreStatus.PENDING }
+            }
+
+        if (targetScores.isEmpty()) return 0
 
         val maxJlptScore =
-            approvedScores
+            targetScores
                 .filter { it.categoryType == CategoryType.JLPT }.maxOfOrNull { convertGradeToScore(it.activityName) } ?: 0
 
         val hasToeicAcademy =
-            approvedScores.any { it.categoryType == CategoryType.TOEIC_ACADEMY }
+            targetScores.any { it.categoryType == CategoryType.TOEIC_ACADEMY }
 
         val bonusScore = if (hasToeicAcademy) 1 else 0
 

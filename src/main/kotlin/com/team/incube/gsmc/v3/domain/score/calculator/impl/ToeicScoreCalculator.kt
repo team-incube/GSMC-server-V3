@@ -8,12 +8,21 @@ import kotlin.math.min
 import kotlin.math.round
 
 class ToeicScoreCalculator : CategoryScoreCalculator() {
-    override fun calculate(scores: List<Score>): Int {
-        val approvedScores = scores.filter { it.status == ScoreStatus.APPROVED }
-        if (approvedScores.isEmpty()) return 0
+    override fun calculate(
+        scores: List<Score>,
+        includeApprovedOnly: Boolean,
+    ): Int {
+        val targetScores =
+            if (includeApprovedOnly) {
+                scores.filter { it.status == ScoreStatus.APPROVED }
+            } else {
+                scores.filter { it.status == ScoreStatus.APPROVED || it.status == ScoreStatus.PENDING }
+            }
+
+        if (targetScores.isEmpty()) return 0
 
         val maxToeicScore =
-            approvedScores
+            targetScores
                 .filter { it.categoryType == CategoryType.TOEIC }
                 .mapNotNull { it.scoreValue }
                 .maxOrNull() ?: 0
@@ -21,7 +30,7 @@ class ToeicScoreCalculator : CategoryScoreCalculator() {
         val convertedScore = round(maxToeicScore / 100.0).toInt()
 
         val hasToeicAcademy =
-            approvedScores.any { it.categoryType == CategoryType.TOEIC_ACADEMY }
+            targetScores.any { it.categoryType == CategoryType.TOEIC_ACADEMY }
 
         val bonusScore = if (hasToeicAcademy) 1 else 0
 

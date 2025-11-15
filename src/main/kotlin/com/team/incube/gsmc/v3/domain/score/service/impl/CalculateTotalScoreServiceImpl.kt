@@ -11,7 +11,10 @@ import org.springframework.stereotype.Service
 class CalculateTotalScoreServiceImpl(
     private val scoreExposedRepository: ScoreExposedRepository,
 ) : CalculateTotalScoreService {
-    override fun execute(memberId: Long): Int =
+    override fun execute(
+        memberId: Long,
+        includeApprovedOnly: Boolean,
+    ): Int =
         transaction {
             val allScores = scoreExposedRepository.findAllByMemberId(memberId)
 
@@ -26,7 +29,7 @@ class CalculateTotalScoreServiceImpl(
 
             val foreignLanguageScore =
                 if (foreignLanguageScores.isNotEmpty()) {
-                    calculateForeignLanguageScore(foreignLanguageScores)
+                    calculateForeignLanguageScore(foreignLanguageScores, includeApprovedOnly)
                 } else {
                     0
                 }
@@ -40,22 +43,25 @@ class CalculateTotalScoreServiceImpl(
                         0
                     } else {
                         val calculator = ScoreCalculatorFactory.getCalculator(categoryType)
-                        calculator.calculate(scores)
+                        calculator.calculate(scores, includeApprovedOnly)
                     }
                 }
 
             foreignLanguageScore + otherScoresSum
         }
 
-    private fun calculateForeignLanguageScore(scores: List<com.team.incube.gsmc.v3.domain.score.dto.Score>): Int {
+    private fun calculateForeignLanguageScore(
+        scores: List<com.team.incube.gsmc.v3.domain.score.dto.Score>,
+        includeApprovedOnly: Boolean,
+    ): Int {
         val toeicScores = scores.filter { it.categoryType == CategoryType.TOEIC }
         val jlptScores = scores.filter { it.categoryType == CategoryType.JLPT }
 
         val toeicCalculator = ScoreCalculatorFactory.getCalculator(CategoryType.TOEIC)
         val jlptCalculator = ScoreCalculatorFactory.getCalculator(CategoryType.JLPT)
 
-        val toeicScore = if (toeicScores.isNotEmpty()) toeicCalculator.calculate(scores) else 0
-        val jlptScore = if (jlptScores.isNotEmpty()) jlptCalculator.calculate(scores) else 0
+        val toeicScore = if (toeicScores.isNotEmpty()) toeicCalculator.calculate(scores, includeApprovedOnly) else 0
+        val jlptScore = if (jlptScores.isNotEmpty()) jlptCalculator.calculate(scores, includeApprovedOnly) else 0
 
         return maxOf(toeicScore, jlptScore)
     }

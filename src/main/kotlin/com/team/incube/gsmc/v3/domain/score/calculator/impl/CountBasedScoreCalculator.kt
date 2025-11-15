@@ -6,16 +6,27 @@ import com.team.incube.gsmc.v3.domain.score.dto.Score
 import kotlin.math.min
 
 class CountBasedScoreCalculator : CategoryScoreCalculator() {
-    override fun calculate(scores: List<Score>): Int {
+    override fun calculate(
+        scores: List<Score>,
+        includeApprovedOnly: Boolean,
+    ): Int {
         if (scores.isEmpty()) return 0
 
         val categoryType = scores.first().categoryType
-        val approvedCount = scores.count { it.status == ScoreStatus.APPROVED }
+
+        val targetScores =
+            if (includeApprovedOnly) {
+                scores.filter { it.status == ScoreStatus.APPROVED }
+            } else {
+                scores.filter { it.status == ScoreStatus.APPROVED || it.status == ScoreStatus.PENDING }
+            }
+
+        val count = targetScores.size
 
         return if (categoryType.isAccumulated) {
-            min(approvedCount * categoryType.weight, categoryType.maximumValue)
+            min(count * categoryType.weight, categoryType.maximumValue)
         } else {
-            if (approvedCount > 0) categoryType.weight else 0
+            if (count > 0) categoryType.weight else 0
         }
     }
 }
