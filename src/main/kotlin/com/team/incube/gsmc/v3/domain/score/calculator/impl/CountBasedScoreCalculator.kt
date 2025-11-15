@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.domain.score.calculator.impl
 
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.calculator.CategoryScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.dto.Score
@@ -8,18 +9,19 @@ import kotlin.math.min
 class CountBasedScoreCalculator : CategoryScoreCalculator() {
     override fun calculate(
         scores: List<Score>,
+        categoryType: CategoryType,
         includeApprovedOnly: Boolean,
     ): Int {
-        if (scores.isEmpty()) return 0
-
-        val categoryType = scores.first().categoryType
-
         val targetScores =
-            if (includeApprovedOnly) {
-                scores.filter { it.status == ScoreStatus.APPROVED }
-            } else {
-                scores.filter { it.status == ScoreStatus.APPROVED || it.status == ScoreStatus.PENDING }
-            }
+            scores
+                .filter { it.categoryType == categoryType }
+                .filter { score ->
+                    if (includeApprovedOnly) {
+                        score.status == ScoreStatus.APPROVED
+                    } else {
+                        score.status == ScoreStatus.APPROVED || score.status == ScoreStatus.PENDING
+                    }
+                }
 
         val count = targetScores.size
 

@@ -9,13 +9,16 @@ import kotlin.math.min
 class JlptScoreCalculator : CategoryScoreCalculator() {
     override fun calculate(
         scores: List<Score>,
+        categoryType: CategoryType,
         includeApprovedOnly: Boolean,
     ): Int {
         val targetScores =
-            if (includeApprovedOnly) {
-                scores.filter { it.status == ScoreStatus.APPROVED }
-            } else {
-                scores.filter { it.status == ScoreStatus.APPROVED || it.status == ScoreStatus.PENDING }
+            scores.filter { score ->
+                if (includeApprovedOnly) {
+                    score.status == ScoreStatus.APPROVED
+                } else {
+                    score.status == ScoreStatus.APPROVED || score.status == ScoreStatus.PENDING
+                }
             }
 
         if (targetScores.isEmpty()) return 0
