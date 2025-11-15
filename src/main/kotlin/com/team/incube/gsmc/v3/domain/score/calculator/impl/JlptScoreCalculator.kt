@@ -22,7 +22,8 @@ class JlptScoreCalculator : CategoryScoreCalculator() {
 
         val maxJlptScore =
             targetScores
-                .filter { it.categoryType == CategoryType.JLPT }.maxOfOrNull { convertGradeToScore(it.activityName) } ?: 0
+                .filter { it.categoryType == CategoryType.JLPT }
+                .maxOfOrNull { convertGradeToScore(it.activityName) } ?: 0
 
         val hasToeicAcademy =
             targetScores.any { it.categoryType == CategoryType.TOEIC_ACADEMY }

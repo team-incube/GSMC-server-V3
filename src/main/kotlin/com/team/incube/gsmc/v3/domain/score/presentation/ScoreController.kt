@@ -8,8 +8,8 @@ import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateCertificateScoreService
 import com.team.incube.gsmc.v3.domain.score.service.DeleteScoreService
 import com.team.incube.gsmc.v3.domain.score.service.UpdateScoreStatusService
-import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
