@@ -3,10 +3,13 @@ package com.team.incube.gsmc.v3.domain.score.presentation
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateCertificateScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScoreStatusRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
+import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
+import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateCertificateScoreService
 import com.team.incube.gsmc.v3.domain.score.service.DeleteScoreService
 import com.team.incube.gsmc.v3.domain.score.service.UpdateScoreStatusService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -15,11 +18,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "Score API", description = "인증제 점수 관련 API")
@@ -29,6 +34,8 @@ class ScoreController(
     private val updateScoreStatusService: UpdateScoreStatusService,
     private val deleteScoreService: DeleteScoreService,
     private val createCertificateScoreService: CreateCertificateScoreService,
+    private val calculateTotalScoreService: CalculateTotalScoreService,
+    private val currentMemberProvider: CurrentMemberProvider,
 ) {
     @Operation(summary = "인증제 점수 상태 업데이트", description = "인증제 점수의 승인/거절 상태를 업데이트합니다")
     @ApiResponses(
@@ -109,4 +116,31 @@ class ScoreController(
             certificateName = request.certificateName,
             fileId = request.fileId,
         )
+
+    @Operation(summary = "현재 사용자의 총점 조회", description = "현재 인증된 사용자의 인증제 총점을 조회합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/total")
+    fun getTotalScore(
+        @RequestParam(
+            name = "includeApprovedOnly",
+            defaultValue = "true",
+            required = false,
+        ) includeApprovedOnly: Boolean,
+    ): GetTotalScoreResponse {
+        val member = currentMemberProvider.getCurrentUser()
+        val totalScore =
+            calculateTotalScoreService.execute(
+                memberId = member.id,
+                includeApprovedOnly = includeApprovedOnly,
+            )
+        return GetTotalScoreResponse(totalScore = totalScore)
+    }
 }
