@@ -55,7 +55,7 @@ class EvidenceController(
     @GetMapping("/{evidenceId}")
     fun getEvidence(
         @PathVariable evidenceId: Long,
-    ): GetEvidenceResponse = findEvidenceByIdService.execute(evidenceId)
+    ): GetEvidenceResponse = findEvidenceByIdService.execute(evidenceId = evidenceId)
 
     @Operation(summary = "증빙자료 생성", description = "새로운 증빙자료를 생성합니다")
     @ApiResponses(
@@ -137,7 +137,7 @@ class EvidenceController(
     fun deleteEvidence(
         @PathVariable evidenceId: Long,
     ): CommonApiResponse<Nothing> {
-        deleteEvidenceService.execute(evidenceId)
+        deleteEvidenceService.execute(evidenceId = evidenceId)
         return CommonApiResponse.success("OK")
     }
 }
