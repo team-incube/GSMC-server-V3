@@ -14,8 +14,9 @@ import kotlin.math.round
  * 점수 변환: round(scoreValue), 최대 5점
  * 예시:
  * - 4.6 → 5점
+ * - 3.5 → 4점
  * - 3.2 → 3점
- * - 4.4 → 4점
+ * - 2.5 → 2점
  *
  * maxRecordCount=1이므로 레코드는 1개만 존재합니다.
  */
