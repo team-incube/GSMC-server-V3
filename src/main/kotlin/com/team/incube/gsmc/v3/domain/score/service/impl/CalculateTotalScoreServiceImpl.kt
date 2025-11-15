@@ -20,7 +20,7 @@ class CalculateTotalScoreServiceImpl(
 
             val scoresByCategory = allScores.groupBy { it.categoryType }
 
-            val foreignLanguageCategories = listOf(CategoryType.TOEIC, CategoryType.JLPT, CategoryType.TOEIC_ACADEMY)
+            val foreignLanguageCategories = CategoryType.getForeignLanguageCategories()
 
             val foreignLanguageScores =
                 foreignLanguageCategories.flatMap { categoryType ->
@@ -54,14 +54,14 @@ class CalculateTotalScoreServiceImpl(
         scores: List<com.team.incube.gsmc.v3.domain.score.dto.Score>,
         includeApprovedOnly: Boolean,
     ): Int {
-        val toeicScores = scores.filter { it.categoryType == CategoryType.TOEIC }
-        val jlptScores = scores.filter { it.categoryType == CategoryType.JLPT }
+        val toeicScores = scores.filter { it.categoryType == CategoryType.TOEIC || it.categoryType == CategoryType.TOEIC_ACADEMY }
+        val jlptScores = scores.filter { it.categoryType == CategoryType.JLPT || it.categoryType == CategoryType.TOEIC_ACADEMY }
 
         val toeicCalculator = ScoreCalculatorFactory.getCalculator(CategoryType.TOEIC)
         val jlptCalculator = ScoreCalculatorFactory.getCalculator(CategoryType.JLPT)
 
-        val toeicScore = if (toeicScores.isNotEmpty()) toeicCalculator.calculate(scores, includeApprovedOnly) else 0
-        val jlptScore = if (jlptScores.isNotEmpty()) jlptCalculator.calculate(scores, includeApprovedOnly) else 0
+        val toeicScore = if (toeicScores.isNotEmpty()) toeicCalculator.calculate(toeicScores, includeApprovedOnly) else 0
+        val jlptScore = if (jlptScores.isNotEmpty()) jlptCalculator.calculate(jlptScores, includeApprovedOnly) else 0
 
         return maxOf(toeicScore, jlptScore)
     }
