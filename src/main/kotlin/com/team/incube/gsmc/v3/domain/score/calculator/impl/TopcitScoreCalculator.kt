@@ -21,22 +21,19 @@ class TopcitScoreCalculator : CategoryScoreCalculator() {
         categoryType: CategoryType,
         includeApprovedOnly: Boolean,
     ): Int {
-        val targetScores =
-            scores
-                .filter { it.categoryType == categoryType }
-                .filter { score ->
+        val targetScore =
+            scores.firstOrNull { score ->
+                score.categoryType == categoryType &&
                     if (includeApprovedOnly) {
                         score.status == ScoreStatus.APPROVED
                     } else {
                         score.status == ScoreStatus.APPROVED || score.status == ScoreStatus.PENDING
                     }
-                }
+            }
 
-        if (targetScores.isEmpty()) return 0
+        val scoreValue = targetScore?.scoreValue ?: return 0
 
-        val maxScoreValue = targetScores.mapNotNull { it.scoreValue }.maxOrNull() ?: return 0
-
-        val convertedScore = round(maxScoreValue / 100.0).toInt()
+        val convertedScore = round(scoreValue / 100.0).toInt()
 
         return min(convertedScore, 10)
     }
