@@ -8,6 +8,9 @@ trim_trailing_whitespace = true
 indent_style = space
 indent_size = 4
 
+[*.kt]
+ktlint_standard_blank-line-between-when-conditions = enabled
+
 [*.{json,xml,yml,yaml}]
 indent_size = 2
 
