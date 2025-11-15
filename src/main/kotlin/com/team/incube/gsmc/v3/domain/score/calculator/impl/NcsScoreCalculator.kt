@@ -26,15 +26,14 @@ class NcsScoreCalculator : CategoryScoreCalculator() {
         includeApprovedOnly: Boolean,
     ): Int {
         val targetScore =
-            scores
-                .filter { it.categoryType == categoryType }
-                .firstOrNull { score ->
+            scores.firstOrNull { score ->
+                score.categoryType == categoryType &&
                     if (includeApprovedOnly) {
                         score.status == ScoreStatus.APPROVED
                     } else {
                         score.status == ScoreStatus.APPROVED || score.status == ScoreStatus.PENDING
                     }
-                }
+            }
 
         val averageScore = targetScore?.scoreValue ?: return 0
 
