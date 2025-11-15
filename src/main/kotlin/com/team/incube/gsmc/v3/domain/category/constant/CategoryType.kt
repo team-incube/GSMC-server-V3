@@ -12,6 +12,7 @@ enum class CategoryType(
     val isAccumulated: Boolean,
     val evidenceType: EvidenceType,
     val calculationType: ScoreCalculationType,
+    val isForeignLanguage: Boolean,
 ) {
     VOLUNTEER(
         englishName = "VOLUNTEER",
@@ -21,6 +22,7 @@ enum class CategoryType(
         isAccumulated = true,
         evidenceType = EvidenceType.EVIDENCE,
         calculationType = ScoreCalculationType.COUNT_BASED,
+        isForeignLanguage = false,
     ),
     CERTIFICATE(
         englishName = "CERTIFICATE",
@@ -30,6 +32,7 @@ enum class CategoryType(
         isAccumulated = true,
         evidenceType = EvidenceType.FILE,
         calculationType = ScoreCalculationType.COUNT_BASED,
+        isForeignLanguage = false,
     ),
     TOPCIT(
         englishName = "TOPCIT",
@@ -39,6 +42,7 @@ enum class CategoryType(
         isAccumulated = true,
         evidenceType = EvidenceType.FILE,
         calculationType = ScoreCalculationType.SCORE_BASED,
+        isForeignLanguage = false,
     ),
     TOEIC(
         englishName = "TOEIC",
@@ -48,6 +52,7 @@ enum class CategoryType(
         isAccumulated = true,
         evidenceType = EvidenceType.FILE,
         calculationType = ScoreCalculationType.SCORE_BASED,
+        isForeignLanguage = true,
     ),
     JLPT(
         englishName = "JLPT",
@@ -57,6 +62,7 @@ enum class CategoryType(
         isAccumulated = true,
         evidenceType = EvidenceType.FILE,
         calculationType = ScoreCalculationType.SCORE_BASED,
+        isForeignLanguage = true,
     ),
     TOEIC_ACADEMY(
         englishName = "TOEIC_ACADEMY",
@@ -66,6 +72,7 @@ enum class CategoryType(
         isAccumulated = false,
         evidenceType = EvidenceType.UNREQUIRED,
         calculationType = ScoreCalculationType.COUNT_BASED,
+        isForeignLanguage = true,
     ),
     CLUB_ACTIVITY(
         englishName = "CLUB_ACTIVITY",
@@ -75,6 +82,7 @@ enum class CategoryType(
         isAccumulated = false,
         evidenceType = EvidenceType.EVIDENCE,
         calculationType = ScoreCalculationType.COUNT_BASED,
+        isForeignLanguage = false,
     ),
     ;
 
@@ -88,6 +96,8 @@ enum class CategoryType(
                 ?: throw GsmcException(ErrorCode.INVALID_CATEGORY)
 
         fun getAllCategories(): List<CategoryType> = entries
+
+        fun getForeignLanguageCategories(): List<CategoryType> = entries.filter { it.isForeignLanguage }
 
         fun exists(englishName: String): Boolean = entries.any { it.englishName.equals(englishName, ignoreCase = true) }
     }
