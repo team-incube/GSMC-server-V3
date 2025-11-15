@@ -38,7 +38,7 @@ class ToeicScoreCalculator : CategoryScoreCalculator() {
             targetScores
                 .filter { it.categoryType == CategoryType.TOEIC }
                 .mapNotNull { it.scoreValue }
-                .maxOrNull() ?: 0
+                .maxOrNull() ?: 0.0
 
         val convertedScore = round(maxToeicScore / 100.0).toInt()
 

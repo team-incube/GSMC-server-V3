@@ -43,7 +43,7 @@ class CreateToeicScoreServiceImpl(
                         existingScore.copy(
                             status = ScoreStatus.PENDING,
                             sourceId = fileId,
-                            scoreValue = value,
+                            scoreValue = value.toDouble(),
                         ),
                     )
                 } else {
@@ -55,7 +55,7 @@ class CreateToeicScoreServiceImpl(
                             status = ScoreStatus.PENDING,
                             sourceId = fileId,
                             activityName = null,
-                            scoreValue = value,
+                            scoreValue = value.toDouble(),
                         ),
                     )
                 }

@@ -49,7 +49,7 @@ class CreateJlptScoreServiceImpl(
                         existingScore.copy(
                             status = ScoreStatus.PENDING,
                             sourceId = fileId,
-                            scoreValue = grade,
+                            scoreValue = grade.toDouble(),
                         ),
                     )
                 } else {
@@ -61,7 +61,7 @@ class CreateJlptScoreServiceImpl(
                             status = ScoreStatus.PENDING,
                             sourceId = fileId,
                             activityName = null,
-                            scoreValue = grade,
+                            scoreValue = grade.toDouble(),
                         ),
                     )
                 }

@@ -31,7 +31,7 @@ class CreateVolunteerScoreServiceImpl(
                     scoreExposedRepository.update(
                         existingScore.copy(
                             status = ScoreStatus.PENDING,
-                            scoreValue = hours,
+                            scoreValue = hours.toDouble(),
                         ),
                     )
                 } else {
@@ -43,7 +43,7 @@ class CreateVolunteerScoreServiceImpl(
                             status = ScoreStatus.PENDING,
                             sourceId = null,
                             activityName = null,
-                            scoreValue = hours,
+                            scoreValue = hours.toDouble(),
                         ),
                     )
                 }

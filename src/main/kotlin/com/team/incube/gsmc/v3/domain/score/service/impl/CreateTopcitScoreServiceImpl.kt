@@ -43,7 +43,7 @@ class CreateTopcitScoreServiceImpl(
                         existingScore.copy(
                             status = ScoreStatus.PENDING,
                             sourceId = fileId,
-                            scoreValue = value,
+                            scoreValue = value.toDouble(),
                         ),
                     )
                 } else {
@@ -55,7 +55,7 @@ class CreateTopcitScoreServiceImpl(
                             status = ScoreStatus.PENDING,
                             sourceId = fileId,
                             activityName = null,
-                            scoreValue = value,
+                            scoreValue = value.toDouble(),
                         ),
                     )
                 }
