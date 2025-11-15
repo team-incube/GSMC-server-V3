@@ -1,7 +1,6 @@
 package com.team.incube.gsmc.v3.domain.score.repository.impl
 
-import com.team.incube.gsmc.v3.domain.category.dto.Category
-import com.team.incube.gsmc.v3.domain.category.entity.CategoryExposedEntity
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
@@ -12,6 +11,7 @@ import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 import org.springframework.stereotype.Repository
@@ -22,8 +22,6 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         ScoreExposedEntity
             .join(MemberExposedEntity, joinType = JoinType.INNER) {
                 ScoreExposedEntity.memberId eq MemberExposedEntity.id
-            }.join(CategoryExposedEntity, joinType = JoinType.INNER) {
-                ScoreExposedEntity.categoryId eq CategoryExposedEntity.id
             }.selectAll()
             .where { ScoreExposedEntity.id eq scoreId }
             .map { row ->
@@ -38,25 +36,15 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                         role = row[MemberExposedEntity.role],
                     )
 
-                val category =
-                    Category(
-                        id = row[CategoryExposedEntity.id],
-                        englishName = row[CategoryExposedEntity.englishName],
-                        koreanName = row[CategoryExposedEntity.koreanName],
-                        weight = row[CategoryExposedEntity.weight],
-                        maximumValue = row[CategoryExposedEntity.maximumValue],
-                        isAccumulated = row[CategoryExposedEntity.isAccumulated],
-                        evidenceType = row[CategoryExposedEntity.evidenceType],
-                    )
-
-                val sourceId = row[ScoreExposedEntity.sourceId]
+                val categoryType = CategoryType.fromEnglishName(row[ScoreExposedEntity.categoryEnglishName])
 
                 Score(
                     id = row[ScoreExposedEntity.id],
                     member = member,
-                    category = category,
+                    categoryType = categoryType,
                     status = row[ScoreExposedEntity.status],
-                    sourceId = sourceId,
+                    sourceId = row[ScoreExposedEntity.sourceId],
+                    activityName = row[ScoreExposedEntity.activityName],
                 )
             }.singleOrNull()
 
@@ -73,6 +61,18 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                 .where { ScoreExposedEntity.id inList scoreIds }
                 .map { it[ScoreExposedEntity.id] }
         return existingScoreIds.size == scoreIds.size
+    }
+
+    override fun save(score: Score): Score {
+        val generatedId =
+            ScoreExposedEntity.insert {
+                it[memberId] = score.member.id
+                it[categoryEnglishName] = score.categoryType.englishName
+                it[status] = score.status
+                it[sourceId] = score.sourceId
+                it[activityName] = score.activityName
+            } get ScoreExposedEntity.id
+        return score.copy(id = generatedId)
     }
 
     override fun updateSourceId(
