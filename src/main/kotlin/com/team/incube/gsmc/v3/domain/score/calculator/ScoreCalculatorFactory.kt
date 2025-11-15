@@ -15,7 +15,9 @@ object ScoreCalculatorFactory {
     fun getCalculator(categoryType: CategoryType): CategoryScoreCalculator =
         when (categoryType) {
             CategoryType.TOPCIT -> topcitScoreCalculator
+
             CategoryType.TOEIC -> toeicScoreCalculator
+
             CategoryType.JLPT -> jlptScoreCalculator
             CategoryType.VOLUNTEER,
             CategoryType.CERTIFICATE,
