@@ -1,0 +1,82 @@
+package com.team.incube.gsmc.v3.domain.score.service.impl
+
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
+import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
+import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
+import com.team.incube.gsmc.v3.domain.score.dto.Score
+import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.CategoryNames
+import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
+import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
+import com.team.incube.gsmc.v3.domain.score.service.CreateJlptScoreService
+import com.team.incube.gsmc.v3.global.common.error.ErrorCode
+import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.springframework.stereotype.Service
+
+/**
+ * JLPT 점수 생성/갱신 서비스
+ *
+ * JLPT 등급(N1-N5)은 Score.activityName 필드에 저장됩니다.
+ * scoreValue는 사용하지 않습니다 (null).
+ */
+@Service
+class CreateJlptScoreServiceImpl(
+    private val scoreExposedRepository: ScoreExposedRepository,
+    private val fileExposedRepository: FileExposedRepository,
+    private val currentMemberProvider: CurrentMemberProvider,
+) : CreateJlptScoreService {
+    override fun execute(
+        grade: String,
+        fileId: Long,
+    ): CreateScoreResponse =
+        transaction {
+            val member = currentMemberProvider.getCurrentUser()
+
+            if (fileExposedRepository.existsById(fileId).not()) {
+                throw GsmcException(ErrorCode.FILE_NOT_FOUND)
+            }
+
+            val existingScore =
+                scoreExposedRepository.findByMemberIdAndCategoryType(
+                    memberId = member.id,
+                    categoryType = CategoryType.JLPT,
+                )
+
+            // JLPT 등급은 activityName에 저장 (N1, N2, N3, N4, N5)
+            val savedScore =
+                if (existingScore != null) {
+                    scoreExposedRepository.update(
+                        existingScore.copy(
+                            status = ScoreStatus.PENDING,
+                            sourceId = fileId,
+                            activityName = grade,
+                        ),
+                    )
+                } else {
+                    scoreExposedRepository.save(
+                        Score(
+                            id = null,
+                            member = member,
+                            categoryType = CategoryType.JLPT,
+                            status = ScoreStatus.PENDING,
+                            sourceId = fileId,
+                            activityName = grade, // JLPT 등급 저장
+                            scoreValue = null,
+                        ),
+                    )
+                }
+
+            CreateScoreResponse(
+                scoreId = savedScore.id!!,
+                categoryNames =
+                    CategoryNames(
+                        koreanName = savedScore.categoryType.koreanName,
+                        englishName = savedScore.categoryType.englishName,
+                    ),
+                scoreStatus = savedScore.status,
+                sourceId = savedScore.sourceId,
+                activityName = savedScore.activityName,
+            )
+        }
+}

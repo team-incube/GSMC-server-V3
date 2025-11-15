@@ -15,7 +15,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
 
 @Service
-class CreateTopcitScoreImpl(
+class CreateTopcitScoreServiceImpl(
     private val scoreExposedRepository: ScoreExposedRepository,
     private val fileExposedRepository: FileExposedRepository,
     private val currentMemberProvider: CurrentMemberProvider,
