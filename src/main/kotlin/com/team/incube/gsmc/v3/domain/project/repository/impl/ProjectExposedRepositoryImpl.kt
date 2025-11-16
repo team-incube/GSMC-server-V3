@@ -178,8 +178,43 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             }
         }
 
-        val files = getProjectFiles(projectId)
-        val participants = getProjectParticipants(projectId)
+        val files =
+            if (fileIds.isNotEmpty()) {
+                FileExposedEntity
+                    .selectAll()
+                    .where { FileExposedEntity.id inList fileIds }
+                    .map { row ->
+                        File(
+                            fileId = row[FileExposedEntity.id],
+                            userId = row[FileExposedEntity.userId],
+                            fileOriginalName = row[FileExposedEntity.originalName],
+                            fileStoredName = row[FileExposedEntity.storedName],
+                            fileUri = row[FileExposedEntity.uri],
+                        )
+                    }
+            } else {
+                emptyList()
+            }
+
+        val participants =
+            if (allParticipantIds.isNotEmpty()) {
+                MemberExposedEntity
+                    .selectAll()
+                    .where { MemberExposedEntity.id inList allParticipantIds }
+                    .map { row ->
+                        Member(
+                            id = row[MemberExposedEntity.id],
+                            name = row[MemberExposedEntity.name],
+                            email = row[MemberExposedEntity.email],
+                            grade = row[MemberExposedEntity.grade],
+                            classNumber = row[MemberExposedEntity.classNumber],
+                            number = row[MemberExposedEntity.number],
+                            role = row[MemberExposedEntity.role],
+                        )
+                    }
+            } else {
+                emptyList()
+            }
 
         return Project(
             id = projectId,
@@ -223,8 +258,43 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             }
         }
 
-        val files = getProjectFiles(id)
-        val participants = getProjectParticipants(id)
+        val files =
+            if (fileIds.isNotEmpty()) {
+                FileExposedEntity
+                    .selectAll()
+                    .where { FileExposedEntity.id inList fileIds }
+                    .map { row ->
+                        File(
+                            fileId = row[FileExposedEntity.id],
+                            userId = row[FileExposedEntity.userId],
+                            fileOriginalName = row[FileExposedEntity.originalName],
+                            fileStoredName = row[FileExposedEntity.storedName],
+                            fileUri = row[FileExposedEntity.uri],
+                        )
+                    }
+            } else {
+                emptyList()
+            }
+
+        val participants =
+            if (allParticipantIds.isNotEmpty()) {
+                MemberExposedEntity
+                    .selectAll()
+                    .where { MemberExposedEntity.id inList allParticipantIds }
+                    .map { row ->
+                        Member(
+                            id = row[MemberExposedEntity.id],
+                            name = row[MemberExposedEntity.name],
+                            email = row[MemberExposedEntity.email],
+                            grade = row[MemberExposedEntity.grade],
+                            classNumber = row[MemberExposedEntity.classNumber],
+                            number = row[MemberExposedEntity.number],
+                            role = row[MemberExposedEntity.role],
+                        )
+                    }
+            } else {
+                emptyList()
+            }
 
         return Project(
             id = id,
