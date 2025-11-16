@@ -8,6 +8,7 @@ import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.config.logger
 import com.team.incube.gsmc.v3.global.security.jwt.JwtProvider
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient
@@ -108,8 +109,10 @@ class OauthAuthenticationServiceImpl(
                 role = member.role,
             )
         } catch (e: OAuth2AuthorizationException) {
+            logger().error("OAuth2 authorization failed: ${e.error.errorCode} - ${e.error.description}", e)
             throw GsmcException(ErrorCode.OAUTH2_AUTHORIZATION_FAILED)
         } catch (e: Exception) {
+            logger().error("Authentication failed: ${e.message}", e)
             throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
         }
     }
