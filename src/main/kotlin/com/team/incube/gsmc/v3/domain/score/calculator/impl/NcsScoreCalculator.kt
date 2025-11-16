@@ -3,7 +3,6 @@ package com.team.incube.gsmc.v3.domain.score.calculator.impl
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.score.calculator.CategoryScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.dto.Score
-import kotlin.math.min
 import kotlin.math.round
 
 /**
@@ -34,6 +33,6 @@ class NcsScoreCalculator : CategoryScoreCalculator() {
 
         val convertedScore = round(averageScore).toInt()
 
-        return min(convertedScore, 5)
+        return convertedScore.coerceIn(0, 5)
     }
 }

@@ -3,7 +3,6 @@ package com.team.incube.gsmc.v3.domain.score.calculator.impl
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.score.calculator.CategoryScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.dto.Score
-import kotlin.math.min
 
 /**
  * 뉴로우스쿨 참여 점수 계산기
@@ -28,6 +27,6 @@ class NewrrowSchoolScoreCalculator : CategoryScoreCalculator() {
 
         val convertedScore = (temperature / 20.0).toInt()
 
-        return min(convertedScore, 5)
+        return convertedScore.coerceIn(0, 5)
     }
 }

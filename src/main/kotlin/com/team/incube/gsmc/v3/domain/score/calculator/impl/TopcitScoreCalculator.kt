@@ -3,7 +3,6 @@ package com.team.incube.gsmc.v3.domain.score.calculator.impl
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.score.calculator.CategoryScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.dto.Score
-import kotlin.math.min
 import kotlin.math.round
 
 /**
@@ -29,6 +28,6 @@ class TopcitScoreCalculator : CategoryScoreCalculator() {
 
         val convertedScore = round(scoreValue / 100.0).toInt()
 
-        return min(convertedScore, 10)
+        return convertedScore.coerceIn(0, 10)
     }
 }
