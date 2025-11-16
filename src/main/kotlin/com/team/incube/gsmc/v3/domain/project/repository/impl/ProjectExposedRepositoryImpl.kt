@@ -11,8 +11,6 @@ import com.team.incube.gsmc.v3.domain.project.entity.ProjectParticipantExposedEn
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
@@ -187,7 +185,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
                     .map { row ->
                         File(
                             fileId = row[FileExposedEntity.id],
-                            userId = row[FileExposedEntity.userId],
+                            userId = row[FileExposedEntity.memberId],
                             fileOriginalName = row[FileExposedEntity.originalName],
                             fileStoredName = row[FileExposedEntity.storedName],
                             fileUri = row[FileExposedEntity.uri],
@@ -267,7 +265,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
                     .map { row ->
                         File(
                             fileId = row[FileExposedEntity.id],
-                            userId = row[FileExposedEntity.userId],
+                            userId = row[FileExposedEntity.memberId],
                             fileOriginalName = row[FileExposedEntity.originalName],
                             fileStoredName = row[FileExposedEntity.storedName],
                             fileUri = row[FileExposedEntity.uri],
@@ -360,7 +358,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             .map { row ->
                 File(
                     fileId = row[FileExposedEntity.id],
-                    userId = row[FileExposedEntity.userId],
+                    userId = row[FileExposedEntity.memberId],
                     fileOriginalName = row[FileExposedEntity.originalName],
                     fileStoredName = row[FileExposedEntity.storedName],
                     fileUri = row[FileExposedEntity.uri],
@@ -411,7 +409,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
                     row[FileExposedEntity.id] to
                         File(
                             fileId = row[FileExposedEntity.id],
-                            userId = row[FileExposedEntity.userId],
+                            userId = row[FileExposedEntity.memberId],
                             fileOriginalName = row[FileExposedEntity.originalName],
                             fileStoredName = row[FileExposedEntity.storedName],
                             fileUri = row[FileExposedEntity.uri],

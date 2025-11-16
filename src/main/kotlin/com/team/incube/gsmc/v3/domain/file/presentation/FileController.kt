@@ -1,11 +1,11 @@
 package com.team.incube.gsmc.v3.domain.file.presentation
 
 import com.team.incube.gsmc.v3.domain.file.presentation.data.response.CreateFileResponse
-import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetMyFilesResponse
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetCurrentFilesResponse
 import com.team.incube.gsmc.v3.domain.file.service.CreateFileService
 import com.team.incube.gsmc.v3.domain.file.service.DeleteFileService
-import com.team.incube.gsmc.v3.domain.file.service.GetMyFilesService
-import com.team.incube.gsmc.v3.domain.file.service.GetMyUnusedFilesService
+import com.team.incube.gsmc.v3.domain.file.service.FindCurrentFilesService
+import com.team.incube.gsmc.v3.domain.file.service.FindCurrentUnusedFilesService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -28,8 +28,8 @@ import org.springframework.web.multipart.MultipartFile
 class FileController(
     private val createFileService: CreateFileService,
     private val deleteFileService: DeleteFileService,
-    private val getMyFilesService: GetMyFilesService,
-    private val getMyUnusedFilesService: GetMyUnusedFilesService,
+    private val findCurrentFilesService: FindCurrentFilesService,
+    private val findCurrentUnusedFilesService: FindCurrentUnusedFilesService,
 ) {
     @Operation(summary = "파일 업로드", description = "파일을 업로드합니다")
     @ApiResponses(
@@ -76,7 +76,7 @@ class FileController(
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/my")
-    fun getMyFiles(): GetMyFilesResponse = getMyFilesService.execute()
+    fun getCurrentFiles(): GetCurrentFilesResponse = findCurrentFilesService.execute()
 
     @Operation(summary = "미사용 파일 목록 조회", description = "현재 인증된 사용자가 소유하고 있지만 어디에도 사용되지 않는 파일 목록을 조회합니다")
     @ApiResponses(
@@ -89,7 +89,7 @@ class FileController(
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/my/unused")
-    fun getMyUnusedFiles(): GetMyFilesResponse = getMyUnusedFilesService.execute()
+    fun getCurrentUnusedFiles(): GetCurrentFilesResponse = findCurrentUnusedFilesService.execute()
 
     @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/{fileId}")

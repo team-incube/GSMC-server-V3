@@ -95,7 +95,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                         if (originalName != null && storedName != null && uri != null) {
                             File(
                                 fileId = row[FileExposedEntity.id],
-                                userId = row[FileExposedEntity.userId],
+                                userId = row[FileExposedEntity.memberId],
                                 fileOriginalName = originalName,
                                 fileStoredName = storedName,
                                 fileUri = uri,

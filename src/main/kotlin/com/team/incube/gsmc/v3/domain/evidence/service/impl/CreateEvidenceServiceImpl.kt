@@ -37,7 +37,7 @@ class CreateEvidenceServiceImpl(
 
             val evidence =
                 evidenceExposedRepository.save(
-                    // TODO: security context에서 userId 받아오기
+                    // TODO: security context에서 memberId 받아오기
                     userId = 0L,
                     title = title,
                     content = content,
