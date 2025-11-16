@@ -21,5 +21,10 @@ object ScoreExposedEntity : Table(name = "tb_score") {
             isUnique = true,
             columns = arrayOf(memberId, categoryEnglishName, sourceId),
         )
+        index(
+            customIndexName = "uk_score_member_category",
+            isUnique = true,
+            columns = arrayOf(memberId, categoryEnglishName),
+        )
     }
 }
