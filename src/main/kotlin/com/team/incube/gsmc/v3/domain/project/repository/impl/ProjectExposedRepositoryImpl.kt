@@ -9,12 +9,10 @@ import com.team.incube.gsmc.v3.domain.project.entity.ProjectExposedEntity
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectFileExposedEntity
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectParticipantExposedEntity
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
-import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
-import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
@@ -115,7 +113,8 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
         val projectRows =
             query
                 .orderBy(ProjectExposedEntity.id to SortOrder.DESC)
-                .limit(pageable.pageSize).offset(pageable.offset)
+                .limit(pageable.pageSize)
+                .offset(pageable.offset)
 
         val projects =
             projectRows.map { projectRow ->
