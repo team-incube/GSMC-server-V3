@@ -28,9 +28,8 @@ class ToeicScoreCalculator : CategoryScoreCalculator() {
         // TOEIC 점수만 추출 (TOEIC_ACADEMY는 scoreValue가 없음)
         val maxToeicScore =
             targetScores
-                .filter { it.categoryType == CategoryType.TOEIC }
-                .mapNotNull { it.scoreValue }
-                .maxOrNull() ?: 0.0
+                .firstOrNull { it.categoryType == CategoryType.TOEIC }
+                ?.scoreValue ?: 0.0
 
         val convertedScore = round(maxToeicScore / 100.0).toInt()
 

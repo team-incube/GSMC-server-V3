@@ -33,8 +33,8 @@ class JlptScoreCalculator : CategoryScoreCalculator() {
         // JLPT 점수만 추출하여 등급 변환
         val maxJlptScore =
             targetScores
-                .filter { it.categoryType == CategoryType.JLPT }
-                .maxOfOrNull { convertGradeToScore(it.scoreValue) } ?: 0
+                .firstOrNull { it.categoryType == CategoryType.JLPT }
+                ?.let { convertGradeToScore(it.scoreValue) } ?: 0
 
         // TOEIC_ACADEMY 보너스 체크
         val hasToeicAcademy =
