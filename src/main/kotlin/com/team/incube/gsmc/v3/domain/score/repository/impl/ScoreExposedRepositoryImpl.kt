@@ -206,13 +206,13 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         categoryType: CategoryType,
         sourceId: Long,
     ): Boolean =
-        ScoreExposedEntity
+        !ScoreExposedEntity
             .selectAll()
             .where {
                 (ScoreExposedEntity.memberId eq memberId) and
                     (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName) and
                     (ScoreExposedEntity.sourceId eq sourceId)
-            }.count() > 0
+            }.empty()
 
     override fun deleteById(scoreId: Long) {
         ScoreExposedEntity.deleteWhere { ScoreExposedEntity.id eq scoreId }
