@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.project.service.impl
 
-import com.team.incube.gsmc.v3.domain.project.dto.Project
+import com.team.incube.gsmc.v3.domain.project.presentation.data.response.ProjectResponse
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.project.service.UpdateCurrentProjectService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
@@ -16,11 +16,11 @@ class UpdateCurrentProjectServiceImpl(
 ) : UpdateCurrentProjectService {
     override fun execute(
         projectId: Long,
-        title: String,
-        description: String,
-        fileIds: List<Long>,
-        participantIds: List<Long>,
-    ): Project =
+        title: String?,
+        description: String?,
+        fileIds: List<Long>?,
+        participantIds: List<Long>?,
+    ): ProjectResponse =
         transaction {
             val currentUser = currentMemberProvider.getCurrentUser()
             val project =
@@ -31,12 +31,23 @@ class UpdateCurrentProjectServiceImpl(
                 throw GsmcException(ErrorCode.PROJECT_FORBIDDEN)
             }
 
-            projectExposedRepository.updateProject(
-                id = projectId,
-                title = title,
-                description = description,
-                fileIds = fileIds,
-                participantIds = participantIds,
+            val updatedProject =
+                projectExposedRepository.updateProject(
+                    id = projectId,
+                    ownerId = project.ownerId,
+                    title = title ?: project.title,
+                    description = description ?: project.description,
+                    fileIds = fileIds ?: project.files.map { it.fileId },
+                    participantIds = participantIds ?: project.participants.map { it.id },
+                )
+
+            ProjectResponse(
+                id = updatedProject.id!!,
+                ownerId = updatedProject.ownerId,
+                title = updatedProject.title,
+                description = updatedProject.description,
+                files = updatedProject.files,
+                participants = updatedProject.participants,
             )
         }
 }

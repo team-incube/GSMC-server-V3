@@ -51,19 +51,24 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             ProjectExposedEntity
                 .selectAll()
                 .where { ProjectExposedEntity.ownerId eq ownerId }
+                .toList()
+
+        if (projectRows.isEmpty()) return emptyList()
+
+        val projectIds = projectRows.map { it[ProjectExposedEntity.id] }
+        val filesMap = getFilesByProjectIds(projectIds)
+        val participantsMap = getParticipantsByProjectIds(projectIds)
 
         return projectRows.map { projectRow ->
             val projectId = projectRow[ProjectExposedEntity.id]
-            val files = getProjectFiles(projectId)
-            val participants = getProjectParticipants(projectId)
 
             Project(
                 id = projectId,
                 ownerId = projectRow[ProjectExposedEntity.ownerId],
                 title = projectRow[ProjectExposedEntity.title],
                 description = projectRow[ProjectExposedEntity.description],
-                files = files,
-                participants = participants,
+                files = filesMap[projectId] ?: emptyList(),
+                participants = participantsMap[projectId] ?: emptyList(),
             )
         }
     }
@@ -81,19 +86,21 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             ProjectExposedEntity
                 .selectAll()
                 .where { ProjectExposedEntity.id inList projectIds }
+                .toList()
+
+        val filesMap = getFilesByProjectIds(projectIds)
+        val participantsMap = getParticipantsByProjectIds(projectIds)
 
         return projectRows.map { projectRow ->
             val projectId = projectRow[ProjectExposedEntity.id]
-            val files = getProjectFiles(projectId)
-            val participants = getProjectParticipants(projectId)
 
             Project(
                 id = projectId,
                 ownerId = projectRow[ProjectExposedEntity.ownerId],
                 title = projectRow[ProjectExposedEntity.title],
                 description = projectRow[ProjectExposedEntity.description],
-                files = files,
-                participants = participants,
+                files = filesMap[projectId] ?: emptyList(),
+                participants = participantsMap[projectId] ?: emptyList(),
             )
         }
     }
@@ -115,20 +122,25 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
                 .orderBy(ProjectExposedEntity.id to SortOrder.DESC)
                 .limit(pageable.pageSize)
                 .offset(pageable.offset)
+                .toList()
+
+        if (projectRows.isEmpty()) return PageImpl(emptyList(), pageable, total)
+
+        val projectIds = projectRows.map { it[ProjectExposedEntity.id] }
+        val filesMap = getFilesByProjectIds(projectIds)
+        val participantsMap = getParticipantsByProjectIds(projectIds)
 
         val projects =
             projectRows.map { projectRow ->
                 val projectId = projectRow[ProjectExposedEntity.id]
-                val files = getProjectFiles(projectId)
-                val participants = getProjectParticipants(projectId)
 
                 Project(
                     id = projectId,
                     ownerId = projectRow[ProjectExposedEntity.ownerId],
                     title = projectRow[ProjectExposedEntity.title],
                     description = projectRow[ProjectExposedEntity.description],
-                    files = files,
-                    participants = participants,
+                    files = filesMap[projectId] ?: emptyList(),
+                    participants = participantsMap[projectId] ?: emptyList(),
                 )
             }
 
@@ -181,17 +193,12 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
 
     override fun updateProject(
         id: Long,
+        ownerId: Long,
         title: String,
         description: String,
         fileIds: List<Long>,
         participantIds: List<Long>,
     ): Project {
-        val ownerId =
-            ProjectExposedEntity
-                .selectAll()
-                .where { ProjectExposedEntity.id eq id }
-                .single()[ProjectExposedEntity.ownerId]
-
         ProjectExposedEntity.update({ ProjectExposedEntity.id eq id }) {
             it[this.title] = title
             it[this.description] = description
@@ -280,6 +287,72 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
                     number = row[MemberExposedEntity.number],
                     role = row[MemberExposedEntity.role],
                 )
+            }
+    }
+
+    private fun getFilesByProjectIds(projectIds: List<Long>): Map<Long, List<File>> {
+        val fileRelations =
+            ProjectFileExposedEntity
+                .selectAll()
+                .where { ProjectFileExposedEntity.projectId inList projectIds }
+                .map { it[ProjectFileExposedEntity.projectId] to it[ProjectFileExposedEntity.fileId] }
+
+        if (fileRelations.isEmpty()) return emptyMap()
+
+        val fileIds = fileRelations.map { it.second }.distinct()
+        val filesById =
+            FileExposedEntity
+                .selectAll()
+                .where { FileExposedEntity.id inList fileIds }
+                .associate { row ->
+                    row[FileExposedEntity.id] to
+                        File(
+                            fileId = row[FileExposedEntity.id],
+                            userId = row[FileExposedEntity.userId],
+                            fileOriginalName = row[FileExposedEntity.originalName],
+                            fileStoredName = row[FileExposedEntity.storedName],
+                            fileUri = row[FileExposedEntity.uri],
+                        )
+                }
+
+        return fileRelations
+            .groupBy({ it.first }, { it.second })
+            .mapValues { (_, fileIdList) ->
+                fileIdList.mapNotNull { filesById[it] }
+            }
+    }
+
+    private fun getParticipantsByProjectIds(projectIds: List<Long>): Map<Long, List<Member>> {
+        val participantRelations =
+            ProjectParticipantExposedEntity
+                .selectAll()
+                .where { ProjectParticipantExposedEntity.projectId inList projectIds }
+                .map { it[ProjectParticipantExposedEntity.projectId] to it[ProjectParticipantExposedEntity.memberId] }
+
+        if (participantRelations.isEmpty()) return emptyMap()
+
+        val memberIds = participantRelations.map { it.second }.distinct()
+        val membersById =
+            MemberExposedEntity
+                .selectAll()
+                .where { MemberExposedEntity.id inList memberIds }
+                .associate { row ->
+                    row[MemberExposedEntity.id] to
+                        Member(
+                            id = row[MemberExposedEntity.id],
+                            name = row[MemberExposedEntity.name],
+                            email = row[MemberExposedEntity.email],
+                            grade = row[MemberExposedEntity.grade],
+                            classNumber = row[MemberExposedEntity.classNumber],
+                            number = row[MemberExposedEntity.number],
+                            role = row[MemberExposedEntity.role],
+                        )
+                }
+
+        return participantRelations
+            .groupBy({ it.first }, { it.second })
+            .mapValues { (_, memberIdList) ->
+                memberIdList.mapNotNull { membersById[it] }
             }
     }
 }

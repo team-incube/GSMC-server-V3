@@ -26,6 +26,7 @@ interface ProjectExposedRepository {
 
     fun updateProject(
         id: Long,
+        ownerId: Long,
         title: String,
         description: String,
         fileIds: List<Long>,
