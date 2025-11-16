@@ -2,7 +2,6 @@ package com.team.incube.gsmc.v3.domain.project.presentation.controller
 
 import com.team.incube.gsmc.v3.domain.project.presentation.data.request.CreateProjectRequest
 import com.team.incube.gsmc.v3.domain.project.presentation.data.request.PatchProjectRequest
-import com.team.incube.gsmc.v3.domain.project.presentation.data.request.SearchProjectRequest
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.ProjectResponse
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.SearchProjectResponse
 import com.team.incube.gsmc.v3.domain.project.service.CreateCurrentProjectService
@@ -27,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "Project API", description = "프로젝트 관련 API")
@@ -53,24 +53,13 @@ class ProjectController(
     @PostMapping
     fun createProject(
         @Valid @RequestBody request: CreateProjectRequest,
-    ): ProjectResponse {
-        val project =
-            createCurrentProjectService.execute(
-                title = request.title,
-                description = request.description,
-                fileIds = request.fileIds,
-                participantIds = request.participantIds,
-            )
-
-        return ProjectResponse(
-            id = project.id!!,
-            ownerId = project.ownerId,
-            title = project.title,
-            description = project.description,
-            files = project.files,
-            participants = project.participants,
+    ): ProjectResponse =
+        createCurrentProjectService.execute(
+            title = request.title,
+            description = request.description,
+            fileIds = request.fileIds,
+            participantIds = request.participantIds,
         )
-    }
 
     @Operation(summary = "프로젝트 수정", description = "현재 인증된 사용자가 소유한 프로젝트를 수정합니다")
     @ApiResponses(
@@ -96,25 +85,14 @@ class ProjectController(
     fun updateProject(
         @PathVariable projectId: Long,
         @Valid @RequestBody request: PatchProjectRequest,
-    ): ProjectResponse {
-        val project =
-            updateCurrentProjectService.execute(
-                projectId = projectId,
-                title = request.title,
-                description = request.description,
-                fileIds = request.fileIds,
-                participantIds = request.participantIds,
-            )
-
-        return ProjectResponse(
-            id = project.id!!,
-            ownerId = project.ownerId,
-            title = project.title,
-            description = project.description,
-            files = project.files,
-            participants = project.participants,
+    ): ProjectResponse =
+        updateCurrentProjectService.execute(
+            projectId = projectId,
+            title = request.title,
+            description = request.description,
+            fileIds = request.fileIds,
+            participantIds = request.participantIds,
         )
-    }
 
     @Operation(summary = "프로젝트 삭제", description = "현재 인증된 사용자가 소유한 프로젝트를 삭제합니다")
     @ApiResponses(
@@ -155,34 +133,15 @@ class ProjectController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/search")
+    @GetMapping("/search")
     fun searchProjects(
-        @Valid @RequestBody request: SearchProjectRequest,
+        @RequestParam(required = false) title: String?,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int,
     ): SearchProjectResponse {
-        val pageable = PageRequest.of(request.page, request.size)
-        val projectPage =
-            searchProjectService.execute(
-                title = request.title,
-                pageable = pageable,
-            )
-
-        val projects =
-            projectPage.content.map { project ->
-                ProjectResponse(
-                    id = project.id!!,
-                    ownerId = project.ownerId,
-                    title = project.title,
-                    description = project.description,
-                    files = project.files,
-                    participants = project.participants,
-                )
-            }
-
-        return SearchProjectResponse(
-            projects = projects,
-            total = projectPage.totalElements,
-            page = projectPage.number,
-            size = projectPage.size,
+        return searchProjectService.execute(
+            title = title,
+            pageable = PageRequest.of(page, size),
         )
     }
 
@@ -197,20 +156,7 @@ class ProjectController(
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/current")
-    fun getMyProjects(): List<ProjectResponse> {
-        val projects = findCurrentProjectsService.execute()
-
-        return projects.map { project ->
-            ProjectResponse(
-                id = project.id!!,
-                ownerId = project.ownerId,
-                title = project.title,
-                description = project.description,
-                files = project.files,
-                participants = project.participants,
-            )
-        }
-    }
+    fun getCurrentProjects(): List<ProjectResponse> = findCurrentProjectsService.execute()
 
     @Operation(summary = "프로젝트 단건 조회", description = "프로젝트 ID로 프로젝트를 조회합니다")
     @ApiResponses(
@@ -230,16 +176,5 @@ class ProjectController(
     @GetMapping("/{projectId}")
     fun getProject(
         @PathVariable projectId: Long,
-    ): ProjectResponse {
-        val project = findProjectByIdService.execute(projectId)
-
-        return ProjectResponse(
-            id = project.id!!,
-            ownerId = project.ownerId,
-            title = project.title,
-            description = project.description,
-            files = project.files,
-            participants = project.participants,
-        )
-    }
+    ): ProjectResponse = findProjectByIdService.execute(projectId)
 }
