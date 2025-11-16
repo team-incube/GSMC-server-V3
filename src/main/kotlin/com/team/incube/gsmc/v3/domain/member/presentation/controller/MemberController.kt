@@ -79,13 +79,7 @@ class MemberController(
             ApiResponse(
                 responseCode = "200",
                 description = "현재 로그인된 사용자 정보 검색 성공",
-                content = [
-                    Content(
-                        schema = Schema(implementation = GetMemberResponse::class),
-                    ),
-                ],
             ),
-
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
