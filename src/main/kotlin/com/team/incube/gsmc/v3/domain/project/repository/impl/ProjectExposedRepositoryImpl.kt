@@ -306,6 +306,17 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
         )
     }
 
+    override fun existsProjectParticipantByProjectIdAndMemberId(
+        projectId: Long,
+        memberId: Long,
+    ): Boolean =
+        ProjectParticipantExposedEntity
+            .selectAll()
+            .where {
+                (ProjectParticipantExposedEntity.projectId eq projectId) and
+                    (ProjectParticipantExposedEntity.memberId eq memberId)
+            }.count() > 0
+
     override fun deleteProjectById(projectId: Long) {
         ProjectFileExposedEntity.deleteWhere { ProjectFileExposedEntity.projectId eq projectId }
         ProjectParticipantExposedEntity.deleteWhere { ProjectParticipantExposedEntity.projectId eq projectId }
