@@ -1,5 +1,7 @@
 package com.team.incube.gsmc.v3.domain.score.presentation
 
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
+import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateAcademicGradeScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateAwardScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateCertificateScoreRequest
@@ -13,13 +15,10 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateToei
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateTopcitScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateVolunteerScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScoreStatusRequest
-import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
-import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetMyScoresResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
 import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
-import com.team.incube.gsmc.v3.domain.score.service.GetMyScoresService
 import com.team.incube.gsmc.v3.domain.score.service.CreateAcademicGradeScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateAwardScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateCertificateScoreService
@@ -33,6 +32,7 @@ import com.team.incube.gsmc.v3.domain.score.service.CreateToeicScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateTopcitScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateVolunteerScoreService
 import com.team.incube.gsmc.v3.domain.score.service.DeleteScoreService
+import com.team.incube.gsmc.v3.domain.score.service.GetMyScoresService
 import com.team.incube.gsmc.v3.domain.score.service.UpdateScoreStatusService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
@@ -402,7 +402,7 @@ class ScoreController(
             ),
             ApiResponse(
                 responseCode = "403",
-                description = "프로젝트 참가자가 아님",
+                description = "해당 프로젝트의 프로젝트 참가자가 아님",
                 content = [Content()],
             ),
             ApiResponse(

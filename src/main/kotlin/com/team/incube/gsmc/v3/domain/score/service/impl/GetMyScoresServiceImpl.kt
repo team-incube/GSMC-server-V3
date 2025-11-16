@@ -3,8 +3,8 @@ package com.team.incube.gsmc.v3.domain.score.service.impl
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.CategoryNames
+import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.ScoreItem
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetMyScoresResponse
-import com.team.incube.gsmc.v3.domain.score.presentation.data.response.ScoreItem
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.GetMyScoresService
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
