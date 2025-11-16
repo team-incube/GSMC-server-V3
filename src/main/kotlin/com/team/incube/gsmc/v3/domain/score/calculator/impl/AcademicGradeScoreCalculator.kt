@@ -3,8 +3,6 @@ package com.team.incube.gsmc.v3.domain.score.calculator.impl
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.score.calculator.CategoryScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.dto.Score
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
@@ -42,19 +40,16 @@ class AcademicGradeScoreCalculator : CategoryScoreCalculator() {
 
     private fun calculateFirstGradeScore(averageGrade: Double): Int {
         val roundedGrade = averageGrade.roundToInt()
-        return when (roundedGrade) {
-            1 -> 9
-            2 -> 8
-            3 -> 7
-            4 -> 6
-            5 -> 5
-            else -> 0
+        return if (roundedGrade in 1..5) {
+            10 - roundedGrade
+        } else {
+            0
         }
     }
 
     private fun calculateSecondThirdGradeScore(averageGrade: Double): Int {
         val roundedGrade = averageGrade.roundToInt()
         val score = 10 - roundedGrade
-        return min(max(score, 1), 9)
+        return score.coerceIn(1, 9)
     }
 }
