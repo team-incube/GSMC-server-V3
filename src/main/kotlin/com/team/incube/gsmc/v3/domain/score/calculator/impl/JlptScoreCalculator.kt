@@ -3,7 +3,6 @@ package com.team.incube.gsmc.v3.domain.score.calculator.impl
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.score.calculator.CategoryScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.dto.Score
-import kotlin.math.min
 
 /**
  * JLPT 점수 계산기
@@ -30,19 +29,17 @@ class JlptScoreCalculator : CategoryScoreCalculator() {
 
         if (targetScores.isEmpty()) return 0
 
-        // JLPT 점수만 추출하여 등급 변환
         val maxJlptScore =
             targetScores
                 .firstOrNull { it.categoryType == CategoryType.JLPT }
                 ?.let { convertGradeToScore(it.scoreValue) } ?: 0
 
-        // TOEIC_ACADEMY 보너스 체크
         val hasToeicAcademy =
             targetScores.any { it.categoryType == CategoryType.TOEIC_ACADEMY }
 
         val bonusScore = if (hasToeicAcademy) 1 else 0
 
-        return min(maxJlptScore + bonusScore, 10)
+        return (maxJlptScore + bonusScore).coerceIn(0, 10)
     }
 
     private fun convertGradeToScore(grade: Double?): Int {

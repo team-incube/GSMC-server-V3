@@ -3,7 +3,6 @@ package com.team.incube.gsmc.v3.domain.score.calculator.impl
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.score.calculator.CategoryScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.dto.Score
-import kotlin.math.min
 
 /**
  * 봉사활동 점수 계산기
@@ -26,6 +25,6 @@ class VolunteerScoreCalculator : CategoryScoreCalculator() {
 
         val hours = targetScore?.scoreValue?.toInt() ?: 0
 
-        return min(hours, 10)
+        return hours.coerceIn(0, 10)
     }
 }
