@@ -5,7 +5,7 @@ CONTAINER_NAME="gsmc-app"
 
 echo "> Starting application deployment..."
 echo "> Building Docker image: $IMAGE_NAME"
-docker build -t $IMAGE_NAME -f DockerfileDev .
+docker build -t $IMAGE_NAME -f DockerfileProd .
 if [ $? -eq 0 ]; then
     echo "> Docker image built successfully"
 else
