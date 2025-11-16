@@ -12,15 +12,16 @@ class GetCurrentMemberServiceImpl(
 ) : GetCurrentMemberService {
     override fun execute(): GetMemberResponse =
         transaction {
-            val member = currentMemberService.getCurrentUser()
-            GetMemberResponse(
-                id = member.id,
-                name = member.name,
-                email = member.email,
-                grade = member.grade,
-                classNumber = member.classNumber,
-                number = member.number,
-                role = member.role,
-            )
+            currentMemberService.getCurrentUser().run {
+                GetMemberResponse(
+                    id = id,
+                    name = name,
+                    email = email,
+                    grade = grade,
+                    classNumber = classNumber,
+                    number = number,
+                    role = role,
+                )
+            }
         }
 }
