@@ -1,9 +1,12 @@
 package com.team.incube.gsmc.v3.domain.file.repository.impl
 
 import com.team.incube.gsmc.v3.domain.file.dto.File
+import com.team.incube.gsmc.v3.domain.file.entity.EvidenceFileExposedEntity
 import com.team.incube.gsmc.v3.domain.file.entity.FileExposedEntity
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
+import com.team.incube.gsmc.v3.domain.project.entity.ProjectFileExposedEntity
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
@@ -61,6 +64,40 @@ class FileExposedRepositoryImpl : FileExposedRepository {
                     fileUri = row[FileExposedEntity.uri],
                 )
             }
+
+    override fun findAllByUserId(userId: Long): List<File> =
+        FileExposedEntity
+            .selectAll()
+            .where { FileExposedEntity.userId eq userId }
+            .map { row ->
+                File(
+                    fileId = row[FileExposedEntity.id],
+                    userId = row[FileExposedEntity.userId],
+                    fileOriginalName = row[FileExposedEntity.originalName],
+                    fileStoredName = row[FileExposedEntity.storedName],
+                    fileUri = row[FileExposedEntity.uri],
+                )
+            }
+
+    override fun findUnusedFilesByUserId(userId: Long): List<File> {
+        val allUserFiles = findAllByUserId(userId)
+
+        val usedFileIdsInProject =
+            ProjectFileExposedEntity
+                .selectAll()
+                .map { it[ProjectFileExposedEntity.fileId] }
+                .toSet()
+
+        val usedFileIdsInEvidence =
+            EvidenceFileExposedEntity
+                .selectAll()
+                .map { it[EvidenceFileExposedEntity.fileId] }
+                .toSet()
+
+        val usedFileIds = usedFileIdsInProject + usedFileIdsInEvidence
+
+        return allUserFiles.filter { it.fileId !in usedFileIds }
+    }
 
     override fun deleteById(fileId: Long) {
         FileExposedEntity.deleteWhere {

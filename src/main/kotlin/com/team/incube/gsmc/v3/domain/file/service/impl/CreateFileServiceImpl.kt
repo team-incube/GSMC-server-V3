@@ -27,7 +27,7 @@ class CreateFileServiceImpl(
         return transaction {
             val savedFile =
                 fileExposedRepository.saveFile(
-                    // TODO: security context에서 userId 받아오기
+                    // TODO: security context에서 memberId 받아오기
                     userId = 0L,
                     originalName = originalName,
                     storedName = storedName,
