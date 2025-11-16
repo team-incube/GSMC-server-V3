@@ -1,6 +1,7 @@
 package com.team.incube.gsmc.v3.domain.member.service.impl
 
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.domain.member.presentation.data.response.GetMemberResponse
 import com.team.incube.gsmc.v3.domain.member.presentation.data.response.SearchMemberResponse
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.member.service.SearchMemberService
@@ -35,7 +36,18 @@ class SearchMemberServiceImpl(
             SearchMemberResponse(
                 totalPage = members.totalPages,
                 totalElements = members.totalElements,
-                data = members.content,
+                data =
+                    members.content.map {
+                        GetMemberResponse(
+                            id = it.id,
+                            email = it.email,
+                            name = it.name,
+                            role = it.role,
+                            grade = it.grade,
+                            classNumber = it.classNumber,
+                            number = it.number,
+                        )
+                    },
             )
         }
 }
