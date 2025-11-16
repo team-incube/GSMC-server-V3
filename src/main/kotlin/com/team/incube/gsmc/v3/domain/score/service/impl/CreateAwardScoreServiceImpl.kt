@@ -1,12 +1,10 @@
 package com.team.incube.gsmc.v3.domain.score.service.impl
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
-import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
-import com.team.incube.gsmc.v3.domain.score.dto.Score
-import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.CategoryNames
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
+import com.team.incube.gsmc.v3.domain.score.service.BaseCountBasedScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateAwardScoreService
 import com.team.incube.gsmc.v3.domain.score.validator.ScoreLimitValidator
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
@@ -17,11 +15,12 @@ import org.springframework.stereotype.Service
 
 @Service
 class CreateAwardScoreServiceImpl(
-    private val scoreExposedRepository: ScoreExposedRepository,
+    scoreExposedRepository: ScoreExposedRepository,
     private val fileExposedRepository: FileExposedRepository,
-    private val currentMemberProvider: CurrentMemberProvider,
+    currentMemberProvider: CurrentMemberProvider,
     private val scoreLimitValidator: ScoreLimitValidator,
-) : CreateAwardScoreService {
+) : BaseCountBasedScoreService(scoreExposedRepository, currentMemberProvider),
+    CreateAwardScoreService {
     override fun execute(
         awardName: String,
         fileId: Long,
@@ -32,28 +31,11 @@ class CreateAwardScoreServiceImpl(
                 throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }
             scoreLimitValidator.validateScoreLimit(member.id, CategoryType.AWARD)
-            val savedScore =
-                scoreExposedRepository.save(
-                    Score(
-                        id = null,
-                        member = member,
-                        categoryType = CategoryType.AWARD,
-                        status = ScoreStatus.PENDING,
-                        sourceId = fileId,
-                        activityName = awardName,
-                        scoreValue = null,
-                    ),
-                )
-            CreateScoreResponse(
-                scoreId = savedScore.id!!,
-                categoryNames =
-                    CategoryNames(
-                        koreanName = savedScore.categoryType.koreanName,
-                        englishName = savedScore.categoryType.englishName,
-                    ),
-                scoreStatus = savedScore.status,
-                sourceId = savedScore.sourceId,
-                activityName = savedScore.activityName,
+
+            createScore(
+                categoryType = CategoryType.AWARD,
+                activityName = awardName,
+                sourceId = fileId,
             )
         }
 }
