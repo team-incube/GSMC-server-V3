@@ -13,9 +13,13 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateToei
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateTopcitScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateVolunteerScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScoreStatusRequest
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
+import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
+import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetMyScoresResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
 import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
+import com.team.incube.gsmc.v3.domain.score.service.GetMyScoresService
 import com.team.incube.gsmc.v3.domain.score.service.CreateAcademicGradeScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateAwardScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateCertificateScoreService
@@ -68,6 +72,7 @@ class ScoreController(
     private val createExternalActivityScoreService: CreateExternalActivityScoreService,
     private val createProjectParticipationService: CreateProjectParticipationService,
     private val calculateTotalScoreService: CalculateTotalScoreService,
+    private val getMyScoresService: GetMyScoresService,
     private val currentMemberProvider: CurrentMemberProvider,
 ) {
     @Operation(summary = "인증제 점수 상태 업데이트", description = "인증제 점수의 승인/거절 상태를 업데이트합니다")
@@ -420,6 +425,22 @@ class ScoreController(
         createProjectParticipationService.execute(
             projectId = request.projectId,
         )
+
+    @Operation(summary = "현재 사용자의 점수 목록 조회", description = "현재 인증된 사용자의 인증제 점수 목록을 조회합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping
+    fun getMyScores(
+        @RequestParam(required = false) categoryType: CategoryType?,
+        @RequestParam(required = false) status: ScoreStatus?,
+    ): GetMyScoresResponse = getMyScoresService.execute(categoryType = categoryType, status = status)
 
     @Operation(summary = "현재 사용자의 총점 조회", description = "현재 인증된 사용자의 인증제 총점을 조회합니다")
     @ApiResponses(

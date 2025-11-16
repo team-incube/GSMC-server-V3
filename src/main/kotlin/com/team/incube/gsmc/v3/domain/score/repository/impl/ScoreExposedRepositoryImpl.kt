@@ -201,6 +201,57 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                 )
             }.singleOrNull()
 
+    override fun findAllByMemberIdAndCategoryTypeAndStatus(
+        memberId: Long,
+        categoryType: CategoryType?,
+        status: ScoreStatus?,
+    ): List<Score> {
+        var query =
+            ScoreExposedEntity
+                .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                    ScoreExposedEntity.memberId eq MemberExposedEntity.id
+                }.selectAll()
+                .where { ScoreExposedEntity.memberId eq memberId }
+
+        categoryType?.let {
+            query = query.andWhere { ScoreExposedEntity.categoryEnglishName eq it.englishName }
+        }
+
+        status?.let {
+            query = query.andWhere { ScoreExposedEntity.status eq it }
+        }
+
+        val results = query.toList()
+
+        if (results.isEmpty()) return emptyList()
+
+        val firstRow = results.first()
+        val member =
+            Member(
+                id = firstRow[MemberExposedEntity.id],
+                name = firstRow[MemberExposedEntity.name],
+                email = firstRow[MemberExposedEntity.email],
+                grade = firstRow[MemberExposedEntity.grade],
+                classNumber = firstRow[MemberExposedEntity.classNumber],
+                number = firstRow[MemberExposedEntity.number],
+                role = firstRow[MemberExposedEntity.role],
+            )
+
+        return results.map { row ->
+            val rowCategoryType = CategoryType.fromEnglishName(row[ScoreExposedEntity.categoryEnglishName])
+
+            Score(
+                id = row[ScoreExposedEntity.id],
+                member = member,
+                categoryType = rowCategoryType,
+                status = row[ScoreExposedEntity.status],
+                sourceId = row[ScoreExposedEntity.sourceId],
+                activityName = row[ScoreExposedEntity.activityName],
+                scoreValue = row[ScoreExposedEntity.scoreValue],
+            )
+        }
+    }
+
     override fun existsByMemberIdAndCategoryTypeAndSourceId(
         memberId: Long,
         categoryType: CategoryType,

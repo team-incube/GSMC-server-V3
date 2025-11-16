@@ -41,6 +41,12 @@ interface ScoreExposedRepository {
         categoryType: CategoryType,
     ): Score?
 
+    fun findAllByMemberIdAndCategoryTypeAndStatus(
+        memberId: Long,
+        categoryType: CategoryType?,
+        status: ScoreStatus?,
+    ): List<Score>
+
     fun existsByMemberIdAndCategoryTypeAndSourceId(
         memberId: Long,
         categoryType: CategoryType,
