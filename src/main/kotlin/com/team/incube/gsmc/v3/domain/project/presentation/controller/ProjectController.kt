@@ -138,12 +138,11 @@ class ProjectController(
         @RequestParam(required = false) title: String?,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") size: Int,
-    ): SearchProjectResponse {
-        return searchProjectService.execute(
+    ): SearchProjectResponse =
+        searchProjectService.execute(
             title = title,
             pageable = PageRequest.of(page, size),
         )
-    }
 
     @Operation(summary = "내 프로젝트 목록 조회", description = "현재 인증된 사용자가 참여 중인 프로젝트 목록을 조회합니다")
     @ApiResponses(
