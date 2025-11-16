@@ -1,8 +1,10 @@
 package com.team.incube.gsmc.v3.domain.score.presentation
 
+import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateAwardScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateCertificateScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateJlptScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateNcsScoreRequest
+import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateNewrrowSchoolScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateReadAThonScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateToeicScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateTopcitScoreRequest
@@ -11,9 +13,11 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScor
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
 import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
+import com.team.incube.gsmc.v3.domain.score.service.CreateAwardScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateCertificateScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateJlptScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateNcsScoreService
+import com.team.incube.gsmc.v3.domain.score.service.CreateNewrrowSchoolScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateReadAThonScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateToeicScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateTopcitScoreService
@@ -46,12 +50,14 @@ class ScoreController(
     private val updateScoreStatusService: UpdateScoreStatusService,
     private val deleteScoreService: DeleteScoreService,
     private val createCertificateScoreService: CreateCertificateScoreService,
+    private val createAwardScoreService: CreateAwardScoreService,
     private val createTopcitScoreService: CreateTopcitScoreService,
     private val createToeicScoreService: CreateToeicScoreService,
     private val createJlptScoreService: CreateJlptScoreService,
     private val createReadAThonScoreService: CreateReadAThonScoreService,
     private val createVolunteerScoreService: CreateVolunteerScoreService,
     private val createNcsScoreService: CreateNcsScoreService,
+    private val createNewrrowSchoolScoreService: CreateNewrrowSchoolScoreService,
     private val calculateTotalScoreService: CalculateTotalScoreService,
     private val currentMemberProvider: CurrentMemberProvider,
 ) {
@@ -132,6 +138,35 @@ class ScoreController(
     ): CreateScoreResponse =
         createCertificateScoreService.execute(
             certificateName = request.certificateName,
+            fileId = request.fileId,
+        )
+
+    @Operation(summary = "수상경력 영역 인증제 점수 추가", description = "현재 인증된 사용자의 수상경력 영역에 대한 인증제 점수를 추가합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 파일을 매핑함",
+                content = [Content()],
+            ),
+            ApiResponse(
+                responseCode = "409",
+                description = "이미 해당 영역에 대한 인증제 점수를 전부 취득함",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/awards")
+    fun addAwardScore(
+        @RequestBody @Valid request: CreateAwardScoreRequest,
+    ): CreateScoreResponse =
+        createAwardScoreService.execute(
+            awardName = request.awardName,
             fileId = request.fileId,
         )
 
@@ -270,6 +305,30 @@ class ScoreController(
     ): CreateScoreResponse =
         createNcsScoreService.execute(
             averageScore = request.averageScore,
+            fileId = request.fileId,
+        )
+
+    @Operation(summary = "뉴로우스쿨 참여 영역 인증제 점수 추가 또는 갱신", description = "현재 인증된 사용자의 뉴로우스쿨 참여 영역에 대한 인증제 점수를 추가하거나 갱신합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 파일을 매핑함",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/newrrow-school")
+    fun addNewrrowSchoolScore(
+        @Valid @RequestBody request: CreateNewrrowSchoolScoreRequest,
+    ): CreateScoreResponse =
+        createNewrrowSchoolScoreService.execute(
+            temperature = request.temperature,
             fileId = request.fileId,
         )
 

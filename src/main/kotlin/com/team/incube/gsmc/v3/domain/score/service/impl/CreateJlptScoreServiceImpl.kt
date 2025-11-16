@@ -4,7 +4,7 @@ import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
-import com.team.incube.gsmc.v3.domain.score.service.BaseScoreService
+import com.team.incube.gsmc.v3.domain.score.service.BaseCreateOrUpdateBasedScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateJlptScoreService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
@@ -23,7 +23,7 @@ class CreateJlptScoreServiceImpl(
     scoreExposedRepository: ScoreExposedRepository,
     private val fileExposedRepository: FileExposedRepository,
     currentMemberProvider: CurrentMemberProvider,
-) : BaseScoreService(scoreExposedRepository, currentMemberProvider),
+) : BaseCreateOrUpdateBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateJlptScoreService {
     override fun execute(
         grade: Int,

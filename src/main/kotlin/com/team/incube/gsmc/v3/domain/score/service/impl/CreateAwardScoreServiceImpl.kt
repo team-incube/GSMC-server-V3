@@ -5,7 +5,7 @@ import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.BaseCountBasedScoreService
-import com.team.incube.gsmc.v3.domain.score.service.CreateCertificateScoreService
+import com.team.incube.gsmc.v3.domain.score.service.CreateAwardScoreService
 import com.team.incube.gsmc.v3.domain.score.validator.ScoreLimitValidator
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
@@ -14,15 +14,15 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
 
 @Service
-class CreateCertificateScoreServiceImpl(
+class CreateAwardScoreServiceImpl(
     scoreExposedRepository: ScoreExposedRepository,
     private val fileExposedRepository: FileExposedRepository,
     currentMemberProvider: CurrentMemberProvider,
     private val scoreLimitValidator: ScoreLimitValidator,
 ) : BaseCountBasedScoreService(scoreExposedRepository, currentMemberProvider),
-    CreateCertificateScoreService {
+    CreateAwardScoreService {
     override fun execute(
-        certificateName: String,
+        awardName: String,
         fileId: Long,
     ): CreateScoreResponse =
         transaction {
@@ -30,12 +30,12 @@ class CreateCertificateScoreServiceImpl(
             if (!fileExposedRepository.existsById(fileId)) {
                 throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }
-            scoreLimitValidator.validateScoreLimit(member.id, CategoryType.CERTIFICATE)
+            scoreLimitValidator.validateScoreLimit(member.id, CategoryType.AWARD)
 
             createScore(
                 member = member,
-                categoryType = CategoryType.CERTIFICATE,
-                activityName = certificateName,
+                categoryType = CategoryType.AWARD,
+                activityName = awardName,
                 sourceId = fileId,
             )
         }
