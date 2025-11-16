@@ -319,6 +319,13 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             }.limit(1)
             .empty()
 
+    override fun findProjectTitleById(projectId: Long): String? =
+        ProjectExposedEntity
+            .select(ProjectExposedEntity.title)
+            .where { ProjectExposedEntity.id eq projectId }
+            .singleOrNull()
+            ?.get(ProjectExposedEntity.title)
+
     override fun deleteProjectById(projectId: Long) {
         ProjectFileExposedEntity.deleteWhere { ProjectFileExposedEntity.projectId eq projectId }
         ProjectParticipantExposedEntity.deleteWhere { ProjectParticipantExposedEntity.projectId eq projectId }

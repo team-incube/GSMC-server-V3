@@ -38,5 +38,7 @@ interface ProjectExposedRepository {
         memberId: Long,
     ): Boolean
 
+    fun findProjectTitleById(projectId: Long): String?
+
     fun deleteProjectById(projectId: Long)
 }
