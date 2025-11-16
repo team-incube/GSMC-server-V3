@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.project.service.impl
 
-import com.team.incube.gsmc.v3.domain.project.dto.Project
+import com.team.incube.gsmc.v3.domain.project.presentation.data.response.ProjectResponse
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.project.service.CreateCurrentProjectService
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
@@ -17,16 +17,26 @@ class CreateCurrentProjectServiceImpl(
         description: String,
         fileIds: List<Long>,
         participantIds: List<Long>,
-    ): Project =
+    ): ProjectResponse =
         transaction {
             val currentUser = currentMemberProvider.getCurrentUser()
 
-            projectExposedRepository.saveProject(
-                ownerId = currentUser.id,
-                title = title,
-                description = description,
-                fileIds = fileIds,
-                participantIds = participantIds,
+            val project =
+                projectExposedRepository.saveProject(
+                    ownerId = currentUser.id,
+                    title = title,
+                    description = description,
+                    fileIds = fileIds,
+                    participantIds = participantIds,
+                )
+
+            ProjectResponse(
+                id = project.id!!,
+                ownerId = project.ownerId,
+                title = project.title,
+                description = project.description,
+                files = project.files,
+                participants = project.participants,
             )
         }
 }

@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.project.service.impl
 
-import com.team.incube.gsmc.v3.domain.project.dto.Project
+import com.team.incube.gsmc.v3.domain.project.presentation.data.response.ProjectResponse
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.project.service.FindCurrentProjectsService
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
@@ -12,9 +12,20 @@ class FindCurrentProjectsServiceImpl(
     private val projectExposedRepository: ProjectExposedRepository,
     private val currentMemberProvider: CurrentMemberProvider,
 ) : FindCurrentProjectsService {
-    override fun execute(): List<Project> =
+    override fun execute(): List<ProjectResponse> =
         transaction {
             val currentUser = currentMemberProvider.getCurrentUser()
-            projectExposedRepository.findProjectsByParticipantId(currentUser.id)
+            val projects = projectExposedRepository.findProjectsByParticipantId(currentUser.id)
+
+            projects.map { project ->
+                ProjectResponse(
+                    id = project.id!!,
+                    ownerId = project.ownerId,
+                    title = project.title,
+                    description = project.description,
+                    files = project.files,
+                    participants = project.participants,
+                )
+            }
         }
 }
