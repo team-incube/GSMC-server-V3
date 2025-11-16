@@ -407,7 +407,7 @@ class ScoreController(
             ),
             ApiResponse(
                 responseCode = "409",
-                description = "이미 해당 영역에 대한 인증제 점수를 전부 취득함",
+                description = "이미 해당 프로젝트에 대한 점수가 존재하거나 해당 영역에 대한 인증제 점수를 전부 취득함",
                 content = [Content()],
             ),
         ],
