@@ -35,4 +35,8 @@ enum class ErrorCode(
 
     // Member
     MEMBER_NOT_FOUND("존재하지 않는 사용자입니다.", 404),
+
+    // Project
+    PROJECT_NOT_FOUND("존재하지 않는 프로젝트입니다.", 404),
+    PROJECT_FORBIDDEN("프로젝트에 접근 권한이 없습니다.", 403),
 }
