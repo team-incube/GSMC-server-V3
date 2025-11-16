@@ -16,6 +16,7 @@ abstract class BaseScoreService(
         categoryType: CategoryType,
         scoreValue: Double?,
         sourceId: Long?,
+        activityName: String? = null,
     ): CreateScoreResponse {
         val member = currentMemberProvider.getCurrentUser()
 
@@ -32,7 +33,7 @@ abstract class BaseScoreService(
                         status = ScoreStatus.PENDING,
                         sourceId = sourceId,
                         scoreValue = scoreValue,
-                        activityName = null,
+                        activityName = activityName,
                     ),
                 )
             } ?: scoreExposedRepository.save(
@@ -42,7 +43,7 @@ abstract class BaseScoreService(
                     categoryType = categoryType,
                     status = ScoreStatus.PENDING,
                     sourceId = sourceId,
-                    activityName = null,
+                    activityName = activityName,
                     scoreValue = scoreValue,
                 ),
             )
