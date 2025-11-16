@@ -29,13 +29,15 @@ class CreateProjectParticipationServiceImpl(
                 projectExposedRepository.findProjectTitleAndValidateParticipant(
                     projectId = projectId,
                     memberId = member.id,
-                ) ?: throw GsmcException(
-                    if (projectExposedRepository.findProjectTitleById(projectId) == null) {
-                        ErrorCode.PROJECT_NOT_FOUND
-                    } else {
-                        ErrorCode.NOT_PROJECT_PARTICIPANT
-                    },
-                )
+                ) ?: run {
+                    val errorCode =
+                        if (projectExposedRepository.findProjectTitleById(projectId) == null) {
+                            ErrorCode.PROJECT_NOT_FOUND
+                        } else {
+                            ErrorCode.NOT_PROJECT_PARTICIPANT
+                        }
+                    throw GsmcException(errorCode)
+                }
 
             if (scoreExposedRepository.existsByMemberIdAndCategoryTypeAndSourceId(
                     memberId = member.id,
