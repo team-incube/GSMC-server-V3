@@ -20,14 +20,14 @@
       <pattern>${CONSOLE_LOG_PATTERN}</pattern>
     </encoder>
   </appender>
-  <springProfile name="dev,default">
+  <springProfile name="dev,prod,default">
     <root level="INFO">
       <appender-ref ref="console_log"/>
     </root>
-  </springProfile>
-  <springProfile name="prod">
-    <root level="INFO">
-      <appender-ref ref="prod_aws_cloud_watch_log"/>
-    </root>
+<!--  </springProfile>-->
+<!--  <springProfile name="prod">-->
+<!--    <root level="INFO">-->
+<!--      <appender-ref ref="prod_aws_cloud_watch_log"/>-->
+<!--    </root>-->
   </springProfile>
 </configuration>
