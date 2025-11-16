@@ -56,7 +56,6 @@ abstract class BaseCreateOrUpdateBasedScoreService(
                     englishName = savedScore.categoryType.englishName,
                 ),
             scoreStatus = savedScore.status,
-            sourceId = savedScore.sourceId,
             activityName = savedScore.activityName,
         )
     }

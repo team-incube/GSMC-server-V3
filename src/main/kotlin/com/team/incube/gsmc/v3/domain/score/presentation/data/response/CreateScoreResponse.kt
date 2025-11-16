@@ -10,8 +10,6 @@ data class CreateScoreResponse(
     val categoryNames: CategoryNames,
     @param:Schema(description = "인증제 점수 상태", example = "PENDING")
     val scoreStatus: ScoreStatus,
-    @param:Schema(description = "점수 증빙자료 ID", example = "10")
-    val sourceId: Long?,
     @param:Schema(description = "참여 활동명", example = "정보처리기능사")
     val activityName: String?,
 )
