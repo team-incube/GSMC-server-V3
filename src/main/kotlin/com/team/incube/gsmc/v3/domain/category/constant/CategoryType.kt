@@ -134,6 +134,16 @@ enum class CategoryType(
         calculationType = ScoreCalculationType.SCORE_BASED,
         isForeignLanguage = false,
     ),
+    EXTERNAL_ACTIVITY(
+        englishName = "EXTERNAL_ACTIVITY",
+        koreanName = "외부활동",
+        weight = 1,
+        maxRecordCount = 10,
+        isAccumulated = false,
+        evidenceType = EvidenceType.FILE,
+        calculationType = ScoreCalculationType.COUNT_BASED,
+        isForeignLanguage = false,
+    ),
     ;
 
     companion object {

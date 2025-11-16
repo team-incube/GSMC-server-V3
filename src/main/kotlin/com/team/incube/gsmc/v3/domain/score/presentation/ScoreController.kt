@@ -3,6 +3,7 @@ package com.team.incube.gsmc.v3.domain.score.presentation
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateAcademicGradeScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateAwardScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateCertificateScoreRequest
+import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateExternalActivityScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateJlptScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateNcsScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateNewrrowSchoolScoreRequest
@@ -17,6 +18,7 @@ import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateAcademicGradeScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateAwardScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateCertificateScoreService
+import com.team.incube.gsmc.v3.domain.score.service.CreateExternalActivityScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateJlptScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateNcsScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateNewrrowSchoolScoreService
@@ -61,6 +63,7 @@ class ScoreController(
     private val createNcsScoreService: CreateNcsScoreService,
     private val createNewrrowSchoolScoreService: CreateNewrrowSchoolScoreService,
     private val createAcademicGradeScoreService: CreateAcademicGradeScoreService,
+    private val createExternalActivityScoreService: CreateExternalActivityScoreService,
     private val calculateTotalScoreService: CalculateTotalScoreService,
     private val currentMemberProvider: CurrentMemberProvider,
 ) {
@@ -351,6 +354,35 @@ class ScoreController(
     ): CreateScoreResponse =
         createAcademicGradeScoreService.execute(
             averageGrade = request.averageGrade,
+        )
+
+    @Operation(summary = "외부활동 영역 인증제 점수 추가\", description = \"현재 인증된 사용자의 외부활동 영역에 대한 인증제 점수를 추가합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 파일을 매핑함",
+                content = [Content()],
+            ),
+            ApiResponse(
+                responseCode = "409",
+                description = "이미 해당 영역에 대한 인증제 점수를 전부 취득함",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/external-activities")
+    fun addExternalActivityScore(
+        @RequestBody @Valid request: CreateExternalActivityScoreRequest,
+    ): CreateScoreResponse =
+        createExternalActivityScoreService.execute(
+            activityName = request.activityName,
+            fileId = request.fileId,
         )
 
     @Operation(summary = "현재 사용자의 총점 조회", description = "현재 인증된 사용자의 인증제 총점을 조회합니다")

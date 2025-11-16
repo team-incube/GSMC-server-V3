@@ -3,6 +3,7 @@ package com.team.incube.gsmc.v3.domain.score.calculator.impl
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.score.calculator.CategoryScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.dto.Score
+import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 

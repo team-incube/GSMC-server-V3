@@ -4,6 +4,7 @@ import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.ACADEMIC_GRADE
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.AWARD
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.CERTIFICATE
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.EXTERNAL_ACTIVITY
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.JLPT
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.NCS
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.NEWRROW_SCHOOL
@@ -55,6 +56,7 @@ object ScoreCalculatorFactory {
             CERTIFICATE,
             TOEIC_ACADEMY,
             AWARD,
+            EXTERNAL_ACTIVITY,
             -> countBasedScoreCalculator
 
             PROJECT -> TODO()
