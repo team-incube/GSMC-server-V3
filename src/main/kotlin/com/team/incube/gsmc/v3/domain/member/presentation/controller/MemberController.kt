@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v3/members")
 class MemberController(
     private val searchMemberService: SearchMemberService,
-    private val getCurrentMemberService: GetCurrentMemberService
+    private val getCurrentMemberService: GetCurrentMemberService,
 ) {
     @Operation(
         summary = "사용자 정보 검색",
@@ -94,7 +94,5 @@ class MemberController(
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/current")
-    fun getCurrentMember(): GetMemberResponse {
-        return getCurrentMemberService.execute()
-    }
+    fun getCurrentMember(): GetMemberResponse = getCurrentMemberService.execute()
 }

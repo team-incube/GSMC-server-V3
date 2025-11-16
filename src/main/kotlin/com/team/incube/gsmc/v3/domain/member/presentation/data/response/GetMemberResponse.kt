@@ -20,4 +20,3 @@ data class GetMemberResponse(
     @field:Schema(description = "권한", example = "STUDENT")
     val role: MemberRole,
 )
-

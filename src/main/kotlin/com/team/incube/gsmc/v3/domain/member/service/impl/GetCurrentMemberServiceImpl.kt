@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service
 @Service
 class GetCurrentMemberServiceImpl(
     private val currentMemberService: CurrentMemberProvider,
-): GetCurrentMemberService {
+) : GetCurrentMemberService {
     override fun execute(): GetMemberResponse =
-        transaction{
+        transaction {
             val member = currentMemberService.getCurrentUser()
             GetMemberResponse(
                 id = member.id,
@@ -20,7 +20,7 @@ class GetCurrentMemberServiceImpl(
                 grade = member.grade,
                 classNumber = member.classNumber,
                 number = member.number,
-                role = member.role
+                role = member.role,
             )
-    }
+        }
 }
