@@ -25,11 +25,15 @@ class CreateProjectParticipationServiceImpl(
         transaction {
             val member = currentMemberProvider.getCurrentUser()
 
-            val project =
-                projectExposedRepository.findProjectById(projectId)
+            val projectTitle =
+                projectExposedRepository.findProjectTitleById(projectId)
                     ?: throw GsmcException(ErrorCode.PROJECT_NOT_FOUND)
 
-            if (project.participants.none { it.id == member.id }) {
+            if (!projectExposedRepository.existsProjectParticipantByProjectIdAndMemberId(
+                    projectId = projectId,
+                    memberId = member.id,
+                )
+            ) {
                 throw GsmcException(ErrorCode.NOT_PROJECT_PARTICIPANT)
             }
 
@@ -47,7 +51,7 @@ class CreateProjectParticipationServiceImpl(
             createScore(
                 member = member,
                 categoryType = CategoryType.PROJECT_PARTICIPATION,
-                activityName = project.title,
+                activityName = projectTitle,
                 sourceId = projectId,
             )
         }
