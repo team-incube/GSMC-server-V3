@@ -8,7 +8,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateSco
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 
-abstract class BaseScoreService(
+abstract class BaseCreateOrUpdateBasedScoreService(
     protected val scoreExposedRepository: ScoreExposedRepository,
     protected val currentMemberProvider: CurrentMemberProvider,
 ) {
