@@ -1,7 +1,6 @@
 package com.team.incube.gsmc.v3.domain.score.calculator.impl
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
-import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.calculator.CategoryScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 import kotlin.math.min
@@ -27,22 +26,15 @@ class JlptScoreCalculator : CategoryScoreCalculator() {
         categoryType: CategoryType,
         includeApprovedOnly: Boolean,
     ): Int {
-        val targetScores =
-            scores.filter { score ->
-                if (includeApprovedOnly) {
-                    score.status == ScoreStatus.APPROVED
-                } else {
-                    score.status == ScoreStatus.APPROVED || score.status == ScoreStatus.PENDING
-                }
-            }
+        val targetScores = scores.filter { it.isValidStatus(includeApprovedOnly) }
 
         if (targetScores.isEmpty()) return 0
 
         // JLPT 점수만 추출하여 등급 변환
         val maxJlptScore =
             targetScores
-                .filter { it.categoryType == CategoryType.JLPT }
-                .maxOfOrNull { convertGradeToScore(it.scoreValue) } ?: 0
+                .firstOrNull { it.categoryType == CategoryType.JLPT }
+                ?.let { convertGradeToScore(it.scoreValue) } ?: 0
 
         // TOEIC_ACADEMY 보너스 체크
         val hasToeicAcademy =
@@ -53,10 +45,10 @@ class JlptScoreCalculator : CategoryScoreCalculator() {
         return min(maxJlptScore + bonusScore, 10)
     }
 
-    private fun convertGradeToScore(grade: Int?): Int {
+    private fun convertGradeToScore(grade: Double?): Int {
         if (grade == null) return 0
 
-        return when (grade) {
+        return when (grade.toInt()) {
             1 -> 10
 
             // N1

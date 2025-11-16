@@ -1,7 +1,6 @@
 package com.team.incube.gsmc.v3.domain.score.calculator.impl
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
-import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.calculator.CategoryScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 import kotlin.math.min
@@ -22,23 +21,15 @@ class ToeicScoreCalculator : CategoryScoreCalculator() {
         categoryType: CategoryType,
         includeApprovedOnly: Boolean,
     ): Int {
-        val targetScores =
-            scores.filter { score ->
-                if (includeApprovedOnly) {
-                    score.status == ScoreStatus.APPROVED
-                } else {
-                    score.status == ScoreStatus.APPROVED || score.status == ScoreStatus.PENDING
-                }
-            }
+        val targetScores = scores.filter { it.isValidStatus(includeApprovedOnly) }
 
         if (targetScores.isEmpty()) return 0
 
         // TOEIC 점수만 추출 (TOEIC_ACADEMY는 scoreValue가 없음)
         val maxToeicScore =
             targetScores
-                .filter { it.categoryType == CategoryType.TOEIC }
-                .mapNotNull { it.scoreValue }
-                .maxOrNull() ?: 0
+                .firstOrNull { it.categoryType == CategoryType.TOEIC }
+                ?.scoreValue ?: 0.0
 
         val convertedScore = round(maxToeicScore / 100.0).toInt()
 

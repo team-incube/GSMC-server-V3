@@ -11,5 +11,5 @@ data class Score(
     val status: ScoreStatus,
     val sourceId: Long?,
     val activityName: String?,
-    val scoreValue: Int?,
+    val scoreValue: Double?,
 )

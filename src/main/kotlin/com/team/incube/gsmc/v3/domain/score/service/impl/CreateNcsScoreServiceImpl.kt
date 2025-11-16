@@ -5,7 +5,7 @@ import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.BaseScoreService
-import com.team.incube.gsmc.v3.domain.score.service.CreateToeicScoreService
+import com.team.incube.gsmc.v3.domain.score.service.CreateNcsScoreService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
@@ -13,14 +13,14 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
 
 @Service
-class CreateToeicScoreServiceImpl(
+class CreateNcsScoreServiceImpl(
     scoreExposedRepository: ScoreExposedRepository,
     private val fileExposedRepository: FileExposedRepository,
     currentMemberProvider: CurrentMemberProvider,
 ) : BaseScoreService(scoreExposedRepository, currentMemberProvider),
-    CreateToeicScoreService {
+    CreateNcsScoreService {
     override fun execute(
-        value: Int,
+        averageScore: Double,
         fileId: Long,
     ): CreateScoreResponse =
         transaction {
@@ -29,8 +29,8 @@ class CreateToeicScoreServiceImpl(
             }
 
             createOrUpdateScore(
-                categoryType = CategoryType.TOEIC,
-                scoreValue = value.toDouble(),
+                categoryType = CategoryType.NCS,
+                scoreValue = averageScore,
                 sourceId = fileId,
             )
         }

@@ -1,12 +1,10 @@
 package com.team.incube.gsmc.v3.domain.score.service.impl
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
-import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
-import com.team.incube.gsmc.v3.domain.score.dto.Score
-import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.CategoryNames
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
+import com.team.incube.gsmc.v3.domain.score.service.BaseScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateTopcitScoreService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
@@ -16,60 +14,24 @@ import org.springframework.stereotype.Service
 
 @Service
 class CreateTopcitScoreServiceImpl(
-    private val scoreExposedRepository: ScoreExposedRepository,
+    scoreExposedRepository: ScoreExposedRepository,
     private val fileExposedRepository: FileExposedRepository,
-    private val currentMemberProvider: CurrentMemberProvider,
-) : CreateTopcitScoreService {
+    currentMemberProvider: CurrentMemberProvider,
+) : BaseScoreService(scoreExposedRepository, currentMemberProvider),
+    CreateTopcitScoreService {
     override fun execute(
         value: Int,
         fileId: Long,
     ): CreateScoreResponse =
         transaction {
-            val member = currentMemberProvider.getCurrentUser()
-
-            if (fileExposedRepository.existsById(fileId).not()) {
+            if (!fileExposedRepository.existsById(fileId)) {
                 throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }
 
-            val existingScore =
-                scoreExposedRepository.findByMemberIdAndCategoryType(
-                    memberId = member.id,
-                    categoryType = CategoryType.TOPCIT,
-                )
-
-            val savedScore =
-                if (existingScore != null) {
-                    scoreExposedRepository.update(
-                        existingScore.copy(
-                            status = ScoreStatus.PENDING,
-                            sourceId = fileId,
-                            scoreValue = value,
-                        ),
-                    )
-                } else {
-                    scoreExposedRepository.save(
-                        Score(
-                            id = null,
-                            member = member,
-                            categoryType = CategoryType.TOPCIT,
-                            status = ScoreStatus.PENDING,
-                            sourceId = fileId,
-                            activityName = null,
-                            scoreValue = value,
-                        ),
-                    )
-                }
-
-            CreateScoreResponse(
-                scoreId = savedScore.id!!,
-                categoryNames =
-                    CategoryNames(
-                        koreanName = savedScore.categoryType.koreanName,
-                        englishName = savedScore.categoryType.englishName,
-                    ),
-                scoreStatus = savedScore.status,
-                sourceId = savedScore.sourceId,
-                activityName = savedScore.activityName,
+            createOrUpdateScore(
+                categoryType = CategoryType.TOPCIT,
+                scoreValue = value.toDouble(),
+                sourceId = fileId,
             )
         }
 }

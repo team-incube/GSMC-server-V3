@@ -28,7 +28,7 @@ class CreateCertificateScoreServiceImpl(
     ): CreateScoreResponse =
         transaction {
             val member = currentMemberProvider.getCurrentUser()
-            if (fileExposedRepository.existsById(fileId).not()) {
+            if (!fileExposedRepository.existsById(fileId)) {
                 throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }
             scoreLimitValidator.validateScoreLimit(member.id, CategoryType.CERTIFICATE)

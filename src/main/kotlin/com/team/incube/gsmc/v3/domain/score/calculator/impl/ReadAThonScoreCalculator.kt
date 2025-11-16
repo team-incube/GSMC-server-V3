@@ -1,7 +1,6 @@
 package com.team.incube.gsmc.v3.domain.score.calculator.impl
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
-import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.calculator.CategoryScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 
@@ -27,16 +26,10 @@ class ReadAThonScoreCalculator : CategoryScoreCalculator() {
         includeApprovedOnly: Boolean,
     ): Int {
         val targetScore =
-            scores
-                .filter { it.categoryType == categoryType }
-                .firstOrNull { score ->
-                    if (includeApprovedOnly) {
-                        score.status == ScoreStatus.APPROVED
-                    } else {
-                        score.status == ScoreStatus.APPROVED || score.status == ScoreStatus.PENDING
-                    }
-                }
+            scores.firstOrNull { score ->
+                score.categoryType == categoryType && score.isValidStatus(includeApprovedOnly)
+            }
 
-        return targetScore?.scoreValue ?: 0
+        return targetScore?.scoreValue?.toInt() ?: 0
     }
 }
