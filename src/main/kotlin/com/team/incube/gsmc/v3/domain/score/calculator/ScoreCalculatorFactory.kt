@@ -8,7 +8,7 @@ import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.EXTERNAL_AC
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.JLPT
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.NCS
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.NEWRROW_SCHOOL
-import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.PROJECT
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.PROJECT_PARTICIPATION
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.READ_A_THON
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.TOEIC
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.TOEIC_ACADEMY
@@ -57,8 +57,7 @@ object ScoreCalculatorFactory {
             TOEIC_ACADEMY,
             AWARD,
             EXTERNAL_ACTIVITY,
+            PROJECT_PARTICIPATION,
             -> countBasedScoreCalculator
-
-            PROJECT -> TODO()
         }
 }

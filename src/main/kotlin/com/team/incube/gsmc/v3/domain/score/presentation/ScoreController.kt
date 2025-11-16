@@ -7,6 +7,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateExte
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateJlptScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateNcsScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateNewrrowSchoolScoreRequest
+import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateProjectParticipationRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateReadAThonScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateToeicScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateTopcitScoreRequest
@@ -22,6 +23,7 @@ import com.team.incube.gsmc.v3.domain.score.service.CreateExternalActivityScoreS
 import com.team.incube.gsmc.v3.domain.score.service.CreateJlptScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateNcsScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateNewrrowSchoolScoreService
+import com.team.incube.gsmc.v3.domain.score.service.CreateProjectParticipationService
 import com.team.incube.gsmc.v3.domain.score.service.CreateReadAThonScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateToeicScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateTopcitScoreService
@@ -64,6 +66,7 @@ class ScoreController(
     private val createNewrrowSchoolScoreService: CreateNewrrowSchoolScoreService,
     private val createAcademicGradeScoreService: CreateAcademicGradeScoreService,
     private val createExternalActivityScoreService: CreateExternalActivityScoreService,
+    private val createProjectParticipationService: CreateProjectParticipationService,
     private val calculateTotalScoreService: CalculateTotalScoreService,
     private val currentMemberProvider: CurrentMemberProvider,
 ) {
@@ -383,6 +386,39 @@ class ScoreController(
         createExternalActivityScoreService.execute(
             activityName = request.activityName,
             fileId = request.fileId,
+        )
+
+    @Operation(summary = "프로젝트 참여 영역 인증제 점수 추가", description = "현재 인증된 사용자의 프로젝트 참여 영역에 대한 인증제 점수를 추가합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "프로젝트 참가자가 아님",
+                content = [Content()],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 프로젝트를 매핑함",
+                content = [Content()],
+            ),
+            ApiResponse(
+                responseCode = "409",
+                description = "이미 해당 영역에 대한 인증제 점수를 전부 취득함",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/project-participation")
+    fun addProjectParticipationScore(
+        @RequestBody @Valid request: CreateProjectParticipationRequest,
+    ): CreateScoreResponse =
+        createProjectParticipationService.execute(
+            projectId = request.projectId,
         )
 
     @Operation(summary = "현재 사용자의 총점 조회", description = "현재 인증된 사용자의 인증제 총점을 조회합니다")
