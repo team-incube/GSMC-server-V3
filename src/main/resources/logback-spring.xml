@@ -20,14 +20,15 @@
       <pattern>${CONSOLE_LOG_PATTERN}</pattern>
     </encoder>
   </appender>
-  <springProfile name="dev,default">
+<!--  해당 설정파일을 사용할 것이라면 설정 주석해제 및 PROD 프로파일 작동 시 Logback 설정 수정 필요-->
+  <springProfile name="dev,prod,default">
     <root level="INFO">
       <appender-ref ref="console_log"/>
     </root>
-  </springProfile>
-  <springProfile name="prod">
-    <root level="INFO">
-      <appender-ref ref="prod_aws_cloud_watch_log"/>
-    </root>
+<!--  </springProfile>-->
+<!--  <springProfile name="prod">-->
+<!--    <root level="INFO">-->
+<!--      <appender-ref ref="prod_aws_cloud_watch_log"/>-->
+<!--    </root>-->
   </springProfile>
 </configuration>
