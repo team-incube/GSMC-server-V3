@@ -33,6 +33,7 @@ class CreateCertificateScoreServiceImpl(
             scoreLimitValidator.validateScoreLimit(member.id, CategoryType.CERTIFICATE)
 
             createScore(
+                member = member,
                 categoryType = CategoryType.CERTIFICATE,
                 activityName = certificateName,
                 sourceId = fileId,

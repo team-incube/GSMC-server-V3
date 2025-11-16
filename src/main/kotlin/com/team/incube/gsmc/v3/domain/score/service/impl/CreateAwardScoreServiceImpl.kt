@@ -33,6 +33,7 @@ class CreateAwardScoreServiceImpl(
             scoreLimitValidator.validateScoreLimit(member.id, CategoryType.AWARD)
 
             createScore(
+                member = member,
                 categoryType = CategoryType.AWARD,
                 activityName = awardName,
                 sourceId = fileId,
