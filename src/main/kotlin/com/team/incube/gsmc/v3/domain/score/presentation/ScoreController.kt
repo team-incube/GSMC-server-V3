@@ -356,7 +356,7 @@ class ScoreController(
             averageGrade = request.averageGrade,
         )
 
-    @Operation(summary = "외부활동 영역 인증제 점수 추가\", description = \"현재 인증된 사용자의 외부활동 영역에 대한 인증제 점수를 추가합니다")
+    @Operation(summary = "외부활동 영역 인증제 점수 추가", description = "현재 인증된 사용자의 외부활동 영역에 대한 인증제 점수를 추가합니다")
     @ApiResponses(
         value = [
             ApiResponse(
