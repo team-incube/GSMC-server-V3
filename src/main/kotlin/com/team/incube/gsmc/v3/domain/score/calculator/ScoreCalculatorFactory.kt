@@ -15,6 +15,7 @@ import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.VOLUNTEER
 import com.team.incube.gsmc.v3.domain.score.calculator.impl.CountBasedScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.calculator.impl.JlptScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.calculator.impl.NcsScoreCalculator
+import com.team.incube.gsmc.v3.domain.score.calculator.impl.NewrrowSchoolScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.calculator.impl.ReadAThonScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.calculator.impl.ToeicScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.calculator.impl.TopcitScoreCalculator
@@ -27,6 +28,7 @@ object ScoreCalculatorFactory {
     private val readAThonScoreCalculator = ReadAThonScoreCalculator()
     private val volunteerScoreCalculator = VolunteerScoreCalculator()
     private val ncsScoreCalculator = NcsScoreCalculator()
+    private val newrrowSchoolScoreCalculator = NewrrowSchoolScoreCalculator()
     private val countBasedScoreCalculator = CountBasedScoreCalculator()
 
     fun getCalculator(categoryType: CategoryType): CategoryScoreCalculator =
@@ -43,12 +45,12 @@ object ScoreCalculatorFactory {
 
             NCS -> ncsScoreCalculator
 
+            NEWRROW_SCHOOL -> newrrowSchoolScoreCalculator
+
             CERTIFICATE,
             TOEIC_ACADEMY,
             AWARD,
             -> countBasedScoreCalculator
-
-            NEWRROW_SCHOOL -> TODO()
 
             PROJECT -> TODO()
         }

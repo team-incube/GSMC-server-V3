@@ -1,3 +1,10 @@
 package com.team.incube.gsmc.v3.domain.score.service
 
-interface CreateNewrrowSchoolScore
+import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
+
+interface CreateNewrrowSchoolScoreService {
+    fun execute(
+        temperature: Int,
+        fileId: Long,
+    ): CreateScoreResponse
+}
