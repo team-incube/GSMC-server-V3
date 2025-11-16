@@ -201,6 +201,20 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                 )
             }.singleOrNull()
 
+    override fun existsByMemberIdAndCategoryTypeAndSourceId(
+        memberId: Long,
+        categoryType: CategoryType,
+        sourceId: Long,
+    ): Boolean =
+        !ScoreExposedEntity
+            .select(ScoreExposedEntity.id)
+            .where {
+                (ScoreExposedEntity.memberId eq memberId) and
+                    (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName) and
+                    (ScoreExposedEntity.sourceId eq sourceId)
+            }.limit(1)
+            .empty()
+
     override fun deleteById(scoreId: Long) {
         ScoreExposedEntity.deleteWhere { ScoreExposedEntity.id eq scoreId }
     }

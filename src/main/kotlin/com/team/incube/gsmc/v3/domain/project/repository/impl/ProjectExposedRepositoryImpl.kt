@@ -13,6 +13,7 @@ import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
@@ -305,6 +306,38 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             participants = participants,
         )
     }
+
+    override fun existsProjectParticipantByProjectIdAndMemberId(
+        projectId: Long,
+        memberId: Long,
+    ): Boolean =
+        !ProjectParticipantExposedEntity
+            .select(ProjectParticipantExposedEntity.projectId)
+            .where {
+                (ProjectParticipantExposedEntity.projectId eq projectId) and
+                    (ProjectParticipantExposedEntity.memberId eq memberId)
+            }.limit(1)
+            .empty()
+
+    override fun findProjectTitleById(projectId: Long): String? =
+        ProjectExposedEntity
+            .select(ProjectExposedEntity.title)
+            .where { ProjectExposedEntity.id eq projectId }
+            .singleOrNull()
+            ?.get(ProjectExposedEntity.title)
+
+    override fun findProjectTitleAndValidateParticipant(
+        projectId: Long,
+        memberId: Long,
+    ): String? =
+        ProjectExposedEntity
+            .innerJoin(ProjectParticipantExposedEntity)
+            .select(ProjectExposedEntity.title)
+            .where {
+                (ProjectExposedEntity.id eq projectId) and
+                    (ProjectParticipantExposedEntity.memberId eq memberId)
+            }.singleOrNull()
+            ?.get(ProjectExposedEntity.title)
 
     override fun deleteProjectById(projectId: Long) {
         ProjectFileExposedEntity.deleteWhere { ProjectFileExposedEntity.projectId eq projectId }

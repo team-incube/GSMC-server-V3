@@ -104,8 +104,8 @@ enum class CategoryType(
         calculationType = ScoreCalculationType.SCORE_BASED,
         isForeignLanguage = false,
     ),
-    PROJECT(
-        englishName = "PROJECT",
+    PROJECT_PARTICIPATION(
+        englishName = "PROJECT_PARTICIPATION",
         koreanName = "프로젝트 참여",
         weight = 2,
         maxRecordCount = 5,

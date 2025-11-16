@@ -14,4 +14,12 @@ object ScoreExposedEntity : Table(name = "tb_score") {
     val scoreValue = double(name = "score_value").nullable()
 
     override val primaryKey = PrimaryKey(id)
+
+    init {
+        index(
+            customIndexName = "uk_score_member_category_source",
+            isUnique = true,
+            columns = arrayOf(memberId, categoryEnglishName, sourceId),
+        )
+    }
 }

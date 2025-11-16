@@ -33,5 +33,17 @@ interface ProjectExposedRepository {
         participantIds: List<Long>,
     ): Project
 
+    fun existsProjectParticipantByProjectIdAndMemberId(
+        projectId: Long,
+        memberId: Long,
+    ): Boolean
+
+    fun findProjectTitleById(projectId: Long): String?
+
+    fun findProjectTitleAndValidateParticipant(
+        projectId: Long,
+        memberId: Long,
+    ): String?
+
     fun deleteProjectById(projectId: Long)
 }
