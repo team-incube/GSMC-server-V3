@@ -3,7 +3,7 @@ package com.team.incube.gsmc.v3.domain.auth.presentation
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.request.OAuthCodeRequest
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.request.SignUpRequest
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.response.AuthTokenResponse
-import com.team.incube.gsmc.v3.domain.auth.service.OauthAuthenticationService
+import com.team.incube.gsmc.v3.domain.auth.service.OAuthAuthenticationService
 import com.team.incube.gsmc.v3.domain.auth.service.SignUpService
 import com.team.incube.gsmc.v3.domain.auth.service.TokenRefreshService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v3/auth")
 class AuthController(
-    private val oauthAuthenticationService: OauthAuthenticationService,
+    private val oauthAuthenticationService: OAuthAuthenticationService,
     private val tokenRefreshService: TokenRefreshService,
     private val signUpService: SignUpService,
 ) {

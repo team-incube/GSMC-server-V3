@@ -3,7 +3,7 @@ package com.team.incube.gsmc.v3.domain.auth.service.impl
 import com.team.incube.gsmc.v3.domain.auth.entity.RefreshTokenRedisEntity
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.response.AuthTokenResponse
 import com.team.incube.gsmc.v3.domain.auth.repository.RefreshTokenRedisRepository
-import com.team.incube.gsmc.v3.domain.auth.service.OauthAuthenticationService
+import com.team.incube.gsmc.v3.domain.auth.service.OAuthAuthenticationService
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
@@ -27,14 +27,14 @@ import java.nio.charset.StandardCharsets
 import java.time.ZoneId
 
 @Service
-class OauthAuthenticationServiceImpl(
+class OAuthAuthenticationServiceImpl(
     private val clientRegistrationRepository: ClientRegistrationRepository,
     private val jwtProvider: JwtProvider,
     private val memberExposedRepository: MemberExposedRepository,
     private val tokenResponseClient: OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>,
     private val oauth2UserService: OAuth2UserService<OAuth2UserRequest, OAuth2User>,
     private val refreshTokenRedisRepository: RefreshTokenRedisRepository,
-) : OauthAuthenticationService {
+) : OAuthAuthenticationService {
     override fun execute(code: String): AuthTokenResponse {
         val decodedCode = URLDecoder.decode(code, StandardCharsets.UTF_8)
 
@@ -111,6 +111,8 @@ class OauthAuthenticationServiceImpl(
         } catch (e: OAuth2AuthorizationException) {
             logger().error("OAuth2 authorization failed: ${e.error.errorCode} - ${e.error.description}", e)
             throw GsmcException(ErrorCode.OAUTH2_AUTHORIZATION_FAILED)
+        } catch (e: GsmcException) {
+            throw e
         } catch (e: Exception) {
             logger().error("Authentication failed: ${e.message}", e)
             throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
