@@ -1,6 +1,17 @@
 package com.team.incube.gsmc.v3.domain.score.calculator
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.AWARD
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.CERTIFICATE
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.JLPT
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.NCS
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.NEWRROW_SCHOOL
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.PROJECT
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.READ_A_THON
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.TOEIC
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.TOEIC_ACADEMY
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.TOPCIT
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType.VOLUNTEER
 import com.team.incube.gsmc.v3.domain.score.calculator.impl.CountBasedScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.calculator.impl.JlptScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.calculator.impl.NcsScoreCalculator
@@ -20,20 +31,25 @@ object ScoreCalculatorFactory {
 
     fun getCalculator(categoryType: CategoryType): CategoryScoreCalculator =
         when (categoryType) {
-            CategoryType.TOPCIT -> topcitScoreCalculator
+            TOPCIT -> topcitScoreCalculator
 
-            CategoryType.TOEIC -> toeicScoreCalculator
+            TOEIC -> toeicScoreCalculator
 
-            CategoryType.JLPT -> jlptScoreCalculator
+            JLPT -> jlptScoreCalculator
 
-            CategoryType.READ_A_THON -> readAThonScoreCalculator
+            READ_A_THON -> readAThonScoreCalculator
 
-            CategoryType.VOLUNTEER -> volunteerScoreCalculator
+            VOLUNTEER -> volunteerScoreCalculator
 
-            CategoryType.NCS -> ncsScoreCalculator
+            NCS -> ncsScoreCalculator
 
-            CategoryType.CERTIFICATE,
-            CategoryType.TOEIC_ACADEMY,
+            CERTIFICATE,
+            TOEIC_ACADEMY,
+            AWARD,
             -> countBasedScoreCalculator
+
+            NEWRROW_SCHOOL -> TODO()
+
+            PROJECT -> TODO()
         }
 }

@@ -94,6 +94,36 @@ enum class CategoryType(
         calculationType = ScoreCalculationType.SCORE_BASED,
         isForeignLanguage = false,
     ),
+    NEWRROW_SCHOOL(
+        englishName = "NEWRROW_SCHOOL",
+        koreanName = "뉴로우스쿨 참여",
+        weight = null,
+        maxRecordCount = 1,
+        isAccumulated = false,
+        evidenceType = EvidenceType.FILE,
+        calculationType = ScoreCalculationType.SCORE_BASED,
+        isForeignLanguage = false,
+    ),
+    PROJECT(
+        englishName = "PROJECT",
+        koreanName = "프로젝트 참여",
+        weight = 2,
+        maxRecordCount = 5,
+        isAccumulated = false,
+        evidenceType = EvidenceType.EVIDENCE,
+        calculationType = ScoreCalculationType.COUNT_BASED,
+        isForeignLanguage = false,
+    ),
+    AWARD(
+        englishName = "AWARD",
+        koreanName = "수상경력",
+        weight = 1,
+        maxRecordCount = 10,
+        isAccumulated = false,
+        evidenceType = EvidenceType.FILE,
+        calculationType = ScoreCalculationType.COUNT_BASED,
+        isForeignLanguage = false,
+    ),
     ;
 
     companion object {
