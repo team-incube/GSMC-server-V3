@@ -81,7 +81,7 @@ class MemberController(
                 description = "현재 로그인된 사용자 정보 검색 성공",
                 content = [
                     Content(
-                        schema = Schema(implementation = SearchMemberResponse::class),
+                        schema = Schema(implementation = GetMemberResponse::class),
                     ),
                 ],
             ),
