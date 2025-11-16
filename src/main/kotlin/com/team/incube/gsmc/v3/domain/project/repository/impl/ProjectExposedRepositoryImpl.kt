@@ -331,7 +331,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
         memberId: Long,
     ): String? =
         ProjectExposedEntity
-            .leftJoin(ProjectParticipantExposedEntity)
+            .join(ProjectParticipantExposedEntity)
             .select(ProjectExposedEntity.title)
             .where {
                 (ProjectExposedEntity.id eq projectId) and
