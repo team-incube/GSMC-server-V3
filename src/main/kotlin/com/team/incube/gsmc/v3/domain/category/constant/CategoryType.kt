@@ -124,6 +124,16 @@ enum class CategoryType(
         calculationType = ScoreCalculationType.COUNT_BASED,
         isForeignLanguage = false,
     ),
+    ACADEMIC_GRADE(
+        englishName = "ACADEMIC_GRADE",
+        koreanName = "교과성적",
+        weight = null,
+        maxRecordCount = 1,
+        isAccumulated = false,
+        evidenceType = EvidenceType.UNREQUIRED,
+        calculationType = ScoreCalculationType.SCORE_BASED,
+        isForeignLanguage = false,
+    ),
     ;
 
     companion object {

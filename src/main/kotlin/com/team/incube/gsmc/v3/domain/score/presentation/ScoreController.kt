@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.domain.score.presentation
 
+import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateAcademicGradeScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateAwardScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateCertificateScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateJlptScoreRequest
@@ -13,6 +14,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScor
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
 import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
+import com.team.incube.gsmc.v3.domain.score.service.CreateAcademicGradeScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateAwardScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateCertificateScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateJlptScoreService
@@ -58,6 +60,7 @@ class ScoreController(
     private val createVolunteerScoreService: CreateVolunteerScoreService,
     private val createNcsScoreService: CreateNcsScoreService,
     private val createNewrrowSchoolScoreService: CreateNewrrowSchoolScoreService,
+    private val createAcademicGradeScoreService: CreateAcademicGradeScoreService,
     private val calculateTotalScoreService: CalculateTotalScoreService,
     private val currentMemberProvider: CurrentMemberProvider,
 ) {
@@ -330,6 +333,24 @@ class ScoreController(
         createNewrrowSchoolScoreService.execute(
             temperature = request.temperature,
             fileId = request.fileId,
+        )
+
+    @Operation(summary = "교과성적 영역 인증제 점수 추가 또는 갱신", description = "현재 인증된 사용자의 교과성적 영역에 대한 인증제 점수를 추가하거나 갱신합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/academic-grade")
+    fun addAcademicGradeScore(
+        @Valid @RequestBody request: CreateAcademicGradeScoreRequest,
+    ): CreateScoreResponse =
+        createAcademicGradeScoreService.execute(
+            averageGrade = request.averageGrade,
         )
 
     @Operation(summary = "현재 사용자의 총점 조회", description = "현재 인증된 사용자의 인증제 총점을 조회합니다")
