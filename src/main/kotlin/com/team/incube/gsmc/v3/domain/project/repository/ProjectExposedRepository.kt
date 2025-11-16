@@ -40,5 +40,10 @@ interface ProjectExposedRepository {
 
     fun findProjectTitleById(projectId: Long): String?
 
+    fun findProjectTitleAndValidateParticipant(
+        projectId: Long,
+        memberId: Long,
+    ): String?
+
     fun deleteProjectById(projectId: Long)
 }

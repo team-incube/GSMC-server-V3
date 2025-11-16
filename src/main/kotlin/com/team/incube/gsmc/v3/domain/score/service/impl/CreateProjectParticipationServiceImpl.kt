@@ -26,16 +26,16 @@ class CreateProjectParticipationServiceImpl(
             val member = currentMemberProvider.getCurrentUser()
 
             val projectTitle =
-                projectExposedRepository.findProjectTitleById(projectId)
-                    ?: throw GsmcException(ErrorCode.PROJECT_NOT_FOUND)
-
-            if (!projectExposedRepository.existsProjectParticipantByProjectIdAndMemberId(
+                projectExposedRepository.findProjectTitleAndValidateParticipant(
                     projectId = projectId,
                     memberId = member.id,
+                ) ?: throw GsmcException(
+                    if (projectExposedRepository.findProjectTitleById(projectId) == null) {
+                        ErrorCode.PROJECT_NOT_FOUND
+                    } else {
+                        ErrorCode.NOT_PROJECT_PARTICIPANT
+                    },
                 )
-            ) {
-                throw GsmcException(ErrorCode.NOT_PROJECT_PARTICIPANT)
-            }
 
             if (scoreExposedRepository.existsByMemberIdAndCategoryTypeAndSourceId(
                     memberId = member.id,

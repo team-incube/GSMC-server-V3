@@ -326,6 +326,19 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             .singleOrNull()
             ?.get(ProjectExposedEntity.title)
 
+    override fun findProjectTitleAndValidateParticipant(
+        projectId: Long,
+        memberId: Long,
+    ): String? =
+        ProjectExposedEntity
+            .leftJoin(ProjectParticipantExposedEntity)
+            .select(ProjectExposedEntity.title)
+            .where {
+                (ProjectExposedEntity.id eq projectId) and
+                    (ProjectParticipantExposedEntity.memberId eq memberId)
+            }.singleOrNull()
+            ?.get(ProjectExposedEntity.title)
+
     override fun deleteProjectById(projectId: Long) {
         ProjectFileExposedEntity.deleteWhere { ProjectFileExposedEntity.projectId eq projectId }
         ProjectParticipantExposedEntity.deleteWhere { ProjectParticipantExposedEntity.projectId eq projectId }
