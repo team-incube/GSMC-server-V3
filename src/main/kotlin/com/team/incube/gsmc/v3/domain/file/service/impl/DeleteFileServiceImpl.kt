@@ -22,7 +22,7 @@ class DeleteFileServiceImpl(
                 fileExposedRepository.findById(fileId)
                     ?: throw GsmcException(ErrorCode.FILE_NOT_FOUND)
 
-            val currentMember = currentMemberProvider.getCurrentUser()
+            val currentMember = currentMemberProvider.getCurrentMember()
             if (currentMember.role == MemberRole.STUDENT && file.memberId != currentMember.id) {
                 throw GsmcException(ErrorCode.FILE_UNAUTHORIZED_ACCESS)
             }

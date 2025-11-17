@@ -14,7 +14,7 @@ class FindCurrentProjectsServiceImpl(
 ) : FindCurrentProjectsService {
     override fun execute(): List<ProjectResponse> =
         transaction {
-            val currentUser = currentMemberProvider.getCurrentUser()
+            val currentUser = currentMemberProvider.getCurrentMember()
             val projects = projectExposedRepository.findProjectsByParticipantId(currentUser.id)
 
             projects.map { project ->

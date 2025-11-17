@@ -17,7 +17,7 @@ class SignUpServiceImpl(
         studentNumber: Int,
     ) {
         transaction {
-            val member = currentMemberProvider.getCurrentUser()
+            val member = currentMemberProvider.getCurrentMember()
 
             val grade = studentNumber / 1000
             val classNumber = (studentNumber / 100) % 10

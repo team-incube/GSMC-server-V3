@@ -22,7 +22,7 @@ class UpdateCurrentProjectServiceImpl(
         participantIds: List<Long>?,
     ): ProjectResponse =
         transaction {
-            val currentUser = currentMemberProvider.getCurrentUser()
+            val currentUser = currentMemberProvider.getCurrentMember()
             val project =
                 projectExposedRepository.findProjectById(projectId)
                     ?: throw GsmcException(ErrorCode.PROJECT_NOT_FOUND)

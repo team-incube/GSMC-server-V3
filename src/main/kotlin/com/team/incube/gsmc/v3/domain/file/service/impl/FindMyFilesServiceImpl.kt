@@ -15,7 +15,7 @@ class FindMyFilesServiceImpl(
 ) : FindMyFilesService {
     override fun execute(): GetMyFilesResponse =
         transaction {
-            val member = currentMemberProvider.getCurrentUser()
+            val member = currentMemberProvider.getCurrentMember()
 
             val files = fileExposedRepository.findAllByUserId(member.id)
 

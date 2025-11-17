@@ -15,7 +15,7 @@ class DeleteCurrentProjectServiceImpl(
 ) : DeleteCurrentProjectService {
     override fun execute(projectId: Long) {
         transaction {
-            val currentUser = currentMemberProvider.getCurrentUser()
+            val currentUser = currentMemberProvider.getCurrentMember()
             val project =
                 projectExposedRepository.findProjectById(projectId)
                     ?: throw GsmcException(ErrorCode.PROJECT_NOT_FOUND)

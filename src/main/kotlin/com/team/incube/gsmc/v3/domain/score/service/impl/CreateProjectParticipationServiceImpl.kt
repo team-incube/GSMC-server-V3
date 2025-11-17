@@ -23,7 +23,7 @@ class CreateProjectParticipationServiceImpl(
     CreateProjectParticipationService {
     override fun execute(projectId: Long): CreateScoreResponse =
         transaction {
-            val member = currentMemberProvider.getCurrentUser()
+            val member = currentMemberProvider.getCurrentMember()
 
             val projectTitle =
                 projectExposedRepository.findProjectTitleAndValidateParticipant(

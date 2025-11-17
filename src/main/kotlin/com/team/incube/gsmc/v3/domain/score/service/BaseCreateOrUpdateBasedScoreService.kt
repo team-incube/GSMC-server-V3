@@ -18,7 +18,7 @@ abstract class BaseCreateOrUpdateBasedScoreService(
         sourceId: Long?,
         activityName: String? = null,
     ): CreateScoreResponse {
-        val member = currentMemberProvider.getCurrentUser()
+        val member = currentMemberProvider.getCurrentMember()
 
         val existingScore =
             scoreExposedRepository.findByMemberIdAndCategoryType(
