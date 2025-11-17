@@ -15,7 +15,7 @@ class FindMyEvidencesServiceImpl(
 ) : FindMyEvidencesService {
     override fun execute(): GetMyEvidencesResponse =
         transaction {
-            val member = currentMemberProvider.getCurrentUser()
+            val member = currentMemberProvider.getCurrentMember()
 
             val evidences = evidenceExposedRepository.findAllByMemberId(memberId = member.id)
 
