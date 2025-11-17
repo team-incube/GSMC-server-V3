@@ -50,6 +50,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -125,7 +126,7 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/{scoreId}/approve")
+    @PatchMapping("/{scoreId}/approve")
     fun approveScore(
         @PathVariable scoreId: Long,
     ): CommonApiResponse<Nothing> {
@@ -148,7 +149,7 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/{scoreId}/reject")
+    @PatchMapping("/{scoreId}/reject")
     fun rejectScore(
         @PathVariable scoreId: Long,
         @Valid @RequestBody request: RejectScoreRequest,
