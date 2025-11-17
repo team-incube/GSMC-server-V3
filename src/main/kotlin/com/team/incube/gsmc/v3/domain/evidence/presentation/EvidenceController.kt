@@ -4,10 +4,12 @@ import com.team.incube.gsmc.v3.domain.evidence.presentation.data.request.CreateE
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.request.PatchEvidenceRequest
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.CreateEvidenceResponse
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvidenceResponse
+import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetMyEvidencesResponse
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.PatchEvidenceResponse
 import com.team.incube.gsmc.v3.domain.evidence.service.CreateEvidenceService
 import com.team.incube.gsmc.v3.domain.evidence.service.DeleteEvidenceService
 import com.team.incube.gsmc.v3.domain.evidence.service.FindEvidenceByIdService
+import com.team.incube.gsmc.v3.domain.evidence.service.FindMyEvidencesService
 import com.team.incube.gsmc.v3.domain.evidence.service.UpdateEvidenceService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -32,17 +34,30 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v3/evidences")
 class EvidenceController(
     private val findEvidenceByIdService: FindEvidenceByIdService,
+    private val findMyEvidencesService: FindMyEvidencesService,
     private val createEvidenceService: CreateEvidenceService,
     private val updateEvidenceService: UpdateEvidenceService,
     private val deleteEvidenceService: DeleteEvidenceService,
 ) {
+    @Operation(summary = "내 증빙자료 목록 조회", description = "현재 인증된 사용자의 모든 증빙자료를 조회합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "증빙자료 목록 조회 성공",
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/my")
+    fun getMyEvidences(): GetMyEvidencesResponse = findMyEvidencesService.execute()
+
     @Operation(summary = "증빙자료 단건 조회", description = "ID를 통해 증빙자료를 조회합니다")
     @ApiResponses(
         value = [
             ApiResponse(
                 responseCode = "200",
                 description = "증빙자료 조회 성공",
-                content = [Content(schema = Schema(implementation = GetEvidenceResponse::class))],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -63,7 +78,6 @@ class EvidenceController(
             ApiResponse(
                 responseCode = "201",
                 description = "증빙자료 생성 성공",
-                content = [Content(schema = Schema(implementation = CreateEvidenceResponse::class))],
             ),
             ApiResponse(
                 responseCode = "404",
