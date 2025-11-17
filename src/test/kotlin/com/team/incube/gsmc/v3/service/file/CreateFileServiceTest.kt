@@ -102,7 +102,7 @@ class CreateFileServiceTest :
             } returns
                 File(
                     fileId = 1L,
-                    userId = 0L,
+                    memberId = 0L,
                     fileOriginalName = "test-document.pdf",
                     fileStoredName = "20251015120000_abc123def456.pdf",
                     fileUri = testFileUri,
@@ -165,7 +165,7 @@ class CreateFileServiceTest :
                     } returns
                         File(
                             fileId = 1L,
-                            userId = 0L,
+                            memberId = 0L,
                             fileOriginalName = "test-file.$extension",
                             fileStoredName = "20251015120000_test.$extension",
                             fileUri = testFileUri,
@@ -266,7 +266,7 @@ class CreateFileServiceTest :
             } returns
                 File(
                     fileId = 1L,
-                    userId = 0L,
+                    memberId = 0L,
                     fileOriginalName = "TEST-FILE.PDF",
                     fileStoredName = "20251015120000_test.PDF",
                     fileUri = testFileUri,

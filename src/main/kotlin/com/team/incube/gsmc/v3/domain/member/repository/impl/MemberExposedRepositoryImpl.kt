@@ -4,6 +4,7 @@ import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
+import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.and
@@ -51,17 +52,7 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
                 .apply { whereClause?.let { where { it } } }
                 .limit(pageable.pageSize)
                 .offset(pageable.offset)
-                .map { row ->
-                    Member(
-                        id = row[MemberExposedEntity.id],
-                        name = row[MemberExposedEntity.name],
-                        email = row[MemberExposedEntity.email],
-                        grade = row[MemberExposedEntity.grade],
-                        classNumber = row[MemberExposedEntity.classNumber],
-                        number = row[MemberExposedEntity.number],
-                        role = row[MemberExposedEntity.role],
-                    )
-                }
+                .map { it.toMember() }
 
         return PageImpl(members, pageable, totalCount)
     }
@@ -72,17 +63,7 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
             .where { MemberExposedEntity.email eq email }
             .limit(1)
             .firstOrNull()
-            ?.let { row ->
-                Member(
-                    id = row[MemberExposedEntity.id],
-                    name = row[MemberExposedEntity.name],
-                    email = row[MemberExposedEntity.email],
-                    grade = row[MemberExposedEntity.grade],
-                    classNumber = row[MemberExposedEntity.classNumber],
-                    number = row[MemberExposedEntity.number],
-                    role = row[MemberExposedEntity.role],
-                )
-            }
+            ?.toMember()
 
     override fun save(
         name: String,
@@ -119,17 +100,7 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
             .where { MemberExposedEntity.id eq id }
             .limit(1)
             .firstOrNull()
-            ?.let { row ->
-                Member(
-                    id = row[MemberExposedEntity.id],
-                    name = row[MemberExposedEntity.name],
-                    email = row[MemberExposedEntity.email],
-                    grade = row[MemberExposedEntity.grade],
-                    classNumber = row[MemberExposedEntity.classNumber],
-                    number = row[MemberExposedEntity.number],
-                    role = row[MemberExposedEntity.role],
-                )
-            }
+            ?.toMember()
 
     override fun updateMemberRoleByEmail(
         email: String,
@@ -158,4 +129,15 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
             it[this.number] = number
             it[this.role] = role
         }
+
+    private fun ResultRow.toMember(): Member =
+        Member(
+            id = this[MemberExposedEntity.id],
+            name = this[MemberExposedEntity.name],
+            email = this[MemberExposedEntity.email],
+            grade = this[MemberExposedEntity.grade],
+            classNumber = this[MemberExposedEntity.classNumber],
+            number = this[MemberExposedEntity.number],
+            role = this[MemberExposedEntity.role],
+        )
 }

@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 
 data class Evidence(
     val id: Long,
-    val userId: Long,
+    val memberId: Long,
     val title: String,
     val content: String,
     val createdAt: LocalDateTime,
