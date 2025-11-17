@@ -3,8 +3,11 @@ package com.team.incube.gsmc.v3.service.file
 import com.team.incube.gsmc.v3.domain.file.dto.File
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.file.service.impl.CreateFileServiceImpl
+import com.team.incube.gsmc.v3.domain.member.dto.Member
+import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.S3UploadService
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -30,14 +33,28 @@ class CreateFileServiceTest :
             val fileWithoutExtension: MultipartFile,
             val invalidExtensionFile: MultipartFile,
             val mockS3UploadService: S3UploadService,
+            val mockCurrentMemberProvider: CurrentMemberProvider,
             val mockFileRepository: FileExposedRepository,
             val createFileService: CreateFileServiceImpl,
         )
 
         fun createTestContext(): TestData {
             val mockS3UploadService = mockk<S3UploadService>()
+            val mockCurrentMemberProvider = mockk<CurrentMemberProvider>()
             val mockFileRepository = mockk<FileExposedRepository>()
-            val createFileService = CreateFileServiceImpl(mockS3UploadService, mockFileRepository)
+
+            every { mockCurrentMemberProvider.getCurrentMember() } returns
+                Member(
+                    id = 0L,
+                    name = "Test User",
+                    email = "test@test.com",
+                    grade = 1,
+                    classNumber = 1,
+                    number = 1,
+                    role = MemberRole.STUDENT,
+                )
+
+            val createFileService = CreateFileServiceImpl(mockS3UploadService, mockCurrentMemberProvider, mockFileRepository)
 
             val validFile =
                 mockk<MultipartFile> {
@@ -69,6 +86,7 @@ class CreateFileServiceTest :
                 fileWithoutExtension = fileWithoutExtension,
                 invalidExtensionFile = invalidExtensionFile,
                 mockS3UploadService = mockS3UploadService,
+                mockCurrentMemberProvider = mockCurrentMemberProvider,
                 mockFileRepository = mockFileRepository,
                 createFileService = createFileService,
             )

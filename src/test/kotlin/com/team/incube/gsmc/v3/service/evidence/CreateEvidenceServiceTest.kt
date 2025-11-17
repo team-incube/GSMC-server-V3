@@ -6,9 +6,12 @@ import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedReposit
 import com.team.incube.gsmc.v3.domain.evidence.service.impl.CreateEvidenceServiceImpl
 import com.team.incube.gsmc.v3.domain.file.dto.File
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
+import com.team.incube.gsmc.v3.domain.member.dto.Member
+import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -27,6 +30,7 @@ class CreateEvidenceServiceTest :
     BehaviorSpec({
         data class TestData(
             val evidenceRepo: EvidenceExposedRepository,
+            val currentMemberProvider: CurrentMemberProvider,
             val scoreRepo: ScoreExposedRepository,
             val fileRepo: FileExposedRepository,
             val service: CreateEvidenceServiceImpl,
@@ -34,10 +38,23 @@ class CreateEvidenceServiceTest :
 
         fun ctx(): TestData {
             val evidenceRepo = mockk<EvidenceExposedRepository>()
+            val currentMemberProvider = mockk<CurrentMemberProvider>()
+
+            every { currentMemberProvider.getCurrentMember() } returns
+                Member(
+                    id = 0L,
+                    name = "Test User",
+                    email = "test@test.com",
+                    grade = 1,
+                    classNumber = 1,
+                    number = 1,
+                    role = MemberRole.STUDENT,
+                )
+
             val scoreRepo = mockk<ScoreExposedRepository>()
             val fileRepo = mockk<FileExposedRepository>()
-            val service = CreateEvidenceServiceImpl(evidenceRepo, scoreRepo, fileRepo)
-            return TestData(evidenceRepo, scoreRepo, fileRepo, service)
+            val service = CreateEvidenceServiceImpl(evidenceRepo, currentMemberProvider, scoreRepo, fileRepo)
+            return TestData(evidenceRepo, currentMemberProvider, scoreRepo, fileRepo, service)
         }
 
         beforeTest {
