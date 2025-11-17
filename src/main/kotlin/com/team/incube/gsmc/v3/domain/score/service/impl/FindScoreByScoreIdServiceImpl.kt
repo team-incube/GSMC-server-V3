@@ -54,6 +54,7 @@ class FindScoreByScoreIdServiceImpl(
                 activityName = score.activityName,
                 scoreValue = score.scoreValue,
                 evidence = evidence,
+                rejectionReason = score.rejectionReason,
             )
         }
 }

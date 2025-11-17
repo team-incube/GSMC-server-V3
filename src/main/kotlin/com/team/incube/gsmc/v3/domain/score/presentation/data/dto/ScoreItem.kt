@@ -13,4 +13,6 @@ data class ScoreItem(
     val activityName: String?,
     @param:Schema(description = "점수 값", example = "95.5")
     val scoreValue: Double?,
+    @param:Schema(description = "거절 사유", example = "증빙자료가 부족합니다")
+    val rejectionReason: String?,
 )

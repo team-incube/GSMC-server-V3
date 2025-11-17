@@ -17,4 +17,6 @@ data class GetScoreResponse(
     val scoreValue: Double?,
     @param:Schema(description = "증거자료 상세 정보")
     val evidence: EvidenceDetail?,
+    @param:Schema(description = "거절 사유", example = "증빙자료가 부족합니다")
+    val rejectionReason: String?,
 )
