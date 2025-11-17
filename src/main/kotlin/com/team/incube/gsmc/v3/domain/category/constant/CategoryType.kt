@@ -66,7 +66,7 @@ enum class CategoryType(
     ),
     READ_A_THON(
         englishName = "READ_A_THON",
-        koreanName = "빛고을독서마라톤",
+        koreanName = "독서마라톤",
         weight = null,
         maxRecordCount = 1,
         isAccumulated = false,

@@ -259,7 +259,7 @@ class ScoreController(
             fileId = request.fileId,
         )
 
-    @Operation(summary = "빛고을독서마라톤 영역 인증제 점수 추가 또는 갱신", description = "현재 인증된 사용자의 빛고을독서마라톤 영역에 대한 인증제 점수를 추가하거나 갱신합니다")
+    @Operation(summary = "독서마라톤 영역 인증제 점수 추가 또는 갱신", description = "현재 인증된 사용자의 독서마라톤 영역에 대한 인증제 점수를 추가하거나 갱신합니다")
     @ApiResponses(
         value = [
             ApiResponse(
