@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.sheet.presentation.controller
 
-import com.team.incube.gsmc.v3.domain.sheet.service.GenerateClassScoreSheetService
+import com.team.incube.gsmc.v3.domain.sheet.service.CreateClassScoreSheetService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter
 @RestController
 @RequestMapping("/api/v3/sheets")
 class SheetController(
-    private val generateClassScoreSheetService: GenerateClassScoreSheetService,
+    private val createClassScoreSheetService: CreateClassScoreSheetService,
 ) {
     @Operation(
         summary = "학급별 학생 점수 현황 엑셀 다운로드",
@@ -48,7 +48,7 @@ class SheetController(
         @RequestParam grade: Int,
         @RequestParam classNumber: Int,
     ): ResponseEntity<ByteArrayResource> {
-        val resource = generateClassScoreSheetService.execute(grade = grade, classNumber = classNumber)
+        val resource = createClassScoreSheetService.execute(grade = grade, classNumber = classNumber)
 
         val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
         val filename = "${grade}학년_${classNumber}반_점수현황_$timestamp.xlsx"

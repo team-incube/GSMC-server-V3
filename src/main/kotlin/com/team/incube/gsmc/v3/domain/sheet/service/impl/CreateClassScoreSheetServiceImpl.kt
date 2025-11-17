@@ -4,10 +4,10 @@ import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.score.calculator.ScoreCalculatorFactory
+import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
-import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
 import com.team.incube.gsmc.v3.domain.sheet.dto.ClassScoreData
-import com.team.incube.gsmc.v3.domain.sheet.service.GenerateClassScoreSheetService
+import com.team.incube.gsmc.v3.domain.sheet.service.CreateClassScoreSheetService
 import org.apache.poi.ss.usermodel.BorderStyle
 import org.apache.poi.ss.usermodel.FillPatternType
 import org.apache.poi.ss.usermodel.HorizontalAlignment
@@ -21,11 +21,10 @@ import org.springframework.stereotype.Service
 import java.io.ByteArrayOutputStream
 
 @Service
-class GenerateClassScoreSheetServiceImpl(
+class CreateClassScoreSheetServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
     private val scoreExposedRepository: ScoreExposedRepository,
-    private val calculateTotalScoreService: CalculateTotalScoreService,
-) : GenerateClassScoreSheetService {
+) : CreateClassScoreSheetService {
     override fun execute(
         grade: Int,
         classNumber: Int,
@@ -70,8 +69,8 @@ class GenerateClassScoreSheetServiceImpl(
                     categoryScores[category.koreanName] = value
                 }
 
-                // 총점 계산
-                val totalScore = calculateTotalScoreService.execute(student.id, includeApprovedOnly = false).toDouble()
+                // 총점 계산 - 환산점
+                val totalScore = calculateTotalScore(scores).toDouble()
 
                 val studentNumber =
                     String.format(
@@ -191,4 +190,65 @@ class GenerateClassScoreSheetServiceImpl(
 
             ByteArrayResource(outputStream.toByteArray())
         }
+
+    private fun calculateTotalScore(scores: List<Score>): Int {
+        val scoresByCategory = scores.groupBy { it.categoryType }
+
+        val foreignLanguageCategories = CategoryType.getForeignLanguageCategories()
+
+        val foreignLanguageScores =
+            foreignLanguageCategories.flatMap { categoryType ->
+                scoresByCategory[categoryType] ?: emptyList()
+            }
+
+        val foreignLanguageScore =
+            if (foreignLanguageScores.isNotEmpty()) {
+                calculateForeignLanguageScore(foreignLanguageScores)
+            } else {
+                0
+            }
+
+        val otherCategories = CategoryType.getAllCategories() - foreignLanguageCategories.toSet()
+
+        val otherScoresSum =
+            otherCategories.sumOf { categoryType ->
+                val categoryScores = scoresByCategory[categoryType] ?: emptyList()
+                if (categoryScores.isEmpty()) {
+                    0
+                } else {
+                    val calculator = ScoreCalculatorFactory.getCalculator(categoryType)
+                    calculator.calculate(categoryScores, categoryType, includeApprovedOnly = false)
+                }
+            }
+
+        return foreignLanguageScore + otherScoresSum
+    }
+
+    private fun calculateForeignLanguageScore(scores: List<Score>): Int {
+        val toeicScores = scores.filter { it.categoryType == CategoryType.TOEIC || it.categoryType == CategoryType.TOEIC_ACADEMY }
+        val jlptScores = scores.filter { it.categoryType == CategoryType.JLPT || it.categoryType == CategoryType.JLPT_ACADEMY }
+
+        val toeicCalculator = ScoreCalculatorFactory.getCalculator(CategoryType.TOEIC)
+        val jlptCalculator = ScoreCalculatorFactory.getCalculator(CategoryType.JLPT)
+
+        val toeicScore =
+            if (toeicScores.isNotEmpty()) {
+                toeicCalculator.calculate(
+                    toeicScores,
+                    CategoryType.TOEIC,
+                    includeApprovedOnly = false,
+                )
+            } else {
+                0
+            }
+
+        val jlptScore =
+            if (jlptScores.isNotEmpty()) {
+                jlptCalculator.calculate(jlptScores, CategoryType.JLPT, includeApprovedOnly = false)
+            } else {
+                0
+            }
+
+        return maxOf(toeicScore, jlptScore)
+    }
 }
