@@ -14,6 +14,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateRead
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateToeicScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateTopcitScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateVolunteerScoreRequest
+import com.team.incube.gsmc.v3.domain.score.presentation.data.request.RejectScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScoreStatusRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetMyScoresResponse
@@ -34,7 +35,9 @@ import com.team.incube.gsmc.v3.domain.score.service.CreateTopcitScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateVolunteerScoreService
 import com.team.incube.gsmc.v3.domain.score.service.DeleteScoreService
 import com.team.incube.gsmc.v3.domain.score.service.FindScoreByScoreIdService
+import com.team.incube.gsmc.v3.domain.score.service.ApproveScoreService
 import com.team.incube.gsmc.v3.domain.score.service.GetMyScoresService
+import com.team.incube.gsmc.v3.domain.score.service.RejectScoreService
 import com.team.incube.gsmc.v3.domain.score.service.UpdateScoreStatusService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
@@ -60,6 +63,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v3/scores")
 class ScoreController(
     private val updateScoreStatusService: UpdateScoreStatusService,
+    private val approveScoreService: ApproveScoreService,
+    private val rejectScoreService: RejectScoreService,
     private val deleteScoreService: DeleteScoreService,
     private val createCertificateScoreService: CreateCertificateScoreService,
     private val createAwardScoreService: CreateAwardScoreService,
@@ -101,6 +106,56 @@ class ScoreController(
         updateScoreStatusService.execute(
             scoreId = scoreId,
             scoreStatus = request.scoreStatus,
+        )
+        return CommonApiResponse.success("OK")
+    }
+
+    @Operation(summary = "인증제 점수 승인", description = "인증제 점수를 승인합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 인증제 점수를 매핑함",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/{scoreId}/approve")
+    fun approveScore(
+        @PathVariable scoreId: Long,
+    ): CommonApiResponse<Nothing> {
+        approveScoreService.execute(scoreId = scoreId)
+        return CommonApiResponse.success("OK")
+    }
+
+    @Operation(summary = "인증제 점수 거절", description = "인증제 점수를 거절하고 거절 사유를 저장합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 인증제 점수를 매핑함",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/{scoreId}/reject")
+    fun rejectScore(
+        @PathVariable scoreId: Long,
+        @Valid @RequestBody request: RejectScoreRequest,
+    ): CommonApiResponse<Nothing> {
+        rejectScoreService.execute(
+            scoreId = scoreId,
+            rejectionReason = request.rejectionReason,
         )
         return CommonApiResponse.success("OK")
     }
