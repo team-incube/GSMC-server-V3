@@ -70,15 +70,6 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
     }
 
     override fun updateSourceId(
-        scoreIds: List<Long>,
-        sourceId: Long,
-    ) {
-        ScoreExposedEntity.update({ ScoreExposedEntity.id inList scoreIds }) {
-            it[ScoreExposedEntity.sourceId] = sourceId
-        }
-    }
-
-    override fun updateSourceId(
         scoreId: Long,
         sourceId: Long,
     ) {

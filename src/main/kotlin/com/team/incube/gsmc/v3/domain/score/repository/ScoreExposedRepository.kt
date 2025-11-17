@@ -16,11 +16,6 @@ interface ScoreExposedRepository {
     fun update(score: Score): Score
 
     fun updateSourceId(
-        scoreIds: List<Long>,
-        sourceId: Long,
-    )
-
-    fun updateSourceId(
         scoreId: Long,
         sourceId: Long,
     )
