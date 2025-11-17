@@ -1,27 +1,27 @@
 package com.team.incube.gsmc.v3.domain.file.service.impl
 
 import com.team.incube.gsmc.v3.domain.file.presentation.data.response.FileItem
-import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetCurrentFilesResponse
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetMyFilesResponse
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
-import com.team.incube.gsmc.v3.domain.file.service.FindCurrentFilesService
+import com.team.incube.gsmc.v3.domain.file.service.FindMyUnusedFilesService
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
 
 @Service
-class FindCurrentFilesServiceImpl(
+class FindMyUnusedFilesServiceImpl(
     private val fileExposedRepository: FileExposedRepository,
     private val currentMemberProvider: CurrentMemberProvider,
-) : FindCurrentFilesService {
-    override fun execute(): GetCurrentFilesResponse =
+) : FindMyUnusedFilesService {
+    override fun execute(): GetMyFilesResponse =
         transaction {
             val member = currentMemberProvider.getCurrentUser()
 
-            val files = fileExposedRepository.findAllByUserId(member.id)
+            val unusedFiles = fileExposedRepository.findUnusedFilesByUserId(member.id)
 
-            GetCurrentFilesResponse(
+            GetMyFilesResponse(
                 files =
-                    files.map { file ->
+                    unusedFiles.map { file ->
                         FileItem(
                             fileId = file.fileId,
                             originalName = file.fileOriginalName,

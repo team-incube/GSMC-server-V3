@@ -1,11 +1,6 @@
-package com.team.incube.gsmc.v3.domain.file.presentation.data.response
+package com.team.incube.gsmc.v3.domain.file.presentation.data.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
-
-data class GetCurrentFilesResponse(
-    @param:Schema(description = "파일 목록")
-    val files: List<FileItem>,
-)
 
 data class FileItem(
     @param:Schema(description = "파일 ID", example = "1")
