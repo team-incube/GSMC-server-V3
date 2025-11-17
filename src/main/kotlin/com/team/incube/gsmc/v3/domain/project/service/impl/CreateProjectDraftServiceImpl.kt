@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
 class CreateProjectDraftServiceImpl(
     private val currentMemberProvider: CurrentMemberProvider,
 ) : CreateProjectDraftService {
-    @CachePut(value = ["project"], key = "#root.target.getMemberId()")
+    @CachePut(value = ["projectDraft"], key = "#root.target.getMemberId()")
     override fun execute(request: CreateProjectDraftRequest): GetProjectDraftResponse =
         GetProjectDraftResponse(
             title = request.title,

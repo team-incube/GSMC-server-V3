@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 class FindEvidenceDraftServiceImpl(
     private val currentMemberProvider: CurrentMemberProvider,
 ) : FindEvidenceDraftService {
-    @Cacheable(value = ["evidence"], key = "#root.target.getMemberId()")
+    @Cacheable(value = ["evidenceDraft"], key = "#root.target.getMemberId()")
     override fun execute(): GetEvidenceDraftResponse? = null
 
     fun getMemberId(): Long = currentMemberProvider.getCurrentMember().id
