@@ -30,10 +30,9 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
             return null
         }
         val firstRow = rows.first()
-        val userId = firstRow[EvidenceExposedEntity.memberId]
         val files =
             rows
-                .mapNotNull { it.toFile(userId) }
+                .mapNotNull { it.toFile() }
                 .distinctBy { it.fileId }
         return Evidence(
             id = firstRow[EvidenceExposedEntity.id],
@@ -75,9 +74,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                 FileExposedEntity
                     .selectAll()
                     .where { FileExposedEntity.id inList fileIds }
-                    .mapNotNull { row ->
-                        row.toFile(row[FileExposedEntity.memberId])
-                    }
+                    .mapNotNull { it.toFile() }
             } else {
                 emptyList()
             }
@@ -124,10 +121,9 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                 .where { EvidenceExposedEntity.id eq id }
 
         val firstRow = rows.first()
-        val userId = firstRow[EvidenceExposedEntity.memberId]
         val files =
             rows
-                .mapNotNull { it.toFile(userId) }
+                .mapNotNull { it.toFile() }
                 .distinctBy { it.fileId }
 
         return Evidence(
@@ -146,16 +142,17 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
         EvidenceExposedEntity.deleteWhere { EvidenceExposedEntity.id eq evidenceId }
     }
 
-    private fun ResultRow.toFile(userId: Long): File? {
+    private fun ResultRow.toFile(): File? {
         val fileId = this.getOrNull(FileExposedEntity.id)
+        val memberId = this.getOrNull(FileExposedEntity.memberId)
         val originalName = this.getOrNull(FileExposedEntity.originalName)
         val storedName = this.getOrNull(FileExposedEntity.storedName)
         val uri = this.getOrNull(FileExposedEntity.uri)
 
-        return if (fileId != null && originalName != null && storedName != null && uri != null) {
+        return if (fileId != null && memberId != null && originalName != null && storedName != null && uri != null) {
             File(
                 fileId = fileId,
-                memberId = userId,
+                memberId = memberId,
                 fileOriginalName = originalName,
                 fileStoredName = storedName,
                 fileUri = uri,
