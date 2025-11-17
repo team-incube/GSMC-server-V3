@@ -29,6 +29,7 @@ abstract class BaseCountBasedScoreService(
                     sourceId = sourceId,
                     activityName = activityName,
                     scoreValue = null,
+                    rejectionReason = null,
                 ),
             )
 
