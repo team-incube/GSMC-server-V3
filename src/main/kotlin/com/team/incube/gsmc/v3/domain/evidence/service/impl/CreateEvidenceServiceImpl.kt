@@ -7,12 +7,14 @@ import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
 
 @Service
 class CreateEvidenceServiceImpl(
     private val evidenceExposedRepository: EvidenceExposedRepository,
+    private val currentMemberProvider: CurrentMemberProvider,
     private val scoreExposedRepository: ScoreExposedRepository,
     private val fileExposedRepository: FileExposedRepository,
 ) : CreateEvidenceService {
@@ -37,8 +39,7 @@ class CreateEvidenceServiceImpl(
 
             val evidence =
                 evidenceExposedRepository.save(
-                    // TODO: security context에서 userId 받아오기
-                    userId = 0L,
+                    userId = currentMemberProvider.getCurrentMember().id,
                     title = title,
                     content = content,
                     fileIds = fileIds,

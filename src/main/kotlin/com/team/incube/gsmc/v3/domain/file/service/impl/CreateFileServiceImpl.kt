@@ -5,6 +5,7 @@ import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.file.service.CreateFileService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.S3UploadService
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
@@ -16,6 +17,7 @@ import java.util.UUID
 @Service
 class CreateFileServiceImpl(
     private val s3UploadService: S3UploadService,
+    private val currentMemberProvider: CurrentMemberProvider,
     private val fileExposedRepository: FileExposedRepository,
 ) : CreateFileService {
     override fun execute(file: MultipartFile): CreateFileResponse {
@@ -27,8 +29,7 @@ class CreateFileServiceImpl(
         return transaction {
             val savedFile =
                 fileExposedRepository.saveFile(
-                    // TODO: security context에서 userId 받아오기
-                    userId = 0L,
+                    userId = currentMemberProvider.getCurrentMember().id,
                     originalName = originalName,
                     storedName = storedName,
                     uri = fileUri,

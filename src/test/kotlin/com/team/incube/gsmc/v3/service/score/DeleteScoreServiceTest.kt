@@ -83,14 +83,14 @@ class DeleteScoreServiceTest :
                 listOf(
                     File(
                         fileId = 10L,
-                        userId = 0L,
+                        memberId = 0L,
                         fileOriginalName = "a.pdf",
                         fileStoredName = "sa.pdf",
                         fileUri = "s3://a",
                     ),
                     File(
                         fileId = 11L,
-                        userId = 0L,
+                        memberId = 0L,
                         fileOriginalName = "b.jpg",
                         fileStoredName = "sb.jpg",
                         fileUri = "s3://b",
@@ -109,7 +109,7 @@ class DeleteScoreServiceTest :
             val evidence =
                 Evidence(
                     id = sourceId,
-                    userId = 0L,
+                    memberId = 0L,
                     title = "t",
                     content = "c",
                     createdAt = now,
@@ -147,7 +147,7 @@ class DeleteScoreServiceTest :
             val scoreId = 2L
             val sourceId = 200L
             val file =
-                File(fileId = sourceId, userId = 0L, fileOriginalName = "f", fileStoredName = "sf", fileUri = "s3://f")
+                File(fileId = sourceId, memberId = 0L, fileOriginalName = "f", fileStoredName = "sf", fileUri = "s3://f")
             val score =
                 Score(
                     id = scoreId,
@@ -306,7 +306,7 @@ class DeleteScoreServiceTest :
             val evidence =
                 Evidence(
                     id = sourceId,
-                    userId = 0L,
+                    memberId = 0L,
                     title = "t",
                     content = "c",
                     createdAt = now,

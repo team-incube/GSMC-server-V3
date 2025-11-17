@@ -21,7 +21,7 @@ class GetMyScoresServiceImpl(
         status: ScoreStatus?,
     ): GetMyScoresResponse =
         transaction {
-            val member = currentMemberProvider.getCurrentUser()
+            val member = currentMemberProvider.getCurrentMember()
 
             val scores =
                 scoreExposedRepository.findAllByMemberIdAndCategoryTypeAndStatus(

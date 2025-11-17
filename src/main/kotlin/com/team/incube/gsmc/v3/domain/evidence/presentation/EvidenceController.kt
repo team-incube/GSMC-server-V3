@@ -1,13 +1,20 @@
 package com.team.incube.gsmc.v3.domain.evidence.presentation
 
+import com.team.incube.gsmc.v3.domain.evidence.presentation.data.request.CreateEvidenceDraftRequest
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.request.CreateEvidenceRequest
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.request.PatchEvidenceRequest
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.CreateEvidenceResponse
+import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvidenceDraftResponse
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvidenceResponse
+import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetMyEvidencesResponse
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.PatchEvidenceResponse
+import com.team.incube.gsmc.v3.domain.evidence.service.CreateEvidenceDraftService
 import com.team.incube.gsmc.v3.domain.evidence.service.CreateEvidenceService
+import com.team.incube.gsmc.v3.domain.evidence.service.DeleteEvidenceDraftService
 import com.team.incube.gsmc.v3.domain.evidence.service.DeleteEvidenceService
 import com.team.incube.gsmc.v3.domain.evidence.service.FindEvidenceByIdService
+import com.team.incube.gsmc.v3.domain.evidence.service.FindEvidenceDraftService
+import com.team.incube.gsmc.v3.domain.evidence.service.FindMyEvidencesService
 import com.team.incube.gsmc.v3.domain.evidence.service.UpdateEvidenceService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -32,17 +39,33 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v3/evidences")
 class EvidenceController(
     private val findEvidenceByIdService: FindEvidenceByIdService,
+    private val findMyEvidencesService: FindMyEvidencesService,
     private val createEvidenceService: CreateEvidenceService,
     private val updateEvidenceService: UpdateEvidenceService,
     private val deleteEvidenceService: DeleteEvidenceService,
+    private val createEvidenceDraftService: CreateEvidenceDraftService,
+    private val findEvidenceDraftService: FindEvidenceDraftService,
+    private val deleteEvidenceDraftService: DeleteEvidenceDraftService,
 ) {
+    @Operation(summary = "내 증빙자료 목록 조회", description = "현재 인증된 사용자의 모든 증빙자료를 조회합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "증빙자료 목록 조회 성공",
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/my")
+    fun getMyEvidences(): GetMyEvidencesResponse = findMyEvidencesService.execute()
+
     @Operation(summary = "증빙자료 단건 조회", description = "ID를 통해 증빙자료를 조회합니다")
     @ApiResponses(
         value = [
             ApiResponse(
                 responseCode = "200",
                 description = "증빙자료 조회 성공",
-                content = [Content(schema = Schema(implementation = GetEvidenceResponse::class))],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -63,7 +86,6 @@ class EvidenceController(
             ApiResponse(
                 responseCode = "201",
                 description = "증빙자료 생성 성공",
-                content = [Content(schema = Schema(implementation = CreateEvidenceResponse::class))],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -138,6 +160,50 @@ class EvidenceController(
         @PathVariable evidenceId: Long,
     ): CommonApiResponse<Nothing> {
         deleteEvidenceService.execute(evidenceId = evidenceId)
+        return CommonApiResponse.success("OK")
+    }
+
+    @Operation(summary = "증빙자료 임시저장 생성", description = "증빙자료를 임시저장합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "임시저장 성공",
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/draft")
+    fun createEvidenceDraft(
+        @Valid @RequestBody request: CreateEvidenceDraftRequest,
+    ): GetEvidenceDraftResponse = createEvidenceDraftService.execute(request = request)
+
+    @Operation(summary = "증빙자료 임시저장 조회", description = "임시저장된 증빙자료를 조회합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "임시저장 조회 성공",
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/draft")
+    fun getEvidenceDraft(): GetEvidenceDraftResponse? = findEvidenceDraftService.execute()
+
+    @Operation(summary = "증빙자료 임시저장 삭제", description = "임시저장된 증빙자료를 삭제합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "임시저장 삭제 성공",
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @DeleteMapping("/draft")
+    fun deleteEvidenceDraft(): CommonApiResponse<Nothing> {
+        deleteEvidenceDraftService.execute()
         return CommonApiResponse.success("OK")
     }
 }

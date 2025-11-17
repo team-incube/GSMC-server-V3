@@ -12,7 +12,7 @@ class GetCurrentMemberServiceImpl(
 ) : GetCurrentMemberService {
     override fun execute(): GetMemberResponse =
         transaction {
-            currentMemberService.getCurrentUser().run {
+            currentMemberService.getCurrentMember().run {
                 GetMemberResponse(
                     id = id,
                     name = name,

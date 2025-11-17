@@ -17,6 +17,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateVolu
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScoreStatusRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetMyScoresResponse
+import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetScoreResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
 import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateAcademicGradeScoreService
@@ -32,6 +33,7 @@ import com.team.incube.gsmc.v3.domain.score.service.CreateToeicScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateTopcitScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateVolunteerScoreService
 import com.team.incube.gsmc.v3.domain.score.service.DeleteScoreService
+import com.team.incube.gsmc.v3.domain.score.service.FindScoreByScoreIdService
 import com.team.incube.gsmc.v3.domain.score.service.GetMyScoresService
 import com.team.incube.gsmc.v3.domain.score.service.UpdateScoreStatusService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
@@ -73,6 +75,7 @@ class ScoreController(
     private val createProjectParticipationService: CreateProjectParticipationService,
     private val calculateTotalScoreService: CalculateTotalScoreService,
     private val getMyScoresService: GetMyScoresService,
+    private val findScoreByScoreIdService: FindScoreByScoreIdService,
     private val currentMemberProvider: CurrentMemberProvider,
 ) {
     @Operation(summary = "인증제 점수 상태 업데이트", description = "인증제 점수의 승인/거절 상태를 업데이트합니다")
@@ -426,6 +429,26 @@ class ScoreController(
             projectId = request.projectId,
         )
 
+    @Operation(summary = "점수 단건 조회", description = "점수 ID로 점수 상세 정보를 조회합니다 (증거자료 및 파일 포함)")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 점수를 매핑함",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/{scoreId}")
+    fun getScoreByScoreId(
+        @PathVariable scoreId: Long,
+    ): GetScoreResponse = findScoreByScoreIdService.execute(scoreId = scoreId)
+
     @Operation(summary = "현재 사용자의 점수 목록 조회", description = "현재 인증된 사용자의 인증제 점수 목록을 조회합니다")
     @ApiResponses(
         value = [
@@ -460,7 +483,7 @@ class ScoreController(
             required = false,
         ) includeApprovedOnly: Boolean,
     ): GetTotalScoreResponse {
-        val member = currentMemberProvider.getCurrentUser()
+        val member = currentMemberProvider.getCurrentMember()
         val totalScore =
             calculateTotalScoreService.execute(
                 memberId = member.id,

@@ -1,0 +1,34 @@
+package com.team.incube.gsmc.v3.domain.file.service.impl
+
+import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetMyFilesResponse
+import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
+import com.team.incube.gsmc.v3.domain.file.service.FindMyFilesService
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.springframework.stereotype.Service
+
+@Service
+class FindMyFilesServiceImpl(
+    private val fileExposedRepository: FileExposedRepository,
+    private val currentMemberProvider: CurrentMemberProvider,
+) : FindMyFilesService {
+    override fun execute(): GetMyFilesResponse =
+        transaction {
+            val member = currentMemberProvider.getCurrentMember()
+
+            val files = fileExposedRepository.findAllByUserId(member.id)
+
+            GetMyFilesResponse(
+                files =
+                    files.map { file ->
+                        FileItem(
+                            fileId = file.fileId,
+                            originalName = file.fileOriginalName,
+                            storedName = file.fileStoredName,
+                            uri = file.fileUri,
+                        )
+                    },
+            )
+        }
+}
