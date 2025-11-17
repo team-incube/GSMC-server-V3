@@ -1,6 +1,7 @@
 package com.team.incube.gsmc.v3.domain.sheet.service.impl
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
+import com.team.incube.gsmc.v3.domain.category.constant.ScoreCalculationType
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.score.calculator.ScoreCalculatorFactory
@@ -57,10 +58,12 @@ class CreateClassScoreSheetServiceImpl(
                     val value =
                         when {
                             categoryScoreList.isEmpty() -> 0.0
-                            category.calculationType == com.team.incube.gsmc.v3.domain.category.constant.ScoreCalculationType.SCORE_BASED -> {
+
+                            category.calculationType == ScoreCalculationType.SCORE_BASED -> {
                                 // 점수 기반: scoreValue의 합
                                 categoryScoreList.sumOf { it.scoreValue ?: 0.0 }
                             }
+
                             else -> {
                                 // 레코드 기반: 레코드 개수
                                 categoryScoreList.size.toDouble()
@@ -226,7 +229,7 @@ class CreateClassScoreSheetServiceImpl(
 
     private fun calculateForeignLanguageScore(scores: List<Score>): Int {
         val toeicScores = scores.filter { it.categoryType == CategoryType.TOEIC || it.categoryType == CategoryType.TOEIC_ACADEMY }
-        val jlptScores = scores.filter { it.categoryType == CategoryType.JLPT || it.categoryType == CategoryType.JLPT_ACADEMY }
+        val jlptScores = scores.filter { it.categoryType == CategoryType.JLPT || it.categoryType == CategoryType.TOEIC_ACADEMY }
 
         val toeicCalculator = ScoreCalculatorFactory.getCalculator(CategoryType.TOEIC)
         val jlptCalculator = ScoreCalculatorFactory.getCalculator(CategoryType.JLPT)

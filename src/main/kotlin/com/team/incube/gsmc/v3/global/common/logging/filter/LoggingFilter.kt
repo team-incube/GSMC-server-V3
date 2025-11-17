@@ -163,7 +163,7 @@ class LoggingFilter : OncePerRequestFilter() {
         logId: UUID,
     ) {
         val responseTime = System.currentTimeMillis() - startTime
-        val responseBody = String(response.contentAsByteArray, StandardCharsets.UTF_8)
+        val responseBody = getResponseBody(response)
 
         logger().info(
             "Log-ID: {}, Status-Code: {}, Content-Type: {}, Response Time: {}ms, Response-Body: {}",
@@ -174,6 +174,25 @@ class LoggingFilter : OncePerRequestFilter() {
             responseBody,
         )
     }
+
+    private fun getResponseBody(response: ContentCachingResponseWrapper): String {
+        val contentType = response.contentType?.lowercase() ?: ""
+
+        return when {
+            isBinaryContent(contentType) -> "[binary content omitted]"
+            response.contentAsByteArray.isEmpty() -> "[empty]"
+            else -> String(response.contentAsByteArray, StandardCharsets.UTF_8)
+        }
+    }
+
+    private fun isBinaryContent(contentType: String): Boolean =
+        contentType.startsWith("application/octet-stream") ||
+            contentType.startsWith("application/vnd.openxmlformats-officedocument") ||
+            contentType.startsWith("image/") ||
+            contentType.startsWith("video/") ||
+            contentType.startsWith("audio/") ||
+            contentType.startsWith("application/pdf") ||
+            contentType.startsWith("application/zip")
 
     private fun getRequestBody(byteArrayContent: ByteArray): String {
         val oneLineContent =
