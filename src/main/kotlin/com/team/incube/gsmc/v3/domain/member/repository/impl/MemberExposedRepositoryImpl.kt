@@ -5,6 +5,7 @@ import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.and
@@ -26,6 +27,7 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
         grade: Int?,
         classNumber: Int?,
         number: Int?,
+        sort: String?,
         pageable: Pageable,
     ): Page<Member> {
         val conditions =
@@ -46,10 +48,15 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
                 .apply { whereClause?.let { where { it } } }
                 .count()
 
+        val sortOrder = if (sort?.lowercase() == "desc") SortOrder.DESC else SortOrder.ASC
+
         val members =
             MemberExposedEntity
                 .selectAll()
                 .apply { whereClause?.let { where { it } } }
+                .orderBy(MemberExposedEntity.grade to sortOrder)
+                .orderBy(MemberExposedEntity.classNumber to sortOrder)
+                .orderBy(MemberExposedEntity.number to sortOrder)
                 .limit(pageable.pageSize)
                 .offset(pageable.offset)
                 .map { it.toMember() }

@@ -20,6 +20,7 @@ class SearchMemberServiceImpl(
         grade: Int?,
         classNumber: Int?,
         number: Int?,
+        sort: String,
         pageable: Pageable,
     ): SearchMemberResponse =
         transaction {
@@ -31,6 +32,7 @@ class SearchMemberServiceImpl(
                     grade = grade,
                     classNumber = classNumber,
                     number = number,
+                    sort = sort,
                     pageable = pageable,
                 )
             SearchMemberResponse(

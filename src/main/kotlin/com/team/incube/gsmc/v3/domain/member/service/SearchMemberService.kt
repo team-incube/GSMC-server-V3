@@ -12,6 +12,7 @@ interface SearchMemberService {
         grade: Int?,
         classNumber: Int?,
         number: Int?,
+        sort: String,
         pageable: Pageable,
     ): SearchMemberResponse
 }

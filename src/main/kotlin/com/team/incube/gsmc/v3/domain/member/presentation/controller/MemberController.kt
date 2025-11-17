@@ -59,6 +59,7 @@ class MemberController(
         @RequestParam(required = false) number: Int?,
         @RequestParam(required = false) limit: Int = 100,
         @RequestParam(required = false) page: Int = 0,
+        @RequestParam(required = false) sort: String = "asc",
     ): SearchMemberResponse =
         searchMemberService.execute(
             email = email,
@@ -67,6 +68,7 @@ class MemberController(
             grade = grade,
             classNumber = classNumber,
             number = number,
+            sort = sort,
             pageable = PageRequest.of(page, limit),
         )
 
