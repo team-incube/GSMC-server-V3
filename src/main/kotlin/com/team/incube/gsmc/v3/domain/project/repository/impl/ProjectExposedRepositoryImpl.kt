@@ -9,6 +9,7 @@ import com.team.incube.gsmc.v3.domain.project.entity.ProjectExposedEntity
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectFileExposedEntity
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectParticipantExposedEntity
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
+import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
@@ -182,15 +183,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
                 FileExposedEntity
                     .selectAll()
                     .where { FileExposedEntity.id inList fileIds }
-                    .map { row ->
-                        File(
-                            fileId = row[FileExposedEntity.id],
-                            userId = row[FileExposedEntity.memberId],
-                            fileOriginalName = row[FileExposedEntity.originalName],
-                            fileStoredName = row[FileExposedEntity.storedName],
-                            fileUri = row[FileExposedEntity.uri],
-                        )
-                    }
+                    .map { it.toFile() }
             } else {
                 emptyList()
             }
@@ -200,17 +193,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
                 MemberExposedEntity
                     .selectAll()
                     .where { MemberExposedEntity.id inList allParticipantIds }
-                    .map { row ->
-                        Member(
-                            id = row[MemberExposedEntity.id],
-                            name = row[MemberExposedEntity.name],
-                            email = row[MemberExposedEntity.email],
-                            grade = row[MemberExposedEntity.grade],
-                            classNumber = row[MemberExposedEntity.classNumber],
-                            number = row[MemberExposedEntity.number],
-                            role = row[MemberExposedEntity.role],
-                        )
-                    }
+                    .map { it.toMember() }
             } else {
                 emptyList()
             }
@@ -262,15 +245,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
                 FileExposedEntity
                     .selectAll()
                     .where { FileExposedEntity.id inList fileIds }
-                    .map { row ->
-                        File(
-                            fileId = row[FileExposedEntity.id],
-                            userId = row[FileExposedEntity.memberId],
-                            fileOriginalName = row[FileExposedEntity.originalName],
-                            fileStoredName = row[FileExposedEntity.storedName],
-                            fileUri = row[FileExposedEntity.uri],
-                        )
-                    }
+                    .map { it.toFile() }
             } else {
                 emptyList()
             }
@@ -280,17 +255,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
                 MemberExposedEntity
                     .selectAll()
                     .where { MemberExposedEntity.id inList allParticipantIds }
-                    .map { row ->
-                        Member(
-                            id = row[MemberExposedEntity.id],
-                            name = row[MemberExposedEntity.name],
-                            email = row[MemberExposedEntity.email],
-                            grade = row[MemberExposedEntity.grade],
-                            classNumber = row[MemberExposedEntity.classNumber],
-                            number = row[MemberExposedEntity.number],
-                            role = row[MemberExposedEntity.role],
-                        )
-                    }
+                    .map { it.toMember() }
             } else {
                 emptyList()
             }
@@ -355,15 +320,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
         return FileExposedEntity
             .selectAll()
             .where { FileExposedEntity.id inList fileIds }
-            .map { row ->
-                File(
-                    fileId = row[FileExposedEntity.id],
-                    userId = row[FileExposedEntity.memberId],
-                    fileOriginalName = row[FileExposedEntity.originalName],
-                    fileStoredName = row[FileExposedEntity.storedName],
-                    fileUri = row[FileExposedEntity.uri],
-                )
-            }
+            .map { it.toFile() }
     }
 
     private fun getProjectParticipants(projectId: Long): List<Member> {
@@ -378,17 +335,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
         return MemberExposedEntity
             .selectAll()
             .where { MemberExposedEntity.id inList memberIds }
-            .map { row ->
-                Member(
-                    id = row[MemberExposedEntity.id],
-                    name = row[MemberExposedEntity.name],
-                    email = row[MemberExposedEntity.email],
-                    grade = row[MemberExposedEntity.grade],
-                    classNumber = row[MemberExposedEntity.classNumber],
-                    number = row[MemberExposedEntity.number],
-                    role = row[MemberExposedEntity.role],
-                )
-            }
+            .map { it.toMember() }
     }
 
     private fun getFilesByProjectIds(projectIds: List<Long>): Map<Long, List<File>> {
@@ -406,14 +353,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
                 .selectAll()
                 .where { FileExposedEntity.id inList fileIds }
                 .associate { row ->
-                    row[FileExposedEntity.id] to
-                        File(
-                            fileId = row[FileExposedEntity.id],
-                            userId = row[FileExposedEntity.memberId],
-                            fileOriginalName = row[FileExposedEntity.originalName],
-                            fileStoredName = row[FileExposedEntity.storedName],
-                            fileUri = row[FileExposedEntity.uri],
-                        )
+                    row[FileExposedEntity.id] to row.toFile()
                 }
 
         return fileRelations
@@ -438,16 +378,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
                 .selectAll()
                 .where { MemberExposedEntity.id inList memberIds }
                 .associate { row ->
-                    row[MemberExposedEntity.id] to
-                        Member(
-                            id = row[MemberExposedEntity.id],
-                            name = row[MemberExposedEntity.name],
-                            email = row[MemberExposedEntity.email],
-                            grade = row[MemberExposedEntity.grade],
-                            classNumber = row[MemberExposedEntity.classNumber],
-                            number = row[MemberExposedEntity.number],
-                            role = row[MemberExposedEntity.role],
-                        )
+                    row[MemberExposedEntity.id] to row.toMember()
                 }
 
         return participantRelations
@@ -456,4 +387,24 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
                 memberIdList.mapNotNull { membersById[it] }
             }
     }
+
+    private fun ResultRow.toMember(): Member =
+        Member(
+            id = this[MemberExposedEntity.id],
+            name = this[MemberExposedEntity.name],
+            email = this[MemberExposedEntity.email],
+            grade = this[MemberExposedEntity.grade],
+            classNumber = this[MemberExposedEntity.classNumber],
+            number = this[MemberExposedEntity.number],
+            role = this[MemberExposedEntity.role],
+        )
+
+    private fun ResultRow.toFile(): File =
+        File(
+            fileId = this[FileExposedEntity.id],
+            userId = this[FileExposedEntity.memberId],
+            fileOriginalName = this[FileExposedEntity.originalName],
+            fileStoredName = this[FileExposedEntity.storedName],
+            fileUri = this[FileExposedEntity.uri],
+        )
 }

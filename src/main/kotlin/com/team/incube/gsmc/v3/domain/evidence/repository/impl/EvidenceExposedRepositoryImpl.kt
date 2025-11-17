@@ -6,6 +6,7 @@ import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedReposit
 import com.team.incube.gsmc.v3.domain.file.dto.File
 import com.team.incube.gsmc.v3.domain.file.entity.EvidenceFileExposedEntity
 import com.team.incube.gsmc.v3.domain.file.entity.FileExposedEntity
+import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
@@ -29,25 +30,11 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
             return null
         }
         val firstRow = rows.first()
+        val userId = firstRow[EvidenceExposedEntity.userId]
         val files =
             rows
-                .mapNotNull { row ->
-                    val fileId = row.getOrNull(FileExposedEntity.id)
-                    val originalName = row.getOrNull(FileExposedEntity.originalName)
-                    val storedName = row.getOrNull(FileExposedEntity.storedName)
-                    val uri = row.getOrNull(FileExposedEntity.uri)
-                    if (fileId != null && originalName != null && storedName != null && uri != null) {
-                        File(
-                            fileId = fileId,
-                            userId = row[EvidenceExposedEntity.userId],
-                            fileOriginalName = originalName,
-                            fileStoredName = storedName,
-                            fileUri = uri,
-                        )
-                    } else {
-                        null
-                    }
-                }.distinctBy { it.fileId }
+                .mapNotNull { it.toFile(userId) }
+                .distinctBy { it.fileId }
         return Evidence(
             id = firstRow[EvidenceExposedEntity.id],
             userId = firstRow[EvidenceExposedEntity.userId],
@@ -89,20 +76,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                     .selectAll()
                     .where { FileExposedEntity.id inList fileIds }
                     .mapNotNull { row ->
-                        val originalName = row.getOrNull(FileExposedEntity.originalName)
-                        val storedName = row.getOrNull(FileExposedEntity.storedName)
-                        val uri = row.getOrNull(FileExposedEntity.uri)
-                        if (originalName != null && storedName != null && uri != null) {
-                            File(
-                                fileId = row[FileExposedEntity.id],
-                                userId = row[FileExposedEntity.memberId],
-                                fileOriginalName = originalName,
-                                fileStoredName = storedName,
-                                fileUri = uri,
-                            )
-                        } else {
-                            null
-                        }
+                        row.toFile(row[FileExposedEntity.memberId])
                     }
             } else {
                 emptyList()
@@ -150,25 +124,11 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                 .where { EvidenceExposedEntity.id eq id }
 
         val firstRow = rows.first()
+        val userId = firstRow[EvidenceExposedEntity.userId]
         val files =
             rows
-                .mapNotNull { row ->
-                    val fileId = row.getOrNull(FileExposedEntity.id)
-                    val originalName = row.getOrNull(FileExposedEntity.originalName)
-                    val storedName = row.getOrNull(FileExposedEntity.storedName)
-                    val uri = row.getOrNull(FileExposedEntity.uri)
-                    if (fileId != null && originalName != null && storedName != null && uri != null) {
-                        File(
-                            fileId = fileId,
-                            userId = row[EvidenceExposedEntity.userId],
-                            fileOriginalName = originalName,
-                            fileStoredName = storedName,
-                            fileUri = uri,
-                        )
-                    } else {
-                        null
-                    }
-                }.distinctBy { it.fileId }
+                .mapNotNull { it.toFile(userId) }
+                .distinctBy { it.fileId }
 
         return Evidence(
             id = firstRow[EvidenceExposedEntity.id],
@@ -184,5 +144,24 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
     override fun deleteById(evidenceId: Long) {
         EvidenceFileExposedEntity.deleteWhere { EvidenceFileExposedEntity.evidenceId eq evidenceId }
         EvidenceExposedEntity.deleteWhere { EvidenceExposedEntity.id eq evidenceId }
+    }
+
+    private fun ResultRow.toFile(userId: Long): File? {
+        val fileId = this.getOrNull(FileExposedEntity.id)
+        val originalName = this.getOrNull(FileExposedEntity.originalName)
+        val storedName = this.getOrNull(FileExposedEntity.storedName)
+        val uri = this.getOrNull(FileExposedEntity.uri)
+
+        return if (fileId != null && originalName != null && storedName != null && uri != null) {
+            File(
+                fileId = fileId,
+                userId = userId,
+                fileOriginalName = originalName,
+                fileStoredName = storedName,
+                fileUri = uri,
+            )
+        } else {
+            null
+        }
     }
 }
