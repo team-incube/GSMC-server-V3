@@ -12,6 +12,7 @@ object ScoreExposedEntity : Table(name = "tb_score") {
     val sourceId = long(name = "source_id").nullable()
     val activityName = varchar(name = "activity_name", length = 255).nullable()
     val scoreValue = double(name = "score_value").nullable()
+    val rejectionReason = text(name = "rejection_reason").nullable()
 
     override val primaryKey = PrimaryKey(id)
 

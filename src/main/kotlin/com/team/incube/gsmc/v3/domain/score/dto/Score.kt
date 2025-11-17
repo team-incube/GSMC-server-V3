@@ -12,4 +12,5 @@ data class Score(
     val sourceId: Long?,
     val activityName: String?,
     val scoreValue: Double?,
+    val rejectionReason: String?,
 )
