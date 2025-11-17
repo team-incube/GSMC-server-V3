@@ -57,7 +57,7 @@ class UpdateEvidenceServiceTest :
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
             val originFiles = listOf(File(10, userId, "a.pdf", "sa.pdf", "uri-a"))
             val found = Evidence(id, userId, "old-title", "old-content", now, now, originFiles)
-            val newParticipants = listOf(100L, 101L)
+            val newParticipantId = 100L
             val newFileIds = listOf(20L, 21L)
             val updatedFiles =
                 listOf(
@@ -68,16 +68,16 @@ class UpdateEvidenceServiceTest :
 
             every { c.evidenceRepo.findById(id) } returns found
             every { c.fileRepo.existsByIdIn(newFileIds) } returns true
-            every { c.scoreRepo.existsByIdIn(newParticipants) } returns true
+            every { c.scoreRepo.existsById(newParticipantId) } returns true
             justRun { c.scoreRepo.updateSourceIdToNull(id) }
-            justRun { c.scoreRepo.updateSourceId(newParticipants, id) }
+            justRun { c.scoreRepo.updateSourceId(newParticipantId, id) }
             every {
                 c.evidenceRepo.update(id = id, title = "new-title", content = "new-content", fileIds = newFileIds)
             } returns updated
 
             When("execute를 호출하면") {
                 val res: PatchEvidenceResponse =
-                    c.service.execute(id, newParticipants, "new-title", "new-content", newFileIds)
+                    c.service.execute(id, newParticipantId, "new-title", "new-content", newFileIds)
 
                 Then("수정된 정보가 반환된다") {
                     res shouldNotBe null
@@ -89,9 +89,9 @@ class UpdateEvidenceServiceTest :
 
                 Then("참여자 재매핑 및 파일 검증/업데이트가 수행된다") {
                     verify(exactly = 1) { c.fileRepo.existsByIdIn(newFileIds) }
-                    verify(exactly = 1) { c.scoreRepo.existsByIdIn(newParticipants) }
+                    verify(exactly = 1) { c.scoreRepo.existsById(newParticipantId) }
                     verify(exactly = 1) { c.scoreRepo.updateSourceIdToNull(id) }
-                    verify(exactly = 1) { c.scoreRepo.updateSourceId(newParticipants, id) }
+                    verify(exactly = 1) { c.scoreRepo.updateSourceId(newParticipantId, id) }
                     verify(exactly = 1) {
                         c.evidenceRepo.update(
                             id = id,
@@ -134,7 +134,7 @@ class UpdateEvidenceServiceTest :
             }
         }
 
-        Given("참여자 IDs가 주어졌지만 일부 또는 전부가 존재하지 않을 때") {
+        Given("참여자 ID가 주어졌지만 존재하지 않을 때") {
             val c = ctx()
             val id = 1L
             val userId = 1L
@@ -142,7 +142,7 @@ class UpdateEvidenceServiceTest :
             val found = Evidence(id, userId, "t", "c", now, now, emptyList())
             every { c.evidenceRepo.findById(id) } returns found
             every { c.fileRepo.existsByIdIn(any()) } returns true
-            every { c.scoreRepo.existsByIdIn(listOf(100L, 200L)) } returns false
+            every { c.scoreRepo.existsById(100L) } returns false
 
             When("execute를 호출하면") {
                 Then("SCORE_NOT_FOUND 예외가 발생한다") {
@@ -150,7 +150,7 @@ class UpdateEvidenceServiceTest :
                         shouldThrow<GsmcException> {
                             c.service.execute(
                                 id,
-                                listOf(100L, 200L),
+                                100L,
                                 "nt",
                                 "nc",
                                 listOf(10L),

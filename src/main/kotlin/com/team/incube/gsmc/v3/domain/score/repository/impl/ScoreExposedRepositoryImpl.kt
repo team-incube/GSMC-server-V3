@@ -70,10 +70,10 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
     }
 
     override fun updateSourceId(
-        scoreIds: List<Long>,
+        scoreId: Long,
         sourceId: Long,
     ) {
-        ScoreExposedEntity.update({ ScoreExposedEntity.id inList scoreIds }) {
+        ScoreExposedEntity.update({ ScoreExposedEntity.id eq scoreId }) {
             it[ScoreExposedEntity.sourceId] = sourceId
         }
     }
@@ -92,13 +92,14 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
             it[ScoreExposedEntity.status] = status
         }
 
-    override fun existsAnyWithSource(scoreIds: List<Long>): Boolean =
-        ScoreExposedEntity
-            .selectAll()
+    override fun existsWithSource(scoreId: Long): Boolean =
+        !ScoreExposedEntity
+            .select(ScoreExposedEntity.id)
             .where {
-                (ScoreExposedEntity.id inList scoreIds) and
+                (ScoreExposedEntity.id eq scoreId) and
                     ScoreExposedEntity.sourceId.isNotNull()
-            }.count() > 0
+            }.limit(1)
+            .empty()
 
     override fun countByMemberIdAndCategoryType(
         memberId: Long,
