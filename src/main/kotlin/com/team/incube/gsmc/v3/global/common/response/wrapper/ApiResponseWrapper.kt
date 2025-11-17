@@ -19,6 +19,7 @@ class ApiResponseWrapper : ResponseBodyAdvice<Any> {
             arrayOf(
                 "/api-docs/**",
                 "/swagger-ui/**",
+                "/api/v3/sheets/**",
             )
     }
 
