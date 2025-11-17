@@ -1,6 +1,7 @@
 package com.team.incube.gsmc.v3.domain.member.service.impl
 
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.domain.member.dto.constant.SortDirection
 import com.team.incube.gsmc.v3.domain.member.presentation.data.response.GetMemberResponse
 import com.team.incube.gsmc.v3.domain.member.presentation.data.response.SearchMemberResponse
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
@@ -20,7 +21,7 @@ class SearchMemberServiceImpl(
         grade: Int?,
         classNumber: Int?,
         number: Int?,
-        sort: String,
+        sort: SortDirection,
         pageable: Pageable,
     ): SearchMemberResponse =
         transaction {

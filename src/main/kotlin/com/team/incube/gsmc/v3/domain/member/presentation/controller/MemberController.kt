@@ -1,6 +1,7 @@
 package com.team.incube.gsmc.v3.domain.member.presentation.controller
 
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.domain.member.dto.constant.SortDirection
 import com.team.incube.gsmc.v3.domain.member.presentation.data.response.GetMemberResponse
 import com.team.incube.gsmc.v3.domain.member.presentation.data.response.SearchMemberResponse
 import com.team.incube.gsmc.v3.domain.member.service.GetCurrentMemberService
@@ -59,7 +60,7 @@ class MemberController(
         @RequestParam(required = false) number: Int?,
         @RequestParam(required = false) limit: Int = 100,
         @RequestParam(required = false) page: Int = 0,
-        @RequestParam(required = false) sort: String = "asc",
+        @RequestParam(required = false) sort: SortDirection = SortDirection.ASC,
     ): SearchMemberResponse =
         searchMemberService.execute(
             email = email,
