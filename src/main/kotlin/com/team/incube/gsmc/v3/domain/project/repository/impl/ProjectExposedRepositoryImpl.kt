@@ -402,7 +402,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
     private fun ResultRow.toFile(): File =
         File(
             fileId = this[FileExposedEntity.id],
-            userId = this[FileExposedEntity.memberId],
+            memberId = this[FileExposedEntity.memberId],
             fileOriginalName = this[FileExposedEntity.originalName],
             fileStoredName = this[FileExposedEntity.storedName],
             fileUri = this[FileExposedEntity.uri],

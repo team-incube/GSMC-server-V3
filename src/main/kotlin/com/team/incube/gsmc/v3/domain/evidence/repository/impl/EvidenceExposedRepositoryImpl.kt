@@ -37,7 +37,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                 .distinctBy { it.fileId }
         return Evidence(
             id = firstRow[EvidenceExposedEntity.id],
-            userId = firstRow[EvidenceExposedEntity.memberId],
+            memberId = firstRow[EvidenceExposedEntity.memberId],
             title = firstRow[EvidenceExposedEntity.title],
             content = firstRow[EvidenceExposedEntity.content],
             createdAt = firstRow[EvidenceExposedEntity.createdAt].atOffset(ZoneOffset.UTC).toLocalDateTime(),
@@ -84,7 +84,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
 
         return Evidence(
             id = evidenceId,
-            userId = userId,
+            memberId = userId,
             title = title,
             content = content,
             createdAt = now.atOffset(ZoneOffset.UTC).toLocalDateTime(),
@@ -132,7 +132,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
 
         return Evidence(
             id = firstRow[EvidenceExposedEntity.id],
-            userId = firstRow[EvidenceExposedEntity.memberId],
+            memberId = firstRow[EvidenceExposedEntity.memberId],
             title = firstRow[EvidenceExposedEntity.title],
             content = firstRow[EvidenceExposedEntity.content],
             createdAt = firstRow[EvidenceExposedEntity.createdAt].atOffset(ZoneOffset.UTC).toLocalDateTime(),
@@ -155,7 +155,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
         return if (fileId != null && originalName != null && storedName != null && uri != null) {
             File(
                 fileId = fileId,
-                userId = userId,
+                memberId = userId,
                 fileOriginalName = originalName,
                 fileStoredName = storedName,
                 fileUri = uri,

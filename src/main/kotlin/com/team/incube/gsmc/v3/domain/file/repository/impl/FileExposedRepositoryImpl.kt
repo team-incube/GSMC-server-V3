@@ -7,7 +7,6 @@ import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectFileExposedEntity
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.notInSubQuery
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
@@ -45,7 +44,7 @@ class FileExposedRepositoryImpl : FileExposedRepository {
 
         return File(
             fileId = insertedId,
-            userId = userId,
+            memberId = userId,
             fileOriginalName = originalName,
             fileStoredName = storedName,
             fileUri = uri,
@@ -87,7 +86,7 @@ class FileExposedRepositoryImpl : FileExposedRepository {
     private fun ResultRow.toFile(): File =
         File(
             fileId = this[FileExposedEntity.id],
-            userId = this[FileExposedEntity.memberId],
+            memberId = this[FileExposedEntity.memberId],
             fileOriginalName = this[FileExposedEntity.originalName],
             fileStoredName = this[FileExposedEntity.storedName],
             fileUri = this[FileExposedEntity.uri],
