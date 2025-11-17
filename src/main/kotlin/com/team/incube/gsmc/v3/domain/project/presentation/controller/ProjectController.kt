@@ -1,13 +1,18 @@
 package com.team.incube.gsmc.v3.domain.project.presentation.controller
 
+import com.team.incube.gsmc.v3.domain.project.presentation.data.request.CreateProjectDraftRequest
 import com.team.incube.gsmc.v3.domain.project.presentation.data.request.CreateProjectRequest
 import com.team.incube.gsmc.v3.domain.project.presentation.data.request.PatchProjectRequest
+import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectDraftResponse
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.ProjectResponse
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.SearchProjectResponse
 import com.team.incube.gsmc.v3.domain.project.service.CreateCurrentProjectService
+import com.team.incube.gsmc.v3.domain.project.service.CreateProjectDraftService
 import com.team.incube.gsmc.v3.domain.project.service.DeleteCurrentProjectService
+import com.team.incube.gsmc.v3.domain.project.service.DeleteProjectDraftService
 import com.team.incube.gsmc.v3.domain.project.service.FindCurrentProjectsService
 import com.team.incube.gsmc.v3.domain.project.service.FindProjectByIdService
+import com.team.incube.gsmc.v3.domain.project.service.FindProjectDraftService
 import com.team.incube.gsmc.v3.domain.project.service.SearchProjectService
 import com.team.incube.gsmc.v3.domain.project.service.UpdateCurrentProjectService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
@@ -39,6 +44,9 @@ class ProjectController(
     private val searchProjectService: SearchProjectService,
     private val findCurrentProjectsService: FindCurrentProjectsService,
     private val findProjectByIdService: FindProjectByIdService,
+    private val createProjectDraftService: CreateProjectDraftService,
+    private val findProjectDraftService: FindProjectDraftService,
+    private val deleteProjectDraftService: DeleteProjectDraftService,
 ) {
     @Operation(summary = "프로젝트 생성", description = "현재 인증된 사용자를 대표자로 하는 프로젝트를 생성합니다")
     @ApiResponses(
@@ -176,4 +184,48 @@ class ProjectController(
     fun getProject(
         @PathVariable projectId: Long,
     ): ProjectResponse = findProjectByIdService.execute(projectId)
+
+    @Operation(summary = "프로젝트 임시저장 생성", description = "프로젝트를 임시저장합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "임시저장 성공",
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/draft")
+    fun createProjectDraft(
+        @Valid @RequestBody request: CreateProjectDraftRequest,
+    ): GetProjectDraftResponse = createProjectDraftService.execute(request = request)
+
+    @Operation(summary = "프로젝트 임시저장 조회", description = "임시저장된 프로젝트를 조회합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "임시저장 조회 성공",
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/draft")
+    fun getProjectDraft(): GetProjectDraftResponse? = findProjectDraftService.execute()
+
+    @Operation(summary = "프로젝트 임시저장 삭제", description = "임시저장된 프로젝트를 삭제합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "임시저장 삭제 성공",
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @DeleteMapping("/draft")
+    fun deleteProjectDraft(): CommonApiResponse<Nothing> {
+        deleteProjectDraftService.execute()
+        return CommonApiResponse.success("OK")
+    }
 }
