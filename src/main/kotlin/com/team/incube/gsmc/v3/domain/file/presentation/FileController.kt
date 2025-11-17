@@ -51,20 +51,6 @@ class FileController(
         @RequestParam("file") file: MultipartFile,
     ): CreateFileResponse = createFileService.execute(file = file)
 
-    @Operation(summary = "파일 삭제", description = "업로드된 파일을 삭제합니다")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "파일 삭제 성공",
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "해당하는 파일이 없음",
-                content = [Content()],
-            ),
-        ],
-    )
     @Operation(summary = "내 파일 목록 조회", description = "현재 인증된 사용자가 소유한 모든 파일 목록을 조회합니다")
     @ApiResponses(
         value = [
@@ -91,6 +77,20 @@ class FileController(
     @GetMapping("/my/unused")
     fun getMyUnusedFiles(): GetMyFilesResponse = findMyUnusedFilesService.execute()
 
+    @Operation(summary = "파일 삭제", description = "업로드된 파일을 삭제합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "파일 삭제 성공",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "해당하는 파일이 없음",
+                content = [Content()],
+            ),
+        ],
+    )
     @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/{fileId}")
     fun deleteFile(

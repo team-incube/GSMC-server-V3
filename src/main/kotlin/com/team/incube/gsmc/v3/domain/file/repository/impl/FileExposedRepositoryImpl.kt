@@ -6,7 +6,6 @@ import com.team.incube.gsmc.v3.domain.file.entity.FileExposedEntity
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectFileExposedEntity
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
@@ -35,7 +34,7 @@ class FileExposedRepositoryImpl : FileExposedRepository {
     ): File {
         val insertedId =
             FileExposedEntity.insert {
-                it[this.userId] = userId
+                it[this.memberId] = userId
                 it[this.originalName] = originalName
                 it[this.storedName] = storedName
                 it[this.uri] = uri
@@ -58,7 +57,7 @@ class FileExposedRepositoryImpl : FileExposedRepository {
             ?.let { row ->
                 File(
                     fileId = row[FileExposedEntity.id],
-                    userId = row[FileExposedEntity.userId],
+                    userId = row[FileExposedEntity.memberId],
                     fileOriginalName = row[FileExposedEntity.originalName],
                     fileStoredName = row[FileExposedEntity.storedName],
                     fileUri = row[FileExposedEntity.uri],
@@ -68,11 +67,11 @@ class FileExposedRepositoryImpl : FileExposedRepository {
     override fun findAllByUserId(userId: Long): List<File> =
         FileExposedEntity
             .selectAll()
-            .where { FileExposedEntity.userId eq userId }
+            .where { FileExposedEntity.memberId eq userId }
             .map { row ->
                 File(
                     fileId = row[FileExposedEntity.id],
-                    userId = row[FileExposedEntity.userId],
+                    userId = row[FileExposedEntity.memberId],
                     fileOriginalName = row[FileExposedEntity.originalName],
                     fileStoredName = row[FileExposedEntity.storedName],
                     fileUri = row[FileExposedEntity.uri],
