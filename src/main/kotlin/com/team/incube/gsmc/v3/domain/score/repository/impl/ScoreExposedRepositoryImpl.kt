@@ -101,21 +101,14 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
             it[ScoreExposedEntity.status] = status
         }
 
-    override fun existsAnyWithSource(scoreIds: List<Long>): Boolean =
-        ScoreExposedEntity
-            .selectAll()
-            .where {
-                (ScoreExposedEntity.id inList scoreIds) and
-                    ScoreExposedEntity.sourceId.isNotNull()
-            }.count() > 0
-
     override fun existsWithSource(scoreId: Long): Boolean =
-        ScoreExposedEntity
-            .selectAll()
+        !ScoreExposedEntity
+            .select(ScoreExposedEntity.id)
             .where {
                 (ScoreExposedEntity.id eq scoreId) and
                     ScoreExposedEntity.sourceId.isNotNull()
-            }.count() > 0
+            }.limit(1)
+            .empty()
 
     override fun countByMemberIdAndCategoryType(
         memberId: Long,

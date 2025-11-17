@@ -32,8 +32,6 @@ interface ScoreExposedRepository {
 
     fun updateSourceIdToNull(sourceId: Long)
 
-    fun existsAnyWithSource(scoreIds: List<Long>): Boolean
-
     fun existsWithSource(scoreId: Long): Boolean
 
     fun countByMemberIdAndCategoryType(
