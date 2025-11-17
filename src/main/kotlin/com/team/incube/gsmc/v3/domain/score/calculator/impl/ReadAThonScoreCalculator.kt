@@ -5,7 +5,7 @@ import com.team.incube.gsmc.v3.domain.score.calculator.CategoryScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 
 /**
- * 빛고을독서마라톤 점수 계산기
+ * 독서마라톤 점수 계산기
  *
  * 단계는 Score.scoreValue에 정수(1-7)로 저장됩니다.
  * 단계 값이 그대로 점수로 사용됩니다.
