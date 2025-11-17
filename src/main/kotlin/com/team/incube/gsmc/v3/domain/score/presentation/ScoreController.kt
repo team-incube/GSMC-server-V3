@@ -20,6 +20,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateSco
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetMyScoresResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetScoreResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
+import com.team.incube.gsmc.v3.domain.score.service.ApproveScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateAcademicGradeScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateAwardScoreService
@@ -35,7 +36,6 @@ import com.team.incube.gsmc.v3.domain.score.service.CreateTopcitScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateVolunteerScoreService
 import com.team.incube.gsmc.v3.domain.score.service.DeleteScoreService
 import com.team.incube.gsmc.v3.domain.score.service.FindScoreByScoreIdService
-import com.team.incube.gsmc.v3.domain.score.service.ApproveScoreService
 import com.team.incube.gsmc.v3.domain.score.service.GetMyScoresService
 import com.team.incube.gsmc.v3.domain.score.service.RejectScoreService
 import com.team.incube.gsmc.v3.domain.score.service.UpdateScoreStatusService
