@@ -105,7 +105,7 @@ class EvidenceController(
         @Valid @RequestBody request: CreateEvidenceRequest,
     ): CreateEvidenceResponse =
         createEvidenceService.execute(
-            scoreIds = request.scoreIds,
+            scoreId = request.scoreId,
             title = request.title,
             content = request.content,
             fileIds = request.fileId,

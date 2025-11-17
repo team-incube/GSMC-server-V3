@@ -19,17 +19,17 @@ class CreateEvidenceServiceImpl(
     private val fileExposedRepository: FileExposedRepository,
 ) : CreateEvidenceService {
     override fun execute(
-        scoreIds: List<Long>,
+        scoreId: Long,
         title: String,
         content: String,
         fileIds: List<Long>,
     ): CreateEvidenceResponse =
         transaction {
-            if (!scoreExposedRepository.existsByIdIn(scoreIds)) {
+            if (!scoreExposedRepository.existsById(scoreId)) {
                 throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
             }
 
-            if (scoreExposedRepository.existsAnyWithSource(scoreIds)) {
+            if (scoreExposedRepository.existsWithSource(scoreId)) {
                 throw GsmcException(ErrorCode.SCORE_ALREADY_HAS_EVIDENCE)
             }
 
@@ -45,7 +45,7 @@ class CreateEvidenceServiceImpl(
                     fileIds = fileIds,
                 )
 
-            scoreExposedRepository.updateSourceId(scoreIds, evidence.id)
+            scoreExposedRepository.updateSourceId(scoreId, evidence.id)
 
             CreateEvidenceResponse(
                 id = evidence.id,

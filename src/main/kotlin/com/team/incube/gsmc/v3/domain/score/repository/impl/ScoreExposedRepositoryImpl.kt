@@ -78,6 +78,15 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         }
     }
 
+    override fun updateSourceId(
+        scoreId: Long,
+        sourceId: Long,
+    ) {
+        ScoreExposedEntity.update({ ScoreExposedEntity.id eq scoreId }) {
+            it[ScoreExposedEntity.sourceId] = sourceId
+        }
+    }
+
     override fun updateSourceIdToNull(sourceId: Long) {
         ScoreExposedEntity.update({ ScoreExposedEntity.sourceId eq sourceId }) {
             it[ScoreExposedEntity.sourceId] = null
@@ -97,6 +106,14 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
             .selectAll()
             .where {
                 (ScoreExposedEntity.id inList scoreIds) and
+                    ScoreExposedEntity.sourceId.isNotNull()
+            }.count() > 0
+
+    override fun existsWithSource(scoreId: Long): Boolean =
+        ScoreExposedEntity
+            .selectAll()
+            .where {
+                (ScoreExposedEntity.id eq scoreId) and
                     ScoreExposedEntity.sourceId.isNotNull()
             }.count() > 0
 
