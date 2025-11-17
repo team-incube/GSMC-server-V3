@@ -25,6 +25,12 @@ interface ScoreExposedRepository {
         status: ScoreStatus,
     ): Int
 
+    fun updateStatusAndRejectionReasonByScoreId(
+        scoreId: Long,
+        status: ScoreStatus,
+        rejectionReason: String?,
+    ): Int
+
     fun updateSourceIdToNull(sourceId: Long)
 
     fun existsWithSource(scoreId: Long): Boolean

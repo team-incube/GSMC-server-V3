@@ -92,6 +92,16 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
             it[ScoreExposedEntity.status] = status
         }
 
+    override fun updateStatusAndRejectionReasonByScoreId(
+        scoreId: Long,
+        status: ScoreStatus,
+        rejectionReason: String?,
+    ): Int =
+        ScoreExposedEntity.update({ ScoreExposedEntity.id eq scoreId }) {
+            it[ScoreExposedEntity.status] = status
+            it[ScoreExposedEntity.rejectionReason] = rejectionReason
+        }
+
     override fun existsWithSource(scoreId: Long): Boolean =
         !ScoreExposedEntity
             .select(ScoreExposedEntity.id)
@@ -213,6 +223,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
             sourceId = this[ScoreExposedEntity.sourceId],
             activityName = this[ScoreExposedEntity.activityName],
             scoreValue = this[ScoreExposedEntity.scoreValue],
+            rejectionReason = this[ScoreExposedEntity.rejectionReason],
         )
     }
 }
