@@ -43,6 +43,7 @@ class GetMyScoresServiceImpl(
                             scoreStatus = score.status,
                             activityName = score.activityName,
                             scoreValue = score.scoreValue,
+                            rejectionReason = score.rejectionReason,
                         )
                     },
             )
