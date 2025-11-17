@@ -19,7 +19,7 @@ class CreateCurrentProjectServiceImpl(
         participantIds: List<Long>,
     ): ProjectResponse =
         transaction {
-            val currentUser = currentMemberProvider.getCurrentUser()
+            val currentUser = currentMemberProvider.getCurrentMember()
 
             val project =
                 projectExposedRepository.saveProject(

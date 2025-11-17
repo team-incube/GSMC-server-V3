@@ -29,7 +29,7 @@ class CreateFileServiceImpl(
         return transaction {
             val savedFile =
                 fileExposedRepository.saveFile(
-                    userId = currentMemberProvider.getCurrentUser().id,
+                    userId = currentMemberProvider.getCurrentMember().id,
                     originalName = originalName,
                     storedName = storedName,
                     uri = fileUri,

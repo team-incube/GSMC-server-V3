@@ -460,7 +460,7 @@ class ScoreController(
             required = false,
         ) includeApprovedOnly: Boolean,
     ): GetTotalScoreResponse {
-        val member = currentMemberProvider.getCurrentUser()
+        val member = currentMemberProvider.getCurrentMember()
         val totalScore =
             calculateTotalScoreService.execute(
                 memberId = member.id,

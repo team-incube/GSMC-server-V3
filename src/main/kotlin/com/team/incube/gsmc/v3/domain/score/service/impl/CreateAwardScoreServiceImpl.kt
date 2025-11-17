@@ -26,7 +26,7 @@ class CreateAwardScoreServiceImpl(
         fileId: Long,
     ): CreateScoreResponse =
         transaction {
-            val member = currentMemberProvider.getCurrentUser()
+            val member = currentMemberProvider.getCurrentMember()
             if (!fileExposedRepository.existsById(fileId)) {
                 throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }

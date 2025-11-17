@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 class CurrentMemberProvider(
     private val memberExposedRepository: MemberExposedRepository,
 ) {
-    fun getCurrentUser(): Member {
+    fun getCurrentMember(): Member {
         val principal = SecurityContextHolder.getContext().authentication.principal
 
         if (principal is Long) {
