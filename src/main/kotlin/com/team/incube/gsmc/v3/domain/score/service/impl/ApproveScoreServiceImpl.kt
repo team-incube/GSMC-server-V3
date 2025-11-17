@@ -14,15 +14,15 @@ class ApproveScoreServiceImpl(
 ) : ApproveScoreService {
     override fun execute(scoreId: Long) {
         transaction {
-            if (!scoreExposedRepository.existsById(scoreId)) {
+            val updatedRows =
+                scoreExposedRepository.updateStatusAndRejectionReasonByScoreId(
+                    scoreId = scoreId,
+                    status = ScoreStatus.APPROVED,
+                    rejectionReason = null,
+                )
+            if (updatedRows == 0) {
                 throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
             }
-
-            scoreExposedRepository.updateStatusAndRejectionReasonByScoreId(
-                scoreId = scoreId,
-                status = ScoreStatus.APPROVED,
-                rejectionReason = null,
-            )
         }
     }
 }
