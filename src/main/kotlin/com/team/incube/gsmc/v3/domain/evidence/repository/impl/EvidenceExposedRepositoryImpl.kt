@@ -30,14 +30,14 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
             return null
         }
         val firstRow = rows.first()
-        val userId = firstRow[EvidenceExposedEntity.userId]
+        val userId = firstRow[EvidenceExposedEntity.memberId]
         val files =
             rows
                 .mapNotNull { it.toFile(userId) }
                 .distinctBy { it.fileId }
         return Evidence(
             id = firstRow[EvidenceExposedEntity.id],
-            userId = firstRow[EvidenceExposedEntity.userId],
+            userId = firstRow[EvidenceExposedEntity.memberId],
             title = firstRow[EvidenceExposedEntity.title],
             content = firstRow[EvidenceExposedEntity.content],
             createdAt = firstRow[EvidenceExposedEntity.createdAt].atOffset(ZoneOffset.UTC).toLocalDateTime(),
@@ -56,7 +56,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
 
         val evidenceId =
             EvidenceExposedEntity.insert {
-                it[this.userId] = userId
+                it[this.memberId] = userId
                 it[this.title] = title
                 it[this.content] = content
                 it[createdAt] = now
@@ -124,7 +124,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                 .where { EvidenceExposedEntity.id eq id }
 
         val firstRow = rows.first()
-        val userId = firstRow[EvidenceExposedEntity.userId]
+        val userId = firstRow[EvidenceExposedEntity.memberId]
         val files =
             rows
                 .mapNotNull { it.toFile(userId) }
@@ -132,7 +132,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
 
         return Evidence(
             id = firstRow[EvidenceExposedEntity.id],
-            userId = firstRow[EvidenceExposedEntity.userId],
+            userId = firstRow[EvidenceExposedEntity.memberId],
             title = firstRow[EvidenceExposedEntity.title],
             content = firstRow[EvidenceExposedEntity.content],
             createdAt = firstRow[EvidenceExposedEntity.createdAt].atOffset(ZoneOffset.UTC).toLocalDateTime(),
