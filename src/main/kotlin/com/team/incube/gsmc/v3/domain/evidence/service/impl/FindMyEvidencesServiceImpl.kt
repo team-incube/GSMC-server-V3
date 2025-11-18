@@ -23,7 +23,7 @@ class FindMyEvidencesServiceImpl(
                 evidences =
                     evidences.map { evidence ->
                         GetEvidenceResponse(
-                            id = evidence.id,
+                            evidenceId = evidence.id,
                             title = evidence.title,
                             content = evidence.content,
                             createdAt = evidence.createdAt,

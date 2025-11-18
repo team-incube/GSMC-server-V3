@@ -56,7 +56,7 @@ class FindEvidenceByIdServiceTest :
 
                 Then("증빙이 정상적으로 반환된다") {
                     res shouldNotBe null
-                    res.id shouldBe id
+                    res.evidenceId shouldBe id
                     res.title shouldBe "title"
                     res.content shouldBe "content"
                     res.createdAt shouldBe now

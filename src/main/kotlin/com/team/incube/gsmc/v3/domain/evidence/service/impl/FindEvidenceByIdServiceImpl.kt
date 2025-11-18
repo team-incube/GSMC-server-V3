@@ -19,7 +19,7 @@ class FindEvidenceByIdServiceImpl(
                     ?: throw GsmcException(ErrorCode.EVIDENCE_NOT_FOUND)
 
             GetEvidenceResponse(
-                id = evidence.id,
+                evidenceId = evidence.id,
                 title = evidence.title,
                 content = evidence.content,
                 createdAt = evidence.createdAt,
