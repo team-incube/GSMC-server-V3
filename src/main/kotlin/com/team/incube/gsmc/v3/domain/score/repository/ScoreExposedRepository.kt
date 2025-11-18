@@ -47,6 +47,11 @@ interface ScoreExposedRepository {
         status: ScoreStatus,
     ): List<Score>
 
+    fun findByMemberIdsAndStatus(
+        memberIds: List<Long>,
+        status: ScoreStatus,
+    ): List<Score>
+
     fun findByMemberIdAndCategoryType(
         memberId: Long,
         categoryType: CategoryType,

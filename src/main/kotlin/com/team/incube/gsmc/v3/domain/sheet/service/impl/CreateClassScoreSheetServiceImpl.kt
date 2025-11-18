@@ -57,8 +57,12 @@ class CreateClassScoreSheetServiceImpl(
                             pageable = PageRequest.of(0, MAX_STUDENTS_PER_CLASS),
                         ).content
 
+                val studentIds = students.map { it.id }
+                val allApprovedScores = scoreExposedRepository.findByMemberIdsAndStatus(studentIds, ScoreStatus.APPROVED)
+                val scoresByStudentId = allApprovedScores.groupBy { it.member.id }
+
                 students.map { student ->
-                    val approvedScores = scoreExposedRepository.findByMemberIdAndStatus(student.id, ScoreStatus.APPROVED)
+                    val approvedScores = scoresByStudentId[student.id] ?: emptyList()
                     val categoryScores = mutableMapOf<String, Double>()
 
                     allCategories.forEach { category ->
@@ -108,84 +112,7 @@ class CreateClassScoreSheetServiceImpl(
                     data.copy(classRank = index + 1)
                 }
 
-        val workbook = XSSFWorkbook()
-        val sheet = workbook.createSheet("${grade}학년 ${classNumber}반 점수 현황")
-
-        val headerStyle =
-            workbook.createCellStyle().apply {
-                fillForegroundColor = IndexedColors.GREY_25_PERCENT.index
-                fillPattern = FillPatternType.SOLID_FOREGROUND
-                borderBottom = BorderStyle.THIN
-                borderTop = BorderStyle.THIN
-                borderLeft = BorderStyle.THIN
-                borderRight = BorderStyle.THIN
-                alignment = HorizontalAlignment.CENTER
-                verticalAlignment = VerticalAlignment.CENTER
-                val font = workbook.createFont()
-                font.bold = true
-                setFont(font)
-            }
-
-        val cellStyle =
-            workbook.createCellStyle().apply {
-                borderBottom = BorderStyle.THIN
-                borderTop = BorderStyle.THIN
-                borderLeft = BorderStyle.THIN
-                borderRight = BorderStyle.THIN
-                alignment = HorizontalAlignment.CENTER
-                verticalAlignment = VerticalAlignment.CENTER
-            }
-
-        val headerRow = sheet.createRow(0)
-        val headers = mutableListOf("학번", "이름")
-        allCategories.forEach { headers.add(it.koreanName) }
-        headers.add("총점")
-        headers.add("학급 내 순위")
-
-        headers.forEachIndexed { index, header ->
-            val cell = headerRow.createCell(index)
-            cell.setCellValue(header)
-            cell.cellStyle = headerStyle
-        }
-
-        sortedList.forEachIndexed { index, data ->
-            val row = sheet.createRow(index + 1)
-
-            var colIndex = 0
-            row.createCell(colIndex++).apply {
-                setCellValue(data.studentNumber)
-                this.cellStyle = cellStyle
-            }
-            row.createCell(colIndex++).apply {
-                setCellValue(data.studentName)
-                this.cellStyle = cellStyle
-            }
-            allCategories.forEach { category ->
-                row.createCell(colIndex++).apply {
-                    setCellValue(data.categoryScores[category.koreanName] ?: 0.0)
-                    this.cellStyle = cellStyle
-                }
-            }
-            row.createCell(colIndex++).apply {
-                setCellValue(data.totalScore)
-                this.cellStyle = cellStyle
-            }
-            row.createCell(colIndex).apply {
-                setCellValue(data.classRank.toDouble())
-                this.cellStyle = cellStyle
-            }
-        }
-
-        for (i in 0 until headers.size) {
-            sheet.autoSizeColumn(i)
-            sheet.setColumnWidth(i, sheet.getColumnWidth(i) + 1000)
-        }
-
-        val outputStream = ByteArrayOutputStream()
-        workbook.write(outputStream)
-        workbook.close()
-
-        val resource = ByteArrayResource(outputStream.toByteArray())
+        val resource = createExcelFile(grade, classNumber, sortedList, allCategories)
 
         val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
         val filename = "${grade}학년_${classNumber}반_점수현황_$timestamp.xlsx"
