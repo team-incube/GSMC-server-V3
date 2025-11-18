@@ -54,14 +54,15 @@ class CreateEvidenceServiceImpl(
                 content = evidence.content,
                 createAt = evidence.createdAt,
                 updateAt = evidence.updatedAt,
-                file = evidence.files.map { file ->
-                    FileItem(
-                        fileId = file.fileId,
-                        originalName = file.fileOriginalName,
-                        storedName = file.fileStoredName,
-                        uri = file.fileUri,
-                    )
-                },
+                file =
+                    evidence.files.map { file ->
+                        FileItem(
+                            fileId = file.fileId,
+                            originalName = file.fileOriginalName,
+                            storedName = file.fileStoredName,
+                            uri = file.fileUri,
+                        )
+                    },
             )
         }
 }
