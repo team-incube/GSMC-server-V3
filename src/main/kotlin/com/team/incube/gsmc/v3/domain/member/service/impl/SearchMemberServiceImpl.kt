@@ -33,7 +33,7 @@ class SearchMemberServiceImpl(
                     grade = grade,
                     classNumber = classNumber,
                     number = number,
-                    sort = sortBy,
+                    sortBy = sortBy,
                     pageable = pageable,
                 )
             SearchMemberResponse(
