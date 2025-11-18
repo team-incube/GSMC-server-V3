@@ -65,7 +65,9 @@ class CreateClassScoreSheetServiceImpl(
                         val categoryScoreList = approvedScores.filter { it.categoryType == category }
                         val value =
                             when {
-                                categoryScoreList.isEmpty() -> 0.0
+                                categoryScoreList.isEmpty() -> {
+                                    0.0
+                                }
 
                                 category.calculationType == ScoreCalculationType.SCORE_BASED -> {
                                     categoryScoreList.sumOf { it.scoreValue ?: 0.0 }
