@@ -1,6 +1,5 @@
 package com.team.incube.gsmc.v3.global.security.jwt
 
-import com.team.incube.gsmc.v3.domain.auth.repository.RefreshTokenRedisRepository
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.global.security.jwt.data.JwtEnvironment
 import io.jsonwebtoken.Claims
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Component
 @Component
 class JwtParser(
     private val jwtEnvironment: JwtEnvironment,
-    private val refreshTokenRedisRepository: RefreshTokenRedisRepository,
 ) {
     private lateinit var accessTokenKey: javax.crypto.SecretKey
     private lateinit var refreshTokenKey: javax.crypto.SecretKey
