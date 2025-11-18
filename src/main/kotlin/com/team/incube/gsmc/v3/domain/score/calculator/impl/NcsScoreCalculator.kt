@@ -13,7 +13,7 @@ import kotlin.math.roundToInt
  * 예시:
  * - 1.2등급 → 5점
  * - 2.3등급 → 4점
- * - 3.5등급 → 3점
+ * - 3.5등급 → 2점
  * - 4.6등급 → 1점
  *
  * maxRecordCount=1이므로 레코드는 1개만 존재합니다.
