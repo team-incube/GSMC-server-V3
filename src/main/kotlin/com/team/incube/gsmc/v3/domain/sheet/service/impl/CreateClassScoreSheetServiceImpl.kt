@@ -10,6 +10,13 @@ import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.sheet.dto.ClassScoreData
 import com.team.incube.gsmc.v3.domain.sheet.service.CreateClassScoreSheetService
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import org.apache.poi.ss.usermodel.BorderStyle
 import org.apache.poi.ss.usermodel.FillPatternType
 import org.apache.poi.ss.usermodel.HorizontalAlignment
@@ -30,9 +37,8 @@ class CreateClassScoreSheetServiceImpl(
     override fun execute(
         grade: Int,
         classNumber: Int,
-    ): ByteArrayResource =
+    ): ResponseEntity<ByteArrayResource> =
         transaction {
-            // 해당 학급의 학생들 조회
             val students =
                 memberExposedRepository
                     .searchMembers(
@@ -45,7 +51,6 @@ class CreateClassScoreSheetServiceImpl(
                         pageable = PageRequest.of(0, 1000),
                     ).content
 
-            // 각 학생의 점수 데이터 수집
             val allCategories = CategoryType.getAllCategories()
             val classScoreDataList = mutableListOf<ClassScoreData>()
 
@@ -54,7 +59,6 @@ class CreateClassScoreSheetServiceImpl(
                 val approvedScores = allScores.filter { it.status == ScoreStatus.APPROVED }
                 val categoryScores = mutableMapOf<String, Double>()
 
-                // 각 카테고리별 원본 값 (승인된 레코드만)
                 allCategories.forEach { category ->
                     val categoryScoreList = approvedScores.filter { it.categoryType == category }
                     val value =
@@ -62,19 +66,16 @@ class CreateClassScoreSheetServiceImpl(
                             categoryScoreList.isEmpty() -> 0.0
 
                             category.calculationType == ScoreCalculationType.SCORE_BASED -> {
-                                // 점수 기반: scoreValue의 합
                                 categoryScoreList.sumOf { it.scoreValue ?: 0.0 }
                             }
 
                             else -> {
-                                // 레코드 기반: 레코드 개수
                                 categoryScoreList.size.toDouble()
                             }
                         }
                     categoryScores[category.koreanName] = value
                 }
 
-                // 총점 계산 - 환산점 (승인된 레코드만)
                 val totalScore = calculateTotalScore(approvedScores).toDouble()
 
                 val studentNumber =
@@ -92,12 +93,11 @@ class CreateClassScoreSheetServiceImpl(
                         studentNumber = studentNumber,
                         categoryScores = categoryScores,
                         totalScore = totalScore,
-                        classRank = 0, // 나중에 계산
+                        classRank = 0,
                     ),
                 )
             }
 
-            // 총점 기준 내림차순 정렬 및 등수 계산
             val sortedList =
                 classScoreDataList
                     .sortedByDescending { it.totalScore }
@@ -105,11 +105,9 @@ class CreateClassScoreSheetServiceImpl(
                         data.copy(classRank = index + 1)
                     }
 
-            // 엑셀 생성
             val workbook = XSSFWorkbook()
             val sheet = workbook.createSheet("${grade}학년 ${classNumber}반 점수 현황")
 
-            // 스타일 정의
             val headerStyle =
                 workbook.createCellStyle().apply {
                     fillForegroundColor = IndexedColors.GREY_25_PERCENT.index
@@ -135,7 +133,6 @@ class CreateClassScoreSheetServiceImpl(
                     verticalAlignment = VerticalAlignment.CENTER
                 }
 
-            // 헤더 행 생성
             val headerRow = sheet.createRow(0)
             val headers = mutableListOf("학번", "이름")
             allCategories.forEach { headers.add(it.koreanName) }
@@ -148,52 +145,54 @@ class CreateClassScoreSheetServiceImpl(
                 cell.cellStyle = headerStyle
             }
 
-            // 데이터 행 생성
             sortedList.forEachIndexed { index, data ->
                 val row = sheet.createRow(index + 1)
 
                 var colIndex = 0
-                // 학번
                 row.createCell(colIndex++).apply {
                     setCellValue(data.studentNumber)
                     this.cellStyle = cellStyle
                 }
-                // 이름
                 row.createCell(colIndex++).apply {
                     setCellValue(data.studentName)
                     this.cellStyle = cellStyle
                 }
-                // 각 카테고리 점수
                 allCategories.forEach { category ->
                     row.createCell(colIndex++).apply {
                         setCellValue(data.categoryScores[category.koreanName] ?: 0.0)
                         this.cellStyle = cellStyle
                     }
                 }
-                // 총점
                 row.createCell(colIndex++).apply {
                     setCellValue(data.totalScore)
                     this.cellStyle = cellStyle
                 }
-                // 등수
                 row.createCell(colIndex).apply {
                     setCellValue(data.classRank.toDouble())
                     this.cellStyle = cellStyle
                 }
             }
 
-            // 열 너비 자동 조정
             for (i in 0 until headers.size) {
                 sheet.autoSizeColumn(i)
                 sheet.setColumnWidth(i, sheet.getColumnWidth(i) + 1000)
             }
 
-            // ByteArrayResource로 변환
             val outputStream = ByteArrayOutputStream()
             workbook.write(outputStream)
             workbook.close()
 
-            ByteArrayResource(outputStream.toByteArray())
+            val resource = ByteArrayResource(outputStream.toByteArray())
+
+            val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
+            val filename = "${grade}학년_${classNumber}반_점수현황_$timestamp.xlsx"
+            val encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8).replace("+", "%20")
+
+            ResponseEntity
+                .ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''$encodedFilename")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(resource)
         }
 
     private fun calculateTotalScore(scores: List<Score>): Int {

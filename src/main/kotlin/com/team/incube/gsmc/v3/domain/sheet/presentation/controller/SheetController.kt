@@ -8,17 +8,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.core.io.ByteArrayResource
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @Tag(name = "Sheet API", description = "엑셀 시트 생성 API")
 @RestController
@@ -45,21 +39,9 @@ class SheetController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @GetMapping("/class-scores", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])
+    @GetMapping("/class-scores")
     fun downloadClassScoreSheet(
         @RequestParam grade: Int,
         @RequestParam classNumber: Int,
-    ): ResponseEntity<ByteArrayResource> {
-        val resource = createClassScoreSheetService.execute(grade = grade, classNumber = classNumber)
-
-        val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
-        val filename = "${grade}학년_${classNumber}반_점수현황_$timestamp.xlsx"
-        val encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8).replace("+", "%20")
-
-        return ResponseEntity
-            .ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''$encodedFilename")
-            .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-            .body(resource)
-    }
+    ): ResponseEntity<ByteArrayResource> = createClassScoreSheetService.execute(grade = grade, classNumber = classNumber)
 }
