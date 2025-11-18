@@ -185,4 +185,119 @@ class CreateClassScoreSheetServiceImpl(
 
         return maxOf(toeicScore, jlptScore)
     }
+
+    private fun createExcelFile(
+        grade: Int,
+        classNumber: Int,
+        scoreDataList: List<ClassScoreData>,
+        categories: List<CategoryType>,
+    ): ByteArrayResource {
+        val workbook = XSSFWorkbook()
+        val sheet = workbook.createSheet("${grade}학년 ${classNumber}반 점수 현황")
+
+        val headerStyle = createHeaderStyle(workbook)
+        val cellStyle = createCellStyle(workbook)
+
+        val headers = buildHeaders(categories)
+        createHeaderRow(sheet, headers, headerStyle)
+        populateDataRows(sheet, scoreDataList, categories, cellStyle)
+        adjustColumnWidths(sheet, headers.size)
+
+        val outputStream = ByteArrayOutputStream()
+        workbook.write(outputStream)
+        workbook.close()
+
+        return ByteArrayResource(outputStream.toByteArray())
+    }
+
+    private fun createHeaderStyle(workbook: XSSFWorkbook) =
+        workbook.createCellStyle().apply {
+            fillForegroundColor = IndexedColors.GREY_25_PERCENT.index
+            fillPattern = FillPatternType.SOLID_FOREGROUND
+            borderBottom = BorderStyle.THIN
+            borderTop = BorderStyle.THIN
+            borderLeft = BorderStyle.THIN
+            borderRight = BorderStyle.THIN
+            alignment = HorizontalAlignment.CENTER
+            verticalAlignment = VerticalAlignment.CENTER
+            val font = workbook.createFont()
+            font.bold = true
+            setFont(font)
+        }
+
+    private fun createCellStyle(workbook: XSSFWorkbook) =
+        workbook.createCellStyle().apply {
+            borderBottom = BorderStyle.THIN
+            borderTop = BorderStyle.THIN
+            borderLeft = BorderStyle.THIN
+            borderRight = BorderStyle.THIN
+            alignment = HorizontalAlignment.CENTER
+            verticalAlignment = VerticalAlignment.CENTER
+        }
+
+    private fun buildHeaders(categories: List<CategoryType>): List<String> {
+        val headers = mutableListOf("학번", "이름")
+        categories.forEach { headers.add(it.koreanName) }
+        headers.add("총점")
+        headers.add("학급 내 순위")
+        return headers
+    }
+
+    private fun createHeaderRow(
+        sheet: org.apache.poi.ss.usermodel.Sheet,
+        headers: List<String>,
+        headerStyle: org.apache.poi.ss.usermodel.CellStyle,
+    ) {
+        val headerRow = sheet.createRow(0)
+        headers.forEachIndexed { index, header ->
+            val cell = headerRow.createCell(index)
+            cell.setCellValue(header)
+            cell.cellStyle = headerStyle
+        }
+    }
+
+    private fun populateDataRows(
+        sheet: org.apache.poi.ss.usermodel.Sheet,
+        scoreDataList: List<ClassScoreData>,
+        categories: List<CategoryType>,
+        cellStyle: org.apache.poi.ss.usermodel.CellStyle,
+    ) {
+        scoreDataList.forEachIndexed { index, data ->
+            val row = sheet.createRow(index + 1)
+
+            var colIndex = 0
+            row.createCell(colIndex++).apply {
+                setCellValue(data.studentNumber)
+                this.cellStyle = cellStyle
+            }
+            row.createCell(colIndex++).apply {
+                setCellValue(data.studentName)
+                this.cellStyle = cellStyle
+            }
+            categories.forEach { category ->
+                row.createCell(colIndex++).apply {
+                    setCellValue(data.categoryScores[category.koreanName] ?: 0.0)
+                    this.cellStyle = cellStyle
+                }
+            }
+            row.createCell(colIndex++).apply {
+                setCellValue(data.totalScore)
+                this.cellStyle = cellStyle
+            }
+            row.createCell(colIndex).apply {
+                setCellValue(data.classRank.toDouble())
+                this.cellStyle = cellStyle
+            }
+        }
+    }
+
+    private fun adjustColumnWidths(
+        sheet: org.apache.poi.ss.usermodel.Sheet,
+        columnCount: Int,
+    ) {
+        for (i in 0 until columnCount) {
+            sheet.autoSizeColumn(i)
+            sheet.setColumnWidth(i, sheet.getColumnWidth(i) + 1000)
+        }
+    }
 }
