@@ -224,7 +224,7 @@ class CreateClassScoreSheetServiceImpl(
                     0
                 } else {
                     val calculator = ScoreCalculatorFactory.getCalculator(categoryType)
-                    calculator.calculate(categoryScores, categoryType, includeApprovedOnly = false)
+                    calculator.calculate(categoryScores, categoryType, includeApprovedOnly = true)
                 }
             }
 
@@ -243,7 +243,7 @@ class CreateClassScoreSheetServiceImpl(
                 toeicCalculator.calculate(
                     toeicScores,
                     CategoryType.TOEIC,
-                    includeApprovedOnly = false,
+                    includeApprovedOnly = true,
                 )
             } else {
                 0
@@ -251,7 +251,7 @@ class CreateClassScoreSheetServiceImpl(
 
         val jlptScore =
             if (jlptScores.isNotEmpty()) {
-                jlptCalculator.calculate(jlptScores, CategoryType.JLPT, includeApprovedOnly = false)
+                jlptCalculator.calculate(jlptScores, CategoryType.JLPT, includeApprovedOnly = true)
             } else {
                 0
             }
