@@ -24,14 +24,15 @@ class FindEvidenceByIdServiceImpl(
                 content = evidence.content,
                 createdAt = evidence.createdAt,
                 updatedAt = evidence.updatedAt,
-                files = evidence.files.map { file ->
-                    com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem(
-                        fileId = file.fileId,
-                        originalName = file.fileOriginalName,
-                        storedName = file.fileStoredName,
-                        uri = file.fileUri,
-                    )
-                },
+                files =
+                    evidence.files.map { file ->
+                        com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem(
+                            fileId = file.fileId,
+                            originalName = file.fileOriginalName,
+                            storedName = file.fileStoredName,
+                            uri = file.fileUri,
+                        )
+                    },
             )
         }
 }

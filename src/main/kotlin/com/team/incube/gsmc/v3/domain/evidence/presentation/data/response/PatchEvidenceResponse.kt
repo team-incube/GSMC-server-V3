@@ -1,6 +1,5 @@
 package com.team.incube.gsmc.v3.domain.evidence.presentation.data.response
 
-import com.team.incube.gsmc.v3.domain.file.dto.File
 import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime

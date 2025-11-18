@@ -26,7 +26,7 @@ class FindScoreByScoreIdServiceImpl(
             val evidence =
                 score.sourceId?.let { sourceId ->
                     evidenceExposedRepository.findById(sourceId)?.let { evidenceDto ->
-                        GetEvidenceResponse (
+                        GetEvidenceResponse(
                             evidenceId = evidenceDto.id,
                             title = evidenceDto.title,
                             content = evidenceDto.content,

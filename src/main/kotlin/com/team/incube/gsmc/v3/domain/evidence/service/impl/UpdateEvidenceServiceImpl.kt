@@ -55,14 +55,15 @@ class UpdateEvidenceServiceImpl(
                 content = updatedEvidence.content,
                 createAt = updatedEvidence.createdAt,
                 updateAt = updatedEvidence.updatedAt,
-                file = updatedEvidence.files.map {
-                    FileItem(
-                        fileId = it.fileId,
-                        originalName = it.fileOriginalName,
-                        storedName = it.fileStoredName,
-                        uri = it.fileUri,
-                    )
-                }
+                file =
+                    updatedEvidence.files.map {
+                        FileItem(
+                            fileId = it.fileId,
+                            originalName = it.fileOriginalName,
+                            storedName = it.fileStoredName,
+                            uri = it.fileUri,
+                        )
+                    },
             )
         }
 }
