@@ -18,5 +18,5 @@ object DependencyVersions {
 
     const val JJWT_VERSION = "0.12.5"
 
-    const val APACHE_POI_VERSION = "5.3.0"
+    const val APACHE_POI_VERSION = "5.5.0"
 }
