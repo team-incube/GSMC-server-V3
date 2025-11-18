@@ -55,8 +55,7 @@ class CreateClassScoreSheetServiceImpl(
             val classScoreDataList = mutableListOf<ClassScoreData>()
 
             students.forEach { student ->
-                val allScores = scoreExposedRepository.findAllByMemberId(student.id)
-                val approvedScores = allScores.filter { it.status == ScoreStatus.APPROVED }
+                val approvedScores = scoreExposedRepository.findByMemberIdAndStatus(student.id, ScoreStatus.APPROVED)
                 val categoryScores = mutableMapOf<String, Double>()
 
                 allCategories.forEach { category ->

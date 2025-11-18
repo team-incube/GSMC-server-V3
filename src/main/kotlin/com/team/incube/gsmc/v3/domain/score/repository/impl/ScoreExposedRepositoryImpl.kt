@@ -138,6 +138,27 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         return results.map { it.toScore(member) }
     }
 
+    override fun findByMemberIdAndStatus(
+        memberId: Long,
+        status: ScoreStatus,
+    ): List<Score> {
+        val results =
+            ScoreExposedEntity
+                .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                    ScoreExposedEntity.memberId eq MemberExposedEntity.id
+                }.selectAll()
+                .where {
+                    (ScoreExposedEntity.memberId eq memberId) and
+                        (ScoreExposedEntity.status eq status)
+                }.toList()
+
+        if (results.isEmpty()) return emptyList()
+
+        val member = results.first().toMember()
+
+        return results.map { it.toScore(member) }
+    }
+
     override fun findByMemberIdAndCategoryType(
         memberId: Long,
         categoryType: CategoryType,
