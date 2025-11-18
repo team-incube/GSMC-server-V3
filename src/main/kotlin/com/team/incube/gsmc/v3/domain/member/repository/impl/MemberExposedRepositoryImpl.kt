@@ -28,7 +28,7 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
         grade: Int?,
         classNumber: Int?,
         number: Int?,
-        sort: SortDirection?,
+        sortBy: SortDirection?,
         pageable: Pageable,
     ): Page<Member> {
         val conditions =
@@ -49,7 +49,7 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
                 .apply { whereClause?.let { where { it } } }
                 .count()
 
-        val sortOrder = if (sort == SortDirection.DESC) SortOrder.DESC else SortOrder.ASC
+        val sortOrder = if (sortBy == SortDirection.DESC) SortOrder.DESC else SortOrder.ASC
 
         val members =
             MemberExposedEntity

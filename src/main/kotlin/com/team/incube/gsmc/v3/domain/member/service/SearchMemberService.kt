@@ -13,7 +13,7 @@ interface SearchMemberService {
         grade: Int?,
         classNumber: Int?,
         number: Int?,
-        sort: SortDirection,
+        sortBy: SortDirection,
         pageable: Pageable,
     ): SearchMemberResponse
 }

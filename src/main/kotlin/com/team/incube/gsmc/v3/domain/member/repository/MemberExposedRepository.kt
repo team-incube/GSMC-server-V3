@@ -14,7 +14,7 @@ interface MemberExposedRepository {
         grade: Int?,
         classNumber: Int?,
         number: Int?,
-        sort: SortDirection?,
+        sortBy: SortDirection?,
         pageable: Pageable,
     ): Page<Member>
 
