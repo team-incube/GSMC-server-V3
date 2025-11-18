@@ -50,12 +50,13 @@ class CreateClassScoreSheetServiceImpl(
             val classScoreDataList = mutableListOf<ClassScoreData>()
 
             students.forEach { student ->
-                val scores = scoreExposedRepository.findAllByMemberId(student.id)
+                val allScores = scoreExposedRepository.findAllByMemberId(student.id)
+                val approvedScores = allScores.filter { it.status == ScoreStatus.APPROVED }
                 val categoryScores = mutableMapOf<String, Double>()
 
                 // 각 카테고리별 원본 값 (승인된 레코드만)
                 allCategories.forEach { category ->
-                    val categoryScoreList = scores.filter { it.categoryType == category && it.status == ScoreStatus.APPROVED }
+                    val categoryScoreList = approvedScores.filter { it.categoryType == category }
                     val value =
                         when {
                             categoryScoreList.isEmpty() -> 0.0
@@ -74,7 +75,7 @@ class CreateClassScoreSheetServiceImpl(
                 }
 
                 // 총점 계산 - 환산점 (승인된 레코드만)
-                val totalScore = calculateTotalScore(scores).toDouble()
+                val totalScore = calculateTotalScore(approvedScores).toDouble()
 
                 val studentNumber =
                     String.format(
@@ -221,7 +222,7 @@ class CreateClassScoreSheetServiceImpl(
                     0
                 } else {
                     val calculator = ScoreCalculatorFactory.getCalculator(categoryType)
-                    calculator.calculate(categoryScores, categoryType, includeApprovedOnly = true)
+                    calculator.calculate(categoryScores, categoryType, includeApprovedOnly = false)
                 }
             }
 
@@ -240,7 +241,7 @@ class CreateClassScoreSheetServiceImpl(
                 toeicCalculator.calculate(
                     toeicScores,
                     CategoryType.TOEIC,
-                    includeApprovedOnly = true,
+                    includeApprovedOnly = false,
                 )
             } else {
                 0
@@ -248,7 +249,7 @@ class CreateClassScoreSheetServiceImpl(
 
         val jlptScore =
             if (jlptScores.isNotEmpty()) {
-                jlptCalculator.calculate(jlptScores, CategoryType.JLPT, includeApprovedOnly = true)
+                jlptCalculator.calculate(jlptScores, CategoryType.JLPT, includeApprovedOnly = false)
             } else {
                 0
             }
