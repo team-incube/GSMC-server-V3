@@ -7,6 +7,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -41,7 +44,7 @@ class SheetController(
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/class-scores")
     fun downloadClassScoreSheet(
-        @RequestParam grade: Int,
-        @RequestParam classNumber: Int,
+        @RequestParam @Valid @Max(value = 3) @Min(value = 1) grade: Int,
+        @RequestParam @Valid @Max(value = 4) @Min(value = 1) classNumber: Int,
     ): ResponseEntity<ByteArrayResource> = createClassScoreSheetService.execute(grade = grade, classNumber = classNumber)
 }
