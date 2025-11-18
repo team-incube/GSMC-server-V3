@@ -175,7 +175,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                 row.toScore(member)
             }.singleOrNull()
 
-    override fun findAllByMemberIdAndCategoryTypeAndStatus(
+    override fun findByMemberIdAndCategoryTypeAndStatus(
         memberId: Long,
         categoryType: CategoryType?,
         status: ScoreStatus?,

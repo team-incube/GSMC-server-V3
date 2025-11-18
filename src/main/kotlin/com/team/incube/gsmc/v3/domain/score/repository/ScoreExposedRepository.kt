@@ -52,7 +52,7 @@ interface ScoreExposedRepository {
         categoryType: CategoryType,
     ): Score?
 
-    fun findAllByMemberIdAndCategoryTypeAndStatus(
+    fun findByMemberIdAndCategoryTypeAndStatus(
         memberId: Long,
         categoryType: CategoryType?,
         status: ScoreStatus?,
