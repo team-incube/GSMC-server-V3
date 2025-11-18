@@ -88,6 +88,10 @@ dependencies {
     implementation(dependency.Dependencies.JJWT_API)
     runtimeOnly(dependency.Dependencies.JJWT_IMPL)
     runtimeOnly(dependency.Dependencies.JJWT_JACKSON)
+
+    // Apache POI (Excel)
+    implementation(dependency.Dependencies.APACHE_POI)
+    implementation(dependency.Dependencies.APACHE_POI_OOXML)
 }
 
 dependencyManagement {

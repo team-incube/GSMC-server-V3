@@ -60,4 +60,8 @@ object Dependencies {
     const val JJWT_API = "io.jsonwebtoken:jjwt-api:${DependencyVersions.JJWT_VERSION}"
     const val JJWT_IMPL = "io.jsonwebtoken:jjwt-impl:${DependencyVersions.JJWT_VERSION}"
     const val JJWT_JACKSON = "io.jsonwebtoken:jjwt-jackson:${DependencyVersions.JJWT_VERSION}"
+
+    // Apache POI (Excel)
+    const val APACHE_POI = "org.apache.poi:poi:${DependencyVersions.APACHE_POI_VERSION}"
+    const val APACHE_POI_OOXML = "org.apache.poi:poi-ooxml:${DependencyVersions.APACHE_POI_VERSION}"
 }

@@ -3,18 +3,18 @@ package com.team.incube.gsmc.v3.domain.score.calculator.impl
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.score.calculator.CategoryScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.dto.Score
-import kotlin.math.round
+import kotlin.math.roundToInt
 
 /**
  * 직업기초능력평가(NCS) 점수 계산기
  *
- * 평균 점수는 Score.scoreValue에 저장됩니다 (예: 4.6, 3.2).
- * 점수 변환: round(scoreValue), 최대 5점
+ * 등급은 Score.scoreValue에 저장됩니다 (1~5등급, 1등급이 가장 높음).
+ * 점수 변환: 6 - round(등급), 최대 5점
  * 예시:
- * - 4.6 → 5점
- * - 3.5 → 4점
- * - 3.2 → 3점
- * - 2.5 → 3점
+ * - 1.2등급 → 5점
+ * - 2.3등급 → 4점
+ * - 3.5등급 → 2점
+ * - 4.6등급 → 1점
  *
  * maxRecordCount=1이므로 레코드는 1개만 존재합니다.
  */
@@ -29,9 +29,9 @@ class NcsScoreCalculator : CategoryScoreCalculator() {
                 score.categoryType == categoryType && score.isValidStatus(includeApprovedOnly)
             }
 
-        val averageScore = targetScore?.scoreValue ?: return 0
+        val grade = targetScore?.scoreValue ?: return 0
 
-        val convertedScore = round(averageScore).toInt()
+        val convertedScore = 6 - grade.roundToInt()
 
         return convertedScore.coerceIn(0, 5)
     }
