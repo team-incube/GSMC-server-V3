@@ -5,13 +5,14 @@ import com.team.incube.gsmc.v3.domain.score.calculator.ScoreCalculatorFactory
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
 
 @Service
 class CalculateTotalScoreServiceImpl(
     private val scoreExposedRepository: ScoreExposedRepository,
-    private val currentMemberProvider: com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider,
+    private val currentMemberProvider: CurrentMemberProvider,
 ) : CalculateTotalScoreService {
     override fun execute(includeApprovedOnly: Boolean): GetTotalScoreResponse =
         transaction {
