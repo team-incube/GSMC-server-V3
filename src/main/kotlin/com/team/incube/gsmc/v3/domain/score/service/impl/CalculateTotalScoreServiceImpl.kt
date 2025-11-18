@@ -2,6 +2,7 @@ package com.team.incube.gsmc.v3.domain.score.service.impl
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.score.calculator.ScoreCalculatorFactory
+import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -10,13 +11,12 @@ import org.springframework.stereotype.Service
 @Service
 class CalculateTotalScoreServiceImpl(
     private val scoreExposedRepository: ScoreExposedRepository,
+    private val currentMemberProvider: com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider,
 ) : CalculateTotalScoreService {
-    override fun execute(
-        memberId: Long,
-        includeApprovedOnly: Boolean,
-    ): Int =
+    override fun execute(includeApprovedOnly: Boolean): GetTotalScoreResponse =
         transaction {
-            val allScores = scoreExposedRepository.findAllByMemberId(memberId)
+            val member = currentMemberProvider.getCurrentMember()
+            val allScores = scoreExposedRepository.findAllByMemberId(member.id)
 
             val scoresByCategory = allScores.groupBy { it.categoryType }
 
@@ -47,7 +47,8 @@ class CalculateTotalScoreServiceImpl(
                     }
                 }
 
-            foreignLanguageScore + otherScoresSum
+            val totalScore = foreignLanguageScore + otherScoresSum
+            GetTotalScoreResponse(totalScore = totalScore)
         }
 
     private fun calculateForeignLanguageScore(
