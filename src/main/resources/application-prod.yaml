@@ -39,7 +39,7 @@ spring:
       refresh-token:
         secret: ${JWT_REFRESH_TOKEN_SECRET}
         expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
-    springdoc:
+springdoc:
   swagger-ui:
     enabled: false
   api-docs:

@@ -3,6 +3,7 @@ package com.team.incube.gsmc.v3.domain.evidence.service.impl
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.PatchEvidenceResponse
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.UpdateEvidenceService
+import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
@@ -54,7 +55,15 @@ class UpdateEvidenceServiceImpl(
                 content = updatedEvidence.content,
                 createAt = updatedEvidence.createdAt,
                 updateAt = updatedEvidence.updatedAt,
-                file = updatedEvidence.files,
+                file =
+                    updatedEvidence.files.map {
+                        FileItem(
+                            fileId = it.fileId,
+                            originalName = it.fileOriginalName,
+                            storedName = it.fileStoredName,
+                            uri = it.fileUri,
+                        )
+                    },
             )
         }
 }
