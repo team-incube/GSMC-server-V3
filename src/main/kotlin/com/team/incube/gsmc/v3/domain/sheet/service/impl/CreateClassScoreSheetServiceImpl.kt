@@ -11,9 +11,12 @@ import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.sheet.dto.ClassScoreData
 import com.team.incube.gsmc.v3.domain.sheet.service.CreateClassScoreSheetService
 import org.apache.poi.ss.usermodel.BorderStyle
+import org.apache.poi.ss.usermodel.CellStyle
 import org.apache.poi.ss.usermodel.FillPatternType
 import org.apache.poi.ss.usermodel.HorizontalAlignment
 import org.apache.poi.ss.usermodel.IndexedColors
+import org.apache.poi.ss.usermodel.Row
+import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.usermodel.VerticalAlignment
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -63,10 +66,11 @@ class CreateClassScoreSheetServiceImpl(
 
                 students.map { student ->
                     val approvedScores = scoresByStudentId[student.id] ?: emptyList()
+                    val scoresByCategory = approvedScores.groupBy { it.categoryType }
                     val categoryScores = mutableMapOf<String, Double>()
 
                     allCategories.forEach { category ->
-                        val categoryScoreList = approvedScores.filter { it.categoryType == category }
+                        val categoryScoreList = scoresByCategory[category] ?: emptyList()
                         val value =
                             when {
                                 categoryScoreList.isEmpty() -> {
@@ -244,9 +248,9 @@ class CreateClassScoreSheetServiceImpl(
     }
 
     private fun createHeaderRow(
-        sheet: org.apache.poi.ss.usermodel.Sheet,
+        sheet: Sheet,
         headers: List<String>,
-        headerStyle: org.apache.poi.ss.usermodel.CellStyle,
+        headerStyle: CellStyle,
     ) {
         val headerRow = sheet.createRow(0)
         headers.forEachIndexed { index, header ->
@@ -257,42 +261,51 @@ class CreateClassScoreSheetServiceImpl(
     }
 
     private fun populateDataRows(
-        sheet: org.apache.poi.ss.usermodel.Sheet,
+        sheet: Sheet,
         scoreDataList: List<ClassScoreData>,
         categories: List<CategoryType>,
-        cellStyle: org.apache.poi.ss.usermodel.CellStyle,
+        cellStyle: CellStyle,
     ) {
         scoreDataList.forEachIndexed { index, data ->
             val row = sheet.createRow(index + 1)
 
             var colIndex = 0
-            row.createCell(colIndex++).apply {
-                setCellValue(data.studentNumber)
-                this.cellStyle = cellStyle
-            }
-            row.createCell(colIndex++).apply {
-                setCellValue(data.studentName)
-                this.cellStyle = cellStyle
-            }
+            createCell(row, colIndex++, data.studentNumber, cellStyle)
+            createCell(row, colIndex++, data.studentName, cellStyle)
             categories.forEach { category ->
-                row.createCell(colIndex++).apply {
-                    setCellValue(data.categoryScores[category.koreanName] ?: 0.0)
-                    this.cellStyle = cellStyle
-                }
+                createCell(row, colIndex++, data.categoryScores[category.koreanName] ?: 0.0, cellStyle)
             }
-            row.createCell(colIndex++).apply {
-                setCellValue(data.totalScore)
-                this.cellStyle = cellStyle
-            }
-            row.createCell(colIndex).apply {
-                setCellValue(data.classRank.toDouble())
-                this.cellStyle = cellStyle
-            }
+            createCell(row, colIndex++, data.totalScore, cellStyle)
+            createCell(row, colIndex, data.classRank.toDouble(), cellStyle)
+        }
+    }
+
+    private fun createCell(
+        row: Row,
+        columnIndex: Int,
+        value: String,
+        style: CellStyle,
+    ) {
+        row.createCell(columnIndex).apply {
+            setCellValue(value)
+            cellStyle = style
+        }
+    }
+
+    private fun createCell(
+        row: Row,
+        columnIndex: Int,
+        value: Double,
+        style: CellStyle,
+    ) {
+        row.createCell(columnIndex).apply {
+            setCellValue(value)
+            cellStyle = style
         }
     }
 
     private fun adjustColumnWidths(
-        sheet: org.apache.poi.ss.usermodel.Sheet,
+        sheet: Sheet,
         columnCount: Int,
     ) {
         for (i in 0 until columnCount) {
