@@ -34,6 +34,9 @@ class CreateClassScoreSheetServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
     private val scoreExposedRepository: ScoreExposedRepository,
 ) : CreateClassScoreSheetService {
+    companion object {
+        private const val MAX_STUDENTS_PER_CLASS = 1000
+    }
     override fun execute(
         grade: Int,
         classNumber: Int,
@@ -48,7 +51,7 @@ class CreateClassScoreSheetServiceImpl(
                         grade = grade,
                         classNumber = classNumber,
                         number = null,
-                        pageable = PageRequest.of(0, 1000),
+                        pageable = PageRequest.of(0, MAX_STUDENTS_PER_CLASS),
                     ).content
 
             val allCategories = CategoryType.getAllCategories()
