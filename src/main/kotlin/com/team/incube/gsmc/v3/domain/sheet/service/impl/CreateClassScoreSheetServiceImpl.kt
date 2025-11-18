@@ -37,6 +37,7 @@ class CreateClassScoreSheetServiceImpl(
     companion object {
         private const val MAX_STUDENTS_PER_CLASS = 1000
     }
+
     override fun execute(
         grade: Int,
         classNumber: Int,
