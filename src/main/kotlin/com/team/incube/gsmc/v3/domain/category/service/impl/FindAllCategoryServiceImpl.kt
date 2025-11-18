@@ -8,18 +8,19 @@ import org.springframework.stereotype.Service
 
 @Service
 class FindAllCategoryServiceImpl : FindAllCategoryService {
-    override fun execute(): GetCategoriesResponse {
-        return GetCategoriesResponse(CategoryType.getAllCategories().map { categoryType ->
-            CategoryItem(
-                englishName = categoryType.englishName,
-                koreanName = categoryType.koreanName,
-                weight = categoryType.weight,
-                maxRecordCount = categoryType.maxRecordCount,
-                isAccumulated = categoryType.isAccumulated,
-                evidenceType = categoryType.evidenceType,
-                calculationType = categoryType.calculationType,
-                isForeignLanguage = categoryType.isForeignLanguage,
-            )
-        })
-    }
+    override fun execute(): GetCategoriesResponse =
+        GetCategoriesResponse(
+            CategoryType.getAllCategories().map { categoryType ->
+                CategoryItem(
+                    englishName = categoryType.englishName,
+                    koreanName = categoryType.koreanName,
+                    weight = categoryType.weight,
+                    maxRecordCount = categoryType.maxRecordCount,
+                    isAccumulated = categoryType.isAccumulated,
+                    evidenceType = categoryType.evidenceType,
+                    calculationType = categoryType.calculationType,
+                    isForeignLanguage = categoryType.isForeignLanguage,
+                )
+            },
+        )
 }
