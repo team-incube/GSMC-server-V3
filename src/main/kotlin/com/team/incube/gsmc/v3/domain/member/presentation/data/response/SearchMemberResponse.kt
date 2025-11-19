@@ -8,6 +8,6 @@ data class SearchMemberResponse(
     val totalPages: Int,
     @param:Schema(description = "전체 요소 수", example = "100")
     val totalElements: Long,
-    @field:Schema(description = "사용자 목록")
+    @param:Schema(description = "사용자 목록")
     val members: List<GetMemberResponse>,
 )
