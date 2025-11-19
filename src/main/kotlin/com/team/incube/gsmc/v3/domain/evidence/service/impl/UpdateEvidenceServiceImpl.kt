@@ -55,7 +55,7 @@ class UpdateEvidenceServiceImpl(
                 content = updatedEvidence.content,
                 createAt = updatedEvidence.createdAt,
                 updateAt = updatedEvidence.updatedAt,
-                file =
+                files =
                     updatedEvidence.files.map {
                         FileItem(
                             fileId = it.fileId,
