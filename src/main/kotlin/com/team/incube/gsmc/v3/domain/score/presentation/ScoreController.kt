@@ -538,13 +538,5 @@ class ScoreController(
             defaultValue = "true",
             required = false,
         ) includeApprovedOnly: Boolean,
-    ): GetTotalScoreResponse {
-        val member = currentMemberProvider.getCurrentMember()
-        val totalScore =
-            calculateTotalScoreService.execute(
-                memberId = member.id,
-                includeApprovedOnly = includeApprovedOnly,
-            )
-        return GetTotalScoreResponse(totalScore = totalScore)
-    }
+    ): GetTotalScoreResponse = calculateTotalScoreService.execute(includeApprovedOnly = includeApprovedOnly)
 }
