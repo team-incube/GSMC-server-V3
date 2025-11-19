@@ -37,9 +37,9 @@ class SearchMemberServiceImpl(
                     pageable = pageable,
                 )
             SearchMemberResponse(
-                totalPage = members.totalPages,
+                totalPages = members.totalPages,
                 totalElements = members.totalElements,
-                data =
+                members =
                     members.content.map {
                         GetMemberResponse(
                             id = it.id,
