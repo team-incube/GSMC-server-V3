@@ -4,6 +4,7 @@ import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.category.constant.ScoreCalculationType
 import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.domain.member.dto.constant.SortDirection
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.score.calculator.ScoreCalculatorFactory
 import com.team.incube.gsmc.v3.domain.score.dto.Score
@@ -57,6 +58,7 @@ class CreateClassScoreSheetServiceImpl(
                             grade = grade,
                             classNumber = classNumber,
                             number = null,
+                            sortBy = SortDirection.ASC,
                             pageable = PageRequest.of(0, MAX_STUDENTS_PER_CLASS),
                         ).content
 
