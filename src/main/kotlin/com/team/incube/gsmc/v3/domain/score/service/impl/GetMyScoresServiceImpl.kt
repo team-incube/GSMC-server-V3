@@ -24,7 +24,7 @@ class GetMyScoresServiceImpl(
             val member = currentMemberProvider.getCurrentMember()
 
             val scores =
-                scoreExposedRepository.findAllByMemberIdAndCategoryTypeAndStatus(
+                scoreExposedRepository.findByMemberIdAndCategoryTypeAndStatus(
                     memberId = member.id,
                     categoryType = categoryType,
                     status = status,

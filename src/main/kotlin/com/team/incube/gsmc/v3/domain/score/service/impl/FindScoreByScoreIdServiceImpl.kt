@@ -1,9 +1,9 @@
 package com.team.incube.gsmc.v3.domain.score.service.impl
 
+import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvidenceResponse
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
 import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.CategoryNames
-import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.EvidenceDetail
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.FindScoreByScoreIdService
@@ -26,10 +26,12 @@ class FindScoreByScoreIdServiceImpl(
             val evidence =
                 score.sourceId?.let { sourceId ->
                     evidenceExposedRepository.findById(sourceId)?.let { evidenceDto ->
-                        EvidenceDetail(
+                        GetEvidenceResponse(
                             evidenceId = evidenceDto.id,
                             title = evidenceDto.title,
                             content = evidenceDto.content,
+                            createdAt = evidenceDto.createdAt,
+                            updatedAt = evidenceDto.updatedAt,
                             files =
                                 evidenceDto.files.map { file ->
                                     FileItem(

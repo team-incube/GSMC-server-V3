@@ -24,7 +24,7 @@ class DiscordNotificationService(
                 val embed =
                     DiscordEmbed(
                         title = "🚀 서버 시작됨",
-                        color = EmbedColor.SUCCESS.color,
+                        color = EmbedColor.SERVER_START.color,
                         fields =
                             listOf(
                                 DiscordField("상태", "GSMC V3 서버 애플리케이션이 시작되었습니다.", false),
@@ -46,7 +46,7 @@ class DiscordNotificationService(
             val embed =
                 DiscordEmbed(
                     title = "🛑 서버 종료됨",
-                    color = EmbedColor.WARNING.color,
+                    color = EmbedColor.SERVER_STOP.color,
                     fields =
                         listOf(
                             DiscordField("상태", "GSMC V3 서버 애플리케이션이 종료되었습니다.", false),

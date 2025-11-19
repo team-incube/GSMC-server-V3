@@ -1,6 +1,5 @@
 package com.team.incube.gsmc.v3.domain.category.constant
 
-import com.team.incube.gsmc.v3.domain.category.constant.ScoreCalculationType
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 

@@ -1,6 +1,5 @@
 package com.team.incube.gsmc.v3.global.common.error.handler
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.team.incube.gsmc.v3.global.common.error.discord.DiscordErrorNotificationService
 import com.team.incube.gsmc.v3.global.common.error.exception.FeignClientException
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
@@ -24,10 +23,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc
 class GlobalExceptionHandler(
     private val discordErrorNotificationService: DiscordErrorNotificationService? = null,
 ) {
-    companion object {
-        private val objectMapper = ObjectMapper()
-    }
-
     private fun warnTrace(
         prefix: String,
         ex: Throwable,

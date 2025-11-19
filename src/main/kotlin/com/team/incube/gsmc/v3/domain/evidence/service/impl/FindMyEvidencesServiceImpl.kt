@@ -4,6 +4,7 @@ import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvi
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetMyEvidencesResponse
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.FindMyEvidencesService
+import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
@@ -23,12 +24,20 @@ class FindMyEvidencesServiceImpl(
                 evidences =
                     evidences.map { evidence ->
                         GetEvidenceResponse(
-                            id = evidence.id,
+                            evidenceId = evidence.id,
                             title = evidence.title,
                             content = evidence.content,
                             createdAt = evidence.createdAt,
                             updatedAt = evidence.updatedAt,
-                            files = evidence.files,
+                            files =
+                                evidence.files.map { file ->
+                                    FileItem(
+                                        fileId = file.fileId,
+                                        originalName = file.fileOriginalName,
+                                        storedName = file.fileStoredName,
+                                        uri = file.fileUri,
+                                    )
+                                },
                         )
                     },
             )

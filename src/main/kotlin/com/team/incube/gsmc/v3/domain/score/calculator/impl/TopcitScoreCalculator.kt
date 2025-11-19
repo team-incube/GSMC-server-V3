@@ -3,7 +3,7 @@ package com.team.incube.gsmc.v3.domain.score.calculator.impl
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.score.calculator.CategoryScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.dto.Score
-import kotlin.math.round
+import kotlin.math.roundToInt
 
 /**
  * TOPCIT 점수 계산기
@@ -26,7 +26,7 @@ class TopcitScoreCalculator : CategoryScoreCalculator() {
 
         val scoreValue = targetScore?.scoreValue ?: return 0
 
-        val convertedScore = round(scoreValue / 100.0).toInt()
+        val convertedScore = (scoreValue / 100.0).roundToInt()
 
         return convertedScore.coerceIn(0, 10)
     }

@@ -3,7 +3,7 @@ package com.team.incube.gsmc.v3.domain.score.calculator.impl
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.score.calculator.CategoryScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.dto.Score
-import kotlin.math.round
+import kotlin.math.roundToInt
 
 /**
  * TOEIC 점수 계산기
@@ -30,7 +30,7 @@ class ToeicScoreCalculator : CategoryScoreCalculator() {
                 .firstOrNull { it.categoryType == CategoryType.TOEIC }
                 ?.scoreValue ?: 0.0
 
-        val convertedScore = round(maxToeicScore / 100.0).toInt()
+        val convertedScore = (maxToeicScore / 100.0).roundToInt()
 
         val hasToeicAcademy =
             targetScores.any { it.categoryType == CategoryType.TOEIC_ACADEMY }
