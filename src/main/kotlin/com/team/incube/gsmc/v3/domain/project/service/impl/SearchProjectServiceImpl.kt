@@ -37,9 +37,8 @@ class SearchProjectServiceImpl(
 
             SearchProjectResponse(
                 projects = projects,
-                total = projectPage.totalElements,
-                page = projectPage.number,
-                size = projectPage.size,
+                totalPages = projectPage.totalPages,
+                totalElements = projectPage.totalElements,
             )
         }
 }
