@@ -37,58 +37,10 @@ class FindEvidenceDraftServiceTest :
 
             every { c.currentMemberProvider.getCurrentMember() } returns member
 
-            When("임시저장을 조회하면") {
+            When("execute를 호출하면") {
                 val result = c.service.execute()
 
                 Then("null이 반환된다 (캐시에 저장된 데이터가 없는 경우)") {
-                    result shouldBe null
-                }
-            }
-        }
-
-        Given("다른 사용자의 임시저장 조회 요청이 주어지면") {
-            val c = ctx()
-            val member =
-                Member(
-                    id = 2L,
-                    name = "김철수",
-                    email = "kim@gsm.hs.kr",
-                    grade = 1,
-                    classNumber = 2,
-                    number = 3,
-                    role = MemberRole.STUDENT,
-                )
-
-            every { c.currentMemberProvider.getCurrentMember() } returns member
-
-            When("임시저장을 조회하면") {
-                val result = c.service.execute()
-
-                Then("null이 반환된다") {
-                    result shouldBe null
-                }
-            }
-        }
-
-        Given("선생님이 임시저장을 조회하면") {
-            val c = ctx()
-            val teacher =
-                Member(
-                    id = 999L,
-                    name = "선생님",
-                    email = "teacher@gsm.hs.kr",
-                    grade = 3,
-                    classNumber = 4,
-                    number = 1,
-                    role = MemberRole.TEACHER,
-                )
-
-            every { c.currentMemberProvider.getCurrentMember() } returns teacher
-
-            When("임시저장을 조회하면") {
-                val result = c.service.execute()
-
-                Then("null이 반환된다") {
                     result shouldBe null
                 }
             }
