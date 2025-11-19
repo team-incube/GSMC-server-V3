@@ -120,7 +120,7 @@ class CreateEvidenceServiceTest :
                     res.content shouldBe "content"
                     res.createAt shouldBe now
                     res.updateAt shouldBe now
-                    res.file.size shouldBe 2
+                    res.files.size shouldBe 2
                 }
 
                 Then("점수, 파일 검증과 저장 및 score source 업데이트가 호출된다") {
