@@ -5,6 +5,7 @@ import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvi
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.impl.FindEvidenceByIdServiceImpl
 import com.team.incube.gsmc.v3.domain.file.dto.File
+import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import io.kotest.assertions.throwables.shouldThrow
@@ -61,7 +62,7 @@ class FindEvidenceByIdServiceTest :
                     res.content shouldBe "content"
                     res.createdAt shouldBe now
                     res.updatedAt shouldBe now
-                    res.files shouldBe files
+                    res.files shouldBe listOf(FileItem(10, "a.pdf", "sa.pdf", "uri-a"))
                 }
 
                 Then("리포지토리에서 1회 조회된다") {

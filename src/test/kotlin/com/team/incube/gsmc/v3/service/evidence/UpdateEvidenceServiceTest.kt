@@ -5,6 +5,7 @@ import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.PatchE
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.impl.UpdateEvidenceServiceImpl
 import com.team.incube.gsmc.v3.domain.file.dto.File
+import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
@@ -84,7 +85,11 @@ class UpdateEvidenceServiceTest :
                     res.id shouldBe id
                     res.title shouldBe "new-title"
                     res.content shouldBe "new-content"
-                    res.file shouldBe updatedFiles
+                    res.files shouldBe
+                        listOf(
+                            FileItem(20, "b.pdf", "sb.pdf", "uri-b"),
+                            FileItem(21, "c.jpg", "sc.jpg", "uri-c"),
+                        )
                 }
 
                 Then("참여자 재매핑 및 파일 검증/업데이트가 수행된다") {
@@ -210,7 +215,7 @@ class UpdateEvidenceServiceTest :
                 Then("제목만 변경되어 반환된다") {
                     res.title shouldBe "new"
                     res.content shouldBe "keep"
-                    res.file shouldBe originFiles
+                    res.files shouldBe listOf(FileItem(10, "a.pdf", "sa.pdf", "uri-a"))
                 }
             }
         }
