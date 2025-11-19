@@ -54,7 +54,7 @@ class CreateEvidenceServiceImpl(
                 content = evidence.content,
                 createAt = evidence.createdAt,
                 updateAt = evidence.updatedAt,
-                file =
+                files =
                     evidence.files.map { file ->
                         FileItem(
                             fileId = file.fileId,

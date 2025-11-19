@@ -16,5 +16,5 @@ data class CreateEvidenceRequest(
     @field:NotBlank(message = "내용은 필수입니다")
     val content: String,
     @field:Schema(description = "파일 ID 목록", example = "[1, 2]")
-    val fileId: List<Long> = emptyList(),
+    val fileIds: List<Long> = emptyList(),
 )

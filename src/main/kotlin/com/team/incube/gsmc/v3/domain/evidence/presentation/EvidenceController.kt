@@ -108,7 +108,7 @@ class EvidenceController(
             scoreId = request.scoreId,
             title = request.title,
             content = request.content,
-            fileIds = request.fileId,
+            fileIds = request.fileIds,
         )
 
     @Operation(summary = "증빙자료 수정", description = "기존 증빙자료를 수정합니다")
@@ -137,7 +137,7 @@ class EvidenceController(
             participantId = request.participantId,
             title = request.title,
             content = request.content,
-            fileIds = request.fileId,
+            fileIds = request.fileIds,
         )
 
     @Operation(summary = "증빙자료 삭제", description = "기존 증빙자료를 삭제합니다")
