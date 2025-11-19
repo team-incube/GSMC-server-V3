@@ -7,9 +7,7 @@ import com.team.incube.gsmc.v3.domain.member.presentation.data.response.SearchMe
 import com.team.incube.gsmc.v3.domain.member.service.GetCurrentMemberService
 import com.team.incube.gsmc.v3.domain.member.service.SearchMemberService
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
