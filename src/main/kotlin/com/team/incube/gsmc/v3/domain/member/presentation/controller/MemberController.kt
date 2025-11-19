@@ -1,6 +1,7 @@
 package com.team.incube.gsmc.v3.domain.member.presentation.controller
 
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.domain.member.dto.constant.SortDirection
 import com.team.incube.gsmc.v3.domain.member.presentation.data.response.GetMemberResponse
 import com.team.incube.gsmc.v3.domain.member.presentation.data.response.SearchMemberResponse
 import com.team.incube.gsmc.v3.domain.member.service.GetCurrentMemberService
@@ -35,11 +36,6 @@ class MemberController(
             ApiResponse(
                 responseCode = "200",
                 description = "사용자 정보 검색 성공",
-                content = [
-                    Content(
-                        array = ArraySchema(schema = Schema(implementation = SearchMemberResponse::class)),
-                    ),
-                ],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -59,6 +55,7 @@ class MemberController(
         @RequestParam(required = false) number: Int?,
         @RequestParam(required = false) limit: Int = 100,
         @RequestParam(required = false) page: Int = 0,
+        @RequestParam(required = false) sortBy: SortDirection = SortDirection.ASC,
     ): SearchMemberResponse =
         searchMemberService.execute(
             email = email,
@@ -67,6 +64,7 @@ class MemberController(
             grade = grade,
             classNumber = classNumber,
             number = number,
+            sortBy = sortBy,
             pageable = PageRequest.of(page, limit),
         )
 
