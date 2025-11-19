@@ -105,7 +105,9 @@ class DeleteScoreServiceTest :
                     sourceId = sourceId,
                     activityName = "Project Activity",
                     scoreValue = 10.0,
+                    rejectionReason = null,
                 )
+
             val evidence =
                 Evidence(
                     id = sourceId,
@@ -157,6 +159,7 @@ class DeleteScoreServiceTest :
                     sourceId = sourceId,
                     activityName = null,
                     scoreValue = 800.0,
+                    rejectionReason = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score
@@ -191,6 +194,7 @@ class DeleteScoreServiceTest :
                     sourceId = sourceId,
                     activityName = null,
                     scoreValue = 750.0,
+                    rejectionReason = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score
@@ -222,6 +226,7 @@ class DeleteScoreServiceTest :
                     sourceId = 999L,
                     activityName = "Academic Grade",
                     scoreValue = 95.0,
+                    rejectionReason = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score
@@ -252,6 +257,7 @@ class DeleteScoreServiceTest :
                     sourceId = null,
                     activityName = null,
                     scoreValue = null,
+                    rejectionReason = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score
@@ -302,6 +308,7 @@ class DeleteScoreServiceTest :
                     sourceId = sourceId,
                     activityName = "Empty Files Project",
                     scoreValue = 8.0,
+                    rejectionReason = null,
                 )
             val evidence =
                 Evidence(
