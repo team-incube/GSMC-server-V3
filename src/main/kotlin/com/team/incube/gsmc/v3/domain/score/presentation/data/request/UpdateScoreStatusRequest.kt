@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.score.presentation.data.request
 
-import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
+import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotNull
 

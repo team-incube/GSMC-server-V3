@@ -1,8 +1,8 @@
 package com.team.incube.gsmc.v3.domain.score.repository
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
-import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.dto.Score
+import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 
 interface ScoreExposedRepository {
     fun findById(scoreId: Long): Score?
