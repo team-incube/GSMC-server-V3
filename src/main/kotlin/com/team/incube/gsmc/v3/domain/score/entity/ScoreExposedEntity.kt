@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.score.entity
 
-import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
+import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
 import org.jetbrains.exposed.sql.Table
 
