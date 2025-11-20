@@ -35,8 +35,8 @@ import com.team.incube.gsmc.v3.domain.score.service.CreateToeicScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateTopcitScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateVolunteerScoreService
 import com.team.incube.gsmc.v3.domain.score.service.DeleteScoreService
-import com.team.incube.gsmc.v3.domain.score.service.FindScoreByScoreIdService
 import com.team.incube.gsmc.v3.domain.score.service.FindMyScoresService
+import com.team.incube.gsmc.v3.domain.score.service.FindScoreByScoreIdService
 import com.team.incube.gsmc.v3.domain.score.service.RejectScoreService
 import com.team.incube.gsmc.v3.domain.score.service.UpdateScoreStatusService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse

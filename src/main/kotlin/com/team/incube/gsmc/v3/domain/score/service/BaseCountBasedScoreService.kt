@@ -1,9 +1,9 @@
 package com.team.incube.gsmc.v3.domain.score.service
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
-import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.score.dto.Score
+import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.CategoryNames
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
