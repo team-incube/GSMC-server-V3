@@ -4,7 +4,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateSco
 
 interface CreateNcsScoreService {
     fun execute(
-        averageScore: Double,
+        value: String,
         fileId: Long,
     ): CreateScoreResponse
 }

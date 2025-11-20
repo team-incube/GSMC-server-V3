@@ -22,7 +22,7 @@ class CreateCertificateScoreServiceImpl(
 ) : BaseCountBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateCertificateScoreService {
     override fun execute(
-        certificateName: String,
+        value: String,
         fileId: Long,
     ): CreateScoreResponse =
         transaction {
@@ -35,7 +35,7 @@ class CreateCertificateScoreServiceImpl(
             createScore(
                 member = member,
                 categoryType = CategoryType.CERTIFICATE,
-                activityName = certificateName,
+                activityName = value,
                 sourceId = fileId,
             )
         }

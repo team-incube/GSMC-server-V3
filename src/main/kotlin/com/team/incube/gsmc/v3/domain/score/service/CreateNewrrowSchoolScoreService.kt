@@ -4,7 +4,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateSco
 
 interface CreateNewrrowSchoolScoreService {
     fun execute(
-        temperature: Int,
+        value: String,
         fileId: Long,
     ): CreateScoreResponse
 }
