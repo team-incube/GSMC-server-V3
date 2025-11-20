@@ -20,7 +20,7 @@ class CreateNcsScoreServiceImpl(
 ) : BaseCreateOrUpdateBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateNcsScoreService {
     override fun execute(
-        averageScore: Double,
+        value: String,
         fileId: Long,
     ): CreateScoreResponse =
         transaction {
@@ -30,7 +30,7 @@ class CreateNcsScoreServiceImpl(
 
             createOrUpdateScore(
                 categoryType = CategoryType.NCS,
-                scoreValue = averageScore,
+                scoreValue = value.toDouble(),
                 sourceId = fileId,
             )
         }

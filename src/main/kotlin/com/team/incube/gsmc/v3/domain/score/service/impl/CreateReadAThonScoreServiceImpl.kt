@@ -20,7 +20,7 @@ class CreateReadAThonScoreServiceImpl(
 ) : BaseCreateOrUpdateBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateReadAThonScoreService {
     override fun execute(
-        grade: Int,
+        value: String,
         fileId: Long,
     ): CreateScoreResponse =
         transaction {
@@ -30,7 +30,7 @@ class CreateReadAThonScoreServiceImpl(
 
             createOrUpdateScore(
                 categoryType = CategoryType.READ_A_THON,
-                scoreValue = grade.toDouble(),
+                scoreValue = value.toInt().toDouble(),
                 sourceId = fileId,
             )
         }

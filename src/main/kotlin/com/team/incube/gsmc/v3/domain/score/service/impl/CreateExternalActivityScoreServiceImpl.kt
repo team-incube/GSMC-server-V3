@@ -22,7 +22,7 @@ class CreateExternalActivityScoreServiceImpl(
 ) : BaseCountBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateExternalActivityScoreService {
     override fun execute(
-        activityName: String,
+        value: String,
         fileId: Long,
     ): CreateScoreResponse =
         transaction {
@@ -35,7 +35,7 @@ class CreateExternalActivityScoreServiceImpl(
             createScore(
                 member = member,
                 categoryType = CategoryType.EXTERNAL_ACTIVITY,
-                activityName = activityName,
+                activityName = value,
                 sourceId = fileId,
             )
         }

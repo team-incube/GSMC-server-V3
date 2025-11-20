@@ -15,11 +15,11 @@ class CreateAcademicGradeScoreServiceImpl(
     currentMemberProvider: CurrentMemberProvider,
 ) : BaseCreateOrUpdateBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateAcademicGradeScoreService {
-    override fun execute(averageGrade: Double): CreateScoreResponse =
+    override fun execute(value: String): CreateScoreResponse =
         transaction {
             createOrUpdateScore(
                 categoryType = CategoryType.ACADEMIC_GRADE,
-                scoreValue = averageGrade,
+                scoreValue = value.toDouble(),
                 sourceId = null,
             )
         }

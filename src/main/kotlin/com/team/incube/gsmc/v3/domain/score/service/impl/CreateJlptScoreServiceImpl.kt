@@ -26,7 +26,7 @@ class CreateJlptScoreServiceImpl(
 ) : BaseCreateOrUpdateBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateJlptScoreService {
     override fun execute(
-        grade: Int,
+        value: String,
         fileId: Long,
     ): CreateScoreResponse =
         transaction {
@@ -36,7 +36,7 @@ class CreateJlptScoreServiceImpl(
 
             createOrUpdateScore(
                 categoryType = CategoryType.JLPT,
-                scoreValue = grade.toDouble(),
+                scoreValue = value.toInt().toDouble(),
                 sourceId = fileId,
             )
         }

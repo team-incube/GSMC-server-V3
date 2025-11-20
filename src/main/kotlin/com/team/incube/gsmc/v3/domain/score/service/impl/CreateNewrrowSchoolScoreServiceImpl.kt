@@ -20,7 +20,7 @@ class CreateNewrrowSchoolScoreServiceImpl(
 ) : BaseCreateOrUpdateBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateNewrrowSchoolScoreService {
     override fun execute(
-        temperature: Int,
+        value: String,
         fileId: Long,
     ): CreateScoreResponse =
         transaction {
@@ -30,7 +30,7 @@ class CreateNewrrowSchoolScoreServiceImpl(
 
             createOrUpdateScore(
                 categoryType = CategoryType.NEWRROW_SCHOOL,
-                scoreValue = temperature.toDouble(),
+                scoreValue = value.toInt().toDouble(),
                 sourceId = fileId,
             )
         }

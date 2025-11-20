@@ -22,7 +22,7 @@ class CreateAwardScoreServiceImpl(
 ) : BaseCountBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateAwardScoreService {
     override fun execute(
-        awardName: String,
+        value: String,
         fileId: Long,
     ): CreateScoreResponse =
         transaction {
@@ -35,7 +35,7 @@ class CreateAwardScoreServiceImpl(
             createScore(
                 member = member,
                 categoryType = CategoryType.AWARD,
-                activityName = awardName,
+                activityName = value,
                 sourceId = fileId,
             )
         }

@@ -15,11 +15,11 @@ class CreateVolunteerScoreServiceImpl(
     currentMemberProvider: CurrentMemberProvider,
 ) : BaseCreateOrUpdateBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateVolunteerScoreService {
-    override fun execute(hours: Int): CreateScoreResponse =
+    override fun execute(value: String): CreateScoreResponse =
         transaction {
             createOrUpdateScore(
                 categoryType = CategoryType.VOLUNTEER,
-                scoreValue = hours.toDouble(),
+                scoreValue = value.toInt().toDouble(),
                 sourceId = null,
             )
         }

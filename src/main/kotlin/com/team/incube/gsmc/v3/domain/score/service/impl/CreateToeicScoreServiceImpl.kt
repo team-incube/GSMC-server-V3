@@ -20,7 +20,7 @@ class CreateToeicScoreServiceImpl(
 ) : BaseCreateOrUpdateBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateToeicScoreService {
     override fun execute(
-        value: Int,
+        value: String,
         fileId: Long,
     ): CreateScoreResponse =
         transaction {
@@ -30,7 +30,7 @@ class CreateToeicScoreServiceImpl(
 
             createOrUpdateScore(
                 categoryType = CategoryType.TOEIC,
-                scoreValue = value.toDouble(),
+                scoreValue = value.toInt().toDouble(),
                 sourceId = fileId,
             )
         }
