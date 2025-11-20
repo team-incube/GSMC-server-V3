@@ -1,7 +1,7 @@
 package com.team.incube.gsmc.v3.domain.score.presentation
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
-import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
+import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateAcademicGradeScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateAwardScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateCertificateScoreRequest
@@ -36,11 +36,10 @@ import com.team.incube.gsmc.v3.domain.score.service.CreateTopcitScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateVolunteerScoreService
 import com.team.incube.gsmc.v3.domain.score.service.DeleteScoreService
 import com.team.incube.gsmc.v3.domain.score.service.FindScoreByScoreIdService
-import com.team.incube.gsmc.v3.domain.score.service.GetMyScoresService
+import com.team.incube.gsmc.v3.domain.score.service.FindMyScoresService
 import com.team.incube.gsmc.v3.domain.score.service.RejectScoreService
 import com.team.incube.gsmc.v3.domain.score.service.UpdateScoreStatusService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
-import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -80,9 +79,8 @@ class ScoreController(
     private val createExternalActivityScoreService: CreateExternalActivityScoreService,
     private val createProjectParticipationService: CreateProjectParticipationService,
     private val calculateTotalScoreService: CalculateTotalScoreService,
-    private val getMyScoresService: GetMyScoresService,
+    private val findMyScoresService: FindMyScoresService,
     private val findScoreByScoreIdService: FindScoreByScoreIdService,
-    private val currentMemberProvider: CurrentMemberProvider,
 ) {
     @Operation(summary = "인증제 점수 상태 업데이트", description = "인증제 점수의 승인/거절 상태를 업데이트합니다")
     @ApiResponses(
@@ -519,7 +517,7 @@ class ScoreController(
     fun getMyScores(
         @RequestParam(required = false) categoryType: CategoryType?,
         @RequestParam(required = false) status: ScoreStatus?,
-    ): GetMyScoresResponse = getMyScoresService.execute(categoryType = categoryType, status = status)
+    ): GetMyScoresResponse = findMyScoresService.execute(categoryType = categoryType, status = status)
 
     @Operation(summary = "현재 사용자의 총점 조회", description = "현재 인증된 사용자의 인증제 총점을 조회합니다")
     @ApiResponses(
