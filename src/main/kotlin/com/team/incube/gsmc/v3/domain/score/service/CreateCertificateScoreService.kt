@@ -4,7 +4,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateSco
 
 interface CreateCertificateScoreService {
     fun execute(
-        certificateName: String,
+        value: String,
         fileId: Long,
     ): CreateScoreResponse
 }
