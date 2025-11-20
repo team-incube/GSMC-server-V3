@@ -240,6 +240,11 @@ class ScoreController(
                 description = "요청이 성공함",
             ),
             ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 점수 값이거나 점수 값이 허용 범위(1-1000)를 벗어남",
+                content = [Content()],
+            ),
+            ApiResponse(
                 responseCode = "404",
                 description = "존재하지 않는 파일을 매핑함",
                 content = [Content()],
@@ -262,6 +267,11 @@ class ScoreController(
             ApiResponse(
                 responseCode = "200",
                 description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 점수 값이거나 점수 값이 허용 범위(10-990)를 벗어남",
+                content = [Content()],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -288,6 +298,11 @@ class ScoreController(
                 description = "요청이 성공함",
             ),
             ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 점수 값이거나 점수 값이 허용 범위(1-5)를 벗어남",
+                content = [Content()],
+            ),
+            ApiResponse(
                 responseCode = "404",
                 description = "존재하지 않는 파일을 매핑함",
                 content = [Content()],
@@ -310,6 +325,11 @@ class ScoreController(
             ApiResponse(
                 responseCode = "200",
                 description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 점수 값이거나 점수 값이 허용 범위(1-7)를 벗어남",
+                content = [Content()],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -335,6 +355,11 @@ class ScoreController(
                 responseCode = "200",
                 description = "요청이 성공함",
             ),
+            ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 점수 값이거나 점수 값이 허용 범위(최소 1)를 벗어남",
+                content = [Content()],
+            ),
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
@@ -352,6 +377,11 @@ class ScoreController(
             ApiResponse(
                 responseCode = "200",
                 description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 점수 값이거나 점수 값이 허용 범위(1.0-5.0)를 벗어남",
+                content = [Content()],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -378,6 +408,11 @@ class ScoreController(
                 description = "요청이 성공함",
             ),
             ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 점수 값이거나 점수 값이 허용 범위(0-100)를 벗어남",
+                content = [Content()],
+            ),
+            ApiResponse(
                 responseCode = "404",
                 description = "존재하지 않는 파일을 매핑함",
                 content = [Content()],
@@ -400,6 +435,11 @@ class ScoreController(
             ApiResponse(
                 responseCode = "200",
                 description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 점수 값이거나 점수 값이 허용 범위(1.0-9.0)를 벗어남",
+                content = [Content()],
             ),
         ],
     )
