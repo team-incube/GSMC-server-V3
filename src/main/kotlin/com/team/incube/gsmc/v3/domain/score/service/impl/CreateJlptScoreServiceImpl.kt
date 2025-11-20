@@ -34,9 +34,17 @@ class CreateJlptScoreServiceImpl(
                 throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }
 
+            val intValue =
+                value.toIntOrNull()
+                    ?: throw GsmcException(ErrorCode.SCORE_INVALID_VALUE)
+
+            if (intValue !in 1..5) {
+                throw GsmcException(ErrorCode.SCORE_VALUE_OUT_OF_RANGE)
+            }
+
             createOrUpdateScore(
                 categoryType = CategoryType.JLPT,
-                scoreValue = value.toInt().toDouble(),
+                scoreValue = intValue.toDouble(),
                 sourceId = fileId,
             )
         }

@@ -28,9 +28,17 @@ class CreateReadAThonScoreServiceImpl(
                 throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }
 
+            val intValue =
+                value.toIntOrNull()
+                    ?: throw GsmcException(ErrorCode.SCORE_INVALID_VALUE)
+
+            if (intValue !in 1..7) {
+                throw GsmcException(ErrorCode.SCORE_VALUE_OUT_OF_RANGE)
+            }
+
             createOrUpdateScore(
                 categoryType = CategoryType.READ_A_THON,
-                scoreValue = value.toInt().toDouble(),
+                scoreValue = intValue.toDouble(),
                 sourceId = fileId,
             )
         }

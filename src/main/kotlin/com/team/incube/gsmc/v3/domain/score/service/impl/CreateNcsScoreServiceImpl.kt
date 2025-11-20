@@ -28,9 +28,17 @@ class CreateNcsScoreServiceImpl(
                 throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }
 
+            val doubleValue =
+                value.toDoubleOrNull()
+                    ?: throw GsmcException(ErrorCode.SCORE_INVALID_VALUE)
+
+            if (doubleValue !in 1.0..5.0) {
+                throw GsmcException(ErrorCode.SCORE_VALUE_OUT_OF_RANGE)
+            }
+
             createOrUpdateScore(
                 categoryType = CategoryType.NCS,
-                scoreValue = value.toDouble(),
+                scoreValue = doubleValue,
                 sourceId = fileId,
             )
         }
