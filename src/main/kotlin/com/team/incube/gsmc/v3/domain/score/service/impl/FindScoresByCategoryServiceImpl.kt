@@ -67,28 +67,22 @@ class FindScoresByCategoryServiceImpl(
         }
 
     private fun groupScoresByCategory(scores: List<Score>): Map<CategoryType, List<Score>> {
-        val foreignLanguageCategories = CategoryType.getForeignLanguageCategories().map { it }
-        val foreignLanguageScores = scores.filter { it.categoryType in foreignLanguageCategories }
-        val otherScores = scores.filter { it.categoryType !in foreignLanguageCategories }
+        val foreignLanguageCategories = CategoryType.getForeignLanguageCategories()
+        val (foreignLanguageScores, otherScores) = scores.partition { it.categoryType in foreignLanguageCategories }
 
         val grouped = mutableMapOf<CategoryType, List<Score>>()
 
         if (foreignLanguageScores.isNotEmpty()) {
             val representativeCategory =
-                foreignLanguageScores
-                    .firstOrNull { it.categoryType == CategoryType.TOEIC }
-                    ?.categoryType
-                    ?: foreignLanguageScores
-                        .firstOrNull { it.categoryType == CategoryType.JLPT }
-                        ?.categoryType
-                    ?: CategoryType.TOEIC
-
+                when {
+                    foreignLanguageScores.any { it.categoryType == CategoryType.TOEIC } -> CategoryType.TOEIC
+                    foreignLanguageScores.any { it.categoryType == CategoryType.JLPT } -> CategoryType.JLPT
+                    else -> CategoryType.TOEIC
+                }
             grouped[representativeCategory] = foreignLanguageScores
         }
 
-        otherScores.groupBy { it.categoryType }.forEach { (categoryType, categoryScores) ->
-            grouped[categoryType] = categoryScores
-        }
+        grouped.putAll(otherScores.groupBy { it.categoryType })
 
         return grouped
     }
