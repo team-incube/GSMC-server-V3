@@ -10,6 +10,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScor
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetMyScoresResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetScoreResponse
+import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetScoresByCategoryResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
 import com.team.incube.gsmc.v3.domain.score.service.ApproveScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
@@ -28,6 +29,7 @@ import com.team.incube.gsmc.v3.domain.score.service.CreateVolunteerScoreService
 import com.team.incube.gsmc.v3.domain.score.service.DeleteScoreService
 import com.team.incube.gsmc.v3.domain.score.service.FindMyScoresService
 import com.team.incube.gsmc.v3.domain.score.service.FindScoreByScoreIdService
+import com.team.incube.gsmc.v3.domain.score.service.FindScoresByCategoryService
 import com.team.incube.gsmc.v3.domain.score.service.RejectScoreService
 import com.team.incube.gsmc.v3.domain.score.service.UpdateScoreStatusService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
@@ -72,6 +74,7 @@ class ScoreController(
     private val calculateTotalScoreService: CalculateTotalScoreService,
     private val findMyScoresService: FindMyScoresService,
     private val findScoreByScoreIdService: FindScoreByScoreIdService,
+    private val findScoresByCategoryService: FindScoresByCategoryService,
 ) {
     @Operation(summary = "인증제 점수 상태 업데이트", description = "인증제 점수의 승인/거절 상태를 업데이트합니다")
     @ApiResponses(
@@ -549,6 +552,21 @@ class ScoreController(
         @RequestParam(required = false) categoryType: CategoryType?,
         @RequestParam(required = false) status: ScoreStatus?,
     ): GetMyScoresResponse = findMyScoresService.execute(categoryType = categoryType, status = status)
+
+    @Operation(summary = "현재 사용자의 카테고리별 점수 조회", description = "현재 인증된 사용자의 인증제 점수를 카테고리별로 그룹핑하여 환산 점수와 함께 조회합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/by-category")
+    fun getScoresByCategory(
+        @RequestParam(required = false) status: ScoreStatus?,
+    ): GetScoresByCategoryResponse = findScoresByCategoryService.execute(status = status)
 
     @Operation(summary = "현재 사용자의 총점 조회", description = "현재 인증된 사용자의 인증제 총점을 조회합니다")
     @ApiResponses(
