@@ -35,13 +35,14 @@ class FindScoresByCategoryServiceImpl(
             val categoryGroups =
                 groupedByCategory.map { (categoryType, categoryScores) ->
                     val recognizedScore = calculateRecognizedScore(categoryScores, categoryType)
+                    val isForeignLanguage = CategoryType.getForeignLanguageCategories().contains(categoryType)
 
                     CategoryScoreGroup(
                         categoryType = categoryType,
                         categoryNames =
                             CategoryNames(
-                                koreanName = categoryType.koreanName,
-                                englishName = categoryType.englishName,
+                                koreanName = if (isForeignLanguage) "공인 점수" else categoryType.koreanName,
+                                englishName = if (isForeignLanguage) "Foreign Language" else categoryType.englishName,
                             ),
                         recognizedScore = recognizedScore,
                         scores =
@@ -72,7 +73,6 @@ class FindScoresByCategoryServiceImpl(
 
         val grouped = mutableMapOf<CategoryType, List<Score>>()
 
-        // 외국어 영역 통합 (TOEIC, JLPT, TOEIC_ACADEMY)
         if (foreignLanguageScores.isNotEmpty()) {
             val representativeCategory =
                 foreignLanguageScores
@@ -86,7 +86,6 @@ class FindScoresByCategoryServiceImpl(
             grouped[representativeCategory] = foreignLanguageScores
         }
 
-        // 나머지 카테고리는 개별로 그룹핑
         otherScores.groupBy { it.categoryType }.forEach { (categoryType, categoryScores) ->
             grouped[categoryType] = categoryScores
         }
