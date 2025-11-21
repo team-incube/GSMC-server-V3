@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 data class CategoryScoreGroup(
     @param:Schema(description = "카테고리 타입", example = "TOEIC")
     val categoryType: CategoryType,
+    @param:Schema(description = "카테고리 이름")
     val categoryNames: CategoryNames,
     @param:Schema(description = "환산된 인정 점수", example = "6")
     val recognizedScore: Int,
