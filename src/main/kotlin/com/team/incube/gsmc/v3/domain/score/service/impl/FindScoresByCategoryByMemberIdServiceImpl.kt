@@ -1,6 +1,7 @@
 package com.team.incube.gsmc.v3.domain.score.service.impl
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
+import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.score.calculator.ScoreCalculatorFactory
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
@@ -10,18 +11,25 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.ScoreItem
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetScoresByCategoryResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.FindScoresByCategoryByMemberIdService
+import com.team.incube.gsmc.v3.global.common.error.ErrorCode
+import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
 
 @Service
 class FindScoresByCategoryByMemberIdServiceImpl(
     private val scoreExposedRepository: ScoreExposedRepository,
+    private val memberExposedRepository: MemberExposedRepository,
 ) : FindScoresByCategoryByMemberIdService {
     override fun execute(
         memberId: Long,
         status: ScoreStatus?,
     ): GetScoresByCategoryResponse =
         transaction {
+            if (!memberExposedRepository.existsById(memberId)) {
+                throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
+            }
+
             val scores =
                 scoreExposedRepository.findByMemberIdAndCategoryTypeAndStatus(
                     memberId = memberId,

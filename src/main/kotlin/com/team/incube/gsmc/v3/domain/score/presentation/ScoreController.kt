@@ -577,6 +577,11 @@ class ScoreController(
                 responseCode = "200",
                 description = "요청이 성공함",
             ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 사용자를 매핑함",
+                content = [Content()],
+            ),
         ],
     )
     @SecurityRequirement(name = "bearerAuth")

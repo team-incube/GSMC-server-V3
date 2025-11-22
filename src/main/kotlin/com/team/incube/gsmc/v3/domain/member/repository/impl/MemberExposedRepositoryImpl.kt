@@ -110,6 +110,12 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
             .firstOrNull()
             ?.toMember()
 
+    override fun existsById(id: Long): Boolean =
+        MemberExposedEntity
+            .selectAll()
+            .where { MemberExposedEntity.id eq id }
+            .count() > 0
+
     override fun updateMemberRoleByEmail(
         email: String,
         role: MemberRole,
