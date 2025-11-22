@@ -32,14 +32,15 @@ class FindScoresByCategoryServiceImpl(
 
             val groupedByCategory = groupScoresByCategory(scores)
             val foreignLanguageCategories = CategoryType.getForeignLanguageCategories()
+            val foreignRepresentative = groupedByCategory.keys.find { it in foreignLanguageCategories } ?: CategoryType.TOEIC
 
             val categoryGroups =
                 CategoryType.entries
-                    .filter { it !in foreignLanguageCategories || it == CategoryType.TOEIC }
+                    .filter { !it.isForeignLanguage || it == foreignRepresentative }
                     .map { categoryType ->
                         val categoryScores = groupedByCategory[categoryType] ?: emptyList()
                         val recognizedScore = if (categoryScores.isNotEmpty()) calculateRecognizedScore(categoryScores, categoryType) else 0
-                        val isForeignLanguage = foreignLanguageCategories.contains(categoryType)
+                        val isForeignLanguage = categoryType.isForeignLanguage
 
                         CategoryScoreGroup(
                             categoryType = categoryType,
