@@ -114,7 +114,8 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
         MemberExposedEntity
             .selectAll()
             .where { MemberExposedEntity.id eq id }
-            .count() > 0
+            .empty()
+            .not()
 
     override fun updateMemberRoleByEmail(
         email: String,
