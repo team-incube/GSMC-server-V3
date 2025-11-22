@@ -92,9 +92,10 @@ class FindScoresByCategoryByMemberIdServiceImpl(
 
         val representativeCategory =
             if (foreignLanguageScores.isNotEmpty()) {
+                val categoriesInScore = foreignLanguageScores.map { it.categoryType }.toSet()
                 when {
-                    foreignLanguageScores.any { it.categoryType == CategoryType.TOEIC } -> CategoryType.TOEIC
-                    foreignLanguageScores.any { it.categoryType == CategoryType.JLPT } -> CategoryType.JLPT
+                    CategoryType.TOEIC in categoriesInScore -> CategoryType.TOEIC
+                    CategoryType.JLPT in categoriesInScore -> CategoryType.JLPT
                     else -> CategoryType.TOEIC
                 }.also { grouped[it] = foreignLanguageScores }
             } else {
