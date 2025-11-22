@@ -31,6 +31,8 @@ interface MemberExposedRepository {
 
     fun findById(id: Long): Member?
 
+    fun existsById(id: Long): Boolean
+
     fun updateMemberRoleByEmail(
         email: String,
         role: MemberRole,
