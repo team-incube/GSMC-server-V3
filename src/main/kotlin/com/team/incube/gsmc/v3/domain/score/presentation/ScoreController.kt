@@ -29,6 +29,7 @@ import com.team.incube.gsmc.v3.domain.score.service.CreateVolunteerScoreService
 import com.team.incube.gsmc.v3.domain.score.service.DeleteScoreService
 import com.team.incube.gsmc.v3.domain.score.service.FindMyScoresService
 import com.team.incube.gsmc.v3.domain.score.service.FindScoreByScoreIdService
+import com.team.incube.gsmc.v3.domain.score.service.FindScoresByCategoryByMemberIdService
 import com.team.incube.gsmc.v3.domain.score.service.FindScoresByCategoryService
 import com.team.incube.gsmc.v3.domain.score.service.RejectScoreService
 import com.team.incube.gsmc.v3.domain.score.service.UpdateScoreStatusService
@@ -75,6 +76,7 @@ class ScoreController(
     private val findMyScoresService: FindMyScoresService,
     private val findScoreByScoreIdService: FindScoreByScoreIdService,
     private val findScoresByCategoryService: FindScoresByCategoryService,
+    private val findScoresByCategoryByMemberIdService: FindScoresByCategoryByMemberIdService,
 ) {
     @Operation(summary = "인증제 점수 상태 업데이트", description = "인증제 점수의 승인/거절 상태를 업데이트합니다")
     @ApiResponses(
@@ -567,6 +569,22 @@ class ScoreController(
     fun getScoresByCategory(
         @RequestParam(required = false) status: ScoreStatus?,
     ): GetScoresByCategoryResponse = findScoresByCategoryService.execute(status = status)
+
+    @Operation(summary = "특정 사용자의 카테고리별 점수 조회", description = "특정 사용자의 인증제 점수를 카테고리별로 그룹핑하여 환산 점수와 함께 조회합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/by-category/{memberId}")
+    fun getScoresByCategoryByMemberId(
+        @PathVariable memberId: Long,
+        @RequestParam(required = false) status: ScoreStatus?,
+    ): GetScoresByCategoryResponse = findScoresByCategoryByMemberIdService.execute(memberId = memberId, status = status)
 
     @Operation(summary = "현재 사용자의 총점 조회", description = "현재 인증된 사용자의 인증제 총점을 조회합니다")
     @ApiResponses(
