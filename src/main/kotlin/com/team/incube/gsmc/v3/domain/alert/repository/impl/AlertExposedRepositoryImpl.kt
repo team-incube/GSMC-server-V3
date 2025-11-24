@@ -126,6 +126,6 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
             (AlertExposedEntity.receiverId eq receiverId) and
                 (AlertExposedEntity.id lessEq lastAlertId)
         }) {
-            it[isRead] = isRead
+            it[isRead] = true
         }
 }
