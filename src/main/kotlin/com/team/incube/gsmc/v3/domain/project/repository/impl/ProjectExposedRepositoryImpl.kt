@@ -208,8 +208,8 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             it[this.description] = description
         }
 
-        ProjectFileExposedEntity.deleteWhere { ProjectFileExposedEntity.projectId eq id }
-        ProjectParticipantExposedEntity.deleteWhere { ProjectParticipantExposedEntity.projectId eq id }
+        ProjectFileExposedEntity.deleteWhere { projectId eq id }
+        ProjectParticipantExposedEntity.deleteWhere { projectId eq id }
 
         if (fileIds.isNotEmpty()) {
             ProjectFileExposedEntity.batchInsert(fileIds) { fileId ->
@@ -275,7 +275,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
     override fun deleteProjectById(projectId: Long) {
         ProjectFileExposedEntity.deleteWhere { ProjectFileExposedEntity.projectId eq projectId }
         ProjectParticipantExposedEntity.deleteWhere { ProjectParticipantExposedEntity.projectId eq projectId }
-        ProjectExposedEntity.deleteWhere { ProjectExposedEntity.id eq projectId }
+        ProjectExposedEntity.deleteWhere { id eq projectId }
     }
 
     private fun getProjectFiles(projectId: Long): List<File> {

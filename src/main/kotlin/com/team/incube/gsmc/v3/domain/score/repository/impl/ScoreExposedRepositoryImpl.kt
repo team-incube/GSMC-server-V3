@@ -246,7 +246,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
             .empty()
 
     override fun deleteById(scoreId: Long) {
-        ScoreExposedEntity.deleteWhere { ScoreExposedEntity.id eq scoreId }
+        ScoreExposedEntity.deleteWhere { id eq scoreId }
     }
 
     private fun ResultRow.toMember(): Member =

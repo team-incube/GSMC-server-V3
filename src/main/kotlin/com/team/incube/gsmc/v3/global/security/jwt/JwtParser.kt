@@ -59,7 +59,7 @@ class JwtParser(
             .verifyWith(accessTokenKey)
             .build()
             .parseSignedClaims(token)
-            .getPayload()
+            .payload
 
     private fun parseRefreshTokenClaims(token: String): Claims =
         Jwts
@@ -67,5 +67,5 @@ class JwtParser(
             .verifyWith(refreshTokenKey)
             .build()
             .parseSignedClaims(token)
-            .getPayload()
+            .payload
 }
