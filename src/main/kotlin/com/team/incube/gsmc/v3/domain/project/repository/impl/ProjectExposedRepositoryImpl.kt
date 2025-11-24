@@ -1,14 +1,18 @@
 package com.team.incube.gsmc.v3.domain.project.repository.impl
 
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.file.dto.File
 import com.team.incube.gsmc.v3.domain.file.entity.FileExposedEntity
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
 import com.team.incube.gsmc.v3.domain.project.dto.Project
+import com.team.incube.gsmc.v3.domain.project.dto.ProjectParticipant
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectExposedEntity
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectFileExposedEntity
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectParticipantExposedEntity
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
+import com.team.incube.gsmc.v3.domain.score.entity.ScoreExposedEntity
+import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -178,25 +182,8 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             }
         }
 
-        val files =
-            if (fileIds.isNotEmpty()) {
-                FileExposedEntity
-                    .selectAll()
-                    .where { FileExposedEntity.id inList fileIds }
-                    .map { it.toFile() }
-            } else {
-                emptyList()
-            }
-
-        val participants =
-            if (allParticipantIds.isNotEmpty()) {
-                MemberExposedEntity
-                    .selectAll()
-                    .where { MemberExposedEntity.id inList allParticipantIds }
-                    .map { it.toMember() }
-            } else {
-                emptyList()
-            }
+        val files = getProjectFiles(projectId)
+        val participants = getProjectParticipants(projectId)
 
         return Project(
             id = projectId,
@@ -240,25 +227,8 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             }
         }
 
-        val files =
-            if (fileIds.isNotEmpty()) {
-                FileExposedEntity
-                    .selectAll()
-                    .where { FileExposedEntity.id inList fileIds }
-                    .map { it.toFile() }
-            } else {
-                emptyList()
-            }
-
-        val participants =
-            if (allParticipantIds.isNotEmpty()) {
-                MemberExposedEntity
-                    .selectAll()
-                    .where { MemberExposedEntity.id inList allParticipantIds }
-                    .map { it.toMember() }
-            } else {
-                emptyList()
-            }
+        val files = getProjectFiles(id)
+        val participants = getProjectParticipants(id)
 
         return Project(
             id = id,
@@ -323,7 +293,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             .map { it.toFile() }
     }
 
-    private fun getProjectParticipants(projectId: Long): List<Member> {
+    private fun getProjectParticipants(projectId: Long): List<ProjectParticipant> {
         val memberIds =
             ProjectParticipantExposedEntity
                 .selectAll()
@@ -333,9 +303,18 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
         if (memberIds.isEmpty()) return emptyList()
 
         return MemberExposedEntity
-            .selectAll()
+            .join(
+                otherTable = ScoreExposedEntity,
+                joinType = JoinType.LEFT,
+                onColumn = MemberExposedEntity.id,
+                otherColumn = ScoreExposedEntity.memberId,
+                additionalConstraint = {
+                    (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName) and
+                        (ScoreExposedEntity.sourceId eq projectId)
+                },
+            ).selectAll()
             .where { MemberExposedEntity.id inList memberIds }
-            .map { it.toMember() }
+            .map { it.toProjectParticipant() }
     }
 
     private fun getFilesByProjectIds(projectIds: List<Long>): Map<Long, List<File>> {
@@ -363,29 +342,29 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             }
     }
 
-    private fun getParticipantsByProjectIds(projectIds: List<Long>): Map<Long, List<Member>> {
-        val participantRelations =
-            ProjectParticipantExposedEntity
-                .selectAll()
-                .where { ProjectParticipantExposedEntity.projectId inList projectIds }
-                .map { it[ProjectParticipantExposedEntity.projectId] to it[ProjectParticipantExposedEntity.memberId] }
+    private fun getParticipantsByProjectIds(projectIds: List<Long>): Map<Long, List<ProjectParticipant>> {
+        if (projectIds.isEmpty()) return emptyMap()
 
-        if (participantRelations.isEmpty()) return emptyMap()
-
-        val memberIds = participantRelations.map { it.second }.distinct()
-        val membersById =
+        val participantData =
             MemberExposedEntity
-                .selectAll()
-                .where { MemberExposedEntity.id inList memberIds }
-                .associate { row ->
-                    row[MemberExposedEntity.id] to row.toMember()
+                .innerJoin(ProjectParticipantExposedEntity)
+                .join(
+                    otherTable = ScoreExposedEntity,
+                    joinType = JoinType.LEFT,
+                    onColumn = MemberExposedEntity.id,
+                    otherColumn = ScoreExposedEntity.memberId,
+                    additionalConstraint = {
+                        (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName) and
+                            (ScoreExposedEntity.sourceId eq ProjectParticipantExposedEntity.projectId)
+                    },
+                ).selectAll()
+                .where { ProjectParticipantExposedEntity.projectId inList projectIds }
+                .map { row ->
+                    row[ProjectParticipantExposedEntity.projectId] to row.toProjectParticipant()
                 }
 
-        return participantRelations
+        return participantData
             .groupBy({ it.first }, { it.second })
-            .mapValues { (_, memberIdList) ->
-                memberIdList.mapNotNull { membersById[it] }
-            }
     }
 
     private fun ResultRow.toMember(): Member =
@@ -397,6 +376,18 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             classNumber = this[MemberExposedEntity.classNumber],
             number = this[MemberExposedEntity.number],
             role = this[MemberExposedEntity.role],
+        )
+
+    private fun ResultRow.toProjectParticipant(): ProjectParticipant =
+        ProjectParticipant(
+            id = this[MemberExposedEntity.id],
+            name = this[MemberExposedEntity.name],
+            email = this[MemberExposedEntity.email],
+            grade = this[MemberExposedEntity.grade],
+            classNumber = this[MemberExposedEntity.classNumber],
+            number = this[MemberExposedEntity.number],
+            role = this[MemberExposedEntity.role],
+            scoreId = this.getOrNull(ScoreExposedEntity.id),
         )
 
     private fun ResultRow.toFile(): File =
