@@ -1,8 +1,10 @@
 package com.team.incube.gsmc.v3.domain.score.service.impl
 
+import com.team.incube.gsmc.v3.domain.category.constant.EvidenceType
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvidenceResponse
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
+import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.CategoryNames
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service
 class FindScoreByScoreIdServiceImpl(
     private val scoreExposedRepository: ScoreExposedRepository,
     private val evidenceExposedRepository: EvidenceExposedRepository,
+    private val fileExposedRepository: FileExposedRepository,
 ) : FindScoreByScoreIdService {
     override fun execute(scoreId: Long): GetScoreResponse =
         transaction {
@@ -25,23 +28,43 @@ class FindScoreByScoreIdServiceImpl(
 
             val evidence =
                 score.sourceId?.let { sourceId ->
-                    evidenceExposedRepository.findById(sourceId)?.let { evidenceDto ->
-                        GetEvidenceResponse(
-                            evidenceId = evidenceDto.id,
-                            title = evidenceDto.title,
-                            content = evidenceDto.content,
-                            createdAt = evidenceDto.createdAt,
-                            updatedAt = evidenceDto.updatedAt,
-                            files =
-                                evidenceDto.files.map { file ->
-                                    FileItem(
-                                        fileId = file.fileId,
-                                        originalName = file.fileOriginalName,
-                                        storedName = file.fileStoredName,
-                                        uri = file.fileUri,
-                                    )
-                                },
-                        )
+                    if (score.categoryType.evidenceType == EvidenceType.EVIDENCE) {
+                        evidenceExposedRepository.findById(sourceId)?.let { evidenceDto ->
+                            GetEvidenceResponse(
+                                evidenceId = evidenceDto.id,
+                                title = evidenceDto.title,
+                                content = evidenceDto.content,
+                                createdAt = evidenceDto.createdAt,
+                                updatedAt = evidenceDto.updatedAt,
+                                files =
+                                    evidenceDto.files.map { file ->
+                                        FileItem(
+                                            fileId = file.fileId,
+                                            originalName = file.fileOriginalName,
+                                            storedName = file.fileStoredName,
+                                            uri = file.fileUri,
+                                        )
+                                    },
+                            )
+                        }
+                    } else {
+                        null
+                    }
+                }
+
+            val file =
+                score.sourceId?.let { sourceId ->
+                    if (score.categoryType.evidenceType == EvidenceType.FILE) {
+                        fileExposedRepository.findById(sourceId)?.let { fileDto ->
+                            FileItem(
+                                fileId = fileDto.fileId,
+                                originalName = fileDto.fileOriginalName,
+                                storedName = fileDto.fileStoredName,
+                                uri = fileDto.fileUri,
+                            )
+                        }
+                    } else {
+                        null
                     }
                 }
 
@@ -56,6 +79,7 @@ class FindScoreByScoreIdServiceImpl(
                 activityName = score.activityName,
                 scoreValue = score.scoreValue,
                 evidence = evidence,
+                file = file,
                 rejectionReason = score.rejectionReason,
             )
         }
