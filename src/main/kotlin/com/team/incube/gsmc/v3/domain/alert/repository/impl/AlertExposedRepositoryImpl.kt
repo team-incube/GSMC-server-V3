@@ -12,6 +12,7 @@ import com.team.incube.gsmc.v3.domain.score.entity.ScoreExposedEntity
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.alias
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
@@ -125,8 +126,8 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
         lastAlertId: Long,
     ): Int =
         AlertExposedEntity.update({
-            (AlertExposedEntity.receiverId eq receiverId)
-            (AlertExposedEntity.id lessEq lastAlertId)
+            (AlertExposedEntity.receiverId eq receiverId) and
+                (AlertExposedEntity.id lessEq lastAlertId)
         }) {
             it[isRead] = isRead
         }
