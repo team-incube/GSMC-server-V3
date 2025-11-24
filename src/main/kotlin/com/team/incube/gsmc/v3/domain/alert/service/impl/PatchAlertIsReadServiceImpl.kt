@@ -17,7 +17,7 @@ class PatchAlertIsReadServiceImpl(
 
             alertExposedRepository.updateIsReadTrueByReceiverIdAndLastAlertId(
                 receiverId = currentMember.id,
-                lastAlertId = lastAlertId
+                lastAlertId = lastAlertId,
             )
         }
     }
