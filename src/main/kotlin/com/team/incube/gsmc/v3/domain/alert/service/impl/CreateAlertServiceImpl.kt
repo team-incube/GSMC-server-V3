@@ -41,10 +41,10 @@ class CreateAlertServiceImpl(
                         String.format(ADD_SCORE_TEMPLATE, score.activityName, sender.name)
 
                     AlertType.REJECTED ->
-                        String.format(REJECTED_TEMPLATE, score.activityName, receiver.name)
+                        String.format(REJECTED_TEMPLATE, score.activityName, sender.name)
 
                     AlertType.APPROVED ->
-                        String.format(APPROVED_TEMPLATE, score.activityName, receiver.name)
+                        String.format(APPROVED_TEMPLATE, score.activityName, sender.name)
                 }
 
             alertExposedRepository.save(sender, receiver, score, alertType, content)
