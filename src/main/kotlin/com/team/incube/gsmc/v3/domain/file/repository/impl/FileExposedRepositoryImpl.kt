@@ -79,7 +79,7 @@ class FileExposedRepositoryImpl : FileExposedRepository {
 
     override fun deleteById(fileId: Long) {
         FileExposedEntity.deleteWhere {
-            FileExposedEntity.id eq fileId
+            id eq fileId
         }
     }
 

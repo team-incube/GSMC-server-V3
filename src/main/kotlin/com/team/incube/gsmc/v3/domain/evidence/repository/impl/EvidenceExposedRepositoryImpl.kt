@@ -132,7 +132,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
             it[updatedAt] = now
         }
 
-        EvidenceFileExposedEntity.deleteWhere { EvidenceFileExposedEntity.evidenceId eq id }
+        EvidenceFileExposedEntity.deleteWhere { evidenceId eq id }
 
         if (fileIds.isNotEmpty()) {
             EvidenceFileExposedEntity.batchInsert(fileIds) { fileId ->
@@ -167,7 +167,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
 
     override fun deleteById(evidenceId: Long) {
         EvidenceFileExposedEntity.deleteWhere { EvidenceFileExposedEntity.evidenceId eq evidenceId }
-        EvidenceExposedEntity.deleteWhere { EvidenceExposedEntity.id eq evidenceId }
+        EvidenceExposedEntity.deleteWhere { id eq evidenceId }
     }
 
     private fun ResultRow.toFile(): File? {
