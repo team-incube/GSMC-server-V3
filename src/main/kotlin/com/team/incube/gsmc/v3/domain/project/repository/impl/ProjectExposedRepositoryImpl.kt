@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.domain.project.repository.impl
 
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.file.dto.File
 import com.team.incube.gsmc.v3.domain.file.entity.FileExposedEntity
 import com.team.incube.gsmc.v3.domain.member.dto.Member
@@ -11,6 +12,7 @@ import com.team.incube.gsmc.v3.domain.project.entity.ProjectFileExposedEntity
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectParticipantExposedEntity
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.score.entity.ScoreExposedEntity
+import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -18,7 +20,6 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 import org.springframework.data.domain.Page
@@ -301,16 +302,19 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
 
         if (memberIds.isEmpty()) return emptyList()
 
-        return (MemberExposedEntity leftJoin ScoreExposedEntity)
-            .selectAll()
-            .where {
-                (MemberExposedEntity.id inList memberIds) and
-                    (
-                        (ScoreExposedEntity.categoryEnglishName eq "PROJECT_PARTICIPATION") and
-                            (ScoreExposedEntity.sourceId eq projectId) or
-                            (ScoreExposedEntity.id.isNull())
-                    )
-            }.map { it.toProjectParticipant() }
+        return MemberExposedEntity
+            .join(
+                otherTable = ScoreExposedEntity,
+                joinType = JoinType.LEFT,
+                onColumn = MemberExposedEntity.id,
+                otherColumn = ScoreExposedEntity.memberId,
+                additionalConstraint = {
+                    (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName) and
+                        (ScoreExposedEntity.sourceId eq projectId)
+                },
+            ).selectAll()
+            .where { MemberExposedEntity.id inList memberIds }
+            .map { it.toProjectParticipant() }
     }
 
     private fun getFilesByProjectIds(projectIds: List<Long>): Map<Long, List<File>> {
@@ -349,20 +353,22 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
 
         val memberIds = participantRelations.map { it.second }.distinct()
 
-        // 각 프로젝트-멤버 조합에 대해 scoreId를 조회
         val participantData =
-            (MemberExposedEntity innerJoin ProjectParticipantExposedEntity leftJoin ScoreExposedEntity)
-                .selectAll()
+            MemberExposedEntity
+                .innerJoin(ProjectParticipantExposedEntity)
+                .join(
+                    otherTable = ScoreExposedEntity,
+                    joinType = JoinType.LEFT,
+                    onColumn = MemberExposedEntity.id,
+                    otherColumn = ScoreExposedEntity.memberId,
+                    additionalConstraint = {
+                        (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName) and
+                            (ScoreExposedEntity.sourceId eq ProjectParticipantExposedEntity.projectId)
+                    },
+                ).selectAll()
                 .where {
                     (MemberExposedEntity.id inList memberIds) and
-                        (ProjectParticipantExposedEntity.projectId inList projectIds) and
-                        (
-                            (
-                                (ScoreExposedEntity.categoryEnglishName eq "PROJECT_PARTICIPATION") and
-                                    (ScoreExposedEntity.sourceId eq ProjectParticipantExposedEntity.projectId)
-                            ) or
-                                (ScoreExposedEntity.id.isNull())
-                        )
+                        (ProjectParticipantExposedEntity.projectId inList projectIds)
                 }.map { row ->
                     Triple(
                         row[ProjectParticipantExposedEntity.projectId],
