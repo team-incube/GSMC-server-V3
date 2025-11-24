@@ -343,15 +343,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
     }
 
     private fun getParticipantsByProjectIds(projectIds: List<Long>): Map<Long, List<ProjectParticipant>> {
-        val participantRelations =
-            ProjectParticipantExposedEntity
-                .selectAll()
-                .where { ProjectParticipantExposedEntity.projectId inList projectIds }
-                .map { it[ProjectParticipantExposedEntity.projectId] to it[ProjectParticipantExposedEntity.memberId] }
-
-        if (participantRelations.isEmpty()) return emptyMap()
-
-        val memberIds = participantRelations.map { it.second }.distinct()
+        if (projectIds.isEmpty()) return emptyMap()
 
         val participantData =
             MemberExposedEntity
@@ -366,10 +358,8 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
                             (ScoreExposedEntity.sourceId eq ProjectParticipantExposedEntity.projectId)
                     },
                 ).selectAll()
-                .where {
-                    (MemberExposedEntity.id inList memberIds) and
-                        (ProjectParticipantExposedEntity.projectId inList projectIds)
-                }.map { row ->
+                .where { ProjectParticipantExposedEntity.projectId inList projectIds }
+                .map { row ->
                     Triple(
                         row[ProjectParticipantExposedEntity.projectId],
                         row[MemberExposedEntity.id],
