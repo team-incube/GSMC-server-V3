@@ -31,7 +31,8 @@ class AlertController(
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/my")
-    fun getMyAlerts(): GetMyAlertsResponse = findMyAlertsService.execute()
+    fun getMyAlerts(): GetMyAlertsResponse =
+        findMyAlertsService.execute()
 
     @Operation(summary = "알림 읽음 처리", description = "lastAlertId까지의 알림을 읽음 처리합니다")
     @ApiResponses(
