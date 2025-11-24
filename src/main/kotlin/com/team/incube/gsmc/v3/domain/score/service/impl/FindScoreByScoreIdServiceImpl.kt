@@ -27,8 +27,9 @@ class FindScoreByScoreIdServiceImpl(
                     ?: throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
 
             val evidence =
-                score.sourceId?.let { sourceId ->
-                    if (score.categoryType.evidenceType == EvidenceType.EVIDENCE) {
+                score.sourceId
+                    ?.takeIf { score.categoryType.evidenceType == EvidenceType.EVIDENCE }
+                    ?.let { sourceId ->
                         evidenceExposedRepository.findById(sourceId)?.let { evidenceDto ->
                             GetEvidenceResponse(
                                 evidenceId = evidenceDto.id,
@@ -47,14 +48,12 @@ class FindScoreByScoreIdServiceImpl(
                                     },
                             )
                         }
-                    } else {
-                        null
                     }
-                }
 
             val file =
-                score.sourceId?.let { sourceId ->
-                    if (score.categoryType.evidenceType == EvidenceType.FILE) {
+                score.sourceId
+                    ?.takeIf { score.categoryType.evidenceType == EvidenceType.FILE }
+                    ?.let { sourceId ->
                         fileExposedRepository.findById(sourceId)?.let { fileDto ->
                             FileItem(
                                 fileId = fileDto.fileId,
@@ -63,10 +62,7 @@ class FindScoreByScoreIdServiceImpl(
                                 uri = fileDto.fileUri,
                             )
                         }
-                    } else {
-                        null
                     }
-                }
 
             GetScoreResponse(
                 scoreId = score.id!!,
