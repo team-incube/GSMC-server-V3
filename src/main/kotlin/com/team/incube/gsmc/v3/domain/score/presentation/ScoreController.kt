@@ -297,7 +297,7 @@ class ScoreController(
             fileId = request.fileId,
         )
 
-    @Operation(summary = "토익사관학교 참여 등록", description = "현재 인증된 사용자의 토익사관학교 참여를 등록합니다")
+    @Operation(summary = "토익사관학교 참여 등록 또는 개신", description = "현재 인증된 사용자의 토익사관학교 참여를 등록 또는 갱신합니다")
     @ApiResponses(
         value = [
             ApiResponse(
