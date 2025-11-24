@@ -23,6 +23,7 @@ import com.team.incube.gsmc.v3.domain.score.service.CreateNcsScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateNewrrowSchoolScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateProjectParticipationService
 import com.team.incube.gsmc.v3.domain.score.service.CreateReadAThonScoreService
+import com.team.incube.gsmc.v3.domain.score.service.CreateToeicAcademyScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateToeicScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateTopcitScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateVolunteerScoreService
@@ -64,6 +65,7 @@ class ScoreController(
     private val createAwardScoreService: CreateAwardScoreService,
     private val createTopcitScoreService: CreateTopcitScoreService,
     private val createToeicScoreService: CreateToeicScoreService,
+    private val createToeicAcademyScoreService: CreateToeicAcademyScoreService,
     private val createJlptScoreService: CreateJlptScoreService,
     private val createReadAThonScoreService: CreateReadAThonScoreService,
     private val createVolunteerScoreService: CreateVolunteerScoreService,
@@ -294,6 +296,19 @@ class ScoreController(
             value = request.value,
             fileId = request.fileId,
         )
+
+    @Operation(summary = "토익사관학교 참여 등록 또는 개신", description = "현재 인증된 사용자의 토익사관학교 참여를 등록 또는 갱신합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/toeic-academy")
+    fun addToeicAcademyScore(): CreateScoreResponse = createToeicAcademyScoreService.execute()
 
     @Operation(summary = "JLPT 영역 인증제 점수 추가 또는 갱신", description = "현재 인증된 사용자의 JLPT 영역에 대한 인증제 점수를 추가하거나 갱신합니다")
     @ApiResponses(
