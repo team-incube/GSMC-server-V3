@@ -360,15 +360,11 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
                 ).selectAll()
                 .where { ProjectParticipantExposedEntity.projectId inList projectIds }
                 .map { row ->
-                    Triple(
-                        row[ProjectParticipantExposedEntity.projectId],
-                        row[MemberExposedEntity.id],
-                        row.toProjectParticipant(),
-                    )
+                    row[ProjectParticipantExposedEntity.projectId] to row.toProjectParticipant()
                 }
 
         return participantData
-            .groupBy({ it.first }, { it.third })
+            .groupBy({ it.first }, { it.second })
     }
 
     private fun ResultRow.toMember(): Member =
