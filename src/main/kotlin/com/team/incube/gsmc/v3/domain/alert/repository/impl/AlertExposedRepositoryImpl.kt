@@ -114,7 +114,7 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
             alertType = alertType,
             isRead = false,
             content = content,
-            createdAt = LocalDateTime.ofInstant(now, ZoneId.systemDefault())
+            createdAt = LocalDateTime.ofInstant(now, ZoneId.systemDefault()),
         )
     }
 
