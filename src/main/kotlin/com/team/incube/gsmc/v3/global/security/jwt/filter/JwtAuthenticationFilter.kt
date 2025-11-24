@@ -16,7 +16,6 @@ import java.io.IOException
 class JwtAuthenticationFilter(
     private val jwtParser: JwtParser,
 ) : OncePerRequestFilter() {
-
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(
         request: HttpServletRequest,
