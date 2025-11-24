@@ -93,6 +93,8 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
         alertType: AlertType,
         content: String,
     ): Alert {
+        val now = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()
+
         val insertedId =
             AlertExposedEntity.insert {
                 it[this.senderId] = sender.id
@@ -101,13 +103,8 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
                 it[this.alertType] = alertType
                 it[this.isRead] = false
                 it[this.content] = content
+                it[this.createdAt] = now
             } get AlertExposedEntity.id
-
-        val row =
-            AlertExposedEntity
-                .selectAll()
-                .where { AlertExposedEntity.id eq insertedId }
-                .single()
 
         return Alert(
             id = insertedId,
@@ -115,9 +112,9 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
             receiver = receiver,
             score = score,
             alertType = alertType,
-            isRead = row[AlertExposedEntity.isRead],
+            isRead = false,
             content = content,
-            createdAt = LocalDateTime.ofInstant(row[AlertExposedEntity.createdAt], ZoneId.systemDefault()),
+            createdAt = LocalDateTime.ofInstant(now, ZoneId.systemDefault())
         )
     }
 
