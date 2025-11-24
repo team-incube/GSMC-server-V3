@@ -17,7 +17,7 @@ class CachedBodyRequestWrapper
     constructor(
         request: HttpServletRequest,
     ) : HttpServletRequestWrapper(request) {
-        val cachedBody: ByteArray = StreamUtils.copyToByteArray(request.inputStream)
+        private val cachedBody: ByteArray = StreamUtils.copyToByteArray(request.inputStream)
 
         override fun getInputStream(): ServletInputStream {
             val byteArrayInputStream = ByteArrayInputStream(cachedBody)
