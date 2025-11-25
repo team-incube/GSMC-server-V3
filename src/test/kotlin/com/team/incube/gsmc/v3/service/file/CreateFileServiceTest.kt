@@ -119,11 +119,11 @@ class CreateFileServiceTest :
                 )
             } returns
                 File(
-                    fileId = 1L,
-                    memberId = 0L,
-                    fileOriginalName = "test-document.pdf",
-                    fileStoreName = "20251015120000_abc123def456.pdf",
-                    fileUri = testFileUri,
+                    id = 1L,
+                    member = 0L,
+                    originalName = "test-document.pdf",
+                    storeName = "20251015120000_abc123def456.pdf",
+                    uri = testFileUri,
                 )
 
             When("파일 생성을 실행하면") {
@@ -132,9 +132,9 @@ class CreateFileServiceTest :
                 Then("파일이 정상적으로 생성되어야 한다") {
                     result shouldNotBe null
                     result.id shouldBe 1L
-                    result.fileOriginalName shouldBe "test-document.pdf"
-                    result.fileStoreName shouldContain "pdf"
-                    result.fileUri shouldBe testFileUri
+                    result.originalName shouldBe "test-document.pdf"
+                    result.storeName shouldContain "pdf"
+                    result.uri shouldBe testFileUri
                 }
 
                 Then("S3에 파일이 업로드되어야 한다") {
@@ -142,8 +142,8 @@ class CreateFileServiceTest :
                 }
 
                 Then("저장된 파일명은 타임스탬프와 UUID를 포함해야 한다") {
-                    result.fileStoreName shouldContain "_"
-                    result.fileStoreName shouldEndWith ".pdf"
+                    result.storeName shouldContain "_"
+                    result.storeName shouldEndWith ".pdf"
                 }
 
                 Then("파일 저장소에 저장되어야 한다") {
@@ -182,18 +182,18 @@ class CreateFileServiceTest :
                         )
                     } returns
                         File(
-                            fileId = 1L,
-                            memberId = 0L,
-                            fileOriginalName = "test-file.$extension",
-                            fileStoreName = "20251015120000_test.$extension",
-                            fileUri = testFileUri,
+                            id = 1L,
+                            member = 0L,
+                            originalName = "test-file.$extension",
+                            storeName = "20251015120000_test.$extension",
+                            uri = testFileUri,
                         )
 
                     val result = context.createFileService.execute(testFile)
 
                     Then("파일이 정상적으로 업로드되어야 한다") {
                         result shouldNotBe null
-                        result.fileOriginalName shouldBe "test-file.$extension"
+                        result.originalName shouldBe "test-file.$extension"
                     }
                 }
             }
@@ -283,11 +283,11 @@ class CreateFileServiceTest :
                 )
             } returns
                 File(
-                    fileId = 1L,
-                    memberId = 0L,
-                    fileOriginalName = "TEST-FILE.PDF",
-                    fileStoreName = "20251015120000_test.PDF",
-                    fileUri = testFileUri,
+                    id = 1L,
+                    member = 0L,
+                    originalName = "TEST-FILE.PDF",
+                    storeName = "20251015120000_test.PDF",
+                    uri = testFileUri,
                 )
 
             When("파일 생성을 실행하면") {
@@ -295,7 +295,7 @@ class CreateFileServiceTest :
 
                 Then("확장자 대소문자 구분 없이 정상 처리되어야 한다") {
                     result shouldNotBe null
-                    result.fileOriginalName shouldBe "TEST-FILE.PDF"
+                    result.originalName shouldBe "TEST-FILE.PDF"
                 }
             }
         }

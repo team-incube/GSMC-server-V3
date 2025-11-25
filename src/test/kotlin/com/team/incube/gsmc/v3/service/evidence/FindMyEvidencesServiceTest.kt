@@ -60,14 +60,14 @@ class FindMyEvidencesServiceTest :
                 )
 
             val now = LocalDateTime.of(2025, 11, 19, 10, 0)
-            val files1 = listOf(File(1L, 1L, "file1.pdf", "stored1.pdf", "uri1"))
-            val files2 = listOf(File(2L, 1L, "file2.pdf", "stored2.pdf", "uri2"))
+            val files1 = listOf(File(id = 1L, member = 1L, originalName = "file1.pdf", storeName = "stored1.pdf", uri = "uri1"))
+            val files2 = listOf(File(id = 2L, member = 1L, originalName = "file2.pdf", storeName = "stored2.pdf", uri = "uri2"))
 
             val evidences =
                 listOf(
                     Evidence(
                         id = 10L,
-                        memberId = 1L,
+                        member = 1L,
                         title = "대회 참가 증빙",
                         content = "2024년 전국 프로그래밍 대회 참가",
                         createdAt = now,
@@ -76,7 +76,7 @@ class FindMyEvidencesServiceTest :
                     ),
                     Evidence(
                         id = 20L,
-                        memberId = 1L,
+                        member = 1L,
                         title = "봉사활동 증빙",
                         content = "지역 봉사활동 참여",
                         createdAt = now.plusDays(1),
@@ -161,13 +161,13 @@ class FindMyEvidencesServiceTest :
                 )
 
             val now = LocalDateTime.of(2025, 11, 15, 14, 30)
-            val files = listOf(File(3L, 3L, "doc.pdf", "stored_doc.pdf", "uri-doc"))
+            val files = listOf(File(id = 3L, member = 3L, originalName = "doc.pdf", storeName = "stored_doc.pdf", uri = "uri-doc"))
 
             val evidences =
                 listOf(
                     Evidence(
                         id = 30L,
-                        memberId = 3L,
+                        member = 3L,
                         title = "프로젝트 결과물",
                         content = "팀 프로젝트 최종 결과물입니다.",
                         createdAt = now,
@@ -217,7 +217,7 @@ class FindMyEvidencesServiceTest :
                 listOf(
                     Evidence(
                         id = 40L,
-                        memberId = 4L,
+                        member = 4L,
                         title = "활동 일지",
                         content = "일일 활동 내용 기록",
                         createdAt = now,
