@@ -1,7 +1,7 @@
 package com.team.incube.gsmc.v3.domain.project.service.impl
 
 import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
-import com.team.incube.gsmc.v3.domain.project.presentation.data.response.ProjectResponse
+import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectResponse
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.SearchProjectResponse
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.project.service.SearchProjectService
@@ -37,7 +37,7 @@ class SearchProjectServiceImpl(
                                 uri = file.uri,
                             )
                         }
-                    ProjectResponse(
+                    GetProjectResponse(
                         id = project.id,
                         ownerId = project.ownerId,
                         title = project.title,

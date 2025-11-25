@@ -1,7 +1,7 @@
 package com.team.incube.gsmc.v3.domain.project.service.impl
 
 import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
-import com.team.incube.gsmc.v3.domain.project.presentation.data.response.ProjectResponse
+import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectResponse
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.project.service.CreateProjectService
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
@@ -18,7 +18,7 @@ class CreateProjectServiceImpl(
         description: String,
         fileIds: List<Long>,
         participantIds: List<Long>,
-    ): ProjectResponse =
+    ): GetProjectResponse =
         transaction {
             val currentUser = currentMemberProvider.getCurrentMember()
 
@@ -43,7 +43,7 @@ class CreateProjectServiceImpl(
                     )
                 }
 
-            ProjectResponse(
+            GetProjectResponse(
                 id = project.id,
                 ownerId = project.ownerId,
                 title = project.title,

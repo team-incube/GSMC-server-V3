@@ -5,7 +5,7 @@ import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.ScoreItem
 import io.swagger.v3.oas.annotations.media.Schema
 
-data class ProjectResponse(
+data class GetProjectResponse(
     @param:Schema(description = "프로젝트 ID", example = "1")
     val id: Long,
     @param:Schema(description = "프로젝트 소유자 ID", example = "1")
