@@ -26,7 +26,7 @@ class FindMyAlertsServiceImpl(
                             id = alert.id,
                             title = alert.alertType.title,
                             content = alert.content,
-                            createdAt = alert.createdAt.toLocalDate(),
+                            createdAt = alert.createdAt,
                             alertType = alert.alertType,
                             scoreId = alert.score.id!!,
                         )
