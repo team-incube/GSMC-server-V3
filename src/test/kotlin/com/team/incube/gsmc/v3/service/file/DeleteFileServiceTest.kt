@@ -79,7 +79,7 @@ class DeleteFileServiceTest :
                     fileId = fileId,
                     memberId = 0L,
                     fileOriginalName = "test-document.pdf",
-                    fileStoredName = "20251015120000_abc123def456.pdf",
+                    fileStoreName = "20251015120000_abc123def456.pdf",
                     fileUri = testFileUri,
                 )
 
@@ -145,7 +145,7 @@ class DeleteFileServiceTest :
                         fileId = fileId,
                         memberId = 0L,
                         fileOriginalName = "file$fileId.pdf",
-                        fileStoredName = "stored-file$fileId.pdf",
+                        fileStoreName = "stored-file$fileId.pdf",
                         fileUri = fileUris[index],
                     )
                 every { context.mockFileRepository.findById(fileId) } returns file
@@ -187,7 +187,7 @@ class DeleteFileServiceTest :
                     fileId = fileId,
                     memberId = 0L,
                     fileOriginalName = "test-document.pdf",
-                    fileStoredName = "20251015120000_abc123def456.pdf",
+                    fileStoreName = "20251015120000_abc123def456.pdf",
                     fileUri = testFileUri,
                 )
 
@@ -225,7 +225,7 @@ class DeleteFileServiceTest :
                             fileId = fileId,
                             memberId = 0L,
                             fileOriginalName = fileName,
-                            fileStoredName = "stored-$fileName",
+                            fileStoreName = "stored-$fileName",
                             fileUri = fileUri,
                         )
 
@@ -253,7 +253,7 @@ class DeleteFileServiceTest :
                     fileId = fileId,
                     memberId = 0L,
                     fileOriginalName = "test-document.pdf",
-                    fileStoredName = "20251015120000_abc123def456.pdf",
+                    fileStoreName = "20251015120000_abc123def456.pdf",
                     fileUri = testFileUri,
                 )
 

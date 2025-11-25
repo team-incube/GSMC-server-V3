@@ -4,6 +4,6 @@ data class File(
     val fileId: Long,
     val memberId: Long,
     val fileOriginalName: String,
-    val fileStoredName: String,
+    val fileStoreName: String,
     val fileUri: String,
 )

@@ -85,14 +85,14 @@ class DeleteScoreServiceTest :
                         fileId = 10L,
                         memberId = 0L,
                         fileOriginalName = "a.pdf",
-                        fileStoredName = "sa.pdf",
+                        fileStoreName = "sa.pdf",
                         fileUri = "s3://a",
                     ),
                     File(
                         fileId = 11L,
                         memberId = 0L,
                         fileOriginalName = "b.jpg",
-                        fileStoredName = "sb.jpg",
+                        fileStoreName = "sb.jpg",
                         fileUri = "s3://b",
                     ),
                 )
@@ -149,7 +149,7 @@ class DeleteScoreServiceTest :
             val scoreId = 2L
             val sourceId = 200L
             val file =
-                File(fileId = sourceId, memberId = 0L, fileOriginalName = "f", fileStoredName = "sf", fileUri = "s3://f")
+                File(fileId = sourceId, memberId = 0L, fileOriginalName = "f", fileStoreName = "sf", fileUri = "s3://f")
             val score =
                 Score(
                     id = scoreId,

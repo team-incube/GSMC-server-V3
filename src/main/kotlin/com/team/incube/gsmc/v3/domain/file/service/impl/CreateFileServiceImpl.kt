@@ -37,7 +37,7 @@ class CreateFileServiceImpl(
             CreateFileResponse(
                 id = savedFile.fileId,
                 fileOriginalName = savedFile.fileOriginalName,
-                fileStoredName = savedFile.fileStoredName,
+                fileStoreName = savedFile.fileStoreName,
                 fileUri = savedFile.fileUri,
             )
         }

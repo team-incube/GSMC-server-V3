@@ -46,7 +46,7 @@ class FileExposedRepositoryImpl : FileExposedRepository {
             fileId = insertedId,
             memberId = userId,
             fileOriginalName = originalName,
-            fileStoredName = storedName,
+            fileStoreName = storedName,
             fileUri = uri,
         )
     }
@@ -88,7 +88,7 @@ class FileExposedRepositoryImpl : FileExposedRepository {
             fileId = this[FileExposedEntity.id],
             memberId = this[FileExposedEntity.memberId],
             fileOriginalName = this[FileExposedEntity.originalName],
-            fileStoredName = this[FileExposedEntity.storedName],
+            fileStoreName = this[FileExposedEntity.storedName],
             fileUri = this[FileExposedEntity.uri],
         )
 }

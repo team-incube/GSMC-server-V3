@@ -182,7 +182,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                 fileId = fileId,
                 memberId = memberId,
                 fileOriginalName = originalName,
-                fileStoredName = storedName,
+                fileStoreName = storedName,
                 fileUri = uri,
             )
         } else {

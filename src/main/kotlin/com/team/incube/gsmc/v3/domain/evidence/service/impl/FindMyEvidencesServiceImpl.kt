@@ -33,9 +33,10 @@ class FindMyEvidencesServiceImpl(
                                 evidence.files.map { file ->
                                     FileItem(
                                         fileId = file.fileId,
-                                        originalName = file.fileOriginalName,
-                                        storedName = file.fileStoredName,
-                                        uri = file.fileUri,
+                                        fileOriginalName = file.fileOriginalName,
+                                        fileStoreName = file.fileStoreName,
+                                        fileUri = file.fileUri,
+                                        memberId = file.memberId,
                                     )
                                 },
                         )

@@ -62,7 +62,7 @@ class FindEvidenceByIdServiceTest :
                     res.content shouldBe "content"
                     res.createdAt shouldBe now
                     res.updatedAt shouldBe now
-                    res.files shouldBe listOf(FileItem(10, "a.pdf", "sa.pdf", "uri-a"))
+                    res.files shouldBe listOf(FileItem(10, 0L, "a.pdf", "sa.pdf", "uri-a"))
                 }
 
                 Then("리포지토리에서 1회 조회된다") {
