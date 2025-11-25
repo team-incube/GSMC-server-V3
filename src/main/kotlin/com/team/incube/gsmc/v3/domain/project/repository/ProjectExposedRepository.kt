@@ -1,6 +1,7 @@
 package com.team.incube.gsmc.v3.domain.project.repository
 
 import com.team.incube.gsmc.v3.domain.project.dto.Project
+import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.ScoreItem
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
@@ -46,4 +47,6 @@ interface ProjectExposedRepository {
     ): String?
 
     fun deleteProjectById(projectId: Long)
+
+    fun findScoreItemsByProjectId(projectId: Long): List<ScoreItem>
 }
