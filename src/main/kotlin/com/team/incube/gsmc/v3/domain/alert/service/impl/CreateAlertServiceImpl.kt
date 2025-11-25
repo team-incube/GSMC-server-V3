@@ -16,12 +16,6 @@ class CreateAlertServiceImpl(
     private val alertExposedRepository: AlertExposedRepository,
     private val scoreExposedRepository: ScoreExposedRepository,
 ) : CreateAlertService {
-    companion object {
-        private const val ADD_SCORE_TEMPLATE = "%s 점수를 %s 학생이 등록하였습니다."
-        private const val REJECTED_TEMPLATE = "%s 점수를 %s 선생님께서 거부하셨습니다."
-        private const val APPROVED_TEMPLATE = "%s 점수를 %s 선생님께서 통과시키셨습니다."
-    }
-
     override fun execute(
         senderId: Long,
         receiverId: Long,
@@ -38,13 +32,11 @@ class CreateAlertServiceImpl(
             val content =
                 when (alertType) {
                     AlertType.ADD_SCORE ->
-                        String.format(ADD_SCORE_TEMPLATE, score.activityName, sender.name)
-
+                        "${score.activityName} 점수를 ${sender.name} 학생이 등록하였습니다."
                     AlertType.REJECTED ->
-                        String.format(REJECTED_TEMPLATE, score.activityName, sender.name)
-
+                        "${score.activityName} 점수를 ${sender.name} 선생님께서 거부하셨습니다."
                     AlertType.APPROVED ->
-                        String.format(APPROVED_TEMPLATE, score.activityName, sender.name)
+                        "${score.activityName} 점수를 ${sender.name} 선생님께서 통과시키셨습니다."
                 }
 
             alertExposedRepository.save(sender, receiver, score, alertType, content)
