@@ -109,20 +109,16 @@ class FindMyFilesServiceTest :
                 }
 
                 Then("반환된 파일들이 올바른 정보를 포함해야 한다") {
-                    result.files[0].fileId shouldBe 1L
-                    result.files[0].originalName shouldBe "document1.pdf"
-                    result.files[0].storedName shouldBe "20251125120000_abc123.pdf"
-                    result.files[0].uri shouldBe "https://gsmc-bucket.s3.amazonaws.com/evidences/file1.pdf"
-
-                    result.files[1].fileId shouldBe 2L
-                    result.files[1].originalName shouldBe "image1.jpg"
-                    result.files[1].storedName shouldBe "20251125120001_def456.jpg"
-                    result.files[1].uri shouldBe "https://gsmc-bucket.s3.amazonaws.com/evidences/file2.jpg"
-
-                    result.files[2].fileId shouldBe 3L
-                    result.files[2].originalName shouldBe "spreadsheet1.xlsx"
-                    result.files[2].storedName shouldBe "20251125120002_ghi789.xlsx"
-                    result.files[2].uri shouldBe "https://gsmc-bucket.s3.amazonaws.com/evidences/file3.xlsx"
+                    val expectedFileItems =
+                        mockFiles.map { file ->
+                            com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem(
+                                fileId = file.fileId,
+                                originalName = file.fileOriginalName,
+                                storedName = file.fileStoredName,
+                                uri = file.fileUri,
+                            )
+                        }
+                    result.files shouldBe expectedFileItems
                 }
             }
         }
@@ -166,9 +162,16 @@ class FindMyFilesServiceTest :
                 val result = context.findMyFilesService.execute()
 
                 Then("단일 파일이 반환되어야 한다") {
-                    result.files shouldHaveSize 1
-                    result.files[0].fileId shouldBe 1L
-                    result.files[0].originalName shouldBe "single-file.pdf"
+                    val expectedFileItems =
+                        mockFiles.map { file ->
+                            com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem(
+                                fileId = file.fileId,
+                                originalName = file.fileOriginalName,
+                                storedName = file.fileStoredName,
+                                uri = file.fileUri,
+                            )
+                        }
+                    result.files shouldBe expectedFileItems
                 }
             }
         }

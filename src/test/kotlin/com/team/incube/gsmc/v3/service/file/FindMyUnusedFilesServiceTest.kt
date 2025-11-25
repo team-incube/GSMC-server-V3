@@ -102,15 +102,16 @@ class FindMyUnusedFilesServiceTest :
                 }
 
                 Then("반환된 파일들이 올바른 정보를 포함해야 한다") {
-                    result.files[0].fileId shouldBe 1L
-                    result.files[0].originalName shouldBe "unused-document.pdf"
-                    result.files[0].storedName shouldBe "20251125120000_unused1.pdf"
-                    result.files[0].uri shouldBe "https://gsmc-bucket.s3.amazonaws.com/evidences/unused1.pdf"
-
-                    result.files[1].fileId shouldBe 2L
-                    result.files[1].originalName shouldBe "unused-image.jpg"
-                    result.files[1].storedName shouldBe "20251125120001_unused2.jpg"
-                    result.files[1].uri shouldBe "https://gsmc-bucket.s3.amazonaws.com/evidences/unused2.jpg"
+                    val expectedFileItems =
+                        mockUnusedFiles.map { file ->
+                            com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem(
+                                fileId = file.fileId,
+                                originalName = file.fileOriginalName,
+                                storedName = file.fileStoredName,
+                                uri = file.fileUri,
+                            )
+                        }
+                    result.files shouldBe expectedFileItems
                 }
             }
         }
@@ -154,9 +155,16 @@ class FindMyUnusedFilesServiceTest :
                 val result = context.findMyUnusedFilesService.execute()
 
                 Then("단일 미사용 파일이 반환되어야 한다") {
-                    result.files shouldHaveSize 1
-                    result.files[0].fileId shouldBe 5L
-                    result.files[0].originalName shouldBe "single-unused.hwp"
+                    val expectedFileItems =
+                        mockUnusedFiles.map { file ->
+                            com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem(
+                                fileId = file.fileId,
+                                originalName = file.fileOriginalName,
+                                storedName = file.fileStoredName,
+                                uri = file.fileUri,
+                            )
+                        }
+                    result.files shouldBe expectedFileItems
                 }
             }
         }
@@ -202,11 +210,16 @@ class FindMyUnusedFilesServiceTest :
                 val result = context.findMyUnusedFilesService.execute()
 
                 Then("모든 확장자의 파일들이 올바르게 반환되어야 한다") {
-                    result.files shouldHaveSize 4
-                    result.files[0].originalName shouldBe "document.pdf"
-                    result.files[1].originalName shouldBe "image.png"
-                    result.files[2].originalName shouldBe "sheet.xlsx"
-                    result.files[3].originalName shouldBe "presentation.pptx"
+                    val expectedFileItems =
+                        mockUnusedFiles.map { file ->
+                            com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem(
+                                fileId = file.fileId,
+                                originalName = file.fileOriginalName,
+                                storedName = file.fileStoredName,
+                                uri = file.fileUri,
+                            )
+                        }
+                    result.files shouldBe expectedFileItems
                 }
             }
         }
