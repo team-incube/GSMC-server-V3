@@ -656,14 +656,11 @@ class ScoreController(
     fun updateCertificateScore(
         @PathVariable scoreId: Long,
         @Valid @RequestBody request: UpdateScoreWithValueAndFileRequest,
-    ): CommonApiResponse<Nothing> {
-        updateCertificateScoreService.execute(
-            scoreId = scoreId,
-            value = request.value,
-            fileId = request.fileId,
-        )
-        return CommonApiResponse.success("OK")
-    }
+    ) = updateCertificateScoreService.execute(
+        scoreId = scoreId,
+        value = request.value,
+        fileId = request.fileId,
+    )
 
     @Operation(summary = "수상경력 점수 수정", description = "수상경력 점수의 활동명과 증빙 파일을 수정합니다")
     @ApiResponses(
@@ -689,14 +686,11 @@ class ScoreController(
     fun updateAwardScore(
         @PathVariable scoreId: Long,
         @Valid @RequestBody request: UpdateScoreWithValueAndFileRequest,
-    ): CommonApiResponse<Nothing> {
-        updateAwardScoreService.execute(
-            scoreId = scoreId,
-            value = request.value,
-            fileId = request.fileId,
-        )
-        return CommonApiResponse.success("OK")
-    }
+    ) = updateAwardScoreService.execute(
+        scoreId = scoreId,
+        value = request.value,
+        fileId = request.fileId,
+    )
 
     @Operation(summary = "외부활동 점수 수정", description = "외부활동 점수의 활동명과 증빙 파일을 수정합니다")
     @ApiResponses(
@@ -722,12 +716,9 @@ class ScoreController(
     fun updateExternalActivityScore(
         @PathVariable scoreId: Long,
         @Valid @RequestBody request: UpdateScoreWithValueAndFileRequest,
-    ): CommonApiResponse<Nothing> {
-        updateExternalActivityScoreService.execute(
-            scoreId = scoreId,
-            value = request.value,
-            fileId = request.fileId,
-        )
-        return CommonApiResponse.success("OK")
-    }
+    ) = updateExternalActivityScoreService.execute(
+        scoreId = scoreId,
+        value = request.value,
+        fileId = request.fileId,
+    )
 }

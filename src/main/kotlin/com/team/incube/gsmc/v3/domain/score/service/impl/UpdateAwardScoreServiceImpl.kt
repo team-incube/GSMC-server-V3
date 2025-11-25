@@ -3,6 +3,8 @@ package com.team.incube.gsmc.v3.domain.score.service.impl
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
+import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.CategoryNames
+import com.team.incube.gsmc.v3.domain.score.presentation.data.response.UpdateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.UpdateAwardScoreService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
@@ -21,7 +23,7 @@ class UpdateAwardScoreServiceImpl(
         scoreId: Long,
         value: String,
         fileId: Long,
-    ) {
+    ): UpdateScoreResponse =
         transaction {
             val currentMember = currentMemberProvider.getCurrentMember()
 
@@ -41,13 +43,24 @@ class UpdateAwardScoreServiceImpl(
                 throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }
 
-            scoreExposedRepository.update(
-                score.copy(
-                    activityName = value,
-                    sourceId = fileId,
-                    status = ScoreStatus.PENDING,
-                ),
+            val updatedScore =
+                scoreExposedRepository.update(
+                    score.copy(
+                        activityName = value,
+                        sourceId = fileId,
+                        status = ScoreStatus.PENDING,
+                    ),
+                )
+
+            UpdateScoreResponse(
+                scoreId = updatedScore.id!!,
+                categoryNames =
+                    CategoryNames(
+                        koreanName = updatedScore.categoryType.koreanName,
+                        englishName = updatedScore.categoryType.englishName,
+                    ),
+                scoreStatus = updatedScore.status,
+                activityName = updatedScore.activityName!!,
             )
         }
-    }
 }
