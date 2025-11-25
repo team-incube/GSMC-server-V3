@@ -6,7 +6,6 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import jakarta.annotation.PostConstruct
-import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Component
 
 @Component
@@ -41,14 +40,6 @@ class JwtParser(
     fun getUserIdFromAccessToken(token: String): String = parseAccessTokenClaims(token).subject
 
     fun getUserIdFromRefreshToken(token: String): String = parseRefreshTokenClaims(token).subject
-
-    fun resolveToken(request: HttpServletRequest): String? {
-        val header = request.getHeader("Authorization") ?: return null
-        val trim = header.trim()
-        if (!trim.startsWith("Bearer ", ignoreCase = true)) return null
-        val token = trim.substring(7).trim()
-        return token.ifEmpty { null }
-    }
 
     fun getRoleFromAccessToken(token: String): MemberRole =
         MemberRole.valueOf(parseAccessTokenClaims(token).get("role", String::class.java))
