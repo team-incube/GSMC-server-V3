@@ -2,7 +2,6 @@ package com.team.incube.gsmc.v3.domain.project.presentation.data.response
 
 import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
 import com.team.incube.gsmc.v3.domain.member.dto.Member
-import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.ScoreItem
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class GetProjectResponse(
@@ -18,6 +17,6 @@ data class GetProjectResponse(
     val files: List<FileItem>,
     @param:Schema(description = "프로젝트 참가자 목록")
     val participants: List<Member>,
-    @param:Schema(description = "프로젝트 관련 점수 목록")
-    val scoreItems: List<ScoreItem>,
+    @param:Schema(description = "프로젝트 관련 점수 ID 목록")
+    val scoreIds: List<Long>,
 )

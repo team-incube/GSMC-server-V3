@@ -42,7 +42,7 @@ class UpdateProjectServiceImpl(
                     participantIds = participantIds ?: project.participants.map { it.id },
                 )
 
-            val scoreItems = projectExposedRepository.findScoreItemsByProjectId(updatedProject.id!!)
+            val scoreIds = projectExposedRepository.findScoreIdsByProjectId(updatedProject.id!!)
             val fileItems =
                 updatedProject.files.map { file ->
                     FileItem(
@@ -61,7 +61,7 @@ class UpdateProjectServiceImpl(
                 description = updatedProject.description,
                 files = fileItems,
                 participants = updatedProject.participants,
-                scoreItems = scoreItems,
+                scoreIds = scoreIds,
             )
         }
 }

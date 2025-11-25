@@ -19,7 +19,7 @@ class FindMyProjectsServiceImpl(
             val projects = projectExposedRepository.findProjectsByParticipantId(currentUser.id)
 
             projects.map { project ->
-                val scoreItems = projectExposedRepository.findScoreItemsByProjectId(project.id!!)
+                val scoreIds = projectExposedRepository.findScoreIdsByProjectId(project.id!!)
                 val fileItems =
                     project.files.map { file ->
                         FileItem(
@@ -37,7 +37,7 @@ class FindMyProjectsServiceImpl(
                     description = project.description,
                     files = fileItems,
                     participants = project.participants,
-                    scoreItems = scoreItems,
+                    scoreIds = scoreIds,
                 )
             }
         }
