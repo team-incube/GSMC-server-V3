@@ -36,9 +36,9 @@ class CreateFileServiceImpl(
                 )
             CreateFileResponse(
                 id = savedFile.id,
-                fileOriginalName = savedFile.originalName,
-                fileStoreName = savedFile.storeName,
-                fileUri = savedFile.uri,
+                originalName = savedFile.originalName,
+                storeName = savedFile.storeName,
+                uri = savedFile.uri,
             )
         }
     }
