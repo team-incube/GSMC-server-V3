@@ -394,8 +394,8 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
         File(
             fileId = this[FileExposedEntity.id],
             memberId = this[FileExposedEntity.memberId],
-            fileOriginalName = this[FileExposedEntity.originalName],
-            fileStoreName = this[FileExposedEntity.storedName],
+            fileOriginalName = this[FileExposedEntity.fileOriginalName],
+            fileStoreName = this[FileExposedEntity.fileStoreName],
             fileUri = this[FileExposedEntity.uri],
         )
 }

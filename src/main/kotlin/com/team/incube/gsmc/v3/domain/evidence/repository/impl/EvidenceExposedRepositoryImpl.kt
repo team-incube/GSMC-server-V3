@@ -173,16 +173,16 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
     private fun ResultRow.toFile(): File? {
         val fileId = this.getOrNull(FileExposedEntity.id)
         val memberId = this.getOrNull(FileExposedEntity.memberId)
-        val originalName = this.getOrNull(FileExposedEntity.originalName)
-        val storedName = this.getOrNull(FileExposedEntity.storedName)
+        val fileOriginalName = this.getOrNull(FileExposedEntity.fileOriginalName)
+        val fileStoredName = this.getOrNull(FileExposedEntity.fileStoreName)
         val uri = this.getOrNull(FileExposedEntity.uri)
 
-        return if (fileId != null && memberId != null && originalName != null && storedName != null && uri != null) {
+        return if (fileId != null && memberId != null && fileOriginalName != null && fileStoredName != null && uri != null) {
             File(
                 fileId = fileId,
                 memberId = memberId,
-                fileOriginalName = originalName,
-                fileStoreName = storedName,
+                fileOriginalName = fileOriginalName,
+                fileStoreName = fileStoredName,
                 fileUri = uri,
             )
         } else {

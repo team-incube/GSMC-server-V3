@@ -37,8 +37,8 @@ class FileExposedRepositoryImpl : FileExposedRepository {
         val insertedId =
             FileExposedEntity.insert {
                 it[this.memberId] = userId
-                it[this.originalName] = originalName
-                it[this.storedName] = storedName
+                it[this.fileOriginalName] = originalName
+                it[this.fileStoreName] = storedName
                 it[this.uri] = uri
             } get FileExposedEntity.id
 
@@ -87,8 +87,8 @@ class FileExposedRepositoryImpl : FileExposedRepository {
         File(
             fileId = this[FileExposedEntity.id],
             memberId = this[FileExposedEntity.memberId],
-            fileOriginalName = this[FileExposedEntity.originalName],
-            fileStoreName = this[FileExposedEntity.storedName],
+            fileOriginalName = this[FileExposedEntity.fileOriginalName],
+            fileStoreName = this[FileExposedEntity.fileStoreName],
             fileUri = this[FileExposedEntity.uri],
         )
 }
