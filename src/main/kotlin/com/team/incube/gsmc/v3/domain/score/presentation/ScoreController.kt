@@ -7,6 +7,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateScor
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateScoreWithValueRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.RejectScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScoreStatusRequest
+import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScoreWithValueAndFileRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetMyScoresResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetScoreResponse
@@ -33,6 +34,9 @@ import com.team.incube.gsmc.v3.domain.score.service.FindScoreByScoreIdService
 import com.team.incube.gsmc.v3.domain.score.service.FindScoresByCategoryByMemberIdService
 import com.team.incube.gsmc.v3.domain.score.service.FindScoresByCategoryService
 import com.team.incube.gsmc.v3.domain.score.service.RejectScoreService
+import com.team.incube.gsmc.v3.domain.score.service.UpdateAwardScoreService
+import com.team.incube.gsmc.v3.domain.score.service.UpdateCertificateScoreService
+import com.team.incube.gsmc.v3.domain.score.service.UpdateExternalActivityScoreService
 import com.team.incube.gsmc.v3.domain.score.service.UpdateScoreStatusService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -74,6 +78,9 @@ class ScoreController(
     private val createAcademicGradeScoreService: CreateAcademicGradeScoreService,
     private val createExternalActivityScoreService: CreateExternalActivityScoreService,
     private val createProjectParticipationService: CreateProjectParticipationService,
+    private val updateCertificateScoreService: UpdateCertificateScoreService,
+    private val updateAwardScoreService: UpdateAwardScoreService,
+    private val updateExternalActivityScoreService: UpdateExternalActivityScoreService,
     private val calculateTotalScoreService: CalculateTotalScoreService,
     private val findMyScoresService: FindMyScoresService,
     private val findScoreByScoreIdService: FindScoreByScoreIdService,
@@ -624,4 +631,94 @@ class ScoreController(
             required = false,
         ) includeApprovedOnly: Boolean,
     ): GetTotalScoreResponse = calculateTotalScoreService.execute(includeApprovedOnly = includeApprovedOnly)
+
+    @Operation(summary = "자격증 점수 수정", description = "자격증 점수의 활동명과 증빙 파일을 수정합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "해당 점수의 소유자가 아님",
+                content = [Content()],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 점수 또는 파일을 매핑함",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PatchMapping("/certificate/{scoreId}")
+    fun updateCertificateScore(
+        @PathVariable scoreId: Long,
+        @Valid @RequestBody request: UpdateScoreWithValueAndFileRequest,
+    ) = updateCertificateScoreService.execute(
+        scoreId = scoreId,
+        value = request.value,
+        fileId = request.fileId,
+    )
+
+    @Operation(summary = "수상경력 점수 수정", description = "수상경력 점수의 활동명과 증빙 파일을 수정합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "해당 점수의 소유자가 아님",
+                content = [Content()],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 점수 또는 파일을 매핑함",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PatchMapping("/award/{scoreId}")
+    fun updateAwardScore(
+        @PathVariable scoreId: Long,
+        @Valid @RequestBody request: UpdateScoreWithValueAndFileRequest,
+    ) = updateAwardScoreService.execute(
+        scoreId = scoreId,
+        value = request.value,
+        fileId = request.fileId,
+    )
+
+    @Operation(summary = "외부활동 점수 수정", description = "외부활동 점수의 활동명과 증빙 파일을 수정합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "해당 점수의 소유자가 아님",
+                content = [Content()],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 점수 또는 파일을 매핑함",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PatchMapping("/external-activity/{scoreId}")
+    fun updateExternalActivityScore(
+        @PathVariable scoreId: Long,
+        @Valid @RequestBody request: UpdateScoreWithValueAndFileRequest,
+    ) = updateExternalActivityScoreService.execute(
+        scoreId = scoreId,
+        value = request.value,
+        fileId = request.fileId,
+    )
 }

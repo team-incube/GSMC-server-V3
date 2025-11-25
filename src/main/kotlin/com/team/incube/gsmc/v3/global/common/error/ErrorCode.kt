@@ -9,6 +9,8 @@ enum class ErrorCode(
 
     // Score
     SCORE_NOT_FOUND("존재하지 않는 점수 객체입니다.", 404),
+    SCORE_NOT_OWNED("해당 점수에 대한 소유권이 없습니다.", 403),
+    SCORE_INVALID_CATEGORY("잘못된 점수 카테고리입니다.", 400),
     SCORE_ALREADY_HAS_EVIDENCE("이미 증빙을 가진 점수가 포함되어 있습니다.", 409),
     SCORE_MAX_LIMIT_EXCEEDED("해당 인증제 항목의 점수 한도를 초과했습니다.", 409),
     SCORE_ALREADY_EXISTS("이미 해당 항목에 대한 점수가 존재합니다.", 409),
