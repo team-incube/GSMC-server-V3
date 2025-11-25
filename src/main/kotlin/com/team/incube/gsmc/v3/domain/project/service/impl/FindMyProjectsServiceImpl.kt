@@ -18,6 +18,7 @@ class FindCurrentProjectsServiceImpl(
             val projects = projectExposedRepository.findProjectsByParticipantId(currentUser.id)
 
             projects.map { project ->
+                val scoreItems = projectExposedRepository.getProjectScoreItems(project.id!!)
                 ProjectResponse(
                     id = project.id!!,
                     ownerId = project.ownerId,
@@ -25,6 +26,7 @@ class FindCurrentProjectsServiceImpl(
                     description = project.description,
                     files = project.files,
                     participants = project.participants,
+                    scoreItems = scoreItems,
                 )
             }
         }
