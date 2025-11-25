@@ -31,12 +31,17 @@ class CreateAlertServiceImpl(
 
             val content =
                 when (alertType) {
-                    AlertType.ADD_SCORE ->
+                    AlertType.ADD_SCORE -> {
                         "${score.activityName} 점수를 ${sender.name} 학생이 등록하였습니다."
-                    AlertType.REJECTED ->
+                    }
+
+                    AlertType.REJECTED -> {
                         "${score.activityName} 점수를 ${sender.name} 선생님께서 거부하셨습니다."
-                    AlertType.APPROVED ->
+                    }
+
+                    AlertType.APPROVED -> {
                         "${score.activityName} 점수를 ${sender.name} 선생님께서 통과시키셨습니다."
+                    }
                 }
 
             alertExposedRepository.save(sender, receiver, score, alertType, content)

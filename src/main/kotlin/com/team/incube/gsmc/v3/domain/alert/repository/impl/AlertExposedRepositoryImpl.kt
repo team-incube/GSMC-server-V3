@@ -37,9 +37,8 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
             .where { AlertExposedEntity.receiverId eq receiverId }
             .orderBy(
                 AlertExposedEntity.createdAt to SortOrder.DESC,
-                AlertExposedEntity.id to SortOrder.DESC
-            )
-            .map { row ->
+                AlertExposedEntity.id to SortOrder.DESC,
+            ).map { row ->
                 val sender =
                     Member(
                         id = row[senderAlias[MemberExposedEntity.id]],
