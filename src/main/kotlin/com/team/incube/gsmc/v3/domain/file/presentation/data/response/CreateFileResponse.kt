@@ -9,7 +9,7 @@ data class CreateFileResponse(
     @param:Schema(description = "파일 원본명", example = "증빙자료.pdf")
     val fileOriginalName: String,
     @param:Schema(description = "파일 저장명", example = "20251005143022_a1b2c3d4e5f6.pdf")
-    val fileStoredName: String,
+    val fileStoreName: String,
     @param:Schema(
         description = "파일 URI",
         example = "https://gsmc-bucket.s3.amazonaws.com/evidences/20251005143022_a1b2c3d4e5f6.pdf",

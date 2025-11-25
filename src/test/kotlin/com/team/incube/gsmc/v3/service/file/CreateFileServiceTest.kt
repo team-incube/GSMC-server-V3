@@ -122,7 +122,7 @@ class CreateFileServiceTest :
                     fileId = 1L,
                     memberId = 0L,
                     fileOriginalName = "test-document.pdf",
-                    fileStoredName = "20251015120000_abc123def456.pdf",
+                    fileStoreName = "20251015120000_abc123def456.pdf",
                     fileUri = testFileUri,
                 )
 
@@ -133,7 +133,7 @@ class CreateFileServiceTest :
                     result shouldNotBe null
                     result.id shouldBe 1L
                     result.fileOriginalName shouldBe "test-document.pdf"
-                    result.fileStoredName shouldContain "pdf"
+                    result.fileStoreName shouldContain "pdf"
                     result.fileUri shouldBe testFileUri
                 }
 
@@ -142,8 +142,8 @@ class CreateFileServiceTest :
                 }
 
                 Then("저장된 파일명은 타임스탬프와 UUID를 포함해야 한다") {
-                    result.fileStoredName shouldContain "_"
-                    result.fileStoredName shouldEndWith ".pdf"
+                    result.fileStoreName shouldContain "_"
+                    result.fileStoreName shouldEndWith ".pdf"
                 }
 
                 Then("파일 저장소에 저장되어야 한다") {
@@ -185,7 +185,7 @@ class CreateFileServiceTest :
                             fileId = 1L,
                             memberId = 0L,
                             fileOriginalName = "test-file.$extension",
-                            fileStoredName = "20251015120000_test.$extension",
+                            fileStoreName = "20251015120000_test.$extension",
                             fileUri = testFileUri,
                         )
 
@@ -286,7 +286,7 @@ class CreateFileServiceTest :
                     fileId = 1L,
                     memberId = 0L,
                     fileOriginalName = "TEST-FILE.PDF",
-                    fileStoredName = "20251015120000_test.PDF",
+                    fileStoreName = "20251015120000_test.PDF",
                     fileUri = testFileUri,
                 )
 

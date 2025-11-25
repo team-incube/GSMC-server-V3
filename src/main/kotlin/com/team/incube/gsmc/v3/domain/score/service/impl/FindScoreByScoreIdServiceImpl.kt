@@ -41,9 +41,10 @@ class FindScoreByScoreIdServiceImpl(
                                     evidenceDto.files.map { file ->
                                         FileItem(
                                             fileId = file.fileId,
-                                            originalName = file.fileOriginalName,
-                                            storedName = file.fileStoredName,
-                                            uri = file.fileUri,
+                                            fileOriginalName = file.fileOriginalName,
+                                            fileStoreName = file.fileStoreName,
+                                            fileUri = file.fileUri,
+                                            memberId = file.memberId,
                                         )
                                     },
                             )
@@ -57,9 +58,10 @@ class FindScoreByScoreIdServiceImpl(
                         fileExposedRepository.findById(sourceId)?.let { fileDto ->
                             FileItem(
                                 fileId = fileDto.fileId,
-                                originalName = fileDto.fileOriginalName,
-                                storedName = fileDto.fileStoredName,
-                                uri = fileDto.fileUri,
+                                fileOriginalName = fileDto.fileOriginalName,
+                                fileStoreName = fileDto.fileStoreName,
+                                fileUri = fileDto.fileUri,
+                                memberId = fileDto.memberId,
                             )
                         }
                     }

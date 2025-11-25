@@ -87,8 +87,8 @@ class UpdateEvidenceServiceTest :
                     res.content shouldBe "new-content"
                     res.files shouldBe
                         listOf(
-                            FileItem(20, "b.pdf", "sb.pdf", "uri-b"),
-                            FileItem(21, "c.jpg", "sc.jpg", "uri-c"),
+                            FileItem(20, userId, "b.pdf", "sb.pdf", "uri-b"),
+                            FileItem(21, userId, "c.jpg", "sc.jpg", "uri-c"),
                         )
                 }
 
@@ -215,7 +215,7 @@ class UpdateEvidenceServiceTest :
                 Then("제목만 변경되어 반환된다") {
                     res.title shouldBe "new"
                     res.content shouldBe "keep"
-                    res.files shouldBe listOf(FileItem(10, "a.pdf", "sa.pdf", "uri-a"))
+                    res.files shouldBe listOf(FileItem(10, userId, "a.pdf", "sa.pdf", "uri-a"))
                 }
             }
         }

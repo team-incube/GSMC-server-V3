@@ -59,9 +59,10 @@ class UpdateEvidenceServiceImpl(
                     updatedEvidence.files.map {
                         FileItem(
                             fileId = it.fileId,
-                            originalName = it.fileOriginalName,
-                            storedName = it.fileStoredName,
-                            uri = it.fileUri,
+                            fileOriginalName = it.fileOriginalName,
+                            fileStoreName = it.fileStoreName,
+                            fileUri = it.fileUri,
+                            memberId = it.memberId,
                         )
                     },
             )
