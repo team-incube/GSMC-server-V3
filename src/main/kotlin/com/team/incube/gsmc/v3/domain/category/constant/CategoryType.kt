@@ -54,7 +54,7 @@ enum class CategoryType(
         isForeignLanguage = true,
     ),
     TOEIC_ACADEMY(
-        englishName = "TOEIC_ACADEMY",
+        englishName = "TOEIC-ACADEMY",
         koreanName = "토익사관학교",
         weight = 1,
         maxRecordCount = 1,
@@ -64,7 +64,7 @@ enum class CategoryType(
         isForeignLanguage = true,
     ),
     READ_A_THON(
-        englishName = "READ_A_THON",
+        englishName = "READ-A-THON",
         koreanName = "독서마라톤",
         weight = null,
         maxRecordCount = 1,
@@ -94,7 +94,7 @@ enum class CategoryType(
         isForeignLanguage = false,
     ),
     NEWRROW_SCHOOL(
-        englishName = "NEWRROW_SCHOOL",
+        englishName = "NEWRROW-SCHOOL",
         koreanName = "뉴로우스쿨 참여",
         weight = null,
         maxRecordCount = 1,
@@ -104,7 +104,7 @@ enum class CategoryType(
         isForeignLanguage = false,
     ),
     PROJECT_PARTICIPATION(
-        englishName = "PROJECT_PARTICIPATION",
+        englishName = "PROJECT-PARTICIPATION",
         koreanName = "프로젝트 참여",
         weight = 2,
         maxRecordCount = 5,
@@ -124,7 +124,7 @@ enum class CategoryType(
         isForeignLanguage = false,
     ),
     ACADEMIC_GRADE(
-        englishName = "ACADEMIC_GRADE",
+        englishName = "ACADEMIC-GRADE",
         koreanName = "교과성적",
         weight = null,
         maxRecordCount = 1,
@@ -134,7 +134,7 @@ enum class CategoryType(
         isForeignLanguage = false,
     ),
     EXTERNAL_ACTIVITY(
-        englishName = "EXTERNAL_ACTIVITY",
+        englishName = "EXTERNAL-ACTIVITY",
         koreanName = "외부활동",
         weight = 1,
         maxRecordCount = 10,

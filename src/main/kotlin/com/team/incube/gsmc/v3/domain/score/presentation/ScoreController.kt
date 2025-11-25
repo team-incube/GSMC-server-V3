@@ -201,7 +201,7 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/certificates")
+    @PostMapping("/certificate")
     fun addCertificateScore(
         @RequestBody @Valid request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
@@ -230,7 +230,7 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/awards")
+    @PostMapping("/award")
     fun addAwardScore(
         @RequestBody @Valid request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
@@ -359,7 +359,7 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/readathon")
+    @PostMapping("/read-a-thon")
     fun addReadAThonScore(
         @Valid @RequestBody request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
@@ -492,7 +492,7 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/external-activities")
+    @PostMapping("/external-activity")
     fun addExternalActivityScore(
         @RequestBody @Valid request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
