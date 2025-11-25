@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.domain.project.service.impl
 
+import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.ProjectResponse
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.project.service.UpdateProjectService
@@ -41,13 +42,26 @@ class UpdateProjectServiceImpl(
                     participantIds = participantIds ?: project.participants.map { it.id },
                 )
 
+            val scoreItems = projectExposedRepository.findScoreItemsByProjectId(updatedProject.id!!)
+            val fileItems =
+                updatedProject.files.map { file ->
+                    FileItem(
+                        id = file.id,
+                        member = file.member,
+                        originalName = file.originalName,
+                        storeName = file.storeName,
+                        uri = file.uri,
+                    )
+                }
+
             ProjectResponse(
                 id = updatedProject.id!!,
                 ownerId = updatedProject.ownerId,
                 title = updatedProject.title,
                 description = updatedProject.description,
-                files = updatedProject.files,
+                files = fileItems,
                 participants = updatedProject.participants,
+                scoreItems = scoreItems,
             )
         }
 }
