@@ -43,7 +43,7 @@ class TokenRefreshServiceImpl(
         val newRefreshToken =
             RefreshTokenRedisEntity(
                 token = newRefresh.token,
-                memberId = memberId,
+                member = memberId,
                 expiration =
                     newRefresh.expiration
                         .atZone(java.time.ZoneId.systemDefault())

@@ -1,9 +1,9 @@
 package com.team.incube.gsmc.v3.domain.file.dto
 
 data class File(
-    val fileId: Long,
-    val memberId: Long,
-    val fileOriginalName: String,
-    val fileStoreName: String,
-    val fileUri: String,
+    val id: Long,
+    val member: Long,
+    val originalName: String,
+    val storeName: String,
+    val uri: String,
 )

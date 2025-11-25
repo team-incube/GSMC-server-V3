@@ -69,25 +69,25 @@ class FindMyFilesServiceTest :
             val mockFiles =
                 listOf(
                     File(
-                        fileId = 1L,
-                        memberId = userId,
-                        fileOriginalName = "document1.pdf",
-                        fileStoredName = "20251125120000_abc123.pdf",
-                        fileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/file1.pdf",
+                        id = 1L,
+                        member = userId,
+                        originalName = "document1.pdf",
+                        storeName = "20251125120000_abc123.pdf",
+                        uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/file1.pdf",
                     ),
                     File(
-                        fileId = 2L,
-                        memberId = userId,
-                        fileOriginalName = "image1.jpg",
-                        fileStoredName = "20251125120001_def456.jpg",
-                        fileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/file2.jpg",
+                        id = 2L,
+                        member = userId,
+                        originalName = "image1.jpg",
+                        storeName = "20251125120001_def456.jpg",
+                        uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/file2.jpg",
                     ),
                     File(
-                        fileId = 3L,
-                        memberId = userId,
-                        fileOriginalName = "spreadsheet1.xlsx",
-                        fileStoredName = "20251125120002_ghi789.xlsx",
-                        fileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/file3.xlsx",
+                        id = 3L,
+                        member = userId,
+                        originalName = "spreadsheet1.xlsx",
+                        storeName = "20251125120002_ghi789.xlsx",
+                        uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/file3.xlsx",
                     ),
                 )
 
@@ -112,10 +112,10 @@ class FindMyFilesServiceTest :
                     val expectedFileItems =
                         mockFiles.map { file ->
                             com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem(
-                                fileId = file.fileId,
-                                originalName = file.fileOriginalName,
-                                storedName = file.fileStoredName,
-                                uri = file.fileUri,
+                                id = file.id,
+                                originalName = file.originalName,
+                                storeName = file.storeName,
+                                uri = file.uri,
                             )
                         }
                     result.files shouldBe expectedFileItems
@@ -148,11 +148,11 @@ class FindMyFilesServiceTest :
             val mockFiles =
                 listOf(
                     File(
-                        fileId = 1L,
-                        memberId = userId,
-                        fileOriginalName = "single-file.pdf",
-                        fileStoredName = "20251125120000_single.pdf",
-                        fileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/single.pdf",
+                        id = 1L,
+                        member = userId,
+                        originalName = "single-file.pdf",
+                        storeName = "20251125120000_single.pdf",
+                        uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/single.pdf",
                     ),
                 )
 
@@ -165,10 +165,10 @@ class FindMyFilesServiceTest :
                     val expectedFileItems =
                         mockFiles.map { file ->
                             com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem(
-                                fileId = file.fileId,
-                                originalName = file.fileOriginalName,
-                                storedName = file.fileStoredName,
-                                uri = file.fileUri,
+                                id = file.id,
+                                originalName = file.originalName,
+                                storeName = file.storeName,
+                                uri = file.uri,
                             )
                         }
                     result.files shouldBe expectedFileItems

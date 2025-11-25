@@ -23,7 +23,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
     override fun findById(scoreId: Long): Score? =
         ScoreExposedEntity
             .join(MemberExposedEntity, joinType = JoinType.INNER) {
-                ScoreExposedEntity.memberId eq MemberExposedEntity.id
+                ScoreExposedEntity.member eq MemberExposedEntity.id
             }.selectAll()
             .where { ScoreExposedEntity.id eq scoreId }
             .map { row ->
@@ -49,7 +49,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
     override fun save(score: Score): Score {
         val generatedId =
             ScoreExposedEntity.insert {
-                it[memberId] = score.member.id
+                it[member] = score.member.id
                 it[categoryEnglishName] = score.categoryType.englishName
                 it[status] = score.status
                 it[sourceId] = score.sourceId
@@ -118,7 +118,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         ScoreExposedEntity
             .selectAll()
             .where {
-                (ScoreExposedEntity.memberId eq memberId) and
+                (ScoreExposedEntity.member eq memberId) and
                     (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName)
             }.count()
 
@@ -126,9 +126,9 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         val results =
             ScoreExposedEntity
                 .join(MemberExposedEntity, joinType = JoinType.INNER) {
-                    ScoreExposedEntity.memberId eq MemberExposedEntity.id
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
                 }.selectAll()
-                .where { ScoreExposedEntity.memberId eq memberId }
+                .where { ScoreExposedEntity.member eq memberId }
                 .toList()
 
         if (results.isEmpty()) return emptyList()
@@ -145,10 +145,10 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         val results =
             ScoreExposedEntity
                 .join(MemberExposedEntity, joinType = JoinType.INNER) {
-                    ScoreExposedEntity.memberId eq MemberExposedEntity.id
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
                 }.selectAll()
                 .where {
-                    (ScoreExposedEntity.memberId eq memberId) and
+                    (ScoreExposedEntity.member eq memberId) and
                         (ScoreExposedEntity.status eq status)
                 }.toList()
 
@@ -168,10 +168,10 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         val results =
             ScoreExposedEntity
                 .join(MemberExposedEntity, joinType = JoinType.INNER) {
-                    ScoreExposedEntity.memberId eq MemberExposedEntity.id
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
                 }.selectAll()
                 .where {
-                    (ScoreExposedEntity.memberId inList memberIds) and
+                    (ScoreExposedEntity.member inList memberIds) and
                         (ScoreExposedEntity.status eq status)
                 }.toList()
 
@@ -180,7 +180,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         val memberMap = mutableMapOf<Long, Member>()
 
         return results.map { row ->
-            val memberId = row[ScoreExposedEntity.memberId]
+            val memberId = row[ScoreExposedEntity.member]
             val member = memberMap.getOrPut(memberId) { row.toMember() }
             row.toScore(member)
         }
@@ -192,10 +192,10 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
     ): Score? =
         ScoreExposedEntity
             .join(MemberExposedEntity, joinType = JoinType.INNER) {
-                ScoreExposedEntity.memberId eq MemberExposedEntity.id
+                ScoreExposedEntity.member eq MemberExposedEntity.id
             }.selectAll()
             .where {
-                (ScoreExposedEntity.memberId eq memberId) and
+                (ScoreExposedEntity.member eq memberId) and
                     (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName)
             }.map { row ->
                 val member = row.toMember()
@@ -210,9 +210,9 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         var query =
             ScoreExposedEntity
                 .join(MemberExposedEntity, joinType = JoinType.INNER) {
-                    ScoreExposedEntity.memberId eq MemberExposedEntity.id
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
                 }.selectAll()
-                .where { ScoreExposedEntity.memberId eq memberId }
+                .where { ScoreExposedEntity.member eq memberId }
 
         categoryType?.let {
             query = query.andWhere { ScoreExposedEntity.categoryEnglishName eq it.englishName }
@@ -239,7 +239,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         !ScoreExposedEntity
             .select(ScoreExposedEntity.id)
             .where {
-                (ScoreExposedEntity.memberId eq memberId) and
+                (ScoreExposedEntity.member eq memberId) and
                     (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName) and
                     (ScoreExposedEntity.sourceId eq sourceId)
             }.limit(1)

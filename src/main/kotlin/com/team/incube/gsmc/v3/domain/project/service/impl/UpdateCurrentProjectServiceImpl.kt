@@ -37,7 +37,7 @@ class UpdateCurrentProjectServiceImpl(
                     ownerId = project.ownerId,
                     title = title ?: project.title,
                     description = description ?: project.description,
-                    fileIds = fileIds ?: project.files.map { it.fileId },
+                    fileIds = fileIds ?: project.files.map { it.id },
                     participantIds = participantIds ?: project.participants.map { it.id },
                 )
 

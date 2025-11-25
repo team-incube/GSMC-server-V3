@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.Table
 
 object ScoreExposedEntity : Table(name = "tb_score") {
     val id = long(name = "score_id").autoIncrement()
-    val memberId = long(name = "member_id").references(MemberExposedEntity.id)
+    val member = long(name = "member_id").references(MemberExposedEntity.id)
     val categoryEnglishName = varchar(name = "category_english_name", length = 100)
     val status = enumeration<ScoreStatus>(name = "score_status").default(ScoreStatus.PENDING)
     val sourceId = long(name = "source_id").nullable()
@@ -20,7 +20,7 @@ object ScoreExposedEntity : Table(name = "tb_score") {
         index(
             customIndexName = "uk_score_member_category_source",
             isUnique = true,
-            columns = arrayOf(memberId, categoryEnglishName, sourceId),
+            columns = arrayOf(member, categoryEnglishName, sourceId),
         )
     }
 }

@@ -91,7 +91,7 @@ class OAuthAuthenticationServiceImpl(
             val refreshToken =
                 RefreshTokenRedisEntity(
                     token = refresh.token,
-                    memberId = member.id,
+                    member = member.id,
                     expiration =
                         refresh.expiration
                             .atZone(ZoneId.systemDefault())

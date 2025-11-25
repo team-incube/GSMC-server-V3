@@ -78,24 +78,24 @@ class CreateEvidenceServiceTest :
             val files =
                 listOf(
                     File(
-                        fileId = 10L,
-                        memberId = 0L,
-                        fileOriginalName = "a.pdf",
-                        fileStoreName = "s-a.pdf",
-                        fileUri = "uri-a",
+                        id = 10L,
+                        member = 0L,
+                        originalName = "a.pdf",
+                        storeName = "s-a.pdf",
+                        uri = "uri-a",
                     ),
                     File(
-                        fileId = 11L,
-                        memberId = 0L,
-                        fileOriginalName = "b.jpg",
-                        fileStoreName = "s-b.jpg",
-                        fileUri = "uri-b",
+                        id = 11L,
+                        member = 0L,
+                        originalName = "b.jpg",
+                        storeName = "s-b.jpg",
+                        uri = "uri-b",
                     ),
                 )
             val saved =
                 Evidence(
                     id = 100L,
-                    memberId = 0L,
+                    member = 0L,
                     title = "title",
                     content = "content",
                     createdAt = now,
@@ -188,7 +188,7 @@ class CreateEvidenceServiceTest :
             val saved =
                 Evidence(
                     id = 101L,
-                    memberId = 0L,
+                    member = 0L,
                     title = "t",
                     content = "c",
                     createdAt = now,

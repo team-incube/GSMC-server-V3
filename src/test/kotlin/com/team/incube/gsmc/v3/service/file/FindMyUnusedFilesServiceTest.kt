@@ -69,18 +69,18 @@ class FindMyUnusedFilesServiceTest :
             val mockUnusedFiles =
                 listOf(
                     File(
-                        fileId = 1L,
-                        memberId = userId,
-                        fileOriginalName = "unused-document.pdf",
-                        fileStoredName = "20251125120000_unused1.pdf",
-                        fileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/unused1.pdf",
+                        id = 1L,
+                        member = userId,
+                        originalName = "unused-document.pdf",
+                        storeName = "20251125120000_unused1.pdf",
+                        uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/unused1.pdf",
                     ),
                     File(
-                        fileId = 2L,
-                        memberId = userId,
-                        fileOriginalName = "unused-image.jpg",
-                        fileStoredName = "20251125120001_unused2.jpg",
-                        fileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/unused2.jpg",
+                        id = 2L,
+                        member = userId,
+                        originalName = "unused-image.jpg",
+                        storeName = "20251125120001_unused2.jpg",
+                        uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/unused2.jpg",
                     ),
                 )
 
@@ -105,10 +105,10 @@ class FindMyUnusedFilesServiceTest :
                     val expectedFileItems =
                         mockUnusedFiles.map { file ->
                             com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem(
-                                fileId = file.fileId,
-                                originalName = file.fileOriginalName,
-                                storedName = file.fileStoredName,
-                                uri = file.fileUri,
+                                id = file.id,
+                                originalName = file.originalName,
+                                storeName = file.storeName,
+                                uri = file.uri,
                             )
                         }
                     result.files shouldBe expectedFileItems
@@ -141,11 +141,11 @@ class FindMyUnusedFilesServiceTest :
             val mockUnusedFiles =
                 listOf(
                     File(
-                        fileId = 5L,
-                        memberId = userId,
-                        fileOriginalName = "single-unused.hwp",
-                        fileStoredName = "20251125120000_single_unused.hwp",
-                        fileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/single_unused.hwp",
+                        id = 5L,
+                        member = userId,
+                        originalName = "single-unused.hwp",
+                        storeName = "20251125120000_single_unused.hwp",
+                        uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/single_unused.hwp",
                     ),
                 )
 
@@ -158,10 +158,10 @@ class FindMyUnusedFilesServiceTest :
                     val expectedFileItems =
                         mockUnusedFiles.map { file ->
                             com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem(
-                                fileId = file.fileId,
-                                originalName = file.fileOriginalName,
-                                storedName = file.fileStoredName,
-                                uri = file.fileUri,
+                                id = file.id,
+                                originalName = file.originalName,
+                                storeName = file.storeName,
+                                uri = file.uri,
                             )
                         }
                     result.files shouldBe expectedFileItems
@@ -175,32 +175,32 @@ class FindMyUnusedFilesServiceTest :
             val mockUnusedFiles =
                 listOf(
                     File(
-                        fileId = 10L,
-                        memberId = userId,
-                        fileOriginalName = "document.pdf",
-                        fileStoredName = "20251125120000_doc.pdf",
-                        fileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/doc.pdf",
+                        id = 10L,
+                        member = userId,
+                        originalName = "document.pdf",
+                        storeName = "20251125120000_doc.pdf",
+                        uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/doc.pdf",
                     ),
                     File(
-                        fileId = 11L,
-                        memberId = userId,
-                        fileOriginalName = "image.png",
-                        fileStoredName = "20251125120001_img.png",
-                        fileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/img.png",
+                        id = 11L,
+                        member = userId,
+                        originalName = "image.png",
+                        storeName = "20251125120001_img.png",
+                        uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/img.png",
                     ),
                     File(
-                        fileId = 12L,
-                        memberId = userId,
-                        fileOriginalName = "sheet.xlsx",
-                        fileStoredName = "20251125120002_sheet.xlsx",
-                        fileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/sheet.xlsx",
+                        id = 12L,
+                        member = userId,
+                        originalName = "sheet.xlsx",
+                        storeName = "20251125120002_sheet.xlsx",
+                        uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/sheet.xlsx",
                     ),
                     File(
-                        fileId = 13L,
-                        memberId = userId,
-                        fileOriginalName = "presentation.pptx",
-                        fileStoredName = "20251125120003_ppt.pptx",
-                        fileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/ppt.pptx",
+                        id = 13L,
+                        member = userId,
+                        originalName = "presentation.pptx",
+                        storeName = "20251125120003_ppt.pptx",
+                        uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/ppt.pptx",
                     ),
                 )
 
@@ -213,10 +213,10 @@ class FindMyUnusedFilesServiceTest :
                     val expectedFileItems =
                         mockUnusedFiles.map { file ->
                             com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem(
-                                fileId = file.fileId,
-                                originalName = file.fileOriginalName,
-                                storedName = file.fileStoredName,
-                                uri = file.fileUri,
+                                id = file.id,
+                                originalName = file.originalName,
+                                storeName = file.storeName,
+                                uri = file.uri,
                             )
                         }
                     result.files shouldBe expectedFileItems

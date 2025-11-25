@@ -36,18 +36,18 @@ class FileExposedRepositoryImpl : FileExposedRepository {
     ): File {
         val insertedId =
             FileExposedEntity.insert {
-                it[this.memberId] = userId
-                it[this.fileOriginalName] = originalName
-                it[this.fileStoreName] = storedName
+                it[this.member] = userId
+                it[this.originalName] = originalName
+                it[this.storeName] = storedName
                 it[this.uri] = uri
             } get FileExposedEntity.id
 
         return File(
-            fileId = insertedId,
-            memberId = userId,
-            fileOriginalName = originalName,
-            fileStoreName = storedName,
-            fileUri = uri,
+            id = insertedId,
+            member = userId,
+            originalName = originalName,
+            storeName = storedName,
+            uri = uri,
         )
     }
 
@@ -61,17 +61,17 @@ class FileExposedRepositoryImpl : FileExposedRepository {
     override fun findAllByUserId(userId: Long): List<File> =
         FileExposedEntity
             .selectAll()
-            .where { FileExposedEntity.memberId eq userId }
+            .where { FileExposedEntity.member eq userId }
             .map { it.toFile() }
 
     override fun findUnusedFilesByUserId(userId: Long): List<File> {
-        val usedInProjectSubQuery = ProjectFileExposedEntity.select(ProjectFileExposedEntity.fileId)
-        val usedInEvidenceSubQuery = EvidenceFileExposedEntity.select(EvidenceFileExposedEntity.fileId)
+        val usedInProjectSubQuery = ProjectFileExposedEntity.select(ProjectFileExposedEntity.file)
+        val usedInEvidenceSubQuery = EvidenceFileExposedEntity.select(EvidenceFileExposedEntity.file)
 
         return FileExposedEntity
             .selectAll()
             .where {
-                (FileExposedEntity.memberId eq userId) and
+                (FileExposedEntity.member eq userId) and
                     FileExposedEntity.id.notInSubQuery(usedInProjectSubQuery) and
                     FileExposedEntity.id.notInSubQuery(usedInEvidenceSubQuery)
             }.map { it.toFile() }
@@ -85,10 +85,10 @@ class FileExposedRepositoryImpl : FileExposedRepository {
 
     private fun ResultRow.toFile(): File =
         File(
-            fileId = this[FileExposedEntity.id],
-            memberId = this[FileExposedEntity.memberId],
-            fileOriginalName = this[FileExposedEntity.fileOriginalName],
-            fileStoreName = this[FileExposedEntity.fileStoreName],
-            fileUri = this[FileExposedEntity.uri],
+            id = this[FileExposedEntity.id],
+            member = this[FileExposedEntity.member],
+            originalName = this[FileExposedEntity.originalName],
+            storeName = this[FileExposedEntity.storeName],
+            uri = this[FileExposedEntity.uri],
         )
 }

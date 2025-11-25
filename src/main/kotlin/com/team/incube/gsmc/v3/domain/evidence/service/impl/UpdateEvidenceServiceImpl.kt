@@ -46,7 +46,7 @@ class UpdateEvidenceServiceImpl(
                     id = evidenceId,
                     title = title ?: evidence.title,
                     content = content ?: evidence.content,
-                    fileIds = fileIds ?: evidence.files.map { it.fileId },
+                    fileIds = fileIds ?: evidence.files.map { it.id },
                 )
 
             PatchEvidenceResponse(
@@ -58,11 +58,11 @@ class UpdateEvidenceServiceImpl(
                 files =
                     updatedEvidence.files.map {
                         FileItem(
-                            fileId = it.fileId,
-                            fileOriginalName = it.fileOriginalName,
-                            fileStoreName = it.fileStoreName,
-                            fileUri = it.fileUri,
-                            memberId = it.memberId,
+                            id = it.id,
+                            originalName = it.originalName,
+                            storeName = it.storeName,
+                            uri = it.uri,
+                            member = it.member,
                         )
                     },
             )

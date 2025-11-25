@@ -23,11 +23,11 @@ class DeleteFileServiceImpl(
                     ?: throw GsmcException(ErrorCode.FILE_NOT_FOUND)
 
             val currentMember = currentMemberProvider.getCurrentMember()
-            if (currentMember.role == MemberRole.STUDENT && file.memberId != currentMember.id) {
+            if (currentMember.role == MemberRole.STUDENT && file.member != currentMember.id) {
                 throw GsmcException(ErrorCode.FILE_UNAUTHORIZED_ACCESS)
             }
 
-            s3DeleteService.execute(file.fileUri)
+            s3DeleteService.execute(file.uri)
 
             fileExposedRepository.deleteById(fileId)
         }
