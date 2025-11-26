@@ -1,6 +1,5 @@
 package com.team.incube.gsmc.v3.domain.project.service.impl
 
-import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.category.constant.EvidenceType
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvidenceResponse
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
@@ -40,16 +39,12 @@ class FindMyProjectScoreAndEvidenceServiceImpl(
                 throw GsmcException(ErrorCode.NOT_PROJECT_PARTICIPANT)
             }
 
-            val allProjectScores =
-                scoreExposedRepository.findByMemberIdAndCategoryTypeAndStatus(
-                    memberId = currentMember.id,
-                    categoryType = CategoryType.PROJECT_PARTICIPATION,
-                    status = null,
-                )
-
             val targetScore =
-                allProjectScores.find { it.sourceId == projectId }
-                    ?: allProjectScores.find { it.activityName == projectTitle }
+                scoreExposedRepository.findProjectParticipationScore(
+                    memberId = currentMember.id,
+                    projectId = projectId,
+                    projectTitle = projectTitle,
+                )
 
             if (targetScore == null) {
                 return@transaction GetMyProjectScoreAndEvidenceResponse(

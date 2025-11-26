@@ -245,6 +245,40 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
             }.limit(1)
             .empty()
 
+    override fun findProjectParticipationScore(
+        memberId: Long,
+        projectId: Long,
+        projectTitle: String,
+    ): Score? {
+        val bySourceId =
+            ScoreExposedEntity
+                .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
+                }.selectAll()
+                .where {
+                    (ScoreExposedEntity.member eq memberId) and
+                        (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName) and
+                        (ScoreExposedEntity.sourceId eq projectId)
+                }.map { row ->
+                    val member = row.toMember()
+                    row.toScore(member)
+                }.singleOrNull()
+
+        if (bySourceId != null) return bySourceId
+        return ScoreExposedEntity
+            .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                ScoreExposedEntity.member eq MemberExposedEntity.id
+            }.selectAll()
+            .where {
+                (ScoreExposedEntity.member eq memberId) and
+                    (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName) and
+                    (ScoreExposedEntity.activityName eq projectTitle)
+            }.map { row ->
+                val member = row.toMember()
+                row.toScore(member)
+            }.singleOrNull()
+    }
+
     override fun deleteById(scoreId: Long) {
         ScoreExposedEntity.deleteWhere { id eq scoreId }
     }
