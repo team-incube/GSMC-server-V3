@@ -20,20 +20,19 @@ class UnusedFileCleanupScheduler(
             var successCount = 0
             var failCount = 0
 
-            transaction {
-                val orphanFiles = fileExposedRepository.findAllUnusedFiles()
-                logger().info("Found ${orphanFiles.size} orphan files")
-                orphanFiles.forEach { file ->
-                    try {
-                        s3DeleteService.execute(file.uri)
-                        fileExposedRepository.deleteById(file.id)
-                        successCount++
-                    } catch (e: Exception) {
-                        failCount++
-                        logger().error("File deletion failed: id=${file.id}, uri=${file.uri} - ${e.message}")
-                    }
+            val orphanFiles = fileExposedRepository.findAllUnusedFiles()
+            logger().info("Found ${orphanFiles.size} orphan files")
+            orphanFiles.forEach { file ->
+                try {
+                    s3DeleteService.execute(file.uri)
+                    fileExposedRepository.deleteById(file.id)
+                    successCount++
+                } catch (e: Exception) {
+                    failCount++
+                    logger().error("File deletion failed: id=${file.id}, uri=${file.uri} - ${e.message}")
                 }
             }
+
             logger().info("Orphan file cleanup completed - Success: $successCount, Failures: $failCount")
         }
 }
