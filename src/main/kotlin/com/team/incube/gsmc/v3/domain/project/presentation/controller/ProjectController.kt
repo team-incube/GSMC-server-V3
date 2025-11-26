@@ -4,17 +4,17 @@ import com.team.incube.gsmc.v3.domain.project.presentation.data.request.CreatePr
 import com.team.incube.gsmc.v3.domain.project.presentation.data.request.CreateProjectRequest
 import com.team.incube.gsmc.v3.domain.project.presentation.data.request.PatchProjectRequest
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectDraftResponse
-import com.team.incube.gsmc.v3.domain.project.presentation.data.response.ProjectResponse
+import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectResponse
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.SearchProjectResponse
-import com.team.incube.gsmc.v3.domain.project.service.CreateCurrentProjectService
 import com.team.incube.gsmc.v3.domain.project.service.CreateProjectDraftService
-import com.team.incube.gsmc.v3.domain.project.service.DeleteCurrentProjectService
+import com.team.incube.gsmc.v3.domain.project.service.CreateProjectService
 import com.team.incube.gsmc.v3.domain.project.service.DeleteProjectDraftService
-import com.team.incube.gsmc.v3.domain.project.service.FindCurrentProjectsService
+import com.team.incube.gsmc.v3.domain.project.service.DeleteProjectService
+import com.team.incube.gsmc.v3.domain.project.service.FindMyProjectsService
 import com.team.incube.gsmc.v3.domain.project.service.FindProjectByIdService
 import com.team.incube.gsmc.v3.domain.project.service.FindProjectDraftService
 import com.team.incube.gsmc.v3.domain.project.service.SearchProjectService
-import com.team.incube.gsmc.v3.domain.project.service.UpdateCurrentProjectService
+import com.team.incube.gsmc.v3.domain.project.service.UpdateProjectService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -38,11 +38,11 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v3/projects")
 class ProjectController(
-    private val createCurrentProjectService: CreateCurrentProjectService,
-    private val updateCurrentProjectService: UpdateCurrentProjectService,
-    private val deleteCurrentProjectService: DeleteCurrentProjectService,
+    private val createProjectService: CreateProjectService,
+    private val updateProjectService: UpdateProjectService,
+    private val deleteProjectService: DeleteProjectService,
     private val searchProjectService: SearchProjectService,
-    private val findCurrentProjectsService: FindCurrentProjectsService,
+    private val findMyProjectsService: FindMyProjectsService,
     private val findProjectByIdService: FindProjectByIdService,
     private val createProjectDraftService: CreateProjectDraftService,
     private val findProjectDraftService: FindProjectDraftService,
@@ -61,8 +61,8 @@ class ProjectController(
     @PostMapping
     fun createProject(
         @Valid @RequestBody request: CreateProjectRequest,
-    ): ProjectResponse =
-        createCurrentProjectService.execute(
+    ): GetProjectResponse =
+        createProjectService.execute(
             title = request.title,
             description = request.description,
             fileIds = request.fileIds,
@@ -93,8 +93,8 @@ class ProjectController(
     fun updateProject(
         @PathVariable projectId: Long,
         @Valid @RequestBody request: PatchProjectRequest,
-    ): ProjectResponse =
-        updateCurrentProjectService.execute(
+    ): GetProjectResponse =
+        updateProjectService.execute(
             projectId = projectId,
             title = request.title,
             description = request.description,
@@ -127,7 +127,7 @@ class ProjectController(
     fun deleteProject(
         @PathVariable projectId: Long,
     ): CommonApiResponse<Nothing> {
-        deleteCurrentProjectService.execute(projectId)
+        deleteProjectService.execute(projectId)
         return CommonApiResponse.success("OK")
     }
 
@@ -163,7 +163,7 @@ class ProjectController(
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/current")
-    fun getCurrentProjects(): List<ProjectResponse> = findCurrentProjectsService.execute()
+    fun getCurrentProjects(): List<GetProjectResponse> = findMyProjectsService.execute()
 
     @Operation(summary = "프로젝트 단건 조회", description = "프로젝트 ID로 프로젝트를 조회합니다")
     @ApiResponses(
@@ -183,7 +183,7 @@ class ProjectController(
     @GetMapping("/{projectId}")
     fun getProject(
         @PathVariable projectId: Long,
-    ): ProjectResponse = findProjectByIdService.execute(projectId)
+    ): GetProjectResponse = findProjectByIdService.execute(projectId)
 
     @Operation(summary = "프로젝트 임시저장 생성", description = "프로젝트를 임시저장합니다")
     @ApiResponses(

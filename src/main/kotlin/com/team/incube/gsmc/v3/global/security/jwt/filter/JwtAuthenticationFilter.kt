@@ -16,13 +16,17 @@ import java.io.IOException
 class JwtAuthenticationFilter(
     private val jwtParser: JwtParser,
 ) : OncePerRequestFilter() {
+    companion object {
+        private const val ACCESS_TOKEN_COOKIE_NAME = "accessToken"
+    }
+
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
         filterChain: FilterChain,
     ) {
-        val token = jwtParser.resolveToken(request)
+        val token = extractTokenFromCookie(request)
 
         if (token != null && jwtParser.validateAccessToken(token)) {
             val userId = jwtParser.getUserIdFromAccessToken(token).toLong()
@@ -35,5 +39,12 @@ class JwtAuthenticationFilter(
         }
 
         filterChain.doFilter(request, response)
+    }
+
+    private fun extractTokenFromCookie(request: HttpServletRequest): String? {
+        val cookies = request.cookies ?: return null
+        return cookies
+            .firstOrNull { it.name == ACCESS_TOKEN_COOKIE_NAME }
+            ?.value
     }
 }
