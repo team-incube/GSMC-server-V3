@@ -12,5 +12,5 @@ class DeleteProjectDraftServiceImpl(
     @CacheEvict(value = ["projectDraft"], key = "#root.target.getMemberId()")
     override fun execute() {}
 
-    fun getMemberId(): Long = currentMemberProvider.getCurrentMember().id
+    fun getMemberId(): Long = currentMemberProvider.getCurrentMemberId()
 }

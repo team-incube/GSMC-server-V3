@@ -20,5 +20,5 @@ class CreateProjectDraftServiceImpl(
             participantIds = request.participantIds,
         )
 
-    fun getMemberId(): Long = currentMemberProvider.getCurrentMember().id
+    fun getMemberId(): Long = currentMemberProvider.getCurrentMemberId()
 }

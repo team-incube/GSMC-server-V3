@@ -13,5 +13,5 @@ class FindEvidenceDraftServiceImpl(
     @Cacheable(value = ["evidenceDraft"], key = "#root.target.getMemberId()")
     override fun execute(): GetEvidenceDraftResponse? = null
 
-    fun getMemberId(): Long = currentMemberProvider.getCurrentMember().id
+    fun getMemberId(): Long = currentMemberProvider.getCurrentMemberId()
 }

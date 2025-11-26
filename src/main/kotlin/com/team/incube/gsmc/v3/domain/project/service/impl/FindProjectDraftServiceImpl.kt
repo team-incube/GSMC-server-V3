@@ -13,5 +13,5 @@ class FindProjectDraftServiceImpl(
     @Cacheable(value = ["projectDraft"], key = "#root.target.getMemberId()")
     override fun execute(): GetProjectDraftResponse? = null
 
-    fun getMemberId(): Long = currentMemberProvider.getCurrentMember().id
+    fun getMemberId(): Long = currentMemberProvider.getCurrentMemberId()
 }

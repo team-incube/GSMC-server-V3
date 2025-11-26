@@ -20,5 +20,5 @@ class CreateEvidenceDraftServiceImpl(
             fileIds = request.fileIds,
         )
 
-    fun getMemberId(): Long = currentMemberProvider.getCurrentMember().id
+    fun getMemberId(): Long = currentMemberProvider.getCurrentMemberId()
 }
