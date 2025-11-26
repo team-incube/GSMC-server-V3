@@ -113,6 +113,7 @@ class FindMyFilesServiceTest :
                         mockFiles.map { file ->
                             com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem(
                                 id = file.id,
+                                member = file.member,
                                 originalName = file.originalName,
                                 storeName = file.storeName,
                                 uri = file.uri,
@@ -166,6 +167,7 @@ class FindMyFilesServiceTest :
                         mockFiles.map { file ->
                             com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem(
                                 id = file.id,
+                                member = file.member,
                                 originalName = file.originalName,
                                 storeName = file.storeName,
                                 uri = file.uri,
