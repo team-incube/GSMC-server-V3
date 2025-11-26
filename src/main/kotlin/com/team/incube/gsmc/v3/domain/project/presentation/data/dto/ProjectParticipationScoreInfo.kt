@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 data class ProjectParticipationScoreInfo(
     @param:Schema(description = "점수 ID", example = "1")
     val scoreId: Long,
+    @param:Schema(description = "카테고리 이름 정보")
     val categoryNames: CategoryNames,
     @param:Schema(description = "인증제 점수 상태", example = "PENDING")
     val scoreStatus: ScoreStatus,
