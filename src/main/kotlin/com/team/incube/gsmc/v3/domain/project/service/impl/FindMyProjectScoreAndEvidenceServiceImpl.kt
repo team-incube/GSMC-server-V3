@@ -4,11 +4,11 @@ import com.team.incube.gsmc.v3.domain.category.constant.EvidenceType
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvidenceResponse
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
+import com.team.incube.gsmc.v3.domain.project.presentation.data.dto.ProjectParticipationScoreInfo
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetMyProjectScoreAndEvidenceResponse
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.project.service.FindMyProjectScoreAndEvidenceService
 import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.CategoryNames
-import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
@@ -54,7 +54,7 @@ class FindMyProjectScoreAndEvidenceServiceImpl(
             }
 
             val scoreResponse =
-                GetScoreResponse(
+                ProjectParticipationScoreInfo(
                     scoreId = targetScore.id!!,
                     categoryNames =
                         CategoryNames(
@@ -64,8 +64,6 @@ class FindMyProjectScoreAndEvidenceServiceImpl(
                     scoreStatus = targetScore.status,
                     activityName = targetScore.activityName,
                     scoreValue = targetScore.scoreValue,
-                    evidence = null,
-                    file = null,
                     rejectionReason = targetScore.rejectionReason,
                 )
 
