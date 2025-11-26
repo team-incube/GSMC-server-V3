@@ -3,6 +3,7 @@ package com.team.incube.gsmc.v3.domain.project.presentation.controller
 import com.team.incube.gsmc.v3.domain.project.presentation.data.request.CreateProjectDraftRequest
 import com.team.incube.gsmc.v3.domain.project.presentation.data.request.CreateProjectRequest
 import com.team.incube.gsmc.v3.domain.project.presentation.data.request.PatchProjectRequest
+import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetMyProjectScoreAndEvidenceResponse
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectDraftResponse
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectResponse
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.SearchProjectResponse
@@ -10,6 +11,7 @@ import com.team.incube.gsmc.v3.domain.project.service.CreateProjectDraftService
 import com.team.incube.gsmc.v3.domain.project.service.CreateProjectService
 import com.team.incube.gsmc.v3.domain.project.service.DeleteProjectDraftService
 import com.team.incube.gsmc.v3.domain.project.service.DeleteProjectService
+import com.team.incube.gsmc.v3.domain.project.service.FindMyProjectScoreAndEvidenceService
 import com.team.incube.gsmc.v3.domain.project.service.FindMyProjectsService
 import com.team.incube.gsmc.v3.domain.project.service.FindProjectByIdService
 import com.team.incube.gsmc.v3.domain.project.service.FindProjectDraftService
@@ -47,6 +49,7 @@ class ProjectController(
     private val createProjectDraftService: CreateProjectDraftService,
     private val findProjectDraftService: FindProjectDraftService,
     private val deleteProjectDraftService: DeleteProjectDraftService,
+    private val findMyProjectScoreAndEvidenceService: FindMyProjectScoreAndEvidenceService,
 ) {
     @Operation(summary = "프로젝트 생성", description = "현재 인증된 사용자를 대표자로 하는 프로젝트를 생성합니다")
     @ApiResponses(
@@ -228,4 +231,32 @@ class ProjectController(
         deleteProjectDraftService.execute()
         return CommonApiResponse.success("OK")
     }
+
+    @Operation(
+        summary = "내 프로젝트 참여 점수 및 증빙자료 조회",
+        description = "현재 인증된 사용자가 특정 프로젝트에 대해 작성한 점수와 증빙자료를 조회합니다. 작성하지 않았으면 해당 필드는 null입니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "프로젝트 참가자가 아님",
+                content = [Content()],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 프로젝트",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/{projectId}/my-score-and-evidence")
+    fun getMyProjectScoreAndEvidence(
+        @PathVariable projectId: Long,
+    ): GetMyProjectScoreAndEvidenceResponse = findMyProjectScoreAndEvidenceService.execute(projectId)
 }
