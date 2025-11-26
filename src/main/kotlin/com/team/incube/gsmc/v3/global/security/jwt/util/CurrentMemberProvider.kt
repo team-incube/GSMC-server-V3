@@ -23,8 +23,9 @@ class CurrentMemberProvider(
     }
 
     fun getCurrentMemberId(): Long {
-        val principal = SecurityContextHolder.getContext().authentication?.principal
-            ?: throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
+        val principal =
+            SecurityContextHolder.getContext().authentication?.principal
+                ?: throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
 
         return when (principal) {
             is Long -> principal
