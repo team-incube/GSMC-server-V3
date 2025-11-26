@@ -132,9 +132,9 @@ class CreateFileServiceTest :
                 Then("파일이 정상적으로 생성되어야 한다") {
                     result shouldNotBe null
                     result.id shouldBe 1L
-                    result.fileOriginalName shouldBe "test-document.pdf"
-                    result.fileStoreName shouldContain "pdf"
-                    result.fileUri shouldBe testFileUri
+                    result.originalName shouldBe "test-document.pdf"
+                    result.storeName shouldContain "pdf"
+                    result.uri shouldBe testFileUri
                 }
 
                 Then("S3에 파일이 업로드되어야 한다") {
@@ -142,8 +142,8 @@ class CreateFileServiceTest :
                 }
 
                 Then("저장된 파일명은 타임스탬프와 UUID를 포함해야 한다") {
-                    result.fileStoreName shouldContain "_"
-                    result.fileStoreName shouldEndWith ".pdf"
+                    result.storeName shouldContain "_"
+                    result.storeName shouldEndWith ".pdf"
                 }
 
                 Then("파일 저장소에 저장되어야 한다") {
@@ -193,7 +193,7 @@ class CreateFileServiceTest :
 
                     Then("파일이 정상적으로 업로드되어야 한다") {
                         result shouldNotBe null
-                        result.fileOriginalName shouldBe "test-file.$extension"
+                        result.originalName shouldBe "test-file.$extension"
                     }
                 }
             }
@@ -295,7 +295,7 @@ class CreateFileServiceTest :
 
                 Then("확장자 대소문자 구분 없이 정상 처리되어야 한다") {
                     result shouldNotBe null
-                    result.fileOriginalName shouldBe "TEST-FILE.PDF"
+                    result.originalName shouldBe "TEST-FILE.PDF"
                 }
             }
         }
