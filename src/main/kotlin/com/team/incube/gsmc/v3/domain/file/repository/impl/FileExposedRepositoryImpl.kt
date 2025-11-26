@@ -77,6 +77,18 @@ class FileExposedRepositoryImpl : FileExposedRepository {
             }.map { it.toFile() }
     }
 
+    override fun findAllUnusedFiles(): List<File> {
+        val usedInProjectSubQuery = ProjectFileExposedEntity.select(ProjectFileExposedEntity.file)
+        val usedInEvidenceSubQuery = EvidenceFileExposedEntity.select(EvidenceFileExposedEntity.file)
+
+        return FileExposedEntity
+            .selectAll()
+            .where {
+                FileExposedEntity.id.notInSubQuery(usedInProjectSubQuery) and
+                    FileExposedEntity.id.notInSubQuery(usedInEvidenceSubQuery)
+            }.map { it.toFile() }
+    }
+
     override fun deleteById(fileId: Long) {
         FileExposedEntity.deleteWhere {
             id eq fileId
