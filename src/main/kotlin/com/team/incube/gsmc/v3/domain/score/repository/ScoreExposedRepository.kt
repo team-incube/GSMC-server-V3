@@ -69,5 +69,11 @@ interface ScoreExposedRepository {
         sourceId: Long,
     ): Boolean
 
+    fun findProjectParticipationScore(
+        memberId: Long,
+        projectId: Long,
+        projectTitle: String,
+    ): Score?
+
     fun deleteById(scoreId: Long)
 }
