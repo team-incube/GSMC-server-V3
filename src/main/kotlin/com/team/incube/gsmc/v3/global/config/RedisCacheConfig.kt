@@ -29,7 +29,7 @@ class RedisCacheConfig {
                         .allowIfSubType("com.team.incube.gsmc.v3")
                         .build(),
                     ObjectMapper.DefaultTyping.NON_FINAL,
-                    JsonTypeInfo.As.PROPERTY
+                    JsonTypeInfo.As.PROPERTY,
                 )
                 setSerializationInclusion(JsonInclude.Include.NON_NULL)
             }
