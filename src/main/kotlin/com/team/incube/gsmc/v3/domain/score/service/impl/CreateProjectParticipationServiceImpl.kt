@@ -2,6 +2,7 @@ package com.team.incube.gsmc.v3.domain.score.service.impl
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
+import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.BaseCountBasedScoreService
@@ -55,6 +56,7 @@ class CreateProjectParticipationServiceImpl(
                 categoryType = CategoryType.PROJECT_PARTICIPATION,
                 activityName = projectTitle,
                 sourceId = null,
+                status = ScoreStatus.INCOMPLETE,
             )
         }
 }

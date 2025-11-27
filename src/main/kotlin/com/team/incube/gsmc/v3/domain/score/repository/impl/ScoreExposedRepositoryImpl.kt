@@ -187,6 +187,26 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         }
     }
 
+    override fun findAllByStatus(status: ScoreStatus): List<Score> {
+        val results =
+            ScoreExposedEntity
+                .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
+                }.selectAll()
+                .where { ScoreExposedEntity.status eq status }
+                .toList()
+
+        if (results.isEmpty()) return emptyList()
+
+        val memberMap = mutableMapOf<Long, Member>()
+
+        return results.map { row ->
+            val memberId = row[ScoreExposedEntity.member]
+            val member = memberMap.getOrPut(memberId) { row.toMember() }
+            row.toScore(member)
+        }
+    }
+
     override fun findByMemberIdAndCategoryType(
         memberId: Long,
         categoryType: CategoryType,
@@ -213,7 +233,10 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                 .join(MemberExposedEntity, joinType = JoinType.INNER) {
                     ScoreExposedEntity.member eq MemberExposedEntity.id
                 }.selectAll()
-                .where { ScoreExposedEntity.member eq memberId }
+                .where {
+                    (ScoreExposedEntity.member eq memberId) and
+                        (ScoreExposedEntity.status neq ScoreStatus.INCOMPLETE)
+                }
 
         categoryType?.let {
             query = query.andWhere { ScoreExposedEntity.categoryEnglishName eq it.englishName }

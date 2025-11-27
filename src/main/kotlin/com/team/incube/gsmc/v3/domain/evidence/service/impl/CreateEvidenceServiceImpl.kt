@@ -5,6 +5,7 @@ import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedReposit
 import com.team.incube.gsmc.v3.domain.evidence.service.CreateEvidenceService
 import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
+import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
@@ -26,9 +27,9 @@ class CreateEvidenceServiceImpl(
         fileIds: List<Long>,
     ): CreateEvidenceResponse =
         transaction {
-            if (!scoreExposedRepository.existsById(scoreId)) {
-                throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
-            }
+            val score =
+                scoreExposedRepository.findById(scoreId)
+                    ?: throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
 
             if (scoreExposedRepository.existsWithSource(scoreId)) {
                 throw GsmcException(ErrorCode.SCORE_ALREADY_HAS_EVIDENCE)
@@ -47,6 +48,10 @@ class CreateEvidenceServiceImpl(
                 )
 
             scoreExposedRepository.updateSourceId(scoreId, evidence.id)
+
+            if (score.status == ScoreStatus.INCOMPLETE) {
+                scoreExposedRepository.updateStatusByScoreId(scoreId, ScoreStatus.PENDING)
+            }
 
             CreateEvidenceResponse(
                 id = evidence.id,
