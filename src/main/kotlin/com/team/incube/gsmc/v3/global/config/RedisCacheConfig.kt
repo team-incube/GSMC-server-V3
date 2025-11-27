@@ -1,5 +1,7 @@
 package com.team.incube.gsmc.v3.global.config
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
@@ -27,12 +29,15 @@ class RedisCacheConfig {
                         .allowIfSubType("com.team.incube.gsmc.v3")
                         .build(),
                     ObjectMapper.DefaultTyping.NON_FINAL,
+                    JsonTypeInfo.As.PROPERTY
                 )
+                setSerializationInclusion(JsonInclude.Include.NON_NULL)
             }
 
         val redisCacheConfiguration =
             RedisCacheConfiguration
                 .defaultCacheConfig()
+                .disableCachingNullValues()
                 .serializeKeysWith(
                     RedisSerializationContext.SerializationPair.fromSerializer(StringRedisSerializer()),
                 ).serializeValuesWith(
