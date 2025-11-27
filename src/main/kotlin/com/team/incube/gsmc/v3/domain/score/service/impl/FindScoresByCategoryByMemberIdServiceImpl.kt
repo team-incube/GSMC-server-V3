@@ -31,11 +31,12 @@ class FindScoresByCategoryByMemberIdServiceImpl(
             }
 
             val scores =
-                scoreExposedRepository.findByMemberIdAndCategoryTypeAndStatus(
-                    memberId = memberId,
-                    categoryType = null,
-                    status = status,
-                )
+                scoreExposedRepository
+                    .findByMemberIdAndCategoryTypeAndStatus(
+                        memberId = memberId,
+                        categoryType = null,
+                        status = status,
+                    ).filter { it.status != ScoreStatus.INCOMPLETE }
 
             val foreignLanguageCategories = CategoryType.getForeignLanguageCategories()
             val groupingResult = groupScoresByCategory(scores, foreignLanguageCategories)

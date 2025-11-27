@@ -2,6 +2,7 @@ package com.team.incube.gsmc.v3.domain.score.service.impl
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.score.calculator.ScoreCalculatorFactory
+import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
@@ -17,7 +18,10 @@ class CalculateTotalScoreServiceImpl(
     override fun execute(includeApprovedOnly: Boolean): GetTotalScoreResponse =
         transaction {
             val member = currentMemberProvider.getCurrentMember()
-            val allScores = scoreExposedRepository.findAllByMemberId(member.id)
+            val allScores =
+                scoreExposedRepository
+                    .findAllByMemberId(member.id)
+                    .filter { it.status != ScoreStatus.INCOMPLETE && it.status != ScoreStatus.REJECTED }
 
             val scoresByCategory = allScores.groupBy { it.categoryType }
 
