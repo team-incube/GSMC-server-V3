@@ -1,5 +1,8 @@
 package com.team.incube.gsmc.v3.global.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -15,6 +18,18 @@ import org.springframework.data.redis.serializer.StringRedisSerializer
 class RedisCacheConfig {
     @Bean
     fun cacheManager(redisConnectionFactory: RedisConnectionFactory): RedisCacheManager {
+        val objectMapper =
+            ObjectMapper().apply {
+                registerKotlinModule()
+                activateDefaultTyping(
+                    BasicPolymorphicTypeValidator
+                        .builder()
+                        .allowIfSubType("com.team.incube.gsmc.v3")
+                        .build(),
+                    ObjectMapper.DefaultTyping.NON_FINAL,
+                )
+            }
+
         val redisCacheConfiguration =
             RedisCacheConfiguration
                 .defaultCacheConfig()
@@ -22,7 +37,7 @@ class RedisCacheConfig {
                     RedisSerializationContext.SerializationPair.fromSerializer(StringRedisSerializer()),
                 ).serializeValuesWith(
                     RedisSerializationContext.SerializationPair.fromSerializer(
-                        GenericJackson2JsonRedisSerializer(),
+                        GenericJackson2JsonRedisSerializer(objectMapper),
                     ),
                 )
 
