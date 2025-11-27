@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service
 class DeleteEvidenceDraftServiceImpl(
     private val currentMemberProvider: CurrentMemberProvider,
 ) : DeleteEvidenceDraftService {
-    @CacheEvict(value = ["evidenceDraft"], key = "#root.target.getMemberId()")
+    @CacheEvict(
+        value = ["evidenceDraft"],
+        key = "#root.target.getMemberId()",
+    )
     override fun execute() {}
 
     fun getMemberId(): Long = currentMemberProvider.getCurrentMemberId()

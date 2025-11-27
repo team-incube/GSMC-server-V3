@@ -11,7 +11,10 @@ import org.springframework.stereotype.Service
 class CreateEvidenceDraftServiceImpl(
     private val currentMemberProvider: CurrentMemberProvider,
 ) : CreateEvidenceDraftService {
-    @CachePut(value = ["evidenceDraft"], key = "#root.target.getMemberId()")
+    @CachePut(
+        value = ["evidenceDraft"],
+        key = "#root.target.getMemberId()",
+    )
     override fun execute(request: CreateEvidenceDraftRequest): GetEvidenceDraftResponse =
         GetEvidenceDraftResponse(
             title = request.title,
