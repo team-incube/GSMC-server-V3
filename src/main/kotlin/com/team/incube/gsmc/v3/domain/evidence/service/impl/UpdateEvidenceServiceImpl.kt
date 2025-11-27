@@ -19,7 +19,7 @@ class UpdateEvidenceServiceImpl(
 ) : UpdateEvidenceService {
     override fun execute(
         evidenceId: Long,
-        participantId: Long?,
+        scoreId: Long?,
         title: String?,
         content: String?,
         fileIds: List<Long>?,
@@ -33,12 +33,12 @@ class UpdateEvidenceServiceImpl(
                 throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }
 
-            if (participantId != null) {
-                if (!scoreExposedRepository.existsById(participantId)) {
+            if (scoreId != null) {
+                if (!scoreExposedRepository.existsById(scoreId)) {
                     throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
                 }
                 scoreExposedRepository.updateSourceIdToNull(evidenceId)
-                scoreExposedRepository.updateSourceId(participantId, evidenceId)
+                scoreExposedRepository.updateSourceId(scoreId, evidenceId)
             }
 
             val updatedEvidence =

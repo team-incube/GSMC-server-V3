@@ -121,7 +121,7 @@ class EvidenceController(
             ),
             ApiResponse(
                 responseCode = "404",
-                description = "존재하지 않는 참가자를 매핑함 또는 존재하지 않는 증빙자료를 사용함",
+                description = "존재하지 않는 점수 객체 또는 존재하지 않는 증빙자료를 사용함",
                 content = [Content()],
             ),
         ],
@@ -134,7 +134,7 @@ class EvidenceController(
     ): PatchEvidenceResponse =
         updateEvidenceService.execute(
             evidenceId = evidenceId,
-            participantId = request.participantId,
+            scoreId = request.scoreId,
             title = request.title,
             content = request.content,
             fileIds = request.fileIds,
