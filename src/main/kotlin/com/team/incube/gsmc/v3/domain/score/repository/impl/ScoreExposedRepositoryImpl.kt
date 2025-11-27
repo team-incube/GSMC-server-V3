@@ -14,6 +14,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 import org.springframework.stereotype.Repository
@@ -278,6 +279,20 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                 row.toScore(member)
             }.singleOrNull()
     }
+
+    override fun existsProjectParticipationScore(
+        memberId: Long,
+        projectId: Long,
+        projectTitle: String,
+    ): Boolean =
+        !ScoreExposedEntity
+            .select(ScoreExposedEntity.id)
+            .where {
+                (ScoreExposedEntity.member eq memberId) and
+                    (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName) and
+                    ((ScoreExposedEntity.sourceId eq projectId) or (ScoreExposedEntity.activityName eq projectTitle))
+            }.limit(1)
+            .empty()
 
     override fun deleteById(scoreId: Long) {
         ScoreExposedEntity.deleteWhere { id eq scoreId }

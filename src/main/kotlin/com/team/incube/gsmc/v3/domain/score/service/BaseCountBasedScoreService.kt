@@ -17,7 +17,7 @@ abstract class BaseCountBasedScoreService(
         member: Member,
         categoryType: CategoryType,
         activityName: String,
-        sourceId: Long,
+        sourceId: Long?,
     ): CreateScoreResponse {
         val savedScore =
             scoreExposedRepository.save(

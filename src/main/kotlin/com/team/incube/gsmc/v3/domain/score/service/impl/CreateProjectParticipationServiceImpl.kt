@@ -39,10 +39,10 @@ class CreateProjectParticipationServiceImpl(
                     throw GsmcException(errorCode)
                 }
 
-            if (scoreExposedRepository.existsByMemberIdAndCategoryTypeAndSourceId(
+            if (scoreExposedRepository.existsProjectParticipationScore(
                     memberId = member.id,
-                    categoryType = CategoryType.PROJECT_PARTICIPATION,
-                    sourceId = projectId,
+                    projectId = projectId,
+                    projectTitle = projectTitle,
                 )
             ) {
                 throw GsmcException(ErrorCode.SCORE_ALREADY_EXISTS)
@@ -54,7 +54,7 @@ class CreateProjectParticipationServiceImpl(
                 member = member,
                 categoryType = CategoryType.PROJECT_PARTICIPATION,
                 activityName = projectTitle,
-                sourceId = projectId,
+                sourceId = null,
             )
         }
 }
