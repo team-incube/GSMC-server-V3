@@ -233,7 +233,10 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                 .join(MemberExposedEntity, joinType = JoinType.INNER) {
                     ScoreExposedEntity.member eq MemberExposedEntity.id
                 }.selectAll()
-                .where { ScoreExposedEntity.member eq memberId }
+                .where {
+                    (ScoreExposedEntity.member eq memberId) and
+                        (ScoreExposedEntity.status neq ScoreStatus.INCOMPLETE)
+                }
 
         categoryType?.let {
             query = query.andWhere { ScoreExposedEntity.categoryEnglishName eq it.englishName }
