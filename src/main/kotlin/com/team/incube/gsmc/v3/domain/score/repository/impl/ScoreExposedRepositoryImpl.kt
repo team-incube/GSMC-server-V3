@@ -279,6 +279,32 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
             }.singleOrNull()
     }
 
+    override fun existsProjectParticipationScore(
+        memberId: Long,
+        projectId: Long,
+        projectTitle: String,
+    ): Boolean {
+        val bySourceId =
+            !ScoreExposedEntity
+                .select(ScoreExposedEntity.id)
+                .where {
+                    (ScoreExposedEntity.member eq memberId) and
+                        (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName) and
+                        (ScoreExposedEntity.sourceId eq projectId)
+                }.limit(1)
+                .empty()
+
+        if (bySourceId) return true
+        return !ScoreExposedEntity
+            .select(ScoreExposedEntity.id)
+            .where {
+                (ScoreExposedEntity.member eq memberId) and
+                    (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName) and
+                    (ScoreExposedEntity.activityName eq projectTitle)
+            }.limit(1)
+            .empty()
+    }
+
     override fun deleteById(scoreId: Long) {
         ScoreExposedEntity.deleteWhere { id eq scoreId }
     }
