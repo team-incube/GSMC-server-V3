@@ -14,7 +14,6 @@ class CreateEvidenceDraftServiceImpl(
     @CachePut(
         value = ["evidenceDraft"],
         key = "#root.target.getMemberId()",
-        unless = "#result == null",
     )
     override fun execute(request: CreateEvidenceDraftRequest): GetEvidenceDraftResponse =
         GetEvidenceDraftResponse(

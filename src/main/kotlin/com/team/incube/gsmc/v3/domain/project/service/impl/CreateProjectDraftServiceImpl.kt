@@ -14,7 +14,6 @@ class CreateProjectDraftServiceImpl(
     @CachePut(
         value = ["projectDraft"],
         key = "#root.target.getMemberId()",
-        unless = "#result == null",
     )
     override fun execute(request: CreateProjectDraftRequest): GetProjectDraftResponse =
         GetProjectDraftResponse(
