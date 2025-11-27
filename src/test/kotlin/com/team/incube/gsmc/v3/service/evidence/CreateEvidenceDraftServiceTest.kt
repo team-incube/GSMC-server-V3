@@ -39,7 +39,6 @@ class CreateEvidenceDraftServiceTest :
 
             val request =
                 CreateEvidenceDraftRequest(
-                    scoreId = 10L,
                     title = "대회 참가 증빙",
                     content = "2024년 전국 프로그래밍 대회 참가 증빙자료입니다.",
                     fileIds = listOf(1L, 2L),
@@ -53,7 +52,6 @@ class CreateEvidenceDraftServiceTest :
                 Then("요청한 데이터가 응답으로 반환된다") {
                     result shouldBe
                         GetEvidenceDraftResponse(
-                            scoreId = 10L,
                             title = "대회 참가 증빙",
                             content = "2024년 전국 프로그래밍 대회 참가 증빙자료입니다.",
                             fileIds = listOf(1L, 2L),
@@ -77,7 +75,6 @@ class CreateEvidenceDraftServiceTest :
 
             val request =
                 CreateEvidenceDraftRequest(
-                    scoreId = null,
                     title = "",
                     content = "",
                     fileIds = emptyList(),
@@ -91,7 +88,6 @@ class CreateEvidenceDraftServiceTest :
                 Then("빈 데이터가 응답으로 반환된다") {
                     result shouldBe
                         GetEvidenceDraftResponse(
-                            scoreId = null,
                             title = "",
                             content = "",
                             fileIds = emptyList(),
@@ -115,7 +111,6 @@ class CreateEvidenceDraftServiceTest :
 
             val request =
                 CreateEvidenceDraftRequest(
-                    scoreId = 5L,
                     title = "임시 제목",
                     content = "",
                     fileIds = listOf(1L),
@@ -127,7 +122,6 @@ class CreateEvidenceDraftServiceTest :
                 val result = c.service.execute(request)
 
                 Then("입력된 필드만 포함된 응답이 반환된다") {
-                    result.scoreId shouldBe 5L
                     result.title shouldBe "임시 제목"
                     result.content shouldBe ""
                     result.fileIds shouldBe listOf(1L)
