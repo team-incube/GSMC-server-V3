@@ -1,7 +1,6 @@
 package com.team.incube.gsmc.v3.domain.evidence.presentation.data.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import java.io.Serializable
 
 @Schema(description = "증빙자료 임시저장 조회 응답")
 data class GetEvidenceDraftResponse(
@@ -11,4 +10,4 @@ data class GetEvidenceDraftResponse(
     val content: String,
     @param:Schema(description = "파일 ID 목록", example = "[1, 2]")
     val fileIds: List<Long>,
-) : Serializable
+)
