@@ -26,7 +26,9 @@ class RedisCacheConfig {
                 activateDefaultTyping(
                     BasicPolymorphicTypeValidator
                         .builder()
-                        .allowIfSubType("com.team.incube.gsmc.v3")
+                        .allowIfBaseType("com.team.incube.gsmc.v3")
+                        .allowIfBaseType("java.util")
+                        .allowIfBaseType("java.lang")
                         .build(),
                     ObjectMapper.DefaultTyping.NON_FINAL,
                     JsonTypeInfo.As.PROPERTY,
