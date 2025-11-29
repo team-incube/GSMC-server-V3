@@ -5,8 +5,6 @@ import com.team.incube.gsmc.v3.domain.evidence.dto.Evidence
 interface EvidenceExposedRepository {
     fun findById(evidenceId: Long): Evidence?
 
-    fun findBySourceId(sourceId: Long): Evidence?
-
     fun findAllByMemberId(memberId: Long): List<Evidence>
 
     fun save(
@@ -24,4 +22,8 @@ interface EvidenceExposedRepository {
     ): Evidence
 
     fun deleteById(evidenceId: Long)
+
+    fun findAllByIdIn(ids: List<Long>): List<Evidence>
+
+    fun deleteAllByIdIn(ids: List<Long>)
 }
