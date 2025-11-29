@@ -1,9 +1,8 @@
 package com.team.incube.gsmc.v3.global.config
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
@@ -23,19 +22,8 @@ class RedisCacheConfig {
         val objectMapper =
             ObjectMapper().apply {
                 registerKotlinModule()
-                activateDefaultTyping(
-                    BasicPolymorphicTypeValidator
-                        .builder()
-                        .allowIfSubType("com.team.incube.gsmc.v3")
-                        .allowIfSubType("java.util.ArrayList")
-                        .allowIfSubType("java.util.List")
-                        .allowIfSubType("java.lang.Long")
-                        .allowIfSubType("java.lang.String")
-                        .build(),
-                    ObjectMapper.DefaultTyping.NON_FINAL,
-                    JsonTypeInfo.As.PROPERTY,
-                )
-                setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                registerModule(JavaTimeModule())
+                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             }
 
         val redisCacheConfiguration =
