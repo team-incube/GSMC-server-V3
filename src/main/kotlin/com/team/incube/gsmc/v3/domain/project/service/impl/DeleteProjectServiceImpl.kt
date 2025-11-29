@@ -31,26 +31,48 @@ class DeleteProjectServiceImpl(
             if (project.ownerId != currentUser.id) {
                 throw GsmcException(ErrorCode.PROJECT_FORBIDDEN)
             }
+
+            // 1. 모든 관련 점수 조회
             val scores =
                 scoreExposedRepository.findAllByActivityNameAndCategoryType(
                     activityName = project.title,
                     categoryType = CategoryType.PROJECT_PARTICIPATION,
                 )
-            scores.forEach { score ->
-                score.sourceId?.let { sourceId ->
-                    val evidence = evidenceExposedRepository.findBySourceId(sourceId)
-                    evidence?.let {
-                        it.files.forEach { file ->
-                            s3DeleteService.execute(file.uri)
-                            fileExposedRepository.deleteById(file.id)
-                        }
-                        evidenceExposedRepository.deleteById(it.id)
-                    }
+
+            // 2. 모든 sourceId 수집 및 벌크로 evidence 조회
+            val sourceIds = scores.mapNotNull { it.sourceId }
+            val evidences =
+                if (sourceIds.isNotEmpty()) {
+                    evidenceExposedRepository.findAllByIdIn(sourceIds)
+                } else {
+                    emptyList()
                 }
-                score.id?.let { scoreId ->
-                    scoreExposedRepository.deleteById(scoreId)
-                }
+
+            // 3. 모든 파일 수집
+            val allFiles = evidences.flatMap { it.files }
+
+            // 4. S3에서 파일 삭제 (순차 처리)
+            allFiles.forEach { file ->
+                s3DeleteService.execute(file.uri)
             }
+
+            // 5. 벌크 삭제
+            val fileIds = allFiles.map { it.id }
+            if (fileIds.isNotEmpty()) {
+                fileExposedRepository.deleteAllByIdIn(fileIds)
+            }
+
+            val evidenceIds = evidences.mapNotNull { it.id }
+            if (evidenceIds.isNotEmpty()) {
+                evidenceExposedRepository.deleteAllByIdIn(evidenceIds)
+            }
+
+            val scoreIds = scores.mapNotNull { it.id }
+            if (scoreIds.isNotEmpty()) {
+                scoreExposedRepository.deleteAllByIdIn(scoreIds)
+            }
+
+            // 6. 프로젝트 삭제
             projectExposedRepository.deleteProjectById(projectId)
         }
     }
