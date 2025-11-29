@@ -14,6 +14,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 import org.springframework.stereotype.Repository
@@ -186,6 +187,26 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         }
     }
 
+    override fun findAllByStatus(status: ScoreStatus): List<Score> {
+        val results =
+            ScoreExposedEntity
+                .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
+                }.selectAll()
+                .where { ScoreExposedEntity.status eq status }
+                .toList()
+
+        if (results.isEmpty()) return emptyList()
+
+        val memberMap = mutableMapOf<Long, Member>()
+
+        return results.map { row ->
+            val memberId = row[ScoreExposedEntity.member]
+            val member = memberMap.getOrPut(memberId) { row.toMember() }
+            row.toScore(member)
+        }
+    }
+
     override fun findByMemberIdAndCategoryType(
         memberId: Long,
         categoryType: CategoryType,
@@ -212,7 +233,10 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                 .join(MemberExposedEntity, joinType = JoinType.INNER) {
                     ScoreExposedEntity.member eq MemberExposedEntity.id
                 }.selectAll()
-                .where { ScoreExposedEntity.member eq memberId }
+                .where {
+                    (ScoreExposedEntity.member eq memberId) and
+                        (ScoreExposedEntity.status neq ScoreStatus.INCOMPLETE)
+                }
 
         categoryType?.let {
             query = query.andWhere { ScoreExposedEntity.categoryEnglishName eq it.englishName }
@@ -242,6 +266,54 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                 (ScoreExposedEntity.member eq memberId) and
                     (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName) and
                     (ScoreExposedEntity.sourceId eq sourceId)
+            }.limit(1)
+            .empty()
+
+    override fun findProjectParticipationScore(
+        memberId: Long,
+        projectId: Long,
+        projectTitle: String,
+    ): Score? {
+        val bySourceId =
+            ScoreExposedEntity
+                .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
+                }.selectAll()
+                .where {
+                    (ScoreExposedEntity.member eq memberId) and
+                        (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName) and
+                        (ScoreExposedEntity.sourceId eq projectId)
+                }.map { row ->
+                    val member = row.toMember()
+                    row.toScore(member)
+                }.singleOrNull()
+
+        if (bySourceId != null) return bySourceId
+        return ScoreExposedEntity
+            .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                ScoreExposedEntity.member eq MemberExposedEntity.id
+            }.selectAll()
+            .where {
+                (ScoreExposedEntity.member eq memberId) and
+                    (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName) and
+                    (ScoreExposedEntity.activityName eq projectTitle)
+            }.map { row ->
+                val member = row.toMember()
+                row.toScore(member)
+            }.singleOrNull()
+    }
+
+    override fun existsProjectParticipationScore(
+        memberId: Long,
+        projectId: Long,
+        projectTitle: String,
+    ): Boolean =
+        !ScoreExposedEntity
+            .select(ScoreExposedEntity.id)
+            .where {
+                (ScoreExposedEntity.member eq memberId) and
+                    (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName) and
+                    ((ScoreExposedEntity.sourceId eq projectId) or (ScoreExposedEntity.activityName eq projectTitle))
             }.limit(1)
             .empty()
 

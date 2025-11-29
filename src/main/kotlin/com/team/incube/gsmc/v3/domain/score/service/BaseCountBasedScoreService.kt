@@ -17,7 +17,8 @@ abstract class BaseCountBasedScoreService(
         member: Member,
         categoryType: CategoryType,
         activityName: String,
-        sourceId: Long,
+        sourceId: Long?,
+        status: ScoreStatus = ScoreStatus.PENDING,
     ): CreateScoreResponse {
         val savedScore =
             scoreExposedRepository.save(
@@ -25,7 +26,7 @@ abstract class BaseCountBasedScoreService(
                     id = null,
                     member = member,
                     categoryType = categoryType,
-                    status = ScoreStatus.PENDING,
+                    status = status,
                     sourceId = sourceId,
                     activityName = activityName,
                     scoreValue = null,

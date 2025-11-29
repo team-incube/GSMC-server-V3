@@ -10,8 +10,12 @@ import org.springframework.stereotype.Service
 class FindProjectDraftServiceImpl(
     private val currentMemberProvider: CurrentMemberProvider,
 ) : FindProjectDraftService {
-    @Cacheable(value = ["projectDraft"], key = "#root.target.getMemberId()")
+    @Cacheable(
+        value = ["projectDraft"],
+        key = "#root.target.getMemberId()",
+        unless = "#result == null",
+    )
     override fun execute(): GetProjectDraftResponse? = null
 
-    fun getMemberId(): Long = currentMemberProvider.getCurrentMember().id
+    fun getMemberId(): Long = currentMemberProvider.getCurrentMemberId()
 }

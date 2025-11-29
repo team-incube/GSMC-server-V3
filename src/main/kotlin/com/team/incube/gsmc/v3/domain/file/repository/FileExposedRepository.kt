@@ -20,5 +20,7 @@ interface FileExposedRepository {
 
     fun findUnusedFilesByUserId(userId: Long): List<File>
 
+    fun findAllUnusedFiles(): List<File>
+
     fun deleteById(fileId: Long)
 }

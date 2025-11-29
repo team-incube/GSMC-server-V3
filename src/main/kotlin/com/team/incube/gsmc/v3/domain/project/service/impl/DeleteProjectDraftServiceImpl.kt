@@ -9,8 +9,11 @@ import org.springframework.stereotype.Service
 class DeleteProjectDraftServiceImpl(
     private val currentMemberProvider: CurrentMemberProvider,
 ) : DeleteProjectDraftService {
-    @CacheEvict(value = ["projectDraft"], key = "#root.target.getMemberId()")
+    @CacheEvict(
+        value = ["projectDraft"],
+        key = "#root.target.getMemberId()",
+    )
     override fun execute() {}
 
-    fun getMemberId(): Long = currentMemberProvider.getCurrentMember().id
+    fun getMemberId(): Long = currentMemberProvider.getCurrentMemberId()
 }

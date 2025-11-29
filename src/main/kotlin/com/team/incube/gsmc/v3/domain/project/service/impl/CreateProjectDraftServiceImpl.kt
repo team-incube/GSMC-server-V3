@@ -11,7 +11,10 @@ import org.springframework.stereotype.Service
 class CreateProjectDraftServiceImpl(
     private val currentMemberProvider: CurrentMemberProvider,
 ) : CreateProjectDraftService {
-    @CachePut(value = ["projectDraft"], key = "#root.target.getMemberId()")
+    @CachePut(
+        value = ["projectDraft"],
+        key = "#root.target.getMemberId()",
+    )
     override fun execute(request: CreateProjectDraftRequest): GetProjectDraftResponse =
         GetProjectDraftResponse(
             title = request.title,
@@ -20,5 +23,5 @@ class CreateProjectDraftServiceImpl(
             participantIds = request.participantIds,
         )
 
-    fun getMemberId(): Long = currentMemberProvider.getCurrentMember().id
+    fun getMemberId(): Long = currentMemberProvider.getCurrentMemberId()
 }
