@@ -39,7 +39,7 @@ class RedisCacheConfig : CachingConfigurer {
                 disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 activateDefaultTyping(
                     typeValidator,
-                    ObjectMapper.DefaultTyping.NON_FINAL,
+                    ObjectMapper.DefaultTyping.EVERYTHING,
                     JsonTypeInfo.As.PROPERTY,
                 )
             }
