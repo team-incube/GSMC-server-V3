@@ -2,7 +2,7 @@ name: GSMC-Dev-CD
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "develop", "fix/*" ]
   workflow_dispatch:
 
 jobs:
