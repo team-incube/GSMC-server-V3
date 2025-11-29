@@ -29,19 +29,13 @@ class UpdateProjectServiceImpl(
             val project =
                 projectExposedRepository.findProjectById(projectId)
                     ?: throw GsmcException(ErrorCode.PROJECT_NOT_FOUND)
-
             if (project.ownerId != currentUser.id) {
                 throw GsmcException(ErrorCode.PROJECT_FORBIDDEN)
             }
-
             val newTitle = title ?: project.title
-
-            // 프로젝트 제목이 변경된 경우 관련된 점수의 activityName 동기화
             if (title != null && title != project.title) {
                 val scoreIds = projectExposedRepository.findScoreIdsByProjectId(projectId)
-                scoreIds.forEach { scoreId ->
-                    scoreExposedRepository.updateActivityName(scoreId, newTitle)
-                }
+                scoreExposedRepository.updateActivityNameByIdIn(scoreIds, newTitle)
             }
 
             val updatedProject =
