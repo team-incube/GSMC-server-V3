@@ -313,6 +313,38 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         }
     }
 
+    override fun updateActivityNameByIdIn(
+        scoreIds: List<Long>,
+        activityName: String,
+    ) {
+        if (scoreIds.isEmpty()) return
+        ScoreExposedEntity.update({ ScoreExposedEntity.id inList scoreIds }) {
+            it[ScoreExposedEntity.activityName] = activityName
+        }
+    }
+
+    override fun findAllByIdIn(scoreIds: List<Long>): List<Score> {
+        if (scoreIds.isEmpty()) return emptyList()
+
+        val results =
+            ScoreExposedEntity
+                .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
+                }.selectAll()
+                .where { ScoreExposedEntity.id inList scoreIds }
+                .toList()
+
+        if (results.isEmpty()) return emptyList()
+
+        val memberMap = mutableMapOf<Long, Member>()
+
+        return results.map { row ->
+            val memberId = row[ScoreExposedEntity.member]
+            val member = memberMap.getOrPut(memberId) { row.toMember() }
+            row.toScore(member)
+        }
+    }
+
     override fun findAllByActivityName(activityName: String): List<Score> {
         val results =
             ScoreExposedEntity
