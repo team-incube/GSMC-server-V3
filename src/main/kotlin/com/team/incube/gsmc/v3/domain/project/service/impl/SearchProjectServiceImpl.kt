@@ -26,7 +26,7 @@ class SearchProjectServiceImpl(
 
             val projects =
                 projectPage.content.map { project ->
-                    val scoreIds = projectExposedRepository.findScoreIdsByProjectId(project.id!!)
+                    val scoreIds = projectExposedRepository.findScoreIdsByProjectTitle(project.title)
                     val fileItems =
                         project.files.map { file ->
                             FileItem(
