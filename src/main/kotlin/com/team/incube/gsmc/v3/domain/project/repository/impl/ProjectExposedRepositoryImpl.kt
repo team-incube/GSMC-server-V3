@@ -306,12 +306,12 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             .map { it.toMember() }
     }
 
-    override fun findScoreIdsByProjectId(projectId: Long): List<Long> =
+    override fun findScoreIdsByProjectTitle(projectTitle: String): List<Long> =
         ScoreExposedEntity
             .select(ScoreExposedEntity.id)
             .where {
                 (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName) and
-                    (ScoreExposedEntity.sourceId eq projectId)
+                    (ScoreExposedEntity.activityName eq projectTitle)
             }.map { it[ScoreExposedEntity.id] }
 
     private fun getFilesByProjectIds(projectIds: List<Long>): Map<Long, List<File>> {
