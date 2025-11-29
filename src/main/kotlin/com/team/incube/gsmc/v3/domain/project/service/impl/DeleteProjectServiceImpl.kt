@@ -34,8 +34,8 @@ class DeleteProjectServiceImpl(
             // 1. 프로젝트에 연결된 점수 ID 조회
             val scoreIds = projectExposedRepository.findScoreIdsByProjectId(projectId)
 
-            // 2. 모든 점수에서 sourceId 수집 및 벌크로 evidence 조회
-            val scores = scoreIds.mapNotNull { scoreExposedRepository.findById(it) }
+            // 2. 모든 점수를 벌크로 조회하고 sourceId 수집 후 evidence 조회
+            val scores = scoreExposedRepository.findAllByIdIn(scoreIds)
             val sourceIds = scores.mapNotNull { it.sourceId }
             val evidences = evidenceExposedRepository.findAllByIdIn(sourceIds)
 
