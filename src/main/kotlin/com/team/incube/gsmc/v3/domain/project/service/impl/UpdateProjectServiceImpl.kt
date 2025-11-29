@@ -4,6 +4,7 @@ import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectResponse
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.project.service.UpdateProjectService
+import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service
 @Service
 class UpdateProjectServiceImpl(
     private val projectExposedRepository: ProjectExposedRepository,
+    private val scoreExposedRepository: ScoreExposedRepository,
     private val currentMemberProvider: CurrentMemberProvider,
 ) : UpdateProjectService {
     override fun execute(
@@ -32,17 +34,27 @@ class UpdateProjectServiceImpl(
                 throw GsmcException(ErrorCode.PROJECT_FORBIDDEN)
             }
 
+            val newTitle = title ?: project.title
+
+            // 프로젝트 제목이 변경된 경우 관련된 점수의 activityName 동기화
+            if (title != null && title != project.title) {
+                val scoreIds = projectExposedRepository.findScoreIdsByProjectId(projectId)
+                scoreIds.forEach { scoreId ->
+                    scoreExposedRepository.updateActivityName(scoreId, newTitle)
+                }
+            }
+
             val updatedProject =
                 projectExposedRepository.updateProject(
                     id = projectId,
                     ownerId = project.ownerId,
-                    title = title ?: project.title,
+                    title = newTitle,
                     description = description ?: project.description,
                     fileIds = fileIds ?: project.files.map { it.id },
                     participantIds = participantIds ?: project.participants.map { it.id },
                 )
 
-            val scoreIds = projectExposedRepository.findScoreIdsByProjectTitle(updatedProject.title)
+            val scoreIds = projectExposedRepository.findScoreIdsByProjectId(projectId)
             val fileItems =
                 updatedProject.files.map { file ->
                     FileItem(
