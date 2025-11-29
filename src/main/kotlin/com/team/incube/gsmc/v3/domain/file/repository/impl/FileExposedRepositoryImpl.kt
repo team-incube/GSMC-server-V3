@@ -101,6 +101,13 @@ class FileExposedRepositoryImpl : FileExposedRepository {
         }
     }
 
+    override fun deleteAllByIdIn(fileIds: List<Long>) {
+        if (fileIds.isEmpty()) return
+        FileExposedEntity.deleteWhere {
+            id inList fileIds
+        }
+    }
+
     private fun ResultRow.toFile(): File =
         File(
             id = this[FileExposedEntity.id],

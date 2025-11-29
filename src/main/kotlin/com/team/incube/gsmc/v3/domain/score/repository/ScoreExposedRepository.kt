@@ -91,4 +91,6 @@ interface ScoreExposedRepository {
     ): List<Score>
 
     fun deleteById(scoreId: Long)
+
+    fun deleteAllByIdIn(scoreIds: List<Long>)
 }
