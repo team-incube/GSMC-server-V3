@@ -43,7 +43,6 @@ class CreateProjectParticipationServiceImpl(
             if (scoreExposedRepository.existsProjectParticipationScore(
                     memberId = member.id,
                     projectId = projectId,
-                    projectTitle = projectTitle,
                 )
             ) {
                 throw GsmcException(ErrorCode.SCORE_ALREADY_EXISTS)
@@ -51,12 +50,20 @@ class CreateProjectParticipationServiceImpl(
 
             scoreLimitValidator.validateScoreLimit(member.id, CategoryType.PROJECT_PARTICIPATION)
 
-            createScore(
-                member = member,
-                categoryType = CategoryType.PROJECT_PARTICIPATION,
-                activityName = projectTitle,
-                sourceId = null,
-                status = ScoreStatus.INCOMPLETE,
+            val createdScore =
+                createScore(
+                    member = member,
+                    categoryType = CategoryType.PROJECT_PARTICIPATION,
+                    activityName = projectTitle,
+                    sourceId = null,
+                    status = ScoreStatus.INCOMPLETE,
+                )
+
+            projectExposedRepository.linkProjectAndScore(
+                projectId = projectId,
+                scoreId = createdScore.scoreId,
             )
+
+            createdScore
         }
 }
