@@ -74,14 +74,17 @@ interface ScoreExposedRepository {
     fun findProjectParticipationScore(
         memberId: Long,
         projectId: Long,
-        projectTitle: String,
     ): Score?
 
     fun existsProjectParticipationScore(
         memberId: Long,
         projectId: Long,
-        projectTitle: String,
     ): Boolean
+
+    fun updateActivityName(
+        scoreId: Long,
+        activityName: String,
+    )
 
     fun findAllByActivityName(activityName: String): List<Score>
 

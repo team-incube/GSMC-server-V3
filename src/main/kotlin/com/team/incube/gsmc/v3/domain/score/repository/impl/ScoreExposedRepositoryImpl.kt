@@ -3,6 +3,7 @@ package com.team.incube.gsmc.v3.domain.score.repository.impl
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
+import com.team.incube.gsmc.v3.domain.project.entity.ProjectScoreExposedEntity
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.entity.ScoreExposedEntity
@@ -272,16 +273,17 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
     override fun findProjectParticipationScore(
         memberId: Long,
         projectId: Long,
-        projectTitle: String,
     ): Score? =
         ScoreExposedEntity
             .join(MemberExposedEntity, joinType = JoinType.INNER) {
                 ScoreExposedEntity.member eq MemberExposedEntity.id
+            }.join(ProjectScoreExposedEntity, joinType = JoinType.INNER) {
+                ScoreExposedEntity.id eq ProjectScoreExposedEntity.score
             }.selectAll()
             .where {
                 (ScoreExposedEntity.member eq memberId) and
-                    (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName) and
-                    (ScoreExposedEntity.activityName eq projectTitle)
+                    (ProjectScoreExposedEntity.project eq projectId) and
+                    (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName)
             }.map { row ->
                 val member = row.toMember()
                 row.toScore(member)
@@ -290,16 +292,26 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
     override fun existsProjectParticipationScore(
         memberId: Long,
         projectId: Long,
-        projectTitle: String,
     ): Boolean =
         !ScoreExposedEntity
-            .select(ScoreExposedEntity.id)
+            .join(ProjectScoreExposedEntity, joinType = JoinType.INNER) {
+                ScoreExposedEntity.id eq ProjectScoreExposedEntity.score
+            }.select(ScoreExposedEntity.id)
             .where {
                 (ScoreExposedEntity.member eq memberId) and
-                    (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName) and
-                    (ScoreExposedEntity.activityName eq projectTitle)
+                    (ProjectScoreExposedEntity.project eq projectId) and
+                    (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName)
             }.limit(1)
             .empty()
+
+    override fun updateActivityName(
+        scoreId: Long,
+        activityName: String,
+    ) {
+        ScoreExposedEntity.update({ ScoreExposedEntity.id eq scoreId }) {
+            it[ScoreExposedEntity.activityName] = activityName
+        }
+    }
 
     override fun findAllByActivityName(activityName: String): List<Score> {
         val results =
