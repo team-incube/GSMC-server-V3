@@ -110,6 +110,12 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
             .firstOrNull()
             ?.toMember()
 
+    override fun findAllByIdIn(ids: List<Long>): List<Member> =
+        MemberExposedEntity
+            .selectAll()
+            .where { MemberExposedEntity.id inList ids }
+            .map { it.toMember() }
+
     override fun existsById(id: Long): Boolean =
         MemberExposedEntity
             .selectAll()
