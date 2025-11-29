@@ -26,7 +26,7 @@ class CreateEvidenceDraftServiceImpl(
             val files =
                 if (request.fileIds.isNotEmpty()) {
                     val foundFiles = fileExposedRepository.findAllByIdIn(request.fileIds)
-                    if (foundFiles.size != request.fileIds.size) {
+                    if (foundFiles.size != request.fileIds.toSet().size) {
                         throw GsmcException(ErrorCode.FILE_NOT_FOUND)
                     }
                     foundFiles.map { file ->

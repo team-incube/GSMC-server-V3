@@ -28,7 +28,7 @@ class CreateProjectDraftServiceImpl(
             val files =
                 if (request.fileIds.isNotEmpty()) {
                     val foundFiles = fileExposedRepository.findAllByIdIn(request.fileIds)
-                    if (foundFiles.size != request.fileIds.size) {
+                    if (foundFiles.size != request.fileIds.toSet().size) {
                         throw GsmcException(ErrorCode.FILE_NOT_FOUND)
                     }
                     foundFiles.map { file ->
@@ -47,7 +47,7 @@ class CreateProjectDraftServiceImpl(
             val participants =
                 if (request.participantIds.isNotEmpty()) {
                     val foundMembers = memberExposedRepository.findAllByIdIn(request.participantIds)
-                    if (foundMembers.size != request.participantIds.size) {
+                    if (foundMembers.size != request.participantIds.toSet().size) {
                         throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
                     }
                     foundMembers
