@@ -69,7 +69,6 @@ class FindMyProjectScoreAndEvidenceServiceImpl(
 
             val evidenceResponse =
                 targetScore.sourceId
-                    ?.takeIf { it != projectId }
                     ?.takeIf { targetScore.categoryType.evidenceType == EvidenceType.EVIDENCE }
                     ?.let { evidenceId ->
                         evidenceExposedRepository.findById(evidenceId)?.let { evidence ->
