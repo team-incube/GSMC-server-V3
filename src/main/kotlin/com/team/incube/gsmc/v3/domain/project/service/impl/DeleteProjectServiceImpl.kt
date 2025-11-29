@@ -1,6 +1,5 @@
 package com.team.incube.gsmc.v3.domain.project.service.impl
 
-import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
@@ -32,24 +31,16 @@ class DeleteProjectServiceImpl(
                 throw GsmcException(ErrorCode.PROJECT_FORBIDDEN)
             }
 
-            // 1. 모든 관련 점수 조회
-            val scores =
-                scoreExposedRepository.findAllByActivityNameAndCategoryType(
-                    activityName = project.title,
-                    categoryType = CategoryType.PROJECT_PARTICIPATION,
-                )
+            // 1. 프로젝트에 연결된 점수 ID 조회
+            val scoreIds = projectExposedRepository.findScoreIdsByProjectId(projectId)
 
-            // 2. 모든 sourceId 수집 및 벌크로 evidence 조회
+            // 2. 모든 점수에서 sourceId 수집 및 벌크로 evidence 조회
+            val scores = scoreIds.mapNotNull { scoreExposedRepository.findById(it) }
             val sourceIds = scores.mapNotNull { it.sourceId }
-            val evidences =
-                if (sourceIds.isNotEmpty()) {
-                    evidenceExposedRepository.findAllByIdIn(sourceIds)
-                } else {
-                    emptyList()
-                }
+            val evidences = evidenceExposedRepository.findAllByIdIn(sourceIds)
 
-            // 3. 모든 파일 수집
-            val allFiles = evidences.flatMap { it.files }
+            // 3. 모든 파일 수집 (evidence 파일 + 프로젝트 직접 첨부 파일)
+            val allFiles = (evidences.flatMap { it.files } + project.files).distinctBy { it.id }
 
             // 4. S3에서 파일 삭제 (순차 처리)
             allFiles.forEach { file ->
@@ -58,19 +49,12 @@ class DeleteProjectServiceImpl(
 
             // 5. 벌크 삭제
             val fileIds = allFiles.map { it.id }
-            if (fileIds.isNotEmpty()) {
-                fileExposedRepository.deleteAllByIdIn(fileIds)
-            }
+            fileExposedRepository.deleteAllByIdIn(fileIds)
 
             val evidenceIds = evidences.mapNotNull { it.id }
-            if (evidenceIds.isNotEmpty()) {
-                evidenceExposedRepository.deleteAllByIdIn(evidenceIds)
-            }
+            evidenceExposedRepository.deleteAllByIdIn(evidenceIds)
 
-            val scoreIds = scores.mapNotNull { it.id }
-            if (scoreIds.isNotEmpty()) {
-                scoreExposedRepository.deleteAllByIdIn(scoreIds)
-            }
+            scoreExposedRepository.deleteAllByIdIn(scoreIds)
 
             // 6. 프로젝트 삭제
             projectExposedRepository.deleteProjectById(projectId)
