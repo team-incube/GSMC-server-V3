@@ -43,7 +43,6 @@ class FindMyProjectScoreAndEvidenceServiceImpl(
                 scoreExposedRepository.findProjectParticipationScore(
                     memberId = currentMember.id,
                     projectId = projectId,
-                    projectTitle = projectTitle,
                 )
 
             if (targetScore == null) {
