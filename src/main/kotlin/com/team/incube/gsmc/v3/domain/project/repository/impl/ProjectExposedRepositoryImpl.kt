@@ -272,7 +272,6 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
     override fun deleteProjectById(projectId: Long) {
         ProjectFileExposedEntity.deleteWhere { ProjectFileExposedEntity.project eq projectId }
         ProjectParticipantExposedEntity.deleteWhere { ProjectParticipantExposedEntity.project eq projectId }
-        ProjectScoreExposedEntity.deleteWhere { ProjectScoreExposedEntity.project eq projectId }
         ProjectExposedEntity.deleteWhere { id eq projectId }
     }
 
