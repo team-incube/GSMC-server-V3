@@ -62,8 +62,8 @@ class RedisCacheConfig : CachingConfigurer {
             .build()
     }
 
-    override fun errorHandler(): CacheErrorHandler {
-        return object : CacheErrorHandler {
+    override fun errorHandler(): CacheErrorHandler =
+        object : CacheErrorHandler {
             override fun handleCacheGetError(
                 exception: RuntimeException,
                 cache: Cache,
@@ -97,5 +97,4 @@ class RedisCacheConfig : CachingConfigurer {
                 logger().error("Cache clear error", exception)
             }
         }
-    }
 }
