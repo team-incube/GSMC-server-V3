@@ -83,5 +83,12 @@ interface ScoreExposedRepository {
         projectTitle: String,
     ): Boolean
 
+    fun findAllByActivityName(activityName: String): List<Score>
+
+    fun findAllByActivityNameAndCategoryType(
+        activityName: String,
+        categoryType: CategoryType,
+    ): List<Score>
+
     fun deleteById(scoreId: Long)
 }

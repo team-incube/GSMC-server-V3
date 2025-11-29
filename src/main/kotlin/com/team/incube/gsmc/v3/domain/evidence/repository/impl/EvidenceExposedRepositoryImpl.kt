@@ -45,6 +45,32 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
         )
     }
 
+    override fun findBySourceId(sourceId: Long): Evidence? {
+        val rows =
+            EvidenceExposedEntity
+                .leftJoin(EvidenceFileExposedEntity)
+                .leftJoin(FileExposedEntity)
+                .selectAll()
+                .where { EvidenceExposedEntity.id eq sourceId }
+        if (rows.empty()) {
+            return null
+        }
+        val firstRow = rows.first()
+        val files =
+            rows
+                .mapNotNull { it.toFile() }
+                .distinctBy { it.id }
+        return Evidence(
+            id = firstRow[EvidenceExposedEntity.id],
+            member = firstRow[EvidenceExposedEntity.member],
+            title = firstRow[EvidenceExposedEntity.title],
+            content = firstRow[EvidenceExposedEntity.content],
+            createdAt = firstRow[EvidenceExposedEntity.createdAt].atOffset(ZoneOffset.UTC).toLocalDateTime(),
+            updatedAt = firstRow[EvidenceExposedEntity.updatedAt].atOffset(ZoneOffset.UTC).toLocalDateTime(),
+            files = files,
+        )
+    }
+
     override fun findAllByMemberId(memberId: Long): List<Evidence> {
         val rows =
             EvidenceExposedEntity
