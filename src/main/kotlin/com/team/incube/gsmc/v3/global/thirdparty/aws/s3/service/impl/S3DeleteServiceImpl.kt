@@ -3,30 +3,51 @@ package com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.impl
 import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.data.S3Environment
 import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.handler.S3ExceptionHandler
 import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.S3DeleteService
-import io.awspring.cloud.s3.S3Template
 import org.springframework.stereotype.Service
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.Delete
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier
 
 @Service
 class S3DeleteServiceImpl(
-    private val s3Template: S3Template,
+    private val s3Client: S3Client,
     private val s3Environment: S3Environment,
 ) : S3DeleteService {
     override fun execute(fileUri: String) {
         val key = extractKeyFromUri(fileUri)
-
         S3ExceptionHandler.handleDeleteOperation {
-            s3Template.deleteObject(s3Environment.bucketName, key)
+            s3Client.deleteObject { req ->
+                req
+                    .bucket(s3Environment.bucketName)
+                    .key(key)
+            }
         }
     }
 
     override fun execute(fileUris: List<String>) {
         if (fileUris.isEmpty()) return
-
         fileUris.chunked(1000).forEach { chunk ->
-            val keys = chunk.map { extractKeyFromUri(it) }
+            val objectIdentifiers =
+                chunk.map { fileUri ->
+                    ObjectIdentifier
+                        .builder()
+                        .key(extractKeyFromUri(fileUri))
+                        .build()
+                }
 
             S3ExceptionHandler.handleDeleteOperation {
-                s3Template.deleteObjects(s3Environment.bucketName, keys)
+                s3Client.deleteObjects(
+                    DeleteObjectsRequest
+                        .builder()
+                        .bucket(s3Environment.bucketName)
+                        .delete(
+                            Delete
+                                .builder()
+                                .objects(objectIdentifiers)
+                                .build(),
+                        ).build(),
+                )
             }
         }
     }
