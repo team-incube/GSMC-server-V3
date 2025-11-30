@@ -36,7 +36,7 @@ class DiscordNotificationService(
                 val payload = DiscordWebhookPayload.embedMessage(embed)
                 discordWebhookClient.sendMessage(payload)
             }.onFailure { exception ->
-                logger().error("서버 시작 알림 전송 실패", exception)
+                logger().error("Server start notification failed", exception)
             }
         }
     }
@@ -58,7 +58,7 @@ class DiscordNotificationService(
             val payload = DiscordWebhookPayload.embedMessage(embed)
             discordWebhookClient.sendMessage(payload)
         }.onFailure { exception ->
-            logger().error("서버 종료 알림 전송 실패", exception)
+            logger().error("Server stop notification failed", exception)
         }
     }
 
@@ -79,7 +79,7 @@ class DiscordNotificationService(
                 val payload = DiscordWebhookPayload.embedMessage(embed)
                 discordWebhookClient.sendMessage(payload)
             }.onFailure { exception ->
-                logger().error("스케줄러 시작 알림 전송 실패", exception)
+                logger().error("Scheduler start notification failed", exception)
             }
         }
     }
@@ -101,7 +101,7 @@ class DiscordNotificationService(
                 val payload = DiscordWebhookPayload.embedMessage(embed)
                 discordWebhookClient.sendMessage(payload)
             }.onFailure { exception ->
-                logger().error("스케줄러 종료 알림 전송 실패", exception)
+                logger().error("Scheduler end notification failed", exception)
             }
         }
     }
@@ -123,7 +123,7 @@ class DiscordNotificationService(
                 val payload = DiscordWebhookPayload.embedMessage(embed)
                 discordWebhookClient.sendMessage(payload)
             }.onFailure { exception ->
-                logger().error("미완성 성적 스케줄러 시작 알림 전송 실패", exception)
+                logger().error("Incomplete score scheduler start notification failed", exception)
             }
         }
     }
@@ -133,19 +133,19 @@ class DiscordNotificationService(
             runCatching {
                 val embed =
                     DiscordEmbed(
-                        title = "✅ 미완성 성적 정리 완료",
+                        title = "✅ 미완성 인증제 점수 정리 완료",
                         color = EmbedColor.SUCCESS.color,
                         fields =
                             listOf(
-                                DiscordField("상태", "미완성 상태의 성적 정리 작업이 완료되었습니다.", false),
-                                DiscordField("삭제된 성적 수", "${deletedScoreCount}개", true),
+                                DiscordField("상태", "미완성 상태의 인증제 점수 정리 작업이 완료되었습니다.", false),
+                                DiscordField("삭제된 인증제 점수 수", "${deletedScoreCount}개", true),
                             ),
                         timestamp = Instant.now().toString(),
                     )
                 val payload = DiscordWebhookPayload.embedMessage(embed)
                 discordWebhookClient.sendMessage(payload)
             }.onFailure { exception ->
-                logger().error("미완성 성적 스케줄러 종료 알림 전송 실패", exception)
+                logger().error("Incomplete score scheduler end notification failed", exception)
             }
         }
     }
@@ -170,7 +170,7 @@ class DiscordNotificationService(
                 val payload = DiscordWebhookPayload.embedMessage(embed)
                 discordWebhookClient.sendMessage(payload)
             }.onFailure { exception ->
-                logger().error("스케줄러 실패 알림 전송 실패", exception)
+                logger().error("Scheduler failure notification failed", exception)
             }
         }
     }
