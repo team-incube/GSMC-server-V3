@@ -58,6 +58,12 @@ class FileExposedRepositoryImpl : FileExposedRepository {
             .singleOrNull()
             ?.toFile()
 
+    override fun findAllByIdIn(fileIds: List<Long>): List<File> =
+        FileExposedEntity
+            .selectAll()
+            .where { FileExposedEntity.id inList fileIds }
+            .map { it.toFile() }
+
     override fun findAllByUserId(userId: Long): List<File> =
         FileExposedEntity
             .selectAll()
