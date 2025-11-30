@@ -25,27 +25,21 @@ class UnusedFileCleanupScheduler(
         try {
             transaction {
                 logger().info("Unused file cleanup started")
-
                 val protectedFileIds = getProtectedFileIdsFromDrafts()
                 logger().info("Found ${protectedFileIds.size} files protected by drafts")
-
                 val orphanFiles = fileExposedRepository.findAllUnusedFiles()
                 logger().info("Found ${orphanFiles.size} orphan files")
-
                 val filesToDelete = orphanFiles.filter { it.id !in protectedFileIds }
-                logger().info("Files to delete after filtering: ${filesToDelete.size}")
-
+                logger().info("Deleting ${filesToDelete.size} files")
                 if (filesToDelete.isEmpty()) {
                     logger().info("No orphan files to clean up")
                     discordNotificationService?.sendSchedulerEndNotification(0)
                     return@transaction
                 }
-
                 val (fileUris, fileIds) = filesToDelete.map { it.uri to it.id }.unzip()
                 fileExposedRepository.deleteAllByIdIn(fileIds)
-                logger().info("Database records deleted - Total: ${fileIds.size}")
+                logger().info("Deleted ${filesToDelete.size} files")
                 eventPublisher.publishEvent(S3BulkFileDeletionEvent(fileUris))
-                logger().info("S3 deletion event published for ${fileUris.size} files")
                 discordNotificationService?.sendSchedulerEndNotification(fileIds.size)
             }
         } catch (e: Exception) {
@@ -56,7 +50,6 @@ class UnusedFileCleanupScheduler(
 
     private fun getProtectedFileIdsFromDrafts(): Set<Long> {
         val protectedIds = mutableSetOf<Long>()
-
         try {
             val evidenceDrafts = evidenceDraftRedisRepository.findAll()
             evidenceDrafts.forEach { draft ->
@@ -65,7 +58,6 @@ class UnusedFileCleanupScheduler(
         } catch (e: Exception) {
             logger().error("Failed to get protected file IDs from evidence drafts", e)
         }
-
         try {
             val projectDrafts = projectDraftRedisRepository.findAll()
             projectDrafts.forEach { draft ->
@@ -74,7 +66,6 @@ class UnusedFileCleanupScheduler(
         } catch (e: Exception) {
             logger().error("Failed to get protected file IDs from project drafts", e)
         }
-
         return protectedIds
     }
 }

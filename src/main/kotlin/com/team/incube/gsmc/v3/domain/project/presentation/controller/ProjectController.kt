@@ -14,7 +14,7 @@ import com.team.incube.gsmc.v3.domain.project.service.DeleteProjectService
 import com.team.incube.gsmc.v3.domain.project.service.FindMyProjectScoreAndEvidenceService
 import com.team.incube.gsmc.v3.domain.project.service.FindMyProjectsService
 import com.team.incube.gsmc.v3.domain.project.service.FindProjectByIdService
-import com.team.incube.gsmc.v3.domain.project.service.FindProjectDraftService
+import com.team.incube.gsmc.v3.domain.project.service.FindMyProjectDraftService
 import com.team.incube.gsmc.v3.domain.project.service.SearchProjectService
 import com.team.incube.gsmc.v3.domain.project.service.UpdateProjectService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
@@ -47,7 +47,7 @@ class ProjectController(
     private val findMyProjectsService: FindMyProjectsService,
     private val findProjectByIdService: FindProjectByIdService,
     private val createProjectDraftService: CreateProjectDraftService,
-    private val findProjectDraftService: FindProjectDraftService,
+    private val findMyProjectDraftService: FindMyProjectDraftService,
     private val deleteProjectDraftService: DeleteProjectDraftService,
     private val findMyProjectScoreAndEvidenceService: FindMyProjectScoreAndEvidenceService,
 ) {
@@ -214,7 +214,7 @@ class ProjectController(
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/draft")
-    fun getProjectDraft(): GetProjectDraftResponse? = findProjectDraftService.execute()
+    fun getProjectDraft(): GetProjectDraftResponse? = findMyProjectDraftService.execute()
 
     @Operation(summary = "프로젝트 임시저장 삭제", description = "임시저장된 프로젝트를 삭제합니다")
     @ApiResponses(

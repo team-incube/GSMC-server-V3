@@ -13,7 +13,7 @@ import com.team.incube.gsmc.v3.domain.evidence.service.CreateEvidenceService
 import com.team.incube.gsmc.v3.domain.evidence.service.DeleteEvidenceDraftService
 import com.team.incube.gsmc.v3.domain.evidence.service.DeleteEvidenceService
 import com.team.incube.gsmc.v3.domain.evidence.service.FindEvidenceByIdService
-import com.team.incube.gsmc.v3.domain.evidence.service.FindEvidenceDraftService
+import com.team.incube.gsmc.v3.domain.evidence.service.FindMyEvidenceDraftService
 import com.team.incube.gsmc.v3.domain.evidence.service.FindMyEvidencesService
 import com.team.incube.gsmc.v3.domain.evidence.service.UpdateEvidenceService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
@@ -44,7 +44,7 @@ class EvidenceController(
     private val updateEvidenceService: UpdateEvidenceService,
     private val deleteEvidenceService: DeleteEvidenceService,
     private val createEvidenceDraftService: CreateEvidenceDraftService,
-    private val findEvidenceDraftService: FindEvidenceDraftService,
+    private val findMyEvidenceDraftService: FindMyEvidenceDraftService,
     private val deleteEvidenceDraftService: DeleteEvidenceDraftService,
 ) {
     @Operation(summary = "내 증빙자료 목록 조회", description = "현재 인증된 사용자의 모든 증빙자료를 조회합니다")
@@ -189,7 +189,7 @@ class EvidenceController(
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/draft")
-    fun getEvidenceDraft(): GetEvidenceDraftResponse? = findEvidenceDraftService.execute()
+    fun getEvidenceDraft(): GetEvidenceDraftResponse? = findMyEvidenceDraftService.execute()
 
     @Operation(summary = "증빙자료 임시저장 삭제", description = "임시저장된 증빙자료를 삭제합니다")
     @ApiResponses(

@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.service.evidence
 
-import com.team.incube.gsmc.v3.domain.evidence.service.impl.FindEvidenceDraftServiceImpl
+import com.team.incube.gsmc.v3.domain.evidence.service.impl.FindMyEvidenceDraftServiceImpl
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
@@ -13,12 +13,12 @@ class FindEvidenceDraftServiceTest :
     BehaviorSpec({
         data class Ctx(
             val currentMemberProvider: CurrentMemberProvider,
-            val service: FindEvidenceDraftServiceImpl,
+            val service: FindMyEvidenceDraftServiceImpl,
         )
 
         fun ctx(): Ctx {
             val c = mockk<CurrentMemberProvider>()
-            val s = FindEvidenceDraftServiceImpl(c)
+            val s = FindMyEvidenceDraftServiceImpl(c)
             return Ctx(c, s)
         }
 

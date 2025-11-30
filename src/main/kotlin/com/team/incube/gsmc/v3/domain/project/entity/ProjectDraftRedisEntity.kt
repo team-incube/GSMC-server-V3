@@ -1,4 +1,4 @@
-package com.team.incube.gsmc.v3.domain.project.entity.redis
+package com.team.incube.gsmc.v3.domain.project.entity
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.redis.core.RedisHash

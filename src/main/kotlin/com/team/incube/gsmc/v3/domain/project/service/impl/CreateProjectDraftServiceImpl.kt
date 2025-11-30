@@ -3,7 +3,7 @@ package com.team.incube.gsmc.v3.domain.project.service.impl
 import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
-import com.team.incube.gsmc.v3.domain.project.entity.redis.ProjectDraftRedisEntity
+import com.team.incube.gsmc.v3.domain.project.entity.ProjectDraftRedisEntity
 import com.team.incube.gsmc.v3.domain.project.presentation.data.request.CreateProjectDraftRequest
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectDraftResponse
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectDraftRedisRepository

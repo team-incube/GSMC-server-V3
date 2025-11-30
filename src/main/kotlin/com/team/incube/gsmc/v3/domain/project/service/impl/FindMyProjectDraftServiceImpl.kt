@@ -1,23 +1,25 @@
-package com.team.incube.gsmc.v3.domain.evidence.service.impl
+package com.team.incube.gsmc.v3.domain.project.service.impl
 
-import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvidenceDraftResponse
-import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceDraftRedisRepository
-import com.team.incube.gsmc.v3.domain.evidence.service.FindEvidenceDraftService
 import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
+import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
+import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectDraftResponse
+import com.team.incube.gsmc.v3.domain.project.repository.ProjectDraftRedisRepository
+import com.team.incube.gsmc.v3.domain.project.service.FindMyProjectDraftService
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
 
 @Service
-class FindEvidenceDraftServiceImpl(
+class FindMyProjectDraftServiceImpl(
     private val currentMemberProvider: CurrentMemberProvider,
-    private val evidenceDraftRedisRepository: EvidenceDraftRedisRepository,
+    private val projectDraftRedisRepository: ProjectDraftRedisRepository,
     private val fileExposedRepository: FileExposedRepository,
-) : FindEvidenceDraftService {
-    override fun execute(): GetEvidenceDraftResponse? {
+    private val memberExposedRepository: MemberExposedRepository,
+) : FindMyProjectDraftService {
+    override fun execute(): GetProjectDraftResponse? {
         val memberId = currentMemberProvider.getCurrentMemberId()
-        val draftEntity = evidenceDraftRedisRepository.findById(memberId).orElse(null) ?: return null
+        val draftEntity = projectDraftRedisRepository.findById(memberId).orElse(null) ?: return null
 
         return transaction {
             val files =
@@ -36,10 +38,18 @@ class FindEvidenceDraftServiceImpl(
                     emptyList()
                 }
 
-            GetEvidenceDraftResponse(
+            val participants =
+                if (draftEntity.participantIds.isNotEmpty()) {
+                    memberExposedRepository.findAllByIdIn(draftEntity.participantIds)
+                } else {
+                    emptyList()
+                }
+
+            GetProjectDraftResponse(
                 title = draftEntity.title,
-                content = draftEntity.content,
+                description = draftEntity.description,
                 files = files,
+                participants = participants,
             )
         }
     }

@@ -22,7 +22,6 @@ class CreateEvidenceDraftServiceImpl(
     override fun execute(request: CreateEvidenceDraftRequest): GetEvidenceDraftResponse =
         transaction {
             val memberId = currentMemberProvider.getCurrentMemberId()
-
             val files =
                 if (request.fileIds.isNotEmpty()) {
                     val foundFiles = fileExposedRepository.findAllByIdIn(request.fileIds)
@@ -41,7 +40,6 @@ class CreateEvidenceDraftServiceImpl(
                 } else {
                     emptyList()
                 }
-
             val draftEntity =
                 EvidenceDraftRedisEntity(
                     memberId = memberId,
@@ -50,7 +48,6 @@ class CreateEvidenceDraftServiceImpl(
                     fileIds = files.map { it.id },
                 )
             evidenceDraftRedisRepository.save(draftEntity)
-
             GetEvidenceDraftResponse(
                 title = request.title,
                 content = request.content,
