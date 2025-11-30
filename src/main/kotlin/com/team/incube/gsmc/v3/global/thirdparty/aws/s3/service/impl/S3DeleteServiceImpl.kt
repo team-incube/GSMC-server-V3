@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.impl
 
+import com.team.incube.gsmc.v3.global.config.logger
 import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.data.S3Environment
 import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.handler.S3ExceptionHandler
 import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.S3DeleteService
@@ -35,19 +36,26 @@ class S3DeleteServiceImpl(
                         .key(extractKeyFromUri(fileUri))
                         .build()
                 }
-
             S3ExceptionHandler.handleDeleteOperation {
-                s3Client.deleteObjects(
-                    DeleteObjectsRequest
-                        .builder()
-                        .bucket(s3Environment.bucketName)
-                        .delete(
-                            Delete
-                                .builder()
-                                .objects(objectIdentifiers)
-                                .build(),
-                        ).build(),
-                )
+                val response =
+                    s3Client.deleteObjects(
+                        DeleteObjectsRequest
+                            .builder()
+                            .bucket(s3Environment.bucketName)
+                            .delete(
+                                Delete
+                                    .builder()
+                                    .objects(objectIdentifiers)
+                                    .build(),
+                            ).build(),
+                    )
+                if (response.hasErrors()) {
+                    response.errors().forEach { error ->
+                        logger().error(
+                            "S3 object deletion failed - Key: ${error.key()}, Code: ${error.code()}, Message: ${error.message()}",
+                        )
+                    }
+                }
             }
         }
     }
