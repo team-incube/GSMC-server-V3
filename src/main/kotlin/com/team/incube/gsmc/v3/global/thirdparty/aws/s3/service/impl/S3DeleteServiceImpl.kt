@@ -22,10 +22,12 @@ class S3DeleteServiceImpl(
     override fun execute(fileUris: List<String>) {
         if (fileUris.isEmpty()) return
 
-        val keys = fileUris.map { extractKeyFromUri(it) }
+        fileUris.chunked(1000).forEach { chunk ->
+            val keys = chunk.map { extractKeyFromUri(it) }
 
-        S3ExceptionHandler.handleDeleteOperation {
-            s3Template.deleteObjects(s3Environment.bucketName, keys)
+            S3ExceptionHandler.handleDeleteOperation {
+                s3Template.deleteObjects(s3Environment.bucketName, keys)
+            }
         }
     }
 
