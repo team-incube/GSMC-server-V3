@@ -48,4 +48,9 @@ interface ProjectExposedRepository {
     fun deleteProjectById(projectId: Long)
 
     fun findScoreIdsByProjectId(projectId: Long): List<Long>
+
+    fun linkProjectAndScore(
+        projectId: Long,
+        scoreId: Long,
+    )
 }

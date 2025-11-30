@@ -19,7 +19,7 @@ class FindProjectByIdServiceImpl(
                 projectExposedRepository.findProjectById(projectId)
                     ?: throw GsmcException(ErrorCode.PROJECT_NOT_FOUND)
 
-            val scoreIds = projectExposedRepository.findScoreIdsByProjectId(project.id!!)
+            val scoreIds = projectExposedRepository.findScoreIdsByProjectId(projectId)
             val fileItems =
                 project.files.map { file ->
                     FileItem(
@@ -32,7 +32,7 @@ class FindProjectByIdServiceImpl(
                 }
 
             GetProjectResponse(
-                id = project.id,
+                id = project.id!!,
                 ownerId = project.ownerId,
                 title = project.title,
                 description = project.description,

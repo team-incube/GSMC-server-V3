@@ -43,7 +43,6 @@ class FindMyProjectScoreAndEvidenceServiceImpl(
                 scoreExposedRepository.findProjectParticipationScore(
                     memberId = currentMember.id,
                     projectId = projectId,
-                    projectTitle = projectTitle,
                 )
 
             if (targetScore == null) {
@@ -69,7 +68,6 @@ class FindMyProjectScoreAndEvidenceServiceImpl(
 
             val evidenceResponse =
                 targetScore.sourceId
-                    ?.takeIf { it != projectId }
                     ?.takeIf { targetScore.categoryType.evidenceType == EvidenceType.EVIDENCE }
                     ?.let { evidenceId ->
                         evidenceExposedRepository.findById(evidenceId)?.let { evidence ->

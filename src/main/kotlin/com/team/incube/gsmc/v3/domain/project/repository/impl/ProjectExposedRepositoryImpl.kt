@@ -1,6 +1,5 @@
 package com.team.incube.gsmc.v3.domain.project.repository.impl
 
-import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.file.dto.File
 import com.team.incube.gsmc.v3.domain.file.entity.FileExposedEntity
 import com.team.incube.gsmc.v3.domain.member.dto.Member
@@ -9,8 +8,8 @@ import com.team.incube.gsmc.v3.domain.project.dto.Project
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectExposedEntity
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectFileExposedEntity
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectParticipantExposedEntity
+import com.team.incube.gsmc.v3.domain.project.entity.ProjectScoreExposedEntity
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
-import com.team.incube.gsmc.v3.domain.score.entity.ScoreExposedEntity
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -276,6 +275,22 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
         ProjectExposedEntity.deleteWhere { id eq projectId }
     }
 
+    override fun findScoreIdsByProjectId(projectId: Long): List<Long> =
+        ProjectScoreExposedEntity
+            .select(ProjectScoreExposedEntity.score)
+            .where { ProjectScoreExposedEntity.project eq projectId }
+            .map { it[ProjectScoreExposedEntity.score] }
+
+    override fun linkProjectAndScore(
+        projectId: Long,
+        scoreId: Long,
+    ) {
+        ProjectScoreExposedEntity.insert {
+            it[project] = projectId
+            it[score] = scoreId
+        }
+    }
+
     private fun getProjectFiles(projectId: Long): List<File> {
         val fileIds =
             ProjectFileExposedEntity
@@ -305,14 +320,6 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             .where { MemberExposedEntity.id inList memberIds }
             .map { it.toMember() }
     }
-
-    override fun findScoreIdsByProjectId(projectId: Long): List<Long> =
-        ScoreExposedEntity
-            .select(ScoreExposedEntity.id)
-            .where {
-                (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName) and
-                    (ScoreExposedEntity.sourceId eq projectId)
-            }.map { it[ScoreExposedEntity.id] }
 
     private fun getFilesByProjectIds(projectIds: List<Long>): Map<Long, List<File>> {
         val fileRelations =

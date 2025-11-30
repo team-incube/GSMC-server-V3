@@ -8,6 +8,7 @@ import com.team.incube.gsmc.v3.domain.file.entity.EvidenceFileExposedEntity
 import com.team.incube.gsmc.v3.domain.file.entity.FileExposedEntity
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
@@ -168,6 +169,42 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
     override fun deleteById(evidenceId: Long) {
         EvidenceFileExposedEntity.deleteWhere { EvidenceFileExposedEntity.evidence eq evidenceId }
         EvidenceExposedEntity.deleteWhere { id eq evidenceId }
+    }
+
+    override fun findAllByIdIn(ids: List<Long>): List<Evidence> {
+        if (ids.isEmpty()) return emptyList()
+
+        val rows =
+            EvidenceExposedEntity
+                .leftJoin(EvidenceFileExposedEntity)
+                .leftJoin(FileExposedEntity)
+                .selectAll()
+                .where { EvidenceExposedEntity.id inList ids }
+
+        return rows
+            .groupBy { it[EvidenceExposedEntity.id] }
+            .map { (_, evidenceRows) ->
+                val firstRow = evidenceRows.first()
+                val files =
+                    evidenceRows
+                        .mapNotNull { it.toFile() }
+                        .distinctBy { it.id }
+                Evidence(
+                    id = firstRow[EvidenceExposedEntity.id],
+                    member = firstRow[EvidenceExposedEntity.member],
+                    title = firstRow[EvidenceExposedEntity.title],
+                    content = firstRow[EvidenceExposedEntity.content],
+                    createdAt = firstRow[EvidenceExposedEntity.createdAt].atOffset(ZoneOffset.UTC).toLocalDateTime(),
+                    updatedAt = firstRow[EvidenceExposedEntity.updatedAt].atOffset(ZoneOffset.UTC).toLocalDateTime(),
+                    files = files,
+                )
+            }
+    }
+
+    override fun deleteAllByIdIn(ids: List<Long>) {
+        if (ids.isEmpty()) return
+        EvidenceFileExposedEntity.deleteWhere { EvidenceFileExposedEntity.evidence inList ids }
+        EvidenceExposedEntity.deleteWhere { id inList ids }
     }
 
     private fun ResultRow.toFile(): File? {

@@ -38,7 +38,7 @@ class SearchProjectServiceImpl(
                             )
                         }
                     GetProjectResponse(
-                        id = project.id,
+                        id = project.id!!,
                         ownerId = project.ownerId,
                         title = project.title,
                         description = project.description,
