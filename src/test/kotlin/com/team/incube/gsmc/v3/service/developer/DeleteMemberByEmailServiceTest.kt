@@ -1,4 +1,5 @@
 package com.team.incube.gsmc.v3.service.developer
+
 import com.team.incube.gsmc.v3.domain.developer.service.impl.DeleteMemberByEmailServiceImpl
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
@@ -26,6 +27,7 @@ class DeleteMemberByEmailServiceTest :
             val service = DeleteMemberByEmailServiceImpl(memberRepo)
             return TestData(memberRepo, service)
         }
+
         beforeTest {
             mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
             every {
@@ -34,24 +36,32 @@ class DeleteMemberByEmailServiceTest :
                 secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
             }
         }
+
         afterTest {
             unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
         }
+
         Given("존재하는 이메일로 회원을 삭제할 때") {
             val c = ctx()
             val email = "test@test.com"
+
             every { c.memberRepo.deleteMemberByEmail(email) } returns 1
+
             When("execute를 호출하면") {
                 c.service.execute(email)
+
                 Then("회원이 삭제된다") {
                     verify(exactly = 1) { c.memberRepo.deleteMemberByEmail(email) }
                 }
             }
         }
+
         Given("존재하지 않는 이메일로 회원을 삭제하려고 할 때") {
             val c = ctx()
             val email = "none@test.com"
+
             every { c.memberRepo.deleteMemberByEmail(email) } returns 0
+
             When("execute를 호출하면") {
                 Then("MEMBER_NOT_FOUND 예외가 발생한다") {
                     val ex = shouldThrow<GsmcException> { c.service.execute(email) }
