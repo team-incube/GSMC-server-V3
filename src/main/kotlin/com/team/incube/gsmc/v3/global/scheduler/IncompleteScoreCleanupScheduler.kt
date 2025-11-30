@@ -27,14 +27,12 @@ class IncompleteScoreCleanupScheduler(
                     return@transaction
                 }
                 var deletedCount = 0
-                var failedCount = 0
                 incompleteScores.forEach { score ->
                     try {
                         scoreExposedRepository.deleteById(score.id!!)
                         deletedCount++
                     } catch (e: Exception) {
                         logger().error("Score deletion failed: id=${score.id} - ${e.message}")
-                        failedCount++
                     }
                 }
                 logger().info("Incomplete score cleanup completed - Deleted: $deletedCount")
