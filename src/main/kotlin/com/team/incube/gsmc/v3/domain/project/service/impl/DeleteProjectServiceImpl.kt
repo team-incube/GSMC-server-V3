@@ -47,17 +47,16 @@ class DeleteProjectServiceImpl(
                 s3DeleteService.execute(file.uri)
             }
 
-            // 5. 벌크 삭제
-            val fileIds = allFiles.map { it.id }
-            fileExposedRepository.deleteAllByIdIn(fileIds)
-
+            // 5. 벌크 삭제 (외래 키 제약 조건을 고려한 순서)
             val evidenceIds = evidences.mapNotNull { it.id }
             evidenceExposedRepository.deleteAllByIdIn(evidenceIds)
 
             scoreExposedRepository.deleteAllByIdIn(scoreIds)
 
-            // 6. 프로젝트 삭제
             projectExposedRepository.deleteProjectById(projectId)
+
+            val fileIds = allFiles.map { it.id }
+            fileExposedRepository.deleteAllByIdIn(fileIds)
         }
     }
 }
