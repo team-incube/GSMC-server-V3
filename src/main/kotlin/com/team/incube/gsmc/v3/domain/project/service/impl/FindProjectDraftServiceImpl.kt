@@ -4,7 +4,7 @@ import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectDraftResponse
-import com.team.incube.gsmc.v3.domain.project.repository.redis.ProjectDraftRedisRepository
+import com.team.incube.gsmc.v3.domain.project.repository.ProjectDraftRedisRepository
 import com.team.incube.gsmc.v3.domain.project.service.FindProjectDraftService
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.sql.transactions.transaction

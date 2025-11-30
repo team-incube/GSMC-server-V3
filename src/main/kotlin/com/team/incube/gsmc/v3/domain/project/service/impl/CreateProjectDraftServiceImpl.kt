@@ -6,7 +6,7 @@ import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.project.entity.redis.ProjectDraftRedisEntity
 import com.team.incube.gsmc.v3.domain.project.presentation.data.request.CreateProjectDraftRequest
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectDraftResponse
-import com.team.incube.gsmc.v3.domain.project.repository.redis.ProjectDraftRedisRepository
+import com.team.incube.gsmc.v3.domain.project.repository.ProjectDraftRedisRepository
 import com.team.incube.gsmc.v3.domain.project.service.CreateProjectDraftService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException

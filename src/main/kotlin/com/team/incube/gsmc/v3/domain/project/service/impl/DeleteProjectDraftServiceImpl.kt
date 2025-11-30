@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.project.service.impl
 
-import com.team.incube.gsmc.v3.domain.project.repository.redis.ProjectDraftRedisRepository
+import com.team.incube.gsmc.v3.domain.project.repository.ProjectDraftRedisRepository
 import com.team.incube.gsmc.v3.domain.project.service.DeleteProjectDraftService
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.springframework.stereotype.Service

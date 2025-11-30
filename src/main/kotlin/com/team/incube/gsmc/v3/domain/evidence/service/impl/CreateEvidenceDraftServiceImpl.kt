@@ -3,7 +3,7 @@ package com.team.incube.gsmc.v3.domain.evidence.service.impl
 import com.team.incube.gsmc.v3.domain.evidence.entity.redis.EvidenceDraftRedisEntity
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.request.CreateEvidenceDraftRequest
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvidenceDraftResponse
-import com.team.incube.gsmc.v3.domain.evidence.repository.redis.EvidenceDraftRedisRepository
+import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceDraftRedisRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.CreateEvidenceDraftService
 import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository

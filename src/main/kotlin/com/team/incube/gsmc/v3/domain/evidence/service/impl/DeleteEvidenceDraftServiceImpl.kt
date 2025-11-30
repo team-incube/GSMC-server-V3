@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.evidence.service.impl
 
-import com.team.incube.gsmc.v3.domain.evidence.repository.redis.EvidenceDraftRedisRepository
+import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceDraftRedisRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.DeleteEvidenceDraftService
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.springframework.stereotype.Service

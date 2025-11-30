@@ -1,4 +1,4 @@
-package com.team.incube.gsmc.v3.domain.evidence.repository.redis
+package com.team.incube.gsmc.v3.domain.evidence.repository
 
 import com.team.incube.gsmc.v3.domain.evidence.entity.redis.EvidenceDraftRedisEntity
 import org.springframework.data.repository.CrudRepository

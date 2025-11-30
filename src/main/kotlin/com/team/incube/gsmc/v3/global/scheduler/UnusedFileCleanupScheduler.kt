@@ -1,8 +1,8 @@
 package com.team.incube.gsmc.v3.global.scheduler
 
-import com.team.incube.gsmc.v3.domain.evidence.repository.redis.EvidenceDraftRedisRepository
+import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceDraftRedisRepository
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
-import com.team.incube.gsmc.v3.domain.project.repository.redis.ProjectDraftRedisRepository
+import com.team.incube.gsmc.v3.domain.project.repository.ProjectDraftRedisRepository
 import com.team.incube.gsmc.v3.global.common.discord.service.DiscordNotificationService
 import com.team.incube.gsmc.v3.global.config.logger
 import com.team.incube.gsmc.v3.global.event.s3.S3BulkFileDeletionEvent
