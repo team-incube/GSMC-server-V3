@@ -36,6 +36,7 @@ class DeleteScoreServiceImpl(
                             eventPublisher.publishEvent(S3BulkFileDeletionEvent(fileUris))
                         }
                     }
+
                     EvidenceType.FILE -> {
                         val file = fileExposedRepository.findById(sourceId)
                         file?.let {
