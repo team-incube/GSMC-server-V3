@@ -38,8 +38,9 @@ class UnusedFileCleanupScheduler(
                 }
                 val (fileUris, fileIds) = filesToDelete.map { it.uri to it.id }.unzip()
                 fileExposedRepository.deleteAllByIdIn(fileIds)
-                logger().info("Deleted ${filesToDelete.size} files")
+                logger().info("Deleted ${fileIds.size} file records from the database")
                 eventPublisher.publishEvent(S3BulkFileDeletionEvent(fileUris))
+                logger().info("Published S3 deletion event for ${fileUris.size} files")
                 discordNotificationService?.sendSchedulerEndNotification(fileIds.size)
             }
         } catch (e: Exception) {
@@ -49,23 +50,22 @@ class UnusedFileCleanupScheduler(
     }
 
     private fun getProtectedFileIdsFromDrafts(): Set<Long> {
-        val protectedIds = mutableSetOf<Long>()
-        try {
-            val evidenceDrafts = evidenceDraftRedisRepository.findAll()
-            evidenceDrafts.forEach { draft ->
-                protectedIds.addAll(draft.fileIds)
+        val evidenceFileIds =
+            try {
+                evidenceDraftRedisRepository.findAll().flatMap { it.fileIds }
+            } catch (e: Exception) {
+                logger().error("Failed to get protected file IDs from evidence drafts", e)
+                emptyList()
             }
-        } catch (e: Exception) {
-            logger().error("Failed to get protected file IDs from evidence drafts", e)
-        }
-        try {
-            val projectDrafts = projectDraftRedisRepository.findAll()
-            projectDrafts.forEach { draft ->
-                protectedIds.addAll(draft.fileIds)
+
+        val projectFileIds =
+            try {
+                projectDraftRedisRepository.findAll().flatMap { it.fileIds }
+            } catch (e: Exception) {
+                logger().error("Failed to get protected file IDs from project drafts", e)
+                emptyList()
             }
-        } catch (e: Exception) {
-            logger().error("Failed to get protected file IDs from project drafts", e)
-        }
-        return protectedIds
+
+        return (evidenceFileIds + projectFileIds).toSet()
     }
 }
