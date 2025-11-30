@@ -9,19 +9,18 @@ import software.amazon.awssdk.services.s3.S3Client
 
 @Configuration
 class AwsS3Config(
-    private val awsProperties: AwsProperties,
+    private val awsEnvironment: AwsEnvironment,
 ) {
     @Bean
     fun s3Client(): S3Client {
         val credentials =
             AwsBasicCredentials.create(
-                awsProperties.credentials.accessKey,
-                awsProperties.credentials.secretKey,
+                awsEnvironment.credentials.accessKey,
+                awsEnvironment.credentials.secretKey,
             )
-
         return S3Client
             .builder()
-            .region(Region.of(awsProperties.region.static))
+            .region(Region.of(awsEnvironment.region.static))
             .credentialsProvider(StaticCredentialsProvider.create(credentials))
             .build()
     }

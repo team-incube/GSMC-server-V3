@@ -3,7 +3,7 @@ package com.team.incube.gsmc.v3.global.thirdparty.aws.config
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "spring.cloud.aws")
-data class AwsProperties(
+data class AwsEnvironment(
     val region: Region,
     val credentials: Credentials,
 ) {
