@@ -35,7 +35,7 @@ class IncompleteScoreCleanupScheduler(
                         logger().error("Score deletion failed: id=${score.id} - ${e.message}")
                     }
                 }
-                logger().info("Incomplete score cleanup completed - Deleted: $deletedCount")
+                logger().info("Deleted $deletedCount incomplete scores")
                 discordNotificationService?.sendIncompleteScoreSchedulerEndNotification(deletedCount)
             }
         } catch (e: Exception) {

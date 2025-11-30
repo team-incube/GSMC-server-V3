@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.service.evidence
 
-import com.team.incube.gsmc.v3.domain.evidence.service.impl.DeleteEvidenceDraftServiceImpl
+import com.team.incube.gsmc.v3.domain.evidence.service.impl.DeleteMyEvidenceDraftServiceImpl
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
@@ -13,12 +13,12 @@ class DeleteEvidenceDraftServiceTest :
     BehaviorSpec({
         data class Ctx(
             val currentMemberProvider: CurrentMemberProvider,
-            val service: DeleteEvidenceDraftServiceImpl,
+            val service: DeleteMyEvidenceDraftServiceImpl,
         )
 
         fun ctx(): Ctx {
             val c = mockk<CurrentMemberProvider>()
-            val s = DeleteEvidenceDraftServiceImpl(c)
+            val s = DeleteMyEvidenceDraftServiceImpl(c)
             return Ctx(c, s)
         }
 

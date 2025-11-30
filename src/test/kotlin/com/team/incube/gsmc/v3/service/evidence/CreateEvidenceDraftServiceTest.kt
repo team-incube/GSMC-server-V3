@@ -1,7 +1,7 @@
 package com.team.incube.gsmc.v3.service.evidence
 
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.request.CreateEvidenceDraftRequest
-import com.team.incube.gsmc.v3.domain.evidence.service.impl.CreateEvidenceDraftServiceImpl
+import com.team.incube.gsmc.v3.domain.evidence.service.impl.CreateMyEvidenceDraftServiceImpl
 import com.team.incube.gsmc.v3.domain.file.dto.File
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.member.dto.Member
@@ -21,13 +21,13 @@ class CreateEvidenceDraftServiceTest :
         data class Ctx(
             val currentMemberProvider: CurrentMemberProvider,
             val fileExposedRepository: FileExposedRepository,
-            val service: CreateEvidenceDraftServiceImpl,
+            val service: CreateMyEvidenceDraftServiceImpl,
         )
 
         fun ctx(): Ctx {
             val c = mockk<CurrentMemberProvider>()
             val f = mockk<FileExposedRepository>()
-            val s = CreateEvidenceDraftServiceImpl(c, f)
+            val s = CreateMyEvidenceDraftServiceImpl(c, f)
             return Ctx(c, f, s)
         }
 

@@ -1,5 +1,5 @@
 package com.team.incube.gsmc.v3.domain.evidence.service
 
-interface DeleteEvidenceDraftService {
+interface DeleteMyEvidenceDraftService {
     fun execute()
 }
