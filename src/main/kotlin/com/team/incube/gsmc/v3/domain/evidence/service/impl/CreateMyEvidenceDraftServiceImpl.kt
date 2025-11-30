@@ -1,13 +1,12 @@
-package com.team.incube.gsmc.v3.domain.project.service.impl
+package com.team.incube.gsmc.v3.domain.evidence.service.impl
 
+import com.team.incube.gsmc.v3.domain.evidence.entity.redis.EvidenceDraftRedisEntity
+import com.team.incube.gsmc.v3.domain.evidence.presentation.data.request.CreateEvidenceDraftRequest
+import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvidenceDraftResponse
+import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceDraftRedisRepository
+import com.team.incube.gsmc.v3.domain.evidence.service.CreateMyEvidenceDraftService
 import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
-import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
-import com.team.incube.gsmc.v3.domain.project.entity.ProjectDraftRedisEntity
-import com.team.incube.gsmc.v3.domain.project.presentation.data.request.CreateProjectDraftRequest
-import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectDraftResponse
-import com.team.incube.gsmc.v3.domain.project.repository.ProjectDraftRedisRepository
-import com.team.incube.gsmc.v3.domain.project.service.CreateProjectDraftService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
@@ -15,16 +14,14 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
 
 @Service
-class CreateProjectDraftServiceImpl(
+class CreateMyEvidenceDraftServiceImpl(
     private val currentMemberProvider: CurrentMemberProvider,
     private val fileExposedRepository: FileExposedRepository,
-    private val memberExposedRepository: MemberExposedRepository,
-    private val projectDraftRedisRepository: ProjectDraftRedisRepository,
-) : CreateProjectDraftService {
-    override fun execute(request: CreateProjectDraftRequest): GetProjectDraftResponse =
+    private val evidenceDraftRedisRepository: EvidenceDraftRedisRepository,
+) : CreateMyEvidenceDraftService {
+    override fun execute(request: CreateEvidenceDraftRequest): GetEvidenceDraftResponse =
         transaction {
             val memberId = currentMemberProvider.getCurrentMemberId()
-
             val files =
                 if (request.fileIds.isNotEmpty()) {
                     val foundFiles = fileExposedRepository.findAllByIdIn(request.fileIds)
@@ -43,33 +40,18 @@ class CreateProjectDraftServiceImpl(
                 } else {
                     emptyList()
                 }
-
-            val participants =
-                if (request.participantIds.isNotEmpty()) {
-                    val foundMembers = memberExposedRepository.findAllByIdIn(request.participantIds)
-                    if (foundMembers.size != request.participantIds.toSet().size) {
-                        throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
-                    }
-                    foundMembers
-                } else {
-                    emptyList()
-                }
-
             val draftEntity =
-                ProjectDraftRedisEntity(
+                EvidenceDraftRedisEntity(
                     memberId = memberId,
                     title = request.title,
-                    description = request.description,
+                    content = request.content,
                     fileIds = files.map { it.id },
-                    participantIds = participants.map { it.id },
                 )
-            projectDraftRedisRepository.save(draftEntity)
-
-            GetProjectDraftResponse(
+            evidenceDraftRedisRepository.save(draftEntity)
+            GetEvidenceDraftResponse(
                 title = request.title,
-                description = request.description,
+                content = request.content,
                 files = files,
-                participants = participants,
             )
         }
 }
