@@ -3,14 +3,15 @@ package com.team.incube.gsmc.v3.domain.project.service.impl
 import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
+import com.team.incube.gsmc.v3.domain.project.entity.redis.ProjectDraftRedisEntity
 import com.team.incube.gsmc.v3.domain.project.presentation.data.request.CreateProjectDraftRequest
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectDraftResponse
+import com.team.incube.gsmc.v3.domain.project.repository.redis.ProjectDraftRedisRepository
 import com.team.incube.gsmc.v3.domain.project.service.CreateProjectDraftService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.springframework.cache.annotation.CachePut
 import org.springframework.stereotype.Service
 
 @Service
@@ -18,13 +19,12 @@ class CreateProjectDraftServiceImpl(
     private val currentMemberProvider: CurrentMemberProvider,
     private val fileExposedRepository: FileExposedRepository,
     private val memberExposedRepository: MemberExposedRepository,
+    private val projectDraftRedisRepository: ProjectDraftRedisRepository,
 ) : CreateProjectDraftService {
-    @CachePut(
-        value = ["projectDraft"],
-        key = "#root.target.getMemberId()",
-    )
     override fun execute(request: CreateProjectDraftRequest): GetProjectDraftResponse =
         transaction {
+            val memberId = currentMemberProvider.getCurrentMemberId()
+
             val files =
                 if (request.fileIds.isNotEmpty()) {
                     val foundFiles = fileExposedRepository.findAllByIdIn(request.fileIds)
@@ -55,6 +55,16 @@ class CreateProjectDraftServiceImpl(
                     emptyList()
                 }
 
+            val draftEntity =
+                ProjectDraftRedisEntity(
+                    memberId = memberId,
+                    title = request.title,
+                    description = request.description,
+                    fileIds = files.map { it.id },
+                    participantIds = participants.map { it.id },
+                )
+            projectDraftRedisRepository.save(draftEntity)
+
             GetProjectDraftResponse(
                 title = request.title,
                 description = request.description,
@@ -62,6 +72,4 @@ class CreateProjectDraftServiceImpl(
                 participants = participants,
             )
         }
-
-    fun getMemberId(): Long = currentMemberProvider.getCurrentMemberId()
 }
