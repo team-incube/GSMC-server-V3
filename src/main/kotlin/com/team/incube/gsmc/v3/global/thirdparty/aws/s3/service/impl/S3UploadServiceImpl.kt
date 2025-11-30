@@ -28,9 +28,7 @@ class S3UploadServiceImpl(
         val fileExtension =
             StringUtils.getFilenameExtension(originalFilename)
                 ?: throw GsmcException(ErrorCode.FILE_EXTENSION_NOT_FOUND)
-
         val storedFilename = generateStoredFilename(fileExtension)
-
         return S3ExceptionHandler.handleUploadOperation {
             val s3Resource =
                 s3Template.upload(

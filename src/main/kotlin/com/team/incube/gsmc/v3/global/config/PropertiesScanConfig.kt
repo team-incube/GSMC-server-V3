@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration
 @ConfigurationPropertiesScan(
     basePackages = [
         "com.team.incube.gsmc.v3.global.security.data",
+        "com.team.incube.gsmc.v3.global.thirdparty.aws.config",
         "com.team.incube.gsmc.v3.global.thirdparty.aws.s3.data",
         "com.team.incube.gsmc.v3.global.security.jwt.data",
     ],
