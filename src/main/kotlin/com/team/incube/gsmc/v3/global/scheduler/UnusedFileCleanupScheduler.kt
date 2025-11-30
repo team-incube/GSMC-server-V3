@@ -19,8 +19,7 @@ class UnusedFileCleanupScheduler(
             logger().info("Unused file cleanup started")
             val orphanFiles = fileExposedRepository.findAllUnusedFiles()
             logger().info("Found ${orphanFiles.size} orphan files")
-            val fileIds = orphanFiles.map { it.id }
-            val fileUris = orphanFiles.map { it.uri }
+            val (fileUris, fileIds) = orphanFiles.map { it.uri to it.id }.unzip()
             fileExposedRepository.deleteAllByIdIn(fileIds)
             eventPublisher.publishEvent(S3BulkFileDeletionEvent(fileUris))
             logger().info("Orphan file cleanup completed - Total: ${orphanFiles.size}")

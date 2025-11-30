@@ -30,8 +30,7 @@ class DeleteScoreServiceImpl(
                     EvidenceType.EVIDENCE -> {
                         val evidence = evidenceExposedRepository.findById(sourceId)
                         evidence?.let {
-                            val fileUris = it.files.map { file -> file.uri }
-                            val fileIds = it.files.map { file -> file.id }
+                            val (fileUris, fileIds) = it.files.map { file -> file.uri to file.id }.unzip()
                             fileExposedRepository.deleteAllByIdIn(fileIds)
                             evidenceExposedRepository.deleteById(sourceId)
                             eventPublisher.publishEvent(S3BulkFileDeletionEvent(fileUris))
