@@ -19,5 +19,15 @@ class S3DeleteServiceImpl(
         }
     }
 
+    override fun execute(fileUris: List<String>) {
+        if (fileUris.isEmpty()) return
+
+        val keys = fileUris.map { extractKeyFromUri(it) }
+
+        S3ExceptionHandler.handleDeleteOperation {
+            s3Template.deleteObjects(s3Environment.bucketName, keys)
+        }
+    }
+
     private fun extractKeyFromUri(fileUri: String): String = fileUri.substringAfter(".com/")
 }
