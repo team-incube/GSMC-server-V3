@@ -4,7 +4,7 @@ import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.dto.constant.SortDirection
 import com.team.incube.gsmc.v3.domain.member.presentation.data.response.GetMemberResponse
 import com.team.incube.gsmc.v3.domain.member.presentation.data.response.SearchMemberResponse
-import com.team.incube.gsmc.v3.domain.member.service.GetCurrentMemberService
+import com.team.incube.gsmc.v3.domain.member.service.FindMyMemberService
 import com.team.incube.gsmc.v3.domain.member.service.SearchMemberService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v3/members")
 class MemberController(
     private val searchMemberService: SearchMemberService,
-    private val getCurrentMemberService: GetCurrentMemberService,
+    private val findMyMemberService: FindMyMemberService,
 ) {
     @Operation(
         summary = "사용자 정보 검색",
@@ -80,5 +80,5 @@ class MemberController(
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/current")
-    fun getCurrentMember(): GetMemberResponse = getCurrentMemberService.execute()
+    fun getCurrentMember(): GetMemberResponse = findMyMemberService.execute()
 }
