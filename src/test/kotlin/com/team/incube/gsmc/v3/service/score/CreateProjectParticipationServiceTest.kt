@@ -190,25 +190,25 @@ class CreateProjectParticipationServiceTest :
         }
 
         Given("점수 제한을 초과하여 생성하려고 할 때") {
+            val c = ctx()
+            val projectId = 100L
+            val projectTitle = "프로젝트 제목"
+
+            every {
+                c.projectRepo.findProjectTitleAndValidateParticipant(projectId, 0L)
+            } returns projectTitle
+            every {
+                c.scoreRepo.existsProjectParticipationScore(
+                    memberId = 0L,
+                    projectId = projectId,
+                    projectTitle = projectTitle,
+                )
+            } returns false
+            every {
+                c.scoreLimitValidator.validateScoreLimit(0L, CategoryType.PROJECT_PARTICIPATION)
+            } throws GsmcException(ErrorCode.SCORE_MAX_LIMIT_EXCEEDED)
+
             When("execute를 호출하면") {
-                val c = ctx()
-                val projectId = 100L
-                val projectTitle = "프로젝트 제목"
-
-                every {
-                    c.projectRepo.findProjectTitleAndValidateParticipant(projectId, 0L)
-                } returns projectTitle
-                every {
-                    c.scoreRepo.existsProjectParticipationScore(
-                        memberId = 0L,
-                        projectId = projectId,
-                        projectTitle = projectTitle,
-                    )
-                } returns false
-                every {
-                    c.scoreLimitValidator.validateScoreLimit(0L, CategoryType.PROJECT_PARTICIPATION)
-                } throws GsmcException(ErrorCode.SCORE_MAX_LIMIT_EXCEEDED)
-
                 Then("SCORE_MAX_LIMIT_EXCEEDED 예외가 발생한다") {
                     val ex = shouldThrow<GsmcException> { c.service.execute(projectId) }
                     ex.errorCode shouldBe ErrorCode.SCORE_MAX_LIMIT_EXCEEDED
