@@ -224,11 +224,6 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                 row.toScore(member)
             }.singleOrNull()
 
-    override fun deleteByIdIn(scoreIds: List<Long>) {
-        if (scoreIds.isEmpty()) return
-        ScoreExposedEntity.deleteWhere { ScoreExposedEntity.id inList scoreIds }
-    }
-
     override fun findByMemberIdAndCategoryTypeAndStatus(
         memberId: Long,
         categoryType: CategoryType?,

@@ -59,14 +59,12 @@ class DeleteMemberByEmailServiceImpl(
                                     fileExposedRepository.deleteById(it.id)
                                 }
                             }
-
                             EvidenceType.UNREQUIRED -> {
                             }
                         }
                     }
                 }
-
-                scoreExposedRepository.deleteByIdIn(scoreIds)
+                scoreExposedRepository.deleteAllByIdIn(scoreIds)
             }
 
             val deleted = memberExposedRepository.deleteMemberByEmail(email)
