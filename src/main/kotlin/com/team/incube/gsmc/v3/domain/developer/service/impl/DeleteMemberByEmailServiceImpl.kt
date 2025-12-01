@@ -21,7 +21,6 @@ class DeleteMemberByEmailServiceImpl(
     private val fileExposedRepository: FileExposedRepository,
     private val s3DeleteService: S3DeleteService,
 ) : DeleteMemberByEmailService {
-
     private val log = LoggerFactory.getLogger(DeleteMemberByEmailServiceImpl::class.java)
 
     override fun execute(email: String) {
