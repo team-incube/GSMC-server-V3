@@ -46,3 +46,7 @@ out/
 .env.*
 !.env.example
 .env.backup
+
+### Develop ###
+/src/main/resources/data.sql
+docs
