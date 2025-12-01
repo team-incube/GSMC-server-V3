@@ -15,10 +15,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Ktlint Format
         uses: ScaCap/action-ktlint@master
         with:
           github_token: ${{ github.token }}
           reporter: github-pr-check
           name: Code Format Report
+  Qodana-Code-Quality-Scan:
+    name: Qodana Code Quality Scan
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: CI
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Qodana Scan
+        uses: JetBrains/qodana-action@v2025.2
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+        with:
+          pr-mode: false
+          use-caches: true
+          post-pr-comment: true
+          use-annotations: true
+          upload-result: true
+          push-fixes: 'none'
