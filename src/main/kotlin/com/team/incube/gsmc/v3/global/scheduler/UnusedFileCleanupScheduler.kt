@@ -1,71 +1,25 @@
 package com.team.incube.gsmc.v3.global.scheduler
 
-import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceDraftRedisRepository
-import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
-import com.team.incube.gsmc.v3.domain.project.repository.ProjectDraftRedisRepository
+import com.team.incube.gsmc.v3.domain.file.service.CleanupUnusedFilesService
 import com.team.incube.gsmc.v3.global.common.discord.service.DiscordNotificationService
 import com.team.incube.gsmc.v3.global.config.logger
-import com.team.incube.gsmc.v3.global.event.s3.S3BulkFileDeletionEvent
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
 class UnusedFileCleanupScheduler(
-    private val fileExposedRepository: FileExposedRepository,
-    private val eventPublisher: ApplicationEventPublisher,
+    private val cleanupUnusedFilesService: CleanupUnusedFilesService,
     private val discordNotificationService: DiscordNotificationService?,
-    private val evidenceDraftRedisRepository: EvidenceDraftRedisRepository,
-    private val projectDraftRedisRepository: ProjectDraftRedisRepository,
 ) {
     @Scheduled(cron = "0 0 3 * * *")
     fun cleanupOrphanFiles() {
         discordNotificationService?.sendSchedulerStartNotification()
         try {
-            transaction {
-                logger().info("Unused file cleanup started")
-                val protectedFileIds = getProtectedFileIdsFromDrafts()
-                logger().info("Found ${protectedFileIds.size} files protected by drafts")
-                val orphanFiles = fileExposedRepository.findAllUnusedFiles()
-                logger().info("Found ${orphanFiles.size} orphan files")
-                val filesToDelete = orphanFiles.filter { it.id !in protectedFileIds }
-                logger().info("Deleting ${filesToDelete.size} files")
-                if (filesToDelete.isEmpty()) {
-                    logger().info("No orphan files to clean up")
-                    discordNotificationService?.sendSchedulerEndNotification(0)
-                    return@transaction
-                }
-                val (fileUris, fileIds) = filesToDelete.map { it.uri to it.id }.unzip()
-                fileExposedRepository.deleteAllByIdIn(fileIds)
-                logger().info("Deleted ${fileIds.size} file records from the database")
-                eventPublisher.publishEvent(S3BulkFileDeletionEvent(fileUris))
-                logger().info("Published S3 deletion event for ${fileUris.size} files")
-                discordNotificationService?.sendSchedulerEndNotification(fileIds.size)
-            }
+            val deletedCount = cleanupUnusedFilesService.execute()
+            discordNotificationService?.sendSchedulerEndNotification(deletedCount)
         } catch (e: Exception) {
             logger().error("Unused file cleanup failed", e)
             discordNotificationService?.sendSchedulerFailureNotification("미사용 파일 정리", e.message ?: "Unknown error")
         }
-    }
-
-    private fun getProtectedFileIdsFromDrafts(): Set<Long> {
-        val evidenceFileIds =
-            try {
-                evidenceDraftRedisRepository.findAll().flatMap { it.fileIds }
-            } catch (e: Exception) {
-                logger().error("Failed to get protected file IDs from evidence drafts", e)
-                emptyList()
-            }
-
-        val projectFileIds =
-            try {
-                projectDraftRedisRepository.findAll().flatMap { it.fileIds }
-            } catch (e: Exception) {
-                logger().error("Failed to get protected file IDs from project drafts", e)
-                emptyList()
-            }
-
-        return (evidenceFileIds + projectFileIds).toSet()
     }
 }
