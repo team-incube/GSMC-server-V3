@@ -59,6 +59,7 @@ class DeleteMemberByEmailServiceImpl(
                                     fileExposedRepository.deleteById(it.id)
                                 }
                             }
+
                             EvidenceType.UNREQUIRED -> {
                             }
                         }
