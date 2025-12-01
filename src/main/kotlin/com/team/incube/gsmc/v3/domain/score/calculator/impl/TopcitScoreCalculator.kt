@@ -1,11 +1,9 @@
 package com.team.incube.gsmc.v3.domain.score.calculator.impl
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
-import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.calculator.CategoryScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.dto.Score
-import kotlin.math.min
-import kotlin.math.round
+import kotlin.math.roundToInt
 
 /**
  * TOPCIT 점수 계산기
@@ -21,23 +19,15 @@ class TopcitScoreCalculator : CategoryScoreCalculator() {
         categoryType: CategoryType,
         includeApprovedOnly: Boolean,
     ): Int {
-        val targetScores =
-            scores
-                .filter { it.categoryType == categoryType }
-                .filter { score ->
-                    if (includeApprovedOnly) {
-                        score.status == ScoreStatus.APPROVED
-                    } else {
-                        score.status == ScoreStatus.APPROVED || score.status == ScoreStatus.PENDING
-                    }
-                }
+        val targetScore =
+            scores.firstOrNull { score ->
+                score.categoryType == categoryType && score.isValidStatus(includeApprovedOnly)
+            }
 
-        if (targetScores.isEmpty()) return 0
+        val scoreValue = targetScore?.scoreValue ?: return 0
 
-        val maxScoreValue = targetScores.mapNotNull { it.scoreValue }.maxOrNull() ?: return 0
+        val convertedScore = (scoreValue / 100.0).roundToInt()
 
-        val convertedScore = round(maxScoreValue / 100.0).toInt()
-
-        return min(convertedScore, 10)
+        return convertedScore.coerceIn(0, 10)
     }
 }

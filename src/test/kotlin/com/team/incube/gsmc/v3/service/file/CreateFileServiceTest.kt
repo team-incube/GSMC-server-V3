@@ -3,8 +3,11 @@ package com.team.incube.gsmc.v3.service.file
 import com.team.incube.gsmc.v3.domain.file.dto.File
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.file.service.impl.CreateFileServiceImpl
+import com.team.incube.gsmc.v3.domain.member.dto.Member
+import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.S3UploadService
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
@@ -30,14 +33,28 @@ class CreateFileServiceTest :
             val fileWithoutExtension: MultipartFile,
             val invalidExtensionFile: MultipartFile,
             val mockS3UploadService: S3UploadService,
+            val mockCurrentMemberProvider: CurrentMemberProvider,
             val mockFileRepository: FileExposedRepository,
             val createFileService: CreateFileServiceImpl,
         )
 
         fun createTestContext(): TestData {
             val mockS3UploadService = mockk<S3UploadService>()
+            val mockCurrentMemberProvider = mockk<CurrentMemberProvider>()
             val mockFileRepository = mockk<FileExposedRepository>()
-            val createFileService = CreateFileServiceImpl(mockS3UploadService, mockFileRepository)
+
+            every { mockCurrentMemberProvider.getCurrentMember() } returns
+                Member(
+                    id = 0L,
+                    name = "Test User",
+                    email = "test@test.com",
+                    grade = 1,
+                    classNumber = 1,
+                    number = 1,
+                    role = MemberRole.STUDENT,
+                )
+
+            val createFileService = CreateFileServiceImpl(mockS3UploadService, mockCurrentMemberProvider, mockFileRepository)
 
             val validFile =
                 mockk<MultipartFile> {
@@ -69,6 +86,7 @@ class CreateFileServiceTest :
                 fileWithoutExtension = fileWithoutExtension,
                 invalidExtensionFile = invalidExtensionFile,
                 mockS3UploadService = mockS3UploadService,
+                mockCurrentMemberProvider = mockCurrentMemberProvider,
                 mockFileRepository = mockFileRepository,
                 createFileService = createFileService,
             )
@@ -101,11 +119,11 @@ class CreateFileServiceTest :
                 )
             } returns
                 File(
-                    fileId = 1L,
-                    userId = 0L,
-                    fileOriginalName = "test-document.pdf",
-                    fileStoredName = "20251015120000_abc123def456.pdf",
-                    fileUri = testFileUri,
+                    id = 1L,
+                    member = 0L,
+                    originalName = "test-document.pdf",
+                    storeName = "20251015120000_abc123def456.pdf",
+                    uri = testFileUri,
                 )
 
             When("파일 생성을 실행하면") {
@@ -114,9 +132,9 @@ class CreateFileServiceTest :
                 Then("파일이 정상적으로 생성되어야 한다") {
                     result shouldNotBe null
                     result.id shouldBe 1L
-                    result.fileOriginalName shouldBe "test-document.pdf"
-                    result.fileStoredName shouldContain "pdf"
-                    result.fileUri shouldBe testFileUri
+                    result.originalName shouldBe "test-document.pdf"
+                    result.storeName shouldContain "pdf"
+                    result.uri shouldBe testFileUri
                 }
 
                 Then("S3에 파일이 업로드되어야 한다") {
@@ -124,8 +142,8 @@ class CreateFileServiceTest :
                 }
 
                 Then("저장된 파일명은 타임스탬프와 UUID를 포함해야 한다") {
-                    result.fileStoredName shouldContain "_"
-                    result.fileStoredName shouldEndWith ".pdf"
+                    result.storeName shouldContain "_"
+                    result.storeName shouldEndWith ".pdf"
                 }
 
                 Then("파일 저장소에 저장되어야 한다") {
@@ -164,18 +182,18 @@ class CreateFileServiceTest :
                         )
                     } returns
                         File(
-                            fileId = 1L,
-                            userId = 0L,
-                            fileOriginalName = "test-file.$extension",
-                            fileStoredName = "20251015120000_test.$extension",
-                            fileUri = testFileUri,
+                            id = 1L,
+                            member = 0L,
+                            originalName = "test-file.$extension",
+                            storeName = "20251015120000_test.$extension",
+                            uri = testFileUri,
                         )
 
                     val result = context.createFileService.execute(testFile)
 
                     Then("파일이 정상적으로 업로드되어야 한다") {
                         result shouldNotBe null
-                        result.fileOriginalName shouldBe "test-file.$extension"
+                        result.originalName shouldBe "test-file.$extension"
                     }
                 }
             }
@@ -265,11 +283,11 @@ class CreateFileServiceTest :
                 )
             } returns
                 File(
-                    fileId = 1L,
-                    userId = 0L,
-                    fileOriginalName = "TEST-FILE.PDF",
-                    fileStoredName = "20251015120000_test.PDF",
-                    fileUri = testFileUri,
+                    id = 1L,
+                    member = 0L,
+                    originalName = "TEST-FILE.PDF",
+                    storeName = "20251015120000_test.PDF",
+                    uri = testFileUri,
                 )
 
             When("파일 생성을 실행하면") {
@@ -277,7 +295,7 @@ class CreateFileServiceTest :
 
                 Then("확장자 대소문자 구분 없이 정상 처리되어야 한다") {
                     result shouldNotBe null
-                    result.fileOriginalName shouldBe "TEST-FILE.PDF"
+                    result.originalName shouldBe "TEST-FILE.PDF"
                 }
             }
         }

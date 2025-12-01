@@ -50,7 +50,7 @@ class DeveloperController(
     fun changeMemberRole(
         @RequestBody @Valid request: PatchMemberRoleRequest,
     ): CommonApiResponse<Nothing> {
-        patchMemberRoleService.execute(request.email, request.role)
+        patchMemberRoleService.execute(email = request.email, role = request.role)
         return CommonApiResponse.success("OK")
     }
 
@@ -76,7 +76,7 @@ class DeveloperController(
     fun delete(
         @RequestBody @Valid request: DeleteMemberByEmailServiceRequest,
     ): CommonApiResponse<Nothing> {
-        withdrawMemberService.execute(request.email)
+        withdrawMemberService.execute(email = request.email)
         return CommonApiResponse.success("OK")
     }
 }

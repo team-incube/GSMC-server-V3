@@ -3,6 +3,7 @@ package com.team.incube.gsmc.v3.domain.evidence.service.impl
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.PatchEvidenceResponse
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.UpdateEvidenceService
+import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
@@ -18,7 +19,7 @@ class UpdateEvidenceServiceImpl(
 ) : UpdateEvidenceService {
     override fun execute(
         evidenceId: Long,
-        participants: List<Long>?,
+        scoreId: Long?,
         title: String?,
         content: String?,
         fileIds: List<Long>?,
@@ -32,12 +33,12 @@ class UpdateEvidenceServiceImpl(
                 throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }
 
-            if (!participants.isNullOrEmpty()) {
-                if (!scoreExposedRepository.existsByIdIn(participants)) {
+            if (scoreId != null) {
+                if (!scoreExposedRepository.existsById(scoreId)) {
                     throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
                 }
                 scoreExposedRepository.updateSourceIdToNull(evidenceId)
-                scoreExposedRepository.updateSourceId(participants, evidenceId)
+                scoreExposedRepository.updateSourceId(scoreId, evidenceId)
             }
 
             val updatedEvidence =
@@ -45,7 +46,7 @@ class UpdateEvidenceServiceImpl(
                     id = evidenceId,
                     title = title ?: evidence.title,
                     content = content ?: evidence.content,
-                    fileIds = fileIds ?: evidence.files.map { it.fileId },
+                    fileIds = fileIds ?: evidence.files.map { it.id },
                 )
 
             PatchEvidenceResponse(
@@ -54,7 +55,16 @@ class UpdateEvidenceServiceImpl(
                 content = updatedEvidence.content,
                 createAt = updatedEvidence.createdAt,
                 updateAt = updatedEvidence.updatedAt,
-                file = updatedEvidence.files,
+                files =
+                    updatedEvidence.files.map {
+                        FileItem(
+                            id = it.id,
+                            originalName = it.originalName,
+                            storeName = it.storeName,
+                            uri = it.uri,
+                            member = it.member,
+                        )
+                    },
             )
         }
 }

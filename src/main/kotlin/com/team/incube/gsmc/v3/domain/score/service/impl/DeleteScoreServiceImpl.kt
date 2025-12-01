@@ -7,8 +7,10 @@ import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.DeleteScoreService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
-import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.S3DeleteService
+import com.team.incube.gsmc.v3.global.event.s3.S3BulkFileDeletionEvent
+import com.team.incube.gsmc.v3.global.event.s3.S3FileDeletionEvent
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,7 +18,7 @@ class DeleteScoreServiceImpl(
     private val scoreExposedRepository: ScoreExposedRepository,
     private val evidenceExposedRepository: EvidenceExposedRepository,
     private val fileExposedRepository: FileExposedRepository,
-    private val s3DeleteService: S3DeleteService,
+    private val eventPublisher: ApplicationEventPublisher,
 ) : DeleteScoreService {
     override fun execute(scoreId: Long) =
         transaction {
@@ -27,18 +29,19 @@ class DeleteScoreServiceImpl(
                 when (score.categoryType.evidenceType) {
                     EvidenceType.EVIDENCE -> {
                         val evidence = evidenceExposedRepository.findById(sourceId)
-                        evidence?.files?.forEach { file ->
-                            s3DeleteService.execute(file.fileUri)
-                            fileExposedRepository.deleteById(file.fileId)
+                        evidence?.let {
+                            val (fileUris, fileIds) = it.files.map { file -> file.uri to file.id }.unzip()
+                            fileExposedRepository.deleteAllByIdIn(fileIds)
+                            evidenceExposedRepository.deleteById(sourceId)
+                            eventPublisher.publishEvent(S3BulkFileDeletionEvent(fileUris))
                         }
-                        evidenceExposedRepository.deleteById(sourceId)
                     }
 
                     EvidenceType.FILE -> {
                         val file = fileExposedRepository.findById(sourceId)
                         file?.let {
-                            s3DeleteService.execute(it.fileUri)
-                            fileExposedRepository.deleteById(it.fileId)
+                            fileExposedRepository.deleteById(it.id)
+                            eventPublisher.publishEvent(S3FileDeletionEvent(it.uri))
                         }
                     }
 

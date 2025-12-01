@@ -1,16 +1,19 @@
 package com.team.incube.gsmc.v3.domain.score.repository.impl
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
-import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
+import com.team.incube.gsmc.v3.domain.project.entity.ProjectScoreExposedEntity
 import com.team.incube.gsmc.v3.domain.score.dto.Score
+import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.entity.ScoreExposedEntity
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
@@ -22,32 +25,12 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
     override fun findById(scoreId: Long): Score? =
         ScoreExposedEntity
             .join(MemberExposedEntity, joinType = JoinType.INNER) {
-                ScoreExposedEntity.memberId eq MemberExposedEntity.id
+                ScoreExposedEntity.member eq MemberExposedEntity.id
             }.selectAll()
             .where { ScoreExposedEntity.id eq scoreId }
             .map { row ->
-                val member =
-                    Member(
-                        id = row[MemberExposedEntity.id],
-                        name = row[MemberExposedEntity.name],
-                        email = row[MemberExposedEntity.email],
-                        grade = row[MemberExposedEntity.grade],
-                        classNumber = row[MemberExposedEntity.classNumber],
-                        number = row[MemberExposedEntity.number],
-                        role = row[MemberExposedEntity.role],
-                    )
-
-                val categoryType = CategoryType.fromEnglishName(row[ScoreExposedEntity.categoryEnglishName])
-
-                Score(
-                    id = row[ScoreExposedEntity.id],
-                    member = member,
-                    categoryType = categoryType,
-                    status = row[ScoreExposedEntity.status],
-                    sourceId = row[ScoreExposedEntity.sourceId],
-                    activityName = row[ScoreExposedEntity.activityName],
-                    scoreValue = row[ScoreExposedEntity.scoreValue],
-                )
+                val member = row.toMember()
+                row.toScore(member)
             }.singleOrNull()
 
     override fun existsById(scoreId: Long): Boolean =
@@ -68,7 +51,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
     override fun save(score: Score): Score {
         val generatedId =
             ScoreExposedEntity.insert {
-                it[memberId] = score.member.id
+                it[member] = score.member.id
                 it[categoryEnglishName] = score.categoryType.englishName
                 it[status] = score.status
                 it[sourceId] = score.sourceId
@@ -89,10 +72,10 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
     }
 
     override fun updateSourceId(
-        scoreIds: List<Long>,
+        scoreId: Long,
         sourceId: Long,
     ) {
-        ScoreExposedEntity.update({ ScoreExposedEntity.id inList scoreIds }) {
+        ScoreExposedEntity.update({ ScoreExposedEntity.id eq scoreId }) {
             it[ScoreExposedEntity.sourceId] = sourceId
         }
     }
@@ -111,13 +94,24 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
             it[ScoreExposedEntity.status] = status
         }
 
-    override fun existsAnyWithSource(scoreIds: List<Long>): Boolean =
-        ScoreExposedEntity
-            .selectAll()
+    override fun updateStatusAndRejectionReasonByScoreId(
+        scoreId: Long,
+        status: ScoreStatus,
+        rejectionReason: String?,
+    ): Int =
+        ScoreExposedEntity.update({ ScoreExposedEntity.id eq scoreId }) {
+            it[ScoreExposedEntity.status] = status
+            it[ScoreExposedEntity.rejectionReason] = rejectionReason
+        }
+
+    override fun existsWithSource(scoreId: Long): Boolean =
+        !ScoreExposedEntity
+            .select(ScoreExposedEntity.id)
             .where {
-                (ScoreExposedEntity.id inList scoreIds) and
+                (ScoreExposedEntity.id eq scoreId) and
                     ScoreExposedEntity.sourceId.isNotNull()
-            }.count() > 0
+            }.limit(1)
+            .empty()
 
     override fun countByMemberIdAndCategoryType(
         memberId: Long,
@@ -126,7 +120,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         ScoreExposedEntity
             .selectAll()
             .where {
-                (ScoreExposedEntity.memberId eq memberId) and
+                (ScoreExposedEntity.member eq memberId) and
                     (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName)
             }.count()
 
@@ -134,37 +128,83 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         val results =
             ScoreExposedEntity
                 .join(MemberExposedEntity, joinType = JoinType.INNER) {
-                    ScoreExposedEntity.memberId eq MemberExposedEntity.id
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
                 }.selectAll()
-                .where { ScoreExposedEntity.memberId eq memberId }
+                .where { ScoreExposedEntity.member eq memberId }
                 .toList()
 
         if (results.isEmpty()) return emptyList()
 
-        val firstRow = results.first()
-        val member =
-            Member(
-                id = firstRow[MemberExposedEntity.id],
-                name = firstRow[MemberExposedEntity.name],
-                email = firstRow[MemberExposedEntity.email],
-                grade = firstRow[MemberExposedEntity.grade],
-                classNumber = firstRow[MemberExposedEntity.classNumber],
-                number = firstRow[MemberExposedEntity.number],
-                role = firstRow[MemberExposedEntity.role],
-            )
+        val member = results.first().toMember()
+
+        return results.map { it.toScore(member) }
+    }
+
+    override fun findByMemberIdAndStatus(
+        memberId: Long,
+        status: ScoreStatus,
+    ): List<Score> {
+        val results =
+            ScoreExposedEntity
+                .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
+                }.selectAll()
+                .where {
+                    (ScoreExposedEntity.member eq memberId) and
+                        (ScoreExposedEntity.status eq status)
+                }.toList()
+
+        if (results.isEmpty()) return emptyList()
+
+        val member = results.first().toMember()
+
+        return results.map { it.toScore(member) }
+    }
+
+    override fun findByMemberIdsAndStatus(
+        memberIds: List<Long>,
+        status: ScoreStatus,
+    ): List<Score> {
+        if (memberIds.isEmpty()) return emptyList()
+
+        val results =
+            ScoreExposedEntity
+                .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
+                }.selectAll()
+                .where {
+                    (ScoreExposedEntity.member inList memberIds) and
+                        (ScoreExposedEntity.status eq status)
+                }.toList()
+
+        if (results.isEmpty()) return emptyList()
+
+        val memberMap = mutableMapOf<Long, Member>()
 
         return results.map { row ->
-            val categoryType = CategoryType.fromEnglishName(row[ScoreExposedEntity.categoryEnglishName])
+            val memberId = row[ScoreExposedEntity.member]
+            val member = memberMap.getOrPut(memberId) { row.toMember() }
+            row.toScore(member)
+        }
+    }
 
-            Score(
-                id = row[ScoreExposedEntity.id],
-                member = member,
-                categoryType = categoryType,
-                status = row[ScoreExposedEntity.status],
-                sourceId = row[ScoreExposedEntity.sourceId],
-                activityName = row[ScoreExposedEntity.activityName],
-                scoreValue = row[ScoreExposedEntity.scoreValue],
-            )
+    override fun findAllByStatus(status: ScoreStatus): List<Score> {
+        val results =
+            ScoreExposedEntity
+                .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
+                }.selectAll()
+                .where { ScoreExposedEntity.status eq status }
+                .toList()
+
+        if (results.isEmpty()) return emptyList()
+
+        val memberMap = mutableMapOf<Long, Member>()
+
+        return results.map { row ->
+            val memberId = row[ScoreExposedEntity.member]
+            val member = memberMap.getOrPut(memberId) { row.toMember() }
+            row.toScore(member)
         }
     }
 
@@ -174,40 +214,218 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
     ): Score? =
         ScoreExposedEntity
             .join(MemberExposedEntity, joinType = JoinType.INNER) {
-                ScoreExposedEntity.memberId eq MemberExposedEntity.id
+                ScoreExposedEntity.member eq MemberExposedEntity.id
             }.selectAll()
             .where {
-                (ScoreExposedEntity.memberId eq memberId) and
+                (ScoreExposedEntity.member eq memberId) and
                     (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName)
             }.map { row ->
-                val member =
-                    Member(
-                        id = row[MemberExposedEntity.id],
-                        name = row[MemberExposedEntity.name],
-                        email = row[MemberExposedEntity.email],
-                        grade = row[MemberExposedEntity.grade],
-                        classNumber = row[MemberExposedEntity.classNumber],
-                        number = row[MemberExposedEntity.number],
-                        role = row[MemberExposedEntity.role],
-                    )
-
-                Score(
-                    id = row[ScoreExposedEntity.id],
-                    member = member,
-                    categoryType = categoryType,
-                    status = row[ScoreExposedEntity.status],
-                    sourceId = row[ScoreExposedEntity.sourceId],
-                    activityName = row[ScoreExposedEntity.activityName],
-                    scoreValue = row[ScoreExposedEntity.scoreValue],
-                )
+                val member = row.toMember()
+                row.toScore(member)
             }.singleOrNull()
 
     override fun deleteByIdIn(scoreIds: List<Long>) {
         if (scoreIds.isEmpty()) return
         ScoreExposedEntity.deleteWhere { ScoreExposedEntity.id inList scoreIds }
+
+    override fun findByMemberIdAndCategoryTypeAndStatus(
+        memberId: Long,
+        categoryType: CategoryType?,
+        status: ScoreStatus?,
+    ): List<Score> {
+        var query =
+            ScoreExposedEntity
+                .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
+                }.selectAll()
+                .where {
+                    (ScoreExposedEntity.member eq memberId) and
+                        (ScoreExposedEntity.status neq ScoreStatus.INCOMPLETE)
+                }
+
+        categoryType?.let {
+            query = query.andWhere { ScoreExposedEntity.categoryEnglishName eq it.englishName }
+        }
+
+        status?.let {
+            query = query.andWhere { ScoreExposedEntity.status eq it }
+        }
+
+        val results = query.toList()
+
+        if (results.isEmpty()) return emptyList()
+
+        val member = results.first().toMember()
+
+        return results.map { it.toScore(member) }
+    }
+
+    override fun existsByMemberIdAndCategoryTypeAndSourceId(
+        memberId: Long,
+        categoryType: CategoryType,
+        sourceId: Long,
+    ): Boolean =
+        !ScoreExposedEntity
+            .select(ScoreExposedEntity.id)
+            .where {
+                (ScoreExposedEntity.member eq memberId) and
+                    (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName) and
+                    (ScoreExposedEntity.sourceId eq sourceId)
+            }.limit(1)
+            .empty()
+
+    override fun findProjectParticipationScore(
+        memberId: Long,
+        projectId: Long,
+    ): Score? =
+        ScoreExposedEntity
+            .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                ScoreExposedEntity.member eq MemberExposedEntity.id
+            }.join(ProjectScoreExposedEntity, joinType = JoinType.INNER) {
+                ScoreExposedEntity.id eq ProjectScoreExposedEntity.score
+            }.selectAll()
+            .where {
+                (ScoreExposedEntity.member eq memberId) and
+                    (ProjectScoreExposedEntity.project eq projectId) and
+                    (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName)
+            }.map { row ->
+                val member = row.toMember()
+                row.toScore(member)
+            }.singleOrNull()
+
+    override fun existsProjectParticipationScore(
+        memberId: Long,
+        projectId: Long,
+    ): Boolean =
+        !ScoreExposedEntity
+            .join(ProjectScoreExposedEntity, joinType = JoinType.INNER) {
+                ScoreExposedEntity.id eq ProjectScoreExposedEntity.score
+            }.select(ScoreExposedEntity.id)
+            .where {
+                (ScoreExposedEntity.member eq memberId) and
+                    (ProjectScoreExposedEntity.project eq projectId) and
+                    (ScoreExposedEntity.categoryEnglishName eq CategoryType.PROJECT_PARTICIPATION.englishName)
+            }.limit(1)
+            .empty()
+
+    override fun updateActivityName(
+        scoreId: Long,
+        activityName: String,
+    ) {
+        ScoreExposedEntity.update({ ScoreExposedEntity.id eq scoreId }) {
+            it[ScoreExposedEntity.activityName] = activityName
+        }
+    }
+
+    override fun updateActivityNameByIdIn(
+        scoreIds: List<Long>,
+        activityName: String,
+    ) {
+        if (scoreIds.isEmpty()) return
+        ScoreExposedEntity.update({ ScoreExposedEntity.id inList scoreIds }) {
+            it[ScoreExposedEntity.activityName] = activityName
+        }
+    }
+
+    override fun findAllByIdIn(scoreIds: List<Long>): List<Score> {
+        if (scoreIds.isEmpty()) return emptyList()
+
+        val results =
+            ScoreExposedEntity
+                .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
+                }.selectAll()
+                .where { ScoreExposedEntity.id inList scoreIds }
+                .toList()
+
+        if (results.isEmpty()) return emptyList()
+
+        val memberMap = mutableMapOf<Long, Member>()
+
+        return results.map { row ->
+            val memberId = row[ScoreExposedEntity.member]
+            val member = memberMap.getOrPut(memberId) { row.toMember() }
+            row.toScore(member)
+        }
+    }
+
+    override fun findAllByActivityName(activityName: String): List<Score> {
+        val results =
+            ScoreExposedEntity
+                .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
+                }.selectAll()
+                .where { ScoreExposedEntity.activityName eq activityName }
+                .toList()
+
+        if (results.isEmpty()) return emptyList()
+
+        val memberMap = mutableMapOf<Long, Member>()
+
+        return results.map { row ->
+            val memberId = row[ScoreExposedEntity.member]
+            val member = memberMap.getOrPut(memberId) { row.toMember() }
+            row.toScore(member)
+        }
+    }
+
+    override fun findAllByActivityNameAndCategoryType(
+        activityName: String,
+        categoryType: CategoryType,
+    ): List<Score> {
+        val results =
+            ScoreExposedEntity
+                .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
+                }.selectAll()
+                .where {
+                    (ScoreExposedEntity.activityName eq activityName) and
+                        (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName)
+                }.toList()
+
+        if (results.isEmpty()) return emptyList()
+
+        val memberMap = mutableMapOf<Long, Member>()
+
+        return results.map { row ->
+            val memberId = row[ScoreExposedEntity.member]
+            val member = memberMap.getOrPut(memberId) { row.toMember() }
+            row.toScore(member)
+        }
     }
 
     override fun deleteById(scoreId: Long) {
-        ScoreExposedEntity.deleteWhere { ScoreExposedEntity.id eq scoreId }
+        ScoreExposedEntity.deleteWhere { id eq scoreId }
+    }
+
+    override fun deleteAllByIdIn(scoreIds: List<Long>) {
+        if (scoreIds.isEmpty()) return
+        ScoreExposedEntity.deleteWhere { id inList scoreIds }
+    }
+
+    private fun ResultRow.toMember(): Member =
+        Member(
+            id = this[MemberExposedEntity.id],
+            name = this[MemberExposedEntity.name],
+            email = this[MemberExposedEntity.email],
+            grade = this[MemberExposedEntity.grade],
+            classNumber = this[MemberExposedEntity.classNumber],
+            number = this[MemberExposedEntity.number],
+            role = this[MemberExposedEntity.role],
+        )
+
+    private fun ResultRow.toScore(member: Member): Score {
+        val categoryType = CategoryType.fromEnglishName(this[ScoreExposedEntity.categoryEnglishName])
+
+        return Score(
+            id = this[ScoreExposedEntity.id],
+            member = member,
+            categoryType = categoryType,
+            status = this[ScoreExposedEntity.status],
+            sourceId = this[ScoreExposedEntity.sourceId],
+            activityName = this[ScoreExposedEntity.activityName],
+            scoreValue = this[ScoreExposedEntity.scoreValue],
+            rejectionReason = this[ScoreExposedEntity.rejectionReason],
+        )
     }
 }

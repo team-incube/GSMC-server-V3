@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 class CurrentMemberProvider(
     private val memberExposedRepository: MemberExposedRepository,
 ) {
-    fun getCurrentUser(): Member {
+    fun getCurrentMember(): Member {
         val principal = SecurityContextHolder.getContext().authentication.principal
 
         if (principal is Long) {
@@ -20,5 +20,16 @@ class CurrentMemberProvider(
         }
 
         throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
+    }
+
+    fun getCurrentMemberId(): Long {
+        val principal =
+            SecurityContextHolder.getContext().authentication?.principal
+                ?: throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
+
+        return when (principal) {
+            is Long -> principal
+            else -> throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
+        }
     }
 }

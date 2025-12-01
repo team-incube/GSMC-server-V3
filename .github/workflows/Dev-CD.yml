@@ -42,7 +42,7 @@ jobs:
 
       - name: Create Dev Profile File
         run: |
-          cat <<'EOF' > ./src/main/resources/application.yml
+          cat <<'EOF' > ./src/main/resources/application-prod.yml
           ${{ secrets.DEV_APPLICATION_YAML }}
           EOF
         shell: bash

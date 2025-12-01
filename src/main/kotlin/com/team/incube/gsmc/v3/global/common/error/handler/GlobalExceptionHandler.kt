@@ -1,6 +1,5 @@
 package com.team.incube.gsmc.v3.global.common.error.handler
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.team.incube.gsmc.v3.global.common.error.discord.DiscordErrorNotificationService
 import com.team.incube.gsmc.v3.global.common.error.exception.FeignClientException
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.multipart.MaxUploadSizeExceededException
 import org.springframework.web.servlet.NoHandlerFoundException
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
@@ -24,10 +24,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc
 class GlobalExceptionHandler(
     private val discordErrorNotificationService: DiscordErrorNotificationService? = null,
 ) {
-    companion object {
-        private val objectMapper = ObjectMapper()
-    }
-
     private fun warnTrace(
         prefix: String,
         ex: Throwable,
@@ -82,6 +78,18 @@ class GlobalExceptionHandler(
     fun handleFeignClientException(ex: FeignClientException): CommonApiResponse<Nothing> {
         warnTrace("FeignClientException", ex)
         return CommonApiResponse.error(ex.message ?: "Feign 클라이언트 오류", ex.status)
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException::class)
+    fun handleMethodArgumentTypeMismatch(ex: MethodArgumentTypeMismatchException): CommonApiResponse<Nothing> {
+        warnTrace("Method Argument Type Mismatch", ex)
+        val paramName = ex.name
+        val requiredType = ex.requiredType?.simpleName ?: "Unknown"
+        val providedValue = ex.value
+        return CommonApiResponse.error(
+            message = "잘못된 요청 파라미터입니다. '$paramName'는 $requiredType 타입이어야 하지만 '$providedValue'가 제공되었습니다.",
+            status = HttpStatus.BAD_REQUEST,
+        )
     }
 
     @ExceptionHandler(Exception::class)

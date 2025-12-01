@@ -1,14 +1,20 @@
 package com.team.incube.gsmc.v3.service.evidence
 
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.evidence.dto.Evidence
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.CreateEvidenceResponse
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.impl.CreateEvidenceServiceImpl
 import com.team.incube.gsmc.v3.domain.file.dto.File
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
+import com.team.incube.gsmc.v3.domain.member.dto.Member
+import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.domain.score.dto.Score
+import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -27,6 +33,7 @@ class CreateEvidenceServiceTest :
     BehaviorSpec({
         data class TestData(
             val evidenceRepo: EvidenceExposedRepository,
+            val currentMemberProvider: CurrentMemberProvider,
             val scoreRepo: ScoreExposedRepository,
             val fileRepo: FileExposedRepository,
             val service: CreateEvidenceServiceImpl,
@@ -34,10 +41,23 @@ class CreateEvidenceServiceTest :
 
         fun ctx(): TestData {
             val evidenceRepo = mockk<EvidenceExposedRepository>()
+            val currentMemberProvider = mockk<CurrentMemberProvider>()
+
+            every { currentMemberProvider.getCurrentMember() } returns
+                Member(
+                    id = 0L,
+                    name = "Test User",
+                    email = "test@test.com",
+                    grade = 1,
+                    classNumber = 1,
+                    number = 1,
+                    role = MemberRole.STUDENT,
+                )
+
             val scoreRepo = mockk<ScoreExposedRepository>()
             val fileRepo = mockk<FileExposedRepository>()
-            val service = CreateEvidenceServiceImpl(evidenceRepo, scoreRepo, fileRepo)
-            return TestData(evidenceRepo, scoreRepo, fileRepo, service)
+            val service = CreateEvidenceServiceImpl(evidenceRepo, currentMemberProvider, scoreRepo, fileRepo)
+            return TestData(evidenceRepo, currentMemberProvider, scoreRepo, fileRepo, service)
         }
 
         beforeTest {
@@ -53,32 +73,52 @@ class CreateEvidenceServiceTest :
             unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
         }
 
-        Given("유효한 scoreIds와 fileIds로 증빙 생성에 성공할 때") {
+        Given("유효한 scoreId와 fileIds로 증빙 생성에 성공할 때") {
             val c = ctx()
             val now = LocalDateTime.of(2025, 10, 1, 12, 0, 0)
-            val scoreIds = listOf(1L, 2L)
+            val scoreId = 1L
             val fileIds = listOf(10L, 11L)
+            val score =
+                Score(
+                    id = scoreId,
+                    member =
+                        Member(
+                            id = 0L,
+                            name = "Test User",
+                            email = "test@test.com",
+                            grade = 1,
+                            classNumber = 1,
+                            number = 1,
+                            role = MemberRole.STUDENT,
+                        ),
+                    categoryType = CategoryType.PROJECT_PARTICIPATION,
+                    status = ScoreStatus.INCOMPLETE,
+                    sourceId = null,
+                    activityName = null,
+                    scoreValue = null,
+                    rejectionReason = null,
+                )
             val files =
                 listOf(
                     File(
-                        fileId = 10L,
-                        userId = 0L,
-                        fileOriginalName = "a.pdf",
-                        fileStoredName = "s-a.pdf",
-                        fileUri = "uri-a",
+                        id = 10L,
+                        member = 0L,
+                        originalName = "a.pdf",
+                        storeName = "s-a.pdf",
+                        uri = "uri-a",
                     ),
                     File(
-                        fileId = 11L,
-                        userId = 0L,
-                        fileOriginalName = "b.jpg",
-                        fileStoredName = "s-b.jpg",
-                        fileUri = "uri-b",
+                        id = 11L,
+                        member = 0L,
+                        originalName = "b.jpg",
+                        storeName = "s-b.jpg",
+                        uri = "uri-b",
                     ),
                 )
             val saved =
                 Evidence(
                     id = 100L,
-                    userId = 0L,
+                    member = 0L,
                     title = "title",
                     content = "content",
                     createdAt = now,
@@ -86,15 +126,16 @@ class CreateEvidenceServiceTest :
                     files = files,
                 )
 
-            every { c.scoreRepo.existsByIdIn(scoreIds) } returns true
-            every { c.scoreRepo.existsAnyWithSource(scoreIds) } returns false
+            every { c.scoreRepo.findById(scoreId) } returns score
+            every { c.scoreRepo.existsWithSource(scoreId) } returns false
             every { c.fileRepo.existsByIdIn(fileIds) } returns true
             every { c.evidenceRepo.save(userId = 0L, title = "title", content = "content", fileIds = fileIds) } returns
                 saved
-            justRun { c.scoreRepo.updateSourceId(scoreIds, saved.id) }
+            justRun { c.scoreRepo.updateSourceId(scoreId, saved.id) }
+            every { c.scoreRepo.updateStatusByScoreId(scoreId, ScoreStatus.PENDING) } returns 1
 
             When("execute를 호출하면") {
-                val res: CreateEvidenceResponse = c.service.execute(scoreIds, "title", "content", fileIds)
+                val res: CreateEvidenceResponse = c.service.execute(scoreId, "title", "content", fileIds)
 
                 Then("정상적으로 생성되어 응답이 반환된다") {
                     res shouldNotBe null
@@ -103,30 +144,31 @@ class CreateEvidenceServiceTest :
                     res.content shouldBe "content"
                     res.createAt shouldBe now
                     res.updateAt shouldBe now
-                    res.file.size shouldBe 2
+                    res.files.size shouldBe 2
                 }
 
                 Then("점수, 파일 검증과 저장 및 score source 업데이트가 호출된다") {
-                    verify(exactly = 1) { c.scoreRepo.existsByIdIn(scoreIds) }
-                    verify(exactly = 1) { c.scoreRepo.existsAnyWithSource(scoreIds) }
+                    verify(exactly = 1) { c.scoreRepo.findById(scoreId) }
+                    verify(exactly = 1) { c.scoreRepo.existsWithSource(scoreId) }
                     verify(exactly = 1) { c.fileRepo.existsByIdIn(fileIds) }
                     verify(
                         exactly = 1,
                     ) { c.evidenceRepo.save(userId = 0L, title = "title", content = "content", fileIds = fileIds) }
-                    verify(exactly = 1) { c.scoreRepo.updateSourceId(scoreIds, saved.id) }
+                    verify(exactly = 1) { c.scoreRepo.updateSourceId(scoreId, saved.id) }
+                    verify(exactly = 1) { c.scoreRepo.updateStatusByScoreId(scoreId, ScoreStatus.PENDING) }
                 }
             }
         }
 
-        Given("scoreIds 중 존재하지 않는 점수가 포함될 때") {
-            val c = ctx()
-            val scoreIds = listOf(1L, 2L)
-            val fileIds = listOf(10L)
-            every { c.scoreRepo.existsByIdIn(scoreIds) } returns false
-
+        Given("scoreId가 존재하지 않을 때") {
             When("execute를 호출하면") {
+                val c = ctx()
+                val scoreId = 999L
+                val fileIds = listOf(10L)
+                every { c.scoreRepo.findById(scoreId) } returns null
+
                 Then("SCORE_NOT_FOUND 예외가 발생한다") {
-                    val ex = shouldThrow<GsmcException> { c.service.execute(scoreIds, "t", "c", fileIds) }
+                    val ex = shouldThrow<GsmcException> { c.service.execute(scoreId, "t", "c", fileIds) }
                     ex.errorCode shouldBe ErrorCode.SCORE_NOT_FOUND
                 }
             }
@@ -134,30 +176,70 @@ class CreateEvidenceServiceTest :
 
         Given("이미 증빙이 연결된 score가 있을 때") {
             val c = ctx()
-            val scoreIds = listOf(1L)
+            val scoreId = 1L
             val fileIds = listOf(10L)
-            every { c.scoreRepo.existsByIdIn(scoreIds) } returns true
-            every { c.scoreRepo.existsAnyWithSource(scoreIds) } returns true
+            val score =
+                Score(
+                    id = scoreId,
+                    member =
+                        Member(
+                            id = 0L,
+                            name = "Test User",
+                            email = "test@test.com",
+                            grade = 1,
+                            classNumber = 1,
+                            number = 1,
+                            role = MemberRole.STUDENT,
+                        ),
+                    categoryType = CategoryType.PROJECT_PARTICIPATION,
+                    status = ScoreStatus.PENDING,
+                    sourceId = 50L,
+                    activityName = null,
+                    scoreValue = null,
+                    rejectionReason = null,
+                )
+            every { c.scoreRepo.findById(scoreId) } returns score
+            every { c.scoreRepo.existsWithSource(scoreId) } returns true
 
             When("execute를 호출하면") {
                 Then("SCORE_ALREADY_HAS_EVIDENCE 예외가 발생한다") {
-                    val ex = shouldThrow<GsmcException> { c.service.execute(scoreIds, "t", "c", fileIds) }
+                    val ex = shouldThrow<GsmcException> { c.service.execute(scoreId, "t", "c", fileIds) }
                     ex.errorCode shouldBe ErrorCode.SCORE_ALREADY_HAS_EVIDENCE
                 }
             }
         }
 
         Given("fileIds가 주어졌지만 존재하지 않을 때") {
-            val c = ctx()
-            val scoreIds = listOf(1L)
-            val fileIds = listOf(999L)
-            every { c.scoreRepo.existsByIdIn(scoreIds) } returns true
-            every { c.scoreRepo.existsAnyWithSource(scoreIds) } returns false
-            every { c.fileRepo.existsByIdIn(fileIds) } returns false
-
             When("execute를 호출하면") {
+                val c = ctx()
+                val scoreId = 1L
+                val fileIds = listOf(999L)
+                val score =
+                    Score(
+                        id = scoreId,
+                        member =
+                            Member(
+                                id = 0L,
+                                name = "Test User",
+                                email = "test@test.com",
+                                grade = 1,
+                                classNumber = 1,
+                                number = 1,
+                                role = MemberRole.STUDENT,
+                            ),
+                        categoryType = CategoryType.PROJECT_PARTICIPATION,
+                        status = ScoreStatus.INCOMPLETE,
+                        sourceId = null,
+                        activityName = null,
+                        scoreValue = null,
+                        rejectionReason = null,
+                    )
+                every { c.scoreRepo.findById(scoreId) } returns score
+                every { c.scoreRepo.existsWithSource(scoreId) } returns false
+                every { c.fileRepo.existsByIdIn(fileIds) } returns false
+
                 Then("FILE_NOT_FOUND 예외가 발생한다") {
-                    val ex = shouldThrow<GsmcException> { c.service.execute(scoreIds, "t", "c", fileIds) }
+                    val ex = shouldThrow<GsmcException> { c.service.execute(scoreId, "t", "c", fileIds) }
                     ex.errorCode shouldBe ErrorCode.FILE_NOT_FOUND
                 }
             }
@@ -166,12 +248,32 @@ class CreateEvidenceServiceTest :
         Given("fileIds가 비어있을 때") {
             val c = ctx()
             val now = LocalDateTime.of(2025, 10, 1, 12, 0, 0)
-            val scoreIds = listOf(1L, 2L)
+            val scoreId = 1L
             val fileIds = emptyList<Long>()
+            val score =
+                Score(
+                    id = scoreId,
+                    member =
+                        Member(
+                            id = 0L,
+                            name = "Test User",
+                            email = "test@test.com",
+                            grade = 1,
+                            classNumber = 1,
+                            number = 1,
+                            role = MemberRole.STUDENT,
+                        ),
+                    categoryType = CategoryType.PROJECT_PARTICIPATION,
+                    status = ScoreStatus.INCOMPLETE,
+                    sourceId = null,
+                    activityName = null,
+                    scoreValue = null,
+                    rejectionReason = null,
+                )
             val saved =
                 Evidence(
                     id = 101L,
-                    userId = 0L,
+                    member = 0L,
                     title = "t",
                     content = "c",
                     createdAt = now,
@@ -179,13 +281,14 @@ class CreateEvidenceServiceTest :
                     files = emptyList(),
                 )
 
-            every { c.scoreRepo.existsByIdIn(scoreIds) } returns true
-            every { c.scoreRepo.existsAnyWithSource(scoreIds) } returns false
+            every { c.scoreRepo.findById(scoreId) } returns score
+            every { c.scoreRepo.existsWithSource(scoreId) } returns false
             every { c.evidenceRepo.save(userId = 0L, title = "t", content = "c", fileIds = fileIds) } returns saved
-            justRun { c.scoreRepo.updateSourceId(scoreIds, saved.id) }
+            justRun { c.scoreRepo.updateSourceId(scoreId, saved.id) }
+            every { c.scoreRepo.updateStatusByScoreId(scoreId, ScoreStatus.PENDING) } returns 1
 
             When("execute를 호출하면") {
-                val res = c.service.execute(scoreIds, "t", "c", fileIds)
+                val res = c.service.execute(scoreId, "t", "c", fileIds)
 
                 Then("정상적으로 생성되고 파일 검증은 호출되지 않는다") {
                     res.id shouldBe 101L
@@ -193,7 +296,8 @@ class CreateEvidenceServiceTest :
                     verify(
                         exactly = 1,
                     ) { c.evidenceRepo.save(userId = 0L, title = "t", content = "c", fileIds = fileIds) }
-                    verify(exactly = 1) { c.scoreRepo.updateSourceId(scoreIds, saved.id) }
+                    verify(exactly = 1) { c.scoreRepo.updateSourceId(scoreId, saved.id) }
+                    verify(exactly = 1) { c.scoreRepo.updateStatusByScoreId(scoreId, ScoreStatus.PENDING) }
                 }
             }
         }

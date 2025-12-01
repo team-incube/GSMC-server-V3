@@ -80,7 +80,7 @@ class JwtProvider(
         refreshTokenRedisRepository.save(
             RefreshTokenRedisEntity(
                 token = token.token,
-                memberId = memberId,
+                member = memberId,
                 expiration =
                     token.expiration
                         .atZone(ZoneId.systemDefault())

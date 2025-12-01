@@ -8,6 +8,8 @@ spring:
       mode: never
   cloud:
     aws:
+      region:
+        static: ${AWS_REGION}
       credentials:
         access-key: ${AWS_ACCESS_KEY}
         secret-key: ${AWS_SECRET_KEY}
@@ -39,7 +41,7 @@ spring:
       refresh-token:
         secret: ${JWT_REFRESH_TOKEN_SECRET}
         expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
-    springdoc:
+springdoc:
   swagger-ui:
     enabled: false
   api-docs:

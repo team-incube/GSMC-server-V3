@@ -4,12 +4,12 @@ import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(description = "증빙자료 수정 요청")
 data class PatchEvidenceRequest(
-    @field:Schema(description = "참가자 ID 목록", example = "[1, 2, 3]", nullable = true)
-    val participants: List<Long>? = null,
-    @field:Schema(description = "증빙자료 제목", example = "대회 참가 증빙", nullable = true)
+    @param:Schema(description = "점수 ID", example = "1", nullable = true)
+    val scoreId: Long? = null,
+    @param:Schema(description = "증빙자료 제목", example = "대회 참가 증빙", nullable = true)
     val title: String? = null,
-    @field:Schema(description = "증빙자료 내용", example = "2024년 전국 프로그래밍 대회 참가 증빙자료입니다.", nullable = true)
+    @param:Schema(description = "증빙자료 내용", example = "2024년 전국 프로그래밍 대회 참가 증빙자료입니다.", nullable = true)
     val content: String? = null,
-    @field:Schema(description = "파일 ID 목록", example = "[1, 2]", nullable = true)
-    val fileId: List<Long>? = null,
+    @param:Schema(description = "파일 ID 목록", example = "[1, 2]", nullable = true)
+    val fileIds: List<Long>? = null,
 )

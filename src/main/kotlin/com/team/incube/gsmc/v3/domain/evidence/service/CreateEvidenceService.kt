@@ -4,7 +4,7 @@ import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.Create
 
 interface CreateEvidenceService {
     fun execute(
-        scoreIds: List<Long>,
+        scoreId: Long,
         title: String,
         content: String,
         fileIds: List<Long>,

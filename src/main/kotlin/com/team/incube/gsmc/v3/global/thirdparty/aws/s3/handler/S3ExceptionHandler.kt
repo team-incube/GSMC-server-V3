@@ -8,7 +8,7 @@ import software.amazon.awssdk.core.exception.SdkClientException
 import java.io.IOException
 
 object S3ExceptionHandler {
-    inline fun <T> handleS3Operation(
+    private inline fun <T> handleS3Operation(
         uploadOperation: Boolean = true,
         operation: () -> T,
     ): T =

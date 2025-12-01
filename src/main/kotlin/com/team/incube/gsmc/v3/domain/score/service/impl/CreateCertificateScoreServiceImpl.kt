@@ -1,12 +1,10 @@
 package com.team.incube.gsmc.v3.domain.score.service.impl
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
-import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
-import com.team.incube.gsmc.v3.domain.score.dto.Score
-import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.CategoryNames
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
+import com.team.incube.gsmc.v3.domain.score.service.BaseCountBasedScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateCertificateScoreService
 import com.team.incube.gsmc.v3.domain.score.validator.ScoreLimitValidator
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
@@ -17,43 +15,28 @@ import org.springframework.stereotype.Service
 
 @Service
 class CreateCertificateScoreServiceImpl(
-    private val scoreExposedRepository: ScoreExposedRepository,
+    scoreExposedRepository: ScoreExposedRepository,
     private val fileExposedRepository: FileExposedRepository,
-    private val currentMemberProvider: CurrentMemberProvider,
+    currentMemberProvider: CurrentMemberProvider,
     private val scoreLimitValidator: ScoreLimitValidator,
-) : CreateCertificateScoreService {
+) : BaseCountBasedScoreService(scoreExposedRepository, currentMemberProvider),
+    CreateCertificateScoreService {
     override fun execute(
-        certificateName: String,
+        value: String,
         fileId: Long,
     ): CreateScoreResponse =
         transaction {
-            val member = currentMemberProvider.getCurrentUser()
-            if (fileExposedRepository.existsById(fileId).not()) {
+            val member = currentMemberProvider.getCurrentMember()
+            if (!fileExposedRepository.existsById(fileId)) {
                 throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }
             scoreLimitValidator.validateScoreLimit(member.id, CategoryType.CERTIFICATE)
-            val savedScore =
-                scoreExposedRepository.save(
-                    Score(
-                        id = null,
-                        member = member,
-                        categoryType = CategoryType.CERTIFICATE,
-                        status = ScoreStatus.PENDING,
-                        sourceId = fileId,
-                        activityName = certificateName,
-                        scoreValue = null,
-                    ),
-                )
-            CreateScoreResponse(
-                scoreId = savedScore.id!!,
-                categoryNames =
-                    CategoryNames(
-                        koreanName = savedScore.categoryType.koreanName,
-                        englishName = savedScore.categoryType.englishName,
-                    ),
-                scoreStatus = savedScore.status,
-                sourceId = savedScore.sourceId,
-                activityName = savedScore.activityName,
+
+            createScore(
+                member = member,
+                categoryType = CategoryType.CERTIFICATE,
+                activityName = value,
+                sourceId = fileId,
             )
         }
 }

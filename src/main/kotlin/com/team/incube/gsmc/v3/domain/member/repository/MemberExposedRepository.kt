@@ -2,6 +2,7 @@ package com.team.incube.gsmc.v3.domain.member.repository
 
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.domain.member.dto.constant.SortDirection
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
@@ -13,6 +14,7 @@ interface MemberExposedRepository {
         grade: Int?,
         classNumber: Int?,
         number: Int?,
+        sortBy: SortDirection?,
         pageable: Pageable,
     ): Page<Member>
 
@@ -28,6 +30,10 @@ interface MemberExposedRepository {
     ): Member
 
     fun findById(id: Long): Member?
+
+    fun findAllByIdIn(ids: List<Long>): List<Member>
+
+    fun existsById(id: Long): Boolean
 
     fun updateMemberRoleByEmail(
         email: String,

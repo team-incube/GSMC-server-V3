@@ -11,7 +11,7 @@ class RefreshTokenRedisEntity(
     @Id
     val token: String,
     @Indexed
-    val memberId: Long,
+    val member: Long,
     @TimeToLive(unit = TimeUnit.SECONDS)
     val expiration: Long,
 )

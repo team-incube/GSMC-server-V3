@@ -3,7 +3,7 @@ package com.team.incube.gsmc.v3.domain.auth.presentation
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.request.OAuthCodeRequest
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.request.SignUpRequest
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.response.AuthTokenResponse
-import com.team.incube.gsmc.v3.domain.auth.service.OauthAuthenticationService
+import com.team.incube.gsmc.v3.domain.auth.service.OAuthAuthenticationService
 import com.team.incube.gsmc.v3.domain.auth.service.SignUpService
 import com.team.incube.gsmc.v3.domain.auth.service.TokenRefreshService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v3/auth")
 class AuthController(
-    private val oauthAuthenticationService: OauthAuthenticationService,
+    private val oauthAuthenticationService: OAuthAuthenticationService,
     private val tokenRefreshService: TokenRefreshService,
     private val signUpService: SignUpService,
 ) {
@@ -47,7 +47,7 @@ class AuthController(
     @PostMapping
     fun oauthAuthentication(
         @Valid @RequestBody request: OAuthCodeRequest,
-    ): AuthTokenResponse = oauthAuthenticationService.execute(request.code)
+    ): AuthTokenResponse = oauthAuthenticationService.execute(code = request.code)
 
     @Operation(summary = "JWT 토큰 재발급", description = "RefreshToken을 이용하여 JWT 토큰을 재발급합니다")
     @ApiResponses(
@@ -67,7 +67,7 @@ class AuthController(
     fun tokenRefresh(
         @Parameter(name = "refreshToken", `in` = ParameterIn.COOKIE, required = true, description = "Refresh token cookie")
         @CookieValue("refreshToken") refreshToken: String,
-    ): AuthTokenResponse = tokenRefreshService.execute(refreshToken)
+    ): AuthTokenResponse = tokenRefreshService.execute(refreshToken = refreshToken)
 
     @Operation(summary = "회원가입", description = "회원가입합니다")
     @ApiResponses(
@@ -87,7 +87,7 @@ class AuthController(
     fun signUp(
         @Valid @RequestBody request: SignUpRequest,
     ): CommonApiResponse<Nothing> {
-        signUpService.execute(request.name, request.studentNumber)
+        signUpService.execute(name = request.name, studentNumber = request.studentNumber)
         return CommonApiResponse.accepted("OK")
     }
 }

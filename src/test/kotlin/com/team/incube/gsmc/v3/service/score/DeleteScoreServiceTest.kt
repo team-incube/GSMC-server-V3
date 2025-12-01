@@ -1,24 +1,25 @@
 package com.team.incube.gsmc.v3.service.score
 
-import com.team.incube.gsmc.v3.domain.category.dto.Category
-import com.team.incube.gsmc.v3.domain.category.dto.constant.EvidenceType
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.evidence.dto.Evidence
-import com.team.incube.gsmc.v3.domain.evidence.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.file.dto.File
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.score.dto.Score
+import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.impl.DeleteScoreServiceImpl
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.S3DeleteService
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
+import io.mockk.invoke
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -30,6 +31,8 @@ import java.time.LocalDateTime
 
 class DeleteScoreServiceTest :
     BehaviorSpec({
+        isolationMode = IsolationMode.InstancePerLeaf
+
         data class Ctx(
             val scoreRepo: ScoreExposedRepository,
             val evidenceRepo: EvidenceExposedRepository,
@@ -50,13 +53,15 @@ class DeleteScoreServiceTest :
         beforeTest {
             mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
             every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
+                transaction(statement = captureLambda<Transaction.() -> Any>())
             } answers {
-                val stmt = invocation.args[1] as Transaction.() -> Any
-                stmt.invoke(mockk(relaxed = true))
+                lambda<Transaction.() -> Any>().invoke(mockk(relaxed = true))
             }
         }
-        afterTest { unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt") }
+
+        afterTest {
+            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        }
 
         fun member() =
             Member(
@@ -69,17 +74,6 @@ class DeleteScoreServiceTest :
                 role = MemberRole.STUDENT,
             )
 
-        fun category(type: EvidenceType) =
-            Category(
-                id = 1L,
-                englishName = "cat",
-                koreanName = "카테고리",
-                weight = 1,
-                maximumValue = 10,
-                isAccumulated = false,
-                evidenceType = type,
-            )
-
         Given("증빙형(EVIDENCE) 점수를 삭제할 때 연결된 증빙과 파일, S3 객체도 삭제된다") {
             val c = ctx()
             val scoreId = 1L
@@ -88,32 +82,36 @@ class DeleteScoreServiceTest :
             val files =
                 listOf(
                     File(
-                        fileId = 10L,
-                        userId = 0L,
-                        fileOriginalName = "a.pdf",
-                        fileStoredName = "sa.pdf",
-                        fileUri = "s3://a",
+                        id = 10L,
+                        member = 0L,
+                        originalName = "a.pdf",
+                        storeName = "sa.pdf",
+                        uri = "s3://a",
                     ),
                     File(
-                        fileId = 11L,
-                        userId = 0L,
-                        fileOriginalName = "b.jpg",
-                        fileStoredName = "sb.jpg",
-                        fileUri = "s3://b",
+                        id = 11L,
+                        member = 0L,
+                        originalName = "b.jpg",
+                        storeName = "sb.jpg",
+                        uri = "s3://b",
                     ),
                 )
             val score =
                 Score(
                     id = scoreId,
                     member = member(),
-                    category = category(EvidenceType.EVIDENCE),
+                    categoryType = CategoryType.PROJECT_PARTICIPATION,
                     status = ScoreStatus.PENDING,
                     sourceId = sourceId,
+                    activityName = "Project Activity",
+                    scoreValue = 10.0,
+                    rejectionReason = null,
                 )
+
             val evidence =
                 Evidence(
                     id = sourceId,
-                    userId = 0L,
+                    member = 0L,
                     title = "t",
                     content = "c",
                     createdAt = now,
@@ -151,20 +149,23 @@ class DeleteScoreServiceTest :
             val scoreId = 2L
             val sourceId = 200L
             val file =
-                File(fileId = sourceId, userId = 0L, fileOriginalName = "f", fileStoredName = "sf", fileUri = "s3://f")
+                File(id = sourceId, member = 0L, originalName = "f", storeName = "sf", uri = "s3://f")
             val score =
                 Score(
                     id = scoreId,
                     member = member(),
-                    category = category(EvidenceType.FILE),
+                    categoryType = CategoryType.TOEIC,
                     status = ScoreStatus.PENDING,
                     sourceId = sourceId,
+                    activityName = null,
+                    scoreValue = 800.0,
+                    rejectionReason = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score
             every { c.fileRepo.findById(sourceId) } returns file
-            justRun { c.s3.execute(file.fileUri) }
-            justRun { c.fileRepo.deleteById(file.fileId) }
+            justRun { c.s3.execute(file.uri) }
+            justRun { c.fileRepo.deleteById(file.id) }
             justRun { c.scoreRepo.deleteById(scoreId) }
 
             When("execute를 호출하면") {
@@ -188,9 +189,12 @@ class DeleteScoreServiceTest :
                 Score(
                     id = scoreId,
                     member = member(),
-                    category = category(EvidenceType.FILE),
+                    categoryType = CategoryType.TOEIC,
                     status = ScoreStatus.PENDING,
                     sourceId = sourceId,
+                    activityName = null,
+                    scoreValue = 750.0,
+                    rejectionReason = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score
@@ -217,9 +221,12 @@ class DeleteScoreServiceTest :
                 Score(
                     id = scoreId,
                     member = member(),
-                    category = category(EvidenceType.UNREQUIRED),
+                    categoryType = CategoryType.ACADEMIC_GRADE,
                     status = ScoreStatus.PENDING,
                     sourceId = 999L,
+                    activityName = "Academic Grade",
+                    scoreValue = 95.0,
+                    rejectionReason = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score
@@ -245,9 +252,12 @@ class DeleteScoreServiceTest :
                 Score(
                     id = scoreId,
                     member = member(),
-                    category = category(EvidenceType.FILE),
+                    categoryType = CategoryType.TOEIC,
                     status = ScoreStatus.PENDING,
                     sourceId = null,
+                    activityName = null,
+                    scoreValue = null,
+                    rejectionReason = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score
@@ -293,14 +303,17 @@ class DeleteScoreServiceTest :
                 Score(
                     id = scoreId,
                     member = member(),
-                    category = category(EvidenceType.EVIDENCE),
+                    categoryType = CategoryType.PROJECT_PARTICIPATION,
                     status = ScoreStatus.PENDING,
                     sourceId = sourceId,
+                    activityName = "Empty Files Project",
+                    scoreValue = 8.0,
+                    rejectionReason = null,
                 )
             val evidence =
                 Evidence(
                     id = sourceId,
-                    userId = 0L,
+                    member = 0L,
                     title = "t",
                     content = "c",
                     createdAt = now,

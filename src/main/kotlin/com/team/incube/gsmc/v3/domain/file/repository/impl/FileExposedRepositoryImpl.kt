@@ -1,9 +1,14 @@
 package com.team.incube.gsmc.v3.domain.file.repository.impl
 
 import com.team.incube.gsmc.v3.domain.file.dto.File
+import com.team.incube.gsmc.v3.domain.file.entity.EvidenceFileExposedEntity
 import com.team.incube.gsmc.v3.domain.file.entity.FileExposedEntity
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
+import com.team.incube.gsmc.v3.domain.project.entity.ProjectFileExposedEntity
+import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
@@ -32,18 +37,18 @@ class FileExposedRepositoryImpl : FileExposedRepository {
     ): File {
         val insertedId =
             FileExposedEntity.insert {
-                it[this.userId] = userId
+                it[this.member] = userId
                 it[this.originalName] = originalName
-                it[this.storedName] = storedName
+                it[this.storeName] = storedName
                 it[this.uri] = uri
             } get FileExposedEntity.id
 
         return File(
-            fileId = insertedId,
-            userId = userId,
-            fileOriginalName = originalName,
-            fileStoredName = storedName,
-            fileUri = uri,
+            id = insertedId,
+            member = userId,
+            originalName = originalName,
+            storeName = storedName,
+            uri = uri,
         )
     }
 
@@ -52,19 +57,64 @@ class FileExposedRepositoryImpl : FileExposedRepository {
             .selectAll()
             .where { FileExposedEntity.id eq fileId }
             .singleOrNull()
-            ?.let { row ->
-                File(
-                    fileId = row[FileExposedEntity.id],
-                    userId = row[FileExposedEntity.userId],
-                    fileOriginalName = row[FileExposedEntity.originalName],
-                    fileStoredName = row[FileExposedEntity.storedName],
-                    fileUri = row[FileExposedEntity.uri],
-                )
-            }
+            ?.toFile()
+
+    override fun findAllByIdIn(fileIds: List<Long>): List<File> =
+        FileExposedEntity
+            .selectAll()
+            .where { FileExposedEntity.id inList fileIds }
+            .map { it.toFile() }
+
+    override fun findAllByUserId(userId: Long): List<File> =
+        FileExposedEntity
+            .selectAll()
+            .where { FileExposedEntity.member eq userId }
+            .map { it.toFile() }
+
+    override fun findUnusedFilesByUserId(userId: Long): List<File> {
+        val usedInProjectSubQuery = ProjectFileExposedEntity.select(ProjectFileExposedEntity.file)
+        val usedInEvidenceSubQuery = EvidenceFileExposedEntity.select(EvidenceFileExposedEntity.file)
+
+        return FileExposedEntity
+            .selectAll()
+            .where {
+                (FileExposedEntity.member eq userId) and
+                    FileExposedEntity.id.notInSubQuery(usedInProjectSubQuery) and
+                    FileExposedEntity.id.notInSubQuery(usedInEvidenceSubQuery)
+            }.map { it.toFile() }
+    }
+
+    override fun findAllUnusedFiles(): List<File> {
+        val usedInProjectSubQuery = ProjectFileExposedEntity.select(ProjectFileExposedEntity.file)
+        val usedInEvidenceSubQuery = EvidenceFileExposedEntity.select(EvidenceFileExposedEntity.file)
+
+        return FileExposedEntity
+            .selectAll()
+            .where {
+                FileExposedEntity.id.notInSubQuery(usedInProjectSubQuery) and
+                    FileExposedEntity.id.notInSubQuery(usedInEvidenceSubQuery)
+            }.map { it.toFile() }
+    }
 
     override fun deleteById(fileId: Long) {
         FileExposedEntity.deleteWhere {
-            FileExposedEntity.id eq fileId
+            id eq fileId
         }
     }
+
+    override fun deleteAllByIdIn(fileIds: List<Long>) {
+        if (fileIds.isEmpty()) return
+        FileExposedEntity.deleteWhere {
+            id inList fileIds
+        }
+    }
+
+    private fun ResultRow.toFile(): File =
+        File(
+            id = this[FileExposedEntity.id],
+            member = this[FileExposedEntity.member],
+            originalName = this[FileExposedEntity.originalName],
+            storeName = this[FileExposedEntity.storeName],
+            uri = this[FileExposedEntity.uri],
+        )
 }
