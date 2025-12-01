@@ -109,7 +109,7 @@ kotlin {
 
 jacoco {
     toolVersion = "0.8.10"
-    reportsDirectory.set(file("${rootDir}/.qodana/code-coverage"))
+    reportsDirectory.set(file("$rootDir/.qodana/code-coverage"))
 }
 
 tasks.test {
