@@ -41,5 +41,7 @@ interface ScoreExposedRepository {
         categoryType: CategoryType,
     ): Score?
 
+    fun deleteByIdIn(scoreIds: List<Long>)
+
     fun deleteById(scoreId: Long)
 }

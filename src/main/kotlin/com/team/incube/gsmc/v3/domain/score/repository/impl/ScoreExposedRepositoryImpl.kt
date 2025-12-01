@@ -9,6 +9,7 @@ import com.team.incube.gsmc.v3.domain.score.entity.ScoreExposedEntity
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
@@ -200,6 +201,11 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                     scoreValue = row[ScoreExposedEntity.scoreValue],
                 )
             }.singleOrNull()
+
+    override fun deleteByIdIn(scoreIds: List<Long>) {
+        if (scoreIds.isEmpty()) return
+        ScoreExposedEntity.deleteWhere { ScoreExposedEntity.id inList scoreIds }
+    }
 
     override fun deleteById(scoreId: Long) {
         ScoreExposedEntity.deleteWhere { ScoreExposedEntity.id eq scoreId }
