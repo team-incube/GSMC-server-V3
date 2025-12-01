@@ -16,20 +16,13 @@ class DeleteIncompleteScoresServiceImpl(
             logger().info("Incomplete score cleanup started")
             val incompleteScores = scoreExposedRepository.findAllByStatus(ScoreStatus.INCOMPLETE)
             logger().info("Found ${incompleteScores.size} incomplete scores")
-            if (incompleteScores.isEmpty()) {
-                logger().info("No incomplete scores to clean up")
+            val scoreIdsToDelete = incompleteScores.mapNotNull { it.id }
+            if (scoreIdsToDelete.isEmpty()) {
+                logger().info("No incomplete scores with valid IDs to delete")
                 return@transaction 0
             }
-            var deletedCount = 0
-            incompleteScores.forEach { score ->
-                try {
-                    scoreExposedRepository.deleteById(score.id!!)
-                    deletedCount++
-                } catch (e: Exception) {
-                    logger().error("Score deletion failed: id=${score.id} - ${e.message}")
-                }
-            }
-            logger().info("Deleted $deletedCount incomplete scores")
-            deletedCount
+            scoreExposedRepository.deleteAllByIdIn(scoreIdsToDelete)
+            logger().info("Deleted ${scoreIdsToDelete.size} incomplete scores")
+            scoreIdsToDelete.size
         }
 }
