@@ -46,8 +46,8 @@ class DeleteMemberByEmailServiceImpl(
                             EvidenceType.EVIDENCE -> {
                                 val evidence = evidenceExposedRepository.findById(sourceId)
                                 evidence?.files?.forEach { file ->
-                                    s3DeleteService.execute(file.fileUri)
-                                    fileExposedRepository.deleteById(file.fileId)
+                                    s3DeleteService.execute(file.uri)
+                                    fileExposedRepository.deleteById(file.id)
                                 }
                                 evidenceExposedRepository.deleteById(sourceId)
                             }
@@ -55,8 +55,8 @@ class DeleteMemberByEmailServiceImpl(
                             EvidenceType.FILE -> {
                                 val file = fileExposedRepository.findById(sourceId)
                                 file?.let {
-                                    s3DeleteService.execute(it.fileUri)
-                                    fileExposedRepository.deleteById(it.fileId)
+                                    s3DeleteService.execute(it.uri)
+                                    fileExposedRepository.deleteById(it.id)
                                 }
                             }
 
