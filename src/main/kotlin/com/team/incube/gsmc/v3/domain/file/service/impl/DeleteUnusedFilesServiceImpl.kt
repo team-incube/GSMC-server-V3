@@ -2,7 +2,7 @@ package com.team.incube.gsmc.v3.domain.file.service.impl
 
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceDraftRedisRepository
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
-import com.team.incube.gsmc.v3.domain.file.service.CleanupUnusedFilesService
+import com.team.incube.gsmc.v3.domain.file.service.DeleteUnusedFilesService
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectDraftRedisRepository
 import com.team.incube.gsmc.v3.global.config.logger
 import com.team.incube.gsmc.v3.global.event.s3.S3BulkFileDeletionEvent
@@ -11,12 +11,12 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 
 @Service
-class CleanupUnusedFilesServiceImpl(
+class DeleteUnusedFilesServiceImpl(
     private val fileExposedRepository: FileExposedRepository,
     private val eventPublisher: ApplicationEventPublisher,
     private val evidenceDraftRedisRepository: EvidenceDraftRedisRepository,
     private val projectDraftRedisRepository: ProjectDraftRedisRepository,
-) : CleanupUnusedFilesService {
+) : DeleteUnusedFilesService {
     override fun execute(): Int =
         transaction {
             logger().info("Unused file cleanup started")
