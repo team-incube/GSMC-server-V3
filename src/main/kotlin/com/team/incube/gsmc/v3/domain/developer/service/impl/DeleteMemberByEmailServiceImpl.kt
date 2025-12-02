@@ -8,9 +8,9 @@ import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.config.logger
 import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.S3DeleteService
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
@@ -21,26 +21,20 @@ class DeleteMemberByEmailServiceImpl(
     private val fileExposedRepository: FileExposedRepository,
     private val s3DeleteService: S3DeleteService,
 ) : DeleteMemberByEmailService {
-    private val log = LoggerFactory.getLogger(DeleteMemberByEmailServiceImpl::class.java)
-
     override fun execute(email: String) {
         transaction {
             val member =
                 memberExposedRepository.findByEmail(email)
                     ?: run {
-                        log.info("Member withdrawal failed: member not found. email={}", email)
+                        logger().info("Member withdrawal failed: member not found. email={}", email)
                         throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
                     }
-
             val scores = scoreExposedRepository.findAllByMemberId(member.id)
-
             if (scores.isNotEmpty()) {
                 val scoreIds = mutableListOf<Long>()
-
                 scores.forEach { score ->
                     val scoreId = score.id ?: return@forEach
                     scoreIds += scoreId
-
                     score.sourceId?.let { sourceId ->
                         when (score.categoryType.evidenceType) {
                             EvidenceType.EVIDENCE -> {
@@ -67,15 +61,12 @@ class DeleteMemberByEmailServiceImpl(
                 }
                 scoreExposedRepository.deleteAllByIdIn(scoreIds)
             }
-
             val deleted = memberExposedRepository.deleteMemberByEmail(email)
-
             if (deleted == 0) {
-                log.warn("Member withdrawal failed unexpectedly after it was found. email={}", email)
+                logger().warn("Member withdrawal failed unexpectedly after it was found. email={}", email)
                 throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
             }
         }
-
-        log.info("Member withdrawn successfully. email={}", email)
+        logger().info("Member withdrawn successfully. email={}", email)
     }
 }
