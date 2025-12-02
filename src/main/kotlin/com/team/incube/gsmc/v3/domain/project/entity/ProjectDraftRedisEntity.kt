@@ -7,8 +7,8 @@ import org.springframework.data.redis.core.RedisHash
 data class ProjectDraftRedisEntity(
     @Id
     val memberId: Long,
-    val title: String,
-    val description: String,
-    val fileIds: List<Long>,
-    val participantIds: List<Long>,
+    val title: String = "",
+    val description: String = "",
+    val fileIds: List<Long> = emptyList(),
+    val participantIds: List<Long> = emptyList(),
 )
