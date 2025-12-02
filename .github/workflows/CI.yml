@@ -11,8 +11,8 @@ on:
       - develop
 
 jobs:
-  Code-Format:
-    name: Code Format
+  Code-Formatting:
+    name: Code Formatting
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -24,8 +24,8 @@ jobs:
           reporter: github-pr-check
           name: Code Format Report
 
-  Test-And-Coverage:
-    name: Test and Coverage
+  Unit-Test-And-Coverage:
+    name: Unit Test & Coverage
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
@@ -59,9 +59,9 @@ jobs:
           name: jacoco-coverage
           path: .qodana/code-coverage
 
-  Qodana-Code-Quality-Scan:
-    name: Qodana Code Quality Scan
-    needs: Test-And-Coverage
+  Qodana-Code-Quality-Scanning:
+    name: Qodana Code Quality Scanning
+    needs: Unit-Test-And-Coverage
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment: CI
