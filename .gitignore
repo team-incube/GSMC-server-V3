@@ -49,7 +49,7 @@ out/
 
 ### Develop ###
 /src/main/resources/data.sql
-docs
+docs/
 
 ### Claude Code ###
 .claude/settings.local.json
