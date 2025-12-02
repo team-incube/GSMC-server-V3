@@ -3,7 +3,7 @@ package com.team.incube.gsmc.v3.domain.evidence.service.impl
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvidenceDraftResponse
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceDraftRedisRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.FindMyEvidenceDraftService
-import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -24,9 +24,9 @@ class FindMyEvidenceDraftServiceImpl(
                 if (draftEntity.fileIds.isNotEmpty()) {
                     val foundFiles = fileExposedRepository.findAllByIdIn(draftEntity.fileIds)
                     foundFiles.map { file ->
-                        FileItem(
+                        GetFileResponse(
                             id = file.id,
-                            member = file.member,
+                            memberId = file.member,
                             originalName = file.originalName,
                             storeName = file.storeName,
                             uri = file.uri,

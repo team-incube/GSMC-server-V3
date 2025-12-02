@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.project.service.impl
 
-import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectDraftResponse
@@ -26,9 +26,9 @@ class FindMyProjectDraftServiceImpl(
                 if (draftEntity.fileIds.isNotEmpty()) {
                     val foundFiles = fileExposedRepository.findAllByIdIn(draftEntity.fileIds)
                     foundFiles.map { file ->
-                        FileItem(
+                        GetFileResponse(
                             id = file.id,
-                            member = file.member,
+                            memberId = file.member,
                             originalName = file.originalName,
                             storeName = file.storeName,
                             uri = file.uri,

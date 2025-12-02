@@ -1,9 +1,11 @@
 package com.team.incube.gsmc.v3.domain.file.presentation
 
 import com.team.incube.gsmc.v3.domain.file.presentation.data.response.CreateFileResponse
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetMyFilesResponse
 import com.team.incube.gsmc.v3.domain.file.service.CreateFileService
 import com.team.incube.gsmc.v3.domain.file.service.DeleteFileService
+import com.team.incube.gsmc.v3.domain.file.service.FindFileByIdService
 import com.team.incube.gsmc.v3.domain.file.service.FindMyFilesService
 import com.team.incube.gsmc.v3.domain.file.service.FindMyUnusedFilesService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
@@ -28,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile
 class FileController(
     private val createFileService: CreateFileService,
     private val deleteFileService: DeleteFileService,
+    private val findFileByIdService: FindFileByIdService,
     private val findMyFilesService: FindMyFilesService,
     private val findMyUnusedFilesService: FindMyUnusedFilesService,
 ) {
@@ -63,6 +66,31 @@ class FileController(
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/my")
     fun getMyFiles(): GetMyFilesResponse = findMyFilesService.execute()
+
+    @Operation(summary = "파일 단건 조회", description = "파일 ID로 파일 정보를 조회합니다. 파일 소유자만 조회할 수 있습니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "파일 조회 성공",
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "파일에 대한 접근 권한이 없음",
+                content = [Content()],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "해당하는 파일이 없음",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/{fileId}")
+    fun getFileById(
+        @PathVariable fileId: Long,
+    ): GetFileResponse = findFileByIdService.execute(fileId = fileId)
 
     @Operation(summary = "미사용 파일 목록 조회", description = "현재 인증된 사용자가 소유하고 있지만 어디에도 사용되지 않는 파일 목록을 조회합니다")
     @ApiResponses(

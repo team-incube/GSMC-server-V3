@@ -4,6 +4,7 @@ import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.dto.constant.SortDirection
 import com.team.incube.gsmc.v3.domain.member.presentation.data.response.GetMemberResponse
 import com.team.incube.gsmc.v3.domain.member.presentation.data.response.SearchMemberResponse
+import com.team.incube.gsmc.v3.domain.member.service.FindMemberByIdService
 import com.team.incube.gsmc.v3.domain.member.service.FindMyMemberService
 import com.team.incube.gsmc.v3.domain.member.service.SearchMemberService
 import io.swagger.v3.oas.annotations.Operation
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.data.domain.PageRequest
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v3/members")
 class MemberController(
     private val searchMemberService: SearchMemberService,
+    private val findMemberByIdService: FindMemberByIdService,
     private val findMyMemberService: FindMyMemberService,
 ) {
     @Operation(
@@ -81,4 +84,27 @@ class MemberController(
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/current")
     fun getCurrentMember(): GetMemberResponse = findMyMemberService.execute()
+
+    @Operation(
+        summary = "사용자 단건 조회",
+        description = "사용자 ID로 특정 사용자의 정보를 조회합니다",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "사용자 정보 조회 성공",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "사용자를 찾을 수 없음",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/{memberId}")
+    fun getMemberById(
+        @PathVariable memberId: Long,
+    ): GetMemberResponse = findMemberByIdService.execute(memberId = memberId)
 }

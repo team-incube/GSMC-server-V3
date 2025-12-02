@@ -3,7 +3,7 @@ package com.team.incube.gsmc.v3.domain.evidence.service.impl
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvidenceResponse
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.FindEvidenceByIdService
-import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -27,12 +27,12 @@ class FindEvidenceByIdServiceImpl(
                 updatedAt = evidence.updatedAt,
                 files =
                     evidence.files.map { file ->
-                        FileItem(
+                        GetFileResponse(
                             id = file.id,
                             originalName = file.originalName,
                             storeName = file.storeName,
                             uri = file.uri,
-                            member = file.member,
+                            memberId = file.member,
                         )
                     },
             )

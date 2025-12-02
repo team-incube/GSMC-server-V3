@@ -92,6 +92,94 @@ Based on HTTP method and operation:
 
 Example: `GetCertificatesResponse`, `CreateScoreRequest`
 
+#### DTO Role-Based Naming and Location Rules
+
+##### 1. Nested DTO - `{Domain}Item`
+**Purpose**: DTOs used only as fields within other Request/Response DTOs
+
+- **Naming**: `{Domain}Item`
+- **Location**: `presentation/data/dto/`
+- **Usage Example**:
+```kotlin
+// presentation/data/dto/FileItem.kt
+data class FileItem(
+    val id: Long,
+    val member: Long,
+    val originalName: String,
+    ...
+)
+
+// presentation/data/response/GetEvidenceResponse.kt
+data class GetEvidenceResponse(
+    val evidenceId: Long,
+    val title: String,
+    val files: List<FileItem>,  // Used as nested DTO
+    ...
+)
+```
+
+##### 2. Direct Request/Response DTO - Standard Naming
+**Purpose**: DTOs directly returned/received by API endpoints
+
+- **Naming**: `Get{Domain}Response`, `Create{Domain}Request`, etc.
+- **Location**: `presentation/data/response/` or `presentation/data/request/`
+- **Usage Example**:
+```kotlin
+// presentation/data/response/GetFileResponse.kt
+data class GetFileResponse(
+    val id: Long,
+    val memberId: Long,
+    val originalName: String,
+    ...
+)
+
+// Used directly in Controller
+@GetMapping("/{fileId}")
+fun getFileById(@PathVariable fileId: Long): GetFileResponse
+```
+
+##### 3. DTO Role Migration Rules
+When a nested DTO needs to be used directly in API endpoints, follow these steps:
+
+**Step 1: Rename**
+- `{Domain}Item` → `Get{Domain}Response`
+
+**Step 2: Relocate**
+- `presentation/data/dto/` → `presentation/data/response/`
+
+**Step 3: Replace All Usages**
+- Delete the original `{Domain}Item` file
+- Replace all usages with the new `Get{Domain}Response`
+- Update field names if different (e.g., `member` → `memberId`)
+- Update all import statements
+
+**Migration Example**:
+```kotlin
+// Before: FileItem (nested DTO)
+// presentation/data/dto/FileItem.kt
+data class FileItem(...)
+
+// Used in other Response
+data class GetEvidenceResponse(
+    val files: List<FileItem>
+)
+
+// After: GetFileResponse (promoted to direct response DTO)
+// presentation/data/response/GetFileResponse.kt
+data class GetFileResponse(...)
+
+// 1. Can be used directly in Controller
+@GetMapping("/{fileId}")
+fun getFileById(@PathVariable fileId: Long): GetFileResponse
+
+// 2. Still usable in other Responses
+data class GetEvidenceResponse(
+    val files: List<GetFileResponse>  // FileItem → GetFileResponse
+)
+```
+
+**Important**: These rules ensure clear DTO roles and maintain API design consistency.
+
 ### Controller Parameter Naming
 ```kotlin
 @PostMapping("/example")

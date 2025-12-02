@@ -70,21 +70,21 @@ class FindMyFilesServiceTest :
                 listOf(
                     File(
                         id = 1L,
-                        member = userId,
+                        memberId = userId,
                         originalName = "document1.pdf",
                         storeName = "20251125120000_abc123.pdf",
                         uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/file1.pdf",
                     ),
                     File(
                         id = 2L,
-                        member = userId,
+                        memberId = userId,
                         originalName = "image1.jpg",
                         storeName = "20251125120001_def456.jpg",
                         uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/file2.jpg",
                     ),
                     File(
                         id = 3L,
-                        member = userId,
+                        memberId = userId,
                         originalName = "spreadsheet1.xlsx",
                         storeName = "20251125120002_ghi789.xlsx",
                         uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/file3.xlsx",
@@ -111,9 +111,9 @@ class FindMyFilesServiceTest :
                 Then("반환된 파일들이 올바른 정보를 포함해야 한다") {
                     val expectedFileItems =
                         mockFiles.map { file ->
-                            com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem(
+                            com.team.incube.gsmc.v3.domain.file.presentation.data.dto.GetFileResponse(
                                 id = file.id,
-                                member = file.member,
+                                memberId = file.member,
                                 originalName = file.originalName,
                                 storeName = file.storeName,
                                 uri = file.uri,
@@ -150,7 +150,7 @@ class FindMyFilesServiceTest :
                 listOf(
                     File(
                         id = 1L,
-                        member = userId,
+                        memberId = userId,
                         originalName = "single-file.pdf",
                         storeName = "20251125120000_single.pdf",
                         uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/single.pdf",
@@ -165,9 +165,9 @@ class FindMyFilesServiceTest :
                 Then("단일 파일이 반환되어야 한다") {
                     val expectedFileItems =
                         mockFiles.map { file ->
-                            com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem(
+                            com.team.incube.gsmc.v3.domain.file.presentation.data.dto.GetFileResponse(
                                 id = file.id,
-                                member = file.member,
+                                memberId = file.member,
                                 originalName = file.originalName,
                                 storeName = file.storeName,
                                 uri = file.uri,

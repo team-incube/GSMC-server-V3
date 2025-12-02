@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.project.service.impl
 
-import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectResponse
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.project.service.CreateProjectService
@@ -34,9 +34,9 @@ class CreateProjectServiceImpl(
             val scoreIds = projectExposedRepository.findScoreIdsByProjectId(project.id!!)
             val fileItems =
                 project.files.map { file ->
-                    FileItem(
+                    GetFileResponse(
                         id = file.id,
-                        member = file.member,
+                        memberId = file.member,
                         originalName = file.originalName,
                         storeName = file.storeName,
                         uri = file.uri,
