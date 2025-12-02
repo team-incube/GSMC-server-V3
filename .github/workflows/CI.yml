@@ -11,8 +11,8 @@ on:
       - develop
 
 jobs:
-  Code-Format:
-    name: Code Format
+  Code-Formatting:
+    name: Code Formatting
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -23,8 +23,45 @@ jobs:
           github_token: ${{ github.token }}
           reporter: github-pr-check
           name: Code Format Report
-  Qodana-Code-Quality-Scan:
-    name: Qodana Code Quality Scan
+
+  Unit-Test-And-Coverage:
+    name: Unit Test & Coverage
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+            fetch-depth: 0
+
+      - name: Set up JDK 24
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '24'
+          cache: gradle
+      - name: Make Gradle Executable
+        run: chmod +x ./gradlew
+
+      - name: Create Coverage Directory
+        run: mkdir -p .qodana/code-coverage
+
+      - name: Run Tests With Jacoco
+        run: ./gradlew test
+
+      - name: Archive Jacoco Coverage
+        uses: actions/upload-artifact@v5
+        with:
+          name: jacoco-coverage
+          path: .qodana/code-coverage
+
+  Qodana-Code-Quality-Scanning:
+    name: Qodana Code Quality Scanning
+    needs: Unit-Test-And-Coverage
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment: CI
@@ -36,6 +73,11 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+      - name: Download Coverage Data
+        uses: actions/download-artifact@v6.0.0
+        with:
+          name: jacoco-coverage
+          path: .qodana/code-coverage
       - name: Qodana Scan
         uses: JetBrains/qodana-action@v2025.2
         env:

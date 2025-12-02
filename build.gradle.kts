@@ -8,6 +8,7 @@ plugins {
     id(plugin.Plugins.KOTLIN_ALLOPEN) version plugin.PluginVersions.KOTLIN_VERSION
     id(plugin.Plugins.KOTEST) version plugin.PluginVersions.KOTEST_VERSION
     id(plugin.Plugins.KTLINT) version plugin.PluginVersions.KTLINT_VERSION
+    jacoco
     idea
 }
 
@@ -106,8 +107,40 @@ kotlin {
     }
 }
 
-tasks.withType<Test> {
+jacoco {
+    toolVersion = "0.8.10"
+    reportsDirectory.set(file("$rootDir/.qodana/code-coverage"))
+}
+
+tasks.test {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        html.required.set(false)
+    }
+
+    finalizedBy(tasks.jacocoTestCoverageVerification)
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            enabled = true
+            element = "CLASS"
+
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = "0.00".toBigDecimal()
+            }
+
+            excludes = listOf()
+        }
+    }
 }
 
 idea {
