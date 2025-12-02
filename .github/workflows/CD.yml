@@ -30,7 +30,7 @@ jobs:
         run: |
           rm -f src/main/resources/application-*.yaml
           rm -f src/main/resources/application.yaml
-      - name: Create Dev Profile File # 프로필 파일 이름은 'prod' 대신 'dev'에 맞게 수정
+      - name: Create Dev Profile File 
         run: |
           cat <<'EOF' > ./src/main/resources/application-prod.yml # 내용은 secrets에서 받아오므로 파일명은 유지
           ${{ secrets.DEV_APPLICATION_YAML }}
