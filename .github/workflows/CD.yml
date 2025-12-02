@@ -1,7 +1,7 @@
-name: GSMC-Dev-CD
+name: GSMC-CD
 on:
   push:
-    branches: [ "fix/cd-test" ] 
+    branches: [ "fix/cd-test" ]
   workflow_dispatch:
 jobs:
   test:
@@ -18,6 +18,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
       - name: Run KtLint Check
         run: ./gradlew ktlintCheck
+      - name: Run Unit Tests
+        run: ./gradlew test
   deploy:
     runs-on: ubuntu-latest
     environment: Dev-CD
@@ -25,18 +27,16 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
-      
       - name: Remove Existing Profile File
         run: |
           rm -f src/main/resources/application-*.yaml
           rm -f src/main/resources/application.yaml
-      - name: Create Dev Profile File 
+      - name: Create Prod Profile File
         run: |
-          cat <<'EOF' > ./src/main/resources/application-prod.yml # 내용은 secrets에서 받아오므로 파일명은 유지
+          cat <<'EOF' > ./src/main/resources/application-prod.yml
           ${{ secrets.DEV_APPLICATION_YAML }}
           EOF
         shell: bash
-      
       - name: Setup JDK 24
         uses: actions/setup-java@v5
         with:
@@ -44,20 +44,45 @@ jobs:
           distribution: temurin
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
-        
-      - name: Build with Gradle 
-        run: ./gradlew --build-cache clean build -x test -x check
-        
-      - name: Deploy to Dev Server 
-        uses: 8G4B/GSM-SV-Deploy@v1.2.1
+      - name: Build Spring Boot Jar
+        run: ./gradlew --build-cache clean bootJar -x check
+      - name: Deploy to EC2
+        uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SERVER_HOST }}
-          target_path: /home/ubuntu/gsmc-dev
-          user: ${{ secrets.SERVER_USER }}
+          username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
-      
-          
+          source: "build/libs/*.jar"
+          target: "/home/ubuntu/gsmc-dev/app"
+      - name: Restart Spring Boot on EC2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            TARGET_DIR="/home/ubuntu/gsmc-dev"
+            PID_FILE="$TARGET_DIR/app.pid"
+            JAR_NAME=$(ls $TARGET_DIR/app/*.jar | head -1)
+
+            if [ -f "$PID_FILE" ]; then
+              PID=$(cat "$PID_FILE")
+              if kill -0 $PID 2> /dev/null; then
+                echo "PID $PID 발견. 프로세스 종료 시도..."
+                kill -9 $PID
+                sleep 5
+              fi
+              rm -f "$PID_FILE"
+            fi
+
+            echo "새로운 JAR ($JAR_NAME) 실행 시도..."
+            nohup java -jar $JAR_NAME \
+              --spring.profiles.active=prod \
+              > $TARGET_DIR/app.log 2>&1 &
+            
+            echo $! > "$PID_FILE"
       - name: CD Success Notification
         uses: sarisia/actions-status-discord@v1
         if: success()
