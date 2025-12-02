@@ -280,7 +280,7 @@ interface ScoreExposedRepository {
 ```kotlin
 // Certificate creation - file uploaded first
 createCertificateScore(
-    value = "정보처리기능사",
+    activityName = "정보처리기능사",
     fileId = 123  // sourceId = fileId
 )
 ```
@@ -323,6 +323,10 @@ createEvidence(
 // Valid: Different sourceIds
 (member=1, category=CERTIFICATE, sourceId=1) ✓
 (member=1, category=CERTIFICATE, sourceId=2) ✓
+
+// Valid: sourceId is NULL (MySQL treats each NULL as distinct in UNIQUE constraint)
+(member=1, category=PROJECT_PARTICIPATION, sourceId=NULL) ✓
+(member=1, category=PROJECT_PARTICIPATION, sourceId=NULL) ✓
 
 // Invalid: Same sourceId
 (member=1, category=CERTIFICATE, sourceId=1) ✓
