@@ -7,7 +7,7 @@ import org.springframework.data.redis.core.RedisHash
 data class EvidenceDraftRedisEntity(
     @Id
     val memberId: Long,
-    val title: String,
-    val content: String,
-    val fileIds: List<Long>,
+    val title: String = "",
+    val content: String = "",
+    val fileIds: List<Long> = emptyList(),
 )
