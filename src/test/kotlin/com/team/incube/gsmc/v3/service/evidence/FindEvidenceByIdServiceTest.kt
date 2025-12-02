@@ -5,7 +5,7 @@ import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvi
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.impl.FindEvidenceByIdServiceImpl
 import com.team.incube.gsmc.v3.domain.file.dto.File
-import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import io.kotest.assertions.throwables.shouldThrow
@@ -48,8 +48,9 @@ class FindEvidenceByIdServiceTest :
             val c = ctx()
             val id = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val files = listOf(File(id = 10, member = 0L, originalName = "a.pdf", storeName = "sa.pdf", uri = "uri-a"))
-            val evidence = Evidence(id, member = 0L, title = "title", content = "content", createdAt = now, updatedAt = now, files = files)
+            val files = listOf(File(id = 10, memberId = 0L, originalName = "a.pdf", storeName = "sa.pdf", uri = "uri-a"))
+            val evidence =
+                Evidence(id, memberId = 0L, title = "title", content = "content", createdAt = now, updatedAt = now, files = files)
             every { c.repo.findById(id) } returns evidence
 
             When("execute를 호출하면") {
@@ -62,7 +63,7 @@ class FindEvidenceByIdServiceTest :
                     res.content shouldBe "content"
                     res.createdAt shouldBe now
                     res.updatedAt shouldBe now
-                    res.files shouldBe listOf(FileItem(10, 0L, "a.pdf", "sa.pdf", "uri-a"))
+                    res.files shouldBe listOf(GetFileResponse(10, 0L, "a.pdf", "sa.pdf", "uri-a"))
                 }
 
                 Then("리포지토리에서 1회 조회된다") {
