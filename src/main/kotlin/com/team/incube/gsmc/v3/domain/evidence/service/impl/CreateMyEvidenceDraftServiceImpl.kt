@@ -5,7 +5,7 @@ import com.team.incube.gsmc.v3.domain.evidence.presentation.data.request.CreateE
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvidenceDraftResponse
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceDraftRedisRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.CreateMyEvidenceDraftService
-import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
@@ -29,9 +29,9 @@ class CreateMyEvidenceDraftServiceImpl(
                         throw GsmcException(ErrorCode.FILE_NOT_FOUND)
                     }
                     foundFiles.map { file ->
-                        FileItem(
+                        GetFileResponse(
                             id = file.id,
-                            member = file.member,
+                            memberId = file.member,
                             originalName = file.originalName,
                             storeName = file.storeName,
                             uri = file.uri,

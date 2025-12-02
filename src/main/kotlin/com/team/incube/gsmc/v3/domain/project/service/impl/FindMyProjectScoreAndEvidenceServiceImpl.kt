@@ -3,7 +3,7 @@ package com.team.incube.gsmc.v3.domain.project.service.impl
 import com.team.incube.gsmc.v3.domain.category.constant.EvidenceType
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvidenceResponse
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
-import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.project.presentation.data.dto.ProjectParticipationScoreInfo
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetMyProjectScoreAndEvidenceResponse
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
@@ -79,12 +79,12 @@ class FindMyProjectScoreAndEvidenceServiceImpl(
                                 updatedAt = evidence.updatedAt,
                                 files =
                                     evidence.files.map { file ->
-                                        FileItem(
+                                        GetFileResponse(
                                             id = file.id,
                                             originalName = file.originalName,
                                             storeName = file.storeName,
                                             uri = file.uri,
-                                            member = file.member,
+                                            memberId = file.member,
                                         )
                                     },
                             )

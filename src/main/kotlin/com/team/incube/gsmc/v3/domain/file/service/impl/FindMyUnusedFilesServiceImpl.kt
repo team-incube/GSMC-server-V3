@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.file.service.impl
 
-import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetMyFilesResponse
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.file.service.FindMyUnusedFilesService
@@ -22,12 +22,12 @@ class FindMyUnusedFilesServiceImpl(
             GetMyFilesResponse(
                 files =
                     unusedFiles.map { file ->
-                        FileItem(
+                        GetFileResponse(
                             id = file.id,
                             originalName = file.originalName,
                             storeName = file.storeName,
                             uri = file.uri,
-                            member = file.member,
+                            memberId = file.member,
                         )
                     },
             )

@@ -3,7 +3,7 @@ package com.team.incube.gsmc.v3.domain.score.service.impl
 import com.team.incube.gsmc.v3.domain.category.constant.EvidenceType
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvidenceResponse
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
-import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.CategoryNames
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetScoreResponse
@@ -39,12 +39,12 @@ class FindScoreByScoreIdServiceImpl(
                                 updatedAt = evidenceDto.updatedAt,
                                 files =
                                     evidenceDto.files.map { file ->
-                                        FileItem(
+                                        GetFileResponse(
                                             id = file.id,
                                             originalName = file.originalName,
                                             storeName = file.storeName,
                                             uri = file.uri,
-                                            member = file.member,
+                                            memberId = file.member,
                                         )
                                     },
                             )
@@ -56,12 +56,12 @@ class FindScoreByScoreIdServiceImpl(
                     ?.takeIf { score.categoryType.evidenceType == EvidenceType.FILE }
                     ?.let { sourceId ->
                         fileExposedRepository.findById(sourceId)?.let { fileDto ->
-                            FileItem(
+                            GetFileResponse(
                                 id = fileDto.id,
                                 originalName = fileDto.originalName,
                                 storeName = fileDto.storeName,
                                 uri = fileDto.uri,
-                                member = fileDto.member,
+                                memberId = fileDto.member,
                             )
                         }
                     }
