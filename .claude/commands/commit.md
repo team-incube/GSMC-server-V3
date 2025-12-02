@@ -3,7 +3,7 @@ description: Create Git commits by splitting changes into logical units
 ---
 
 Create Git commits following these rules:
-- Follow commit message conventions (add/update/fix/delete/docs/test/merge)
+- Follow commit message conventions (add/update/fix/delete/docs/test/merge/init)
 - Use subject line only (no commit body)
 - Do NOT add Claude as co-author
 - Split changes into appropriate logical units with multiple commits
