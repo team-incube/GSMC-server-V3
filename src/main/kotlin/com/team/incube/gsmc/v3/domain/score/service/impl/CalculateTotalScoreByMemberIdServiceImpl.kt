@@ -6,8 +6,8 @@ import com.team.incube.gsmc.v3.domain.score.calculator.ScoreCalculatorFactory
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreByMemberIdService
-import com.team.incube.gsmc.v3.global.exception.ErrorCode
-import com.team.incube.gsmc.v3.global.exception.GsmcException
+import com.team.incube.gsmc.v3.global.common.error.ErrorCode
+import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.stereotype.Service
 
