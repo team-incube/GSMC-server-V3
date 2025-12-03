@@ -14,6 +14,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetScoreR
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetScoresByCategoryResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
 import com.team.incube.gsmc.v3.domain.score.service.ApproveScoreService
+import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreByMemberIdService
 import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateAcademicGradeScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateAwardScoreService
@@ -82,6 +83,7 @@ class ScoreController(
     private val updateAwardScoreService: UpdateAwardScoreService,
     private val updateExternalActivityScoreService: UpdateExternalActivityScoreService,
     private val calculateTotalScoreService: CalculateTotalScoreService,
+    private val calculateTotalScoreByMemberIdService: CalculateTotalScoreByMemberIdService,
     private val findMyScoresService: FindMyScoresService,
     private val findScoreByScoreIdService: FindScoreByScoreIdService,
     private val findScoresByCategoryService: FindScoresByCategoryService,
@@ -631,6 +633,35 @@ class ScoreController(
             required = false,
         ) includeApprovedOnly: Boolean,
     ): GetTotalScoreResponse = calculateTotalScoreService.execute(includeApprovedOnly = includeApprovedOnly)
+
+    @Operation(summary = "특정 사용자의 총점 조회", description = "특정 사용자의 인증제 총점을 조회합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 사용자를 매핑함",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/total/{memberId}")
+    fun getTotalScoreByMemberId(
+        @PathVariable memberId: Long,
+        @RequestParam(
+            name = "includeApprovedOnly",
+            defaultValue = "true",
+            required = false,
+        ) includeApprovedOnly: Boolean,
+    ): GetTotalScoreResponse =
+        calculateTotalScoreByMemberIdService.execute(
+            memberId = memberId,
+            includeApprovedOnly = includeApprovedOnly,
+        )
 
     @Operation(summary = "자격증 점수 수정", description = "자격증 점수의 활동명과 증빙 파일을 수정합니다")
     @ApiResponses(
