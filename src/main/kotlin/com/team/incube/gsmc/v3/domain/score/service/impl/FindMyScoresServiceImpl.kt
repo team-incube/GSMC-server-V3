@@ -8,7 +8,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetMyScor
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.FindMyScoresService
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.stereotype.Service
 
 @Service
