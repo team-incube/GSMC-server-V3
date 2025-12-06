@@ -1,7 +1,7 @@
 package com.team.incube.gsmc.v3.domain.project.entity
 
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.Table
 
 object ProjectParticipantExposedEntity : Table(name = "tb_project_participant") {
     val project = long(name = "project_id").references(ProjectExposedEntity.id)

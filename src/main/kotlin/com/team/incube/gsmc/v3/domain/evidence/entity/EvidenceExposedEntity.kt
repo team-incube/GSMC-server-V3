@@ -1,8 +1,8 @@
 package com.team.incube.gsmc.v3.domain.evidence.entity
 
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.javatime.timestamp
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.javatime.timestamp
 import java.time.Instant
 
 object EvidenceExposedEntity : Table(name = "tb_evidence") {

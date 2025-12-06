@@ -3,8 +3,8 @@ package com.team.incube.gsmc.v3.domain.alert.entity
 import com.team.incube.gsmc.v3.domain.alert.dto.constant.AlertType
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
 import com.team.incube.gsmc.v3.domain.score.entity.ScoreExposedEntity
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.javatime.timestamp
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.javatime.timestamp
 import java.time.Instant
 
 object AlertExposedEntity : Table(name = "tb_alert") {

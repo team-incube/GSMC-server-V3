@@ -1,7 +1,7 @@
 package com.team.incube.gsmc.v3.domain.member.entity
 
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.Table
 
 object MemberExposedEntity : Table(name = "tb_member") {
     val id = long(name = "member_id").autoIncrement()

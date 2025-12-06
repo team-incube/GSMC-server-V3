@@ -1,7 +1,7 @@
 package com.team.incube.gsmc.v3.domain.file.entity
 
 import com.team.incube.gsmc.v3.domain.evidence.entity.EvidenceExposedEntity
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.Table
 
 object EvidenceFileExposedEntity : Table(name = "tb_evidence_file") {
     val evidence = long(name = "evidence_id").references(EvidenceExposedEntity.id)

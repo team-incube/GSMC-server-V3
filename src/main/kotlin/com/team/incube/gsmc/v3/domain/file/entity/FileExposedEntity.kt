@@ -1,7 +1,7 @@
 package com.team.incube.gsmc.v3.domain.file.entity
 
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.Table
 
 object FileExposedEntity : Table(name = "tb_file") {
     val id = long(name = "file_id").autoIncrement()
