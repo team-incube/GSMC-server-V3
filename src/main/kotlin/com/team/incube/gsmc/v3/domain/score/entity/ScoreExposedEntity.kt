@@ -2,7 +2,7 @@ package com.team.incube.gsmc.v3.domain.score.entity
 
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.Table
 
 object ScoreExposedEntity : Table(name = "tb_score") {
     val id = long(name = "score_id").autoIncrement()

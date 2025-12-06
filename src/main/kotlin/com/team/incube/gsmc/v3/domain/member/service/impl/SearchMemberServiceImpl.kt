@@ -6,7 +6,7 @@ import com.team.incube.gsmc.v3.domain.member.presentation.data.response.GetMembe
 import com.team.incube.gsmc.v3.domain.member.presentation.data.response.SearchMemberResponse
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.member.service.SearchMemberService
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 

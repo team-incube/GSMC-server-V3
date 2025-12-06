@@ -6,7 +6,7 @@ import com.team.incube.gsmc.v3.domain.evidence.service.FindMyEvidenceDraftServic
 import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.stereotype.Service
 
 @Service

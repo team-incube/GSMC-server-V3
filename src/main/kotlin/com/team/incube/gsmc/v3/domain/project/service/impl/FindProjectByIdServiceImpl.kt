@@ -6,7 +6,7 @@ import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepositor
 import com.team.incube.gsmc.v3.domain.project.service.FindProjectByIdService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.stereotype.Service
 
 @Service

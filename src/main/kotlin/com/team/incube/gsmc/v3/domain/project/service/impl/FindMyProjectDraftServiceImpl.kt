@@ -7,7 +7,7 @@ import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProj
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectDraftRedisRepository
 import com.team.incube.gsmc.v3.domain.project.service.FindMyProjectDraftService
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.stereotype.Service
 
 @Service

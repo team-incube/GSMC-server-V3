@@ -4,7 +4,7 @@ import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.DeleteIncompleteScoresService
 import com.team.incube.gsmc.v3.global.config.logger
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.stereotype.Service
 
 @Service

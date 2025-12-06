@@ -12,7 +12,9 @@ class CurrentMemberProvider(
     private val memberExposedRepository: MemberExposedRepository,
 ) {
     fun getCurrentMember(): Member {
-        val principal = SecurityContextHolder.getContext().authentication.principal
+        val principal =
+            SecurityContextHolder.getContext().authentication?.principal
+                ?: throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
 
         if (principal is Long) {
             return memberExposedRepository.findById(principal)

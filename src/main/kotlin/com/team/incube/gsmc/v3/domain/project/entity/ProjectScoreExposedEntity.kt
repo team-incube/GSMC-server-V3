@@ -1,8 +1,8 @@
 package com.team.incube.gsmc.v3.domain.project.entity
 
 import com.team.incube.gsmc.v3.domain.score.entity.ScoreExposedEntity
-import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.ReferenceOption
+import org.jetbrains.exposed.v1.core.Table
 
 object ProjectScoreExposedEntity : Table(name = "tb_project_score") {
     val project =
