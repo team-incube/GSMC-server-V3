@@ -10,6 +10,8 @@ import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.entity.ScoreExposedEntity
 import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.Alias
+import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.and
@@ -39,61 +41,15 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
             }.selectAll()
             .where { AlertExposedEntity.id eq alertId }
             .limit(1)
-            .map { row ->
-                val sender =
-                    Member(
-                        id = row[senderAlias[MemberExposedEntity.id]],
-                        name = row[senderAlias[MemberExposedEntity.name]],
-                        email = row[senderAlias[MemberExposedEntity.email]],
-                        grade = row[senderAlias[MemberExposedEntity.grade]],
-                        classNumber = row[senderAlias[MemberExposedEntity.classNumber]],
-                        number = row[senderAlias[MemberExposedEntity.number]],
-                        role = row[senderAlias[MemberExposedEntity.role]],
-                    )
-
-                val receiver =
-                    Member(
-                        id = row[receiverAlias[MemberExposedEntity.id]],
-                        name = row[receiverAlias[MemberExposedEntity.name]],
-                        email = row[receiverAlias[MemberExposedEntity.email]],
-                        grade = row[receiverAlias[MemberExposedEntity.grade]],
-                        classNumber = row[receiverAlias[MemberExposedEntity.classNumber]],
-                        number = row[receiverAlias[MemberExposedEntity.number]],
-                        role = row[receiverAlias[MemberExposedEntity.role]],
-                    )
-
-                val score =
-                    Score(
-                        id = row[ScoreExposedEntity.id],
-                        member = receiver,
-                        categoryType = CategoryType.fromEnglishName(row[ScoreExposedEntity.categoryEnglishName]),
-                        status = row[ScoreExposedEntity.status],
-                        sourceId = row[ScoreExposedEntity.sourceId],
-                        activityName = row[ScoreExposedEntity.activityName],
-                        scoreValue = row[ScoreExposedEntity.scoreValue],
-                        rejectionReason = row[ScoreExposedEntity.rejectionReason],
-                    )
-
-                val createdAtInstant = row[AlertExposedEntity.createdAt]
-                val createdAt = LocalDateTime.ofInstant(createdAtInstant, ZoneId.systemDefault())
-
-                Alert(
-                    id = row[AlertExposedEntity.id],
-                    sender = sender,
-                    receiver = receiver,
-                    score = score,
-                    alertType = row[AlertExposedEntity.alertType],
-                    isRead = row[AlertExposedEntity.isRead],
-                    content = row[AlertExposedEntity.content],
-                    createdAt = createdAt,
-                )
-            }.firstOrNull()
+            .map { row -> row.toAlert(senderAlias, receiverAlias) }
+            .firstOrNull()
     }
 
-    override fun deleteById(alertId: Long): Int =
-        AlertExposedEntity.deleteWhere {
+    override fun deleteById(alertId: Long): Int {
+        return AlertExposedEntity.deleteWhere {
             AlertExposedEntity.id eq alertId
         }
+    }
 
     override fun findAllByReceiverId(receiverId: Long): List<Alert> {
         val senderAlias = MemberExposedEntity.alias("sender")
@@ -111,55 +67,8 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
             .orderBy(
                 AlertExposedEntity.createdAt to SortOrder.DESC,
                 AlertExposedEntity.id to SortOrder.DESC,
-            ).map { row ->
-                val sender =
-                    Member(
-                        id = row[senderAlias[MemberExposedEntity.id]],
-                        name = row[senderAlias[MemberExposedEntity.name]],
-                        email = row[senderAlias[MemberExposedEntity.email]],
-                        grade = row[senderAlias[MemberExposedEntity.grade]],
-                        classNumber = row[senderAlias[MemberExposedEntity.classNumber]],
-                        number = row[senderAlias[MemberExposedEntity.number]],
-                        role = row[senderAlias[MemberExposedEntity.role]],
-                    )
-
-                val receiver =
-                    Member(
-                        id = row[receiverAlias[MemberExposedEntity.id]],
-                        name = row[receiverAlias[MemberExposedEntity.name]],
-                        email = row[receiverAlias[MemberExposedEntity.email]],
-                        grade = row[receiverAlias[MemberExposedEntity.grade]],
-                        classNumber = row[receiverAlias[MemberExposedEntity.classNumber]],
-                        number = row[receiverAlias[MemberExposedEntity.number]],
-                        role = row[receiverAlias[MemberExposedEntity.role]],
-                    )
-
-                val score =
-                    Score(
-                        id = row[ScoreExposedEntity.id],
-                        member = receiver,
-                        categoryType = CategoryType.fromEnglishName(row[ScoreExposedEntity.categoryEnglishName]),
-                        status = row[ScoreExposedEntity.status],
-                        sourceId = row[ScoreExposedEntity.sourceId],
-                        activityName = row[ScoreExposedEntity.activityName],
-                        scoreValue = row[ScoreExposedEntity.scoreValue],
-                        rejectionReason = row[ScoreExposedEntity.rejectionReason],
-                    )
-
-                val createdAtInstant = row[AlertExposedEntity.createdAt]
-                val createdAt = LocalDateTime.ofInstant(createdAtInstant, ZoneId.systemDefault())
-
-                Alert(
-                    id = row[AlertExposedEntity.id],
-                    sender = sender,
-                    receiver = receiver,
-                    score = score,
-                    alertType = row[AlertExposedEntity.alertType],
-                    isRead = row[AlertExposedEntity.isRead],
-                    content = row[AlertExposedEntity.content],
-                    createdAt = createdAt,
-                )
-            }
+            )
+            .map { row -> row.toAlert(senderAlias, receiverAlias) }
     }
 
     override fun save(
@@ -204,4 +113,57 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
         }) {
             it[isRead] = true
         }
+
+    private fun ResultRow.toAlert(
+        senderAlias: Alias<MemberExposedEntity>,
+        receiverAlias: Alias<MemberExposedEntity>,
+    ): Alert {
+        val sender =
+            Member(
+                id = this[senderAlias[MemberExposedEntity.id]],
+                name = this[senderAlias[MemberExposedEntity.name]],
+                email = this[senderAlias[MemberExposedEntity.email]],
+                grade = this[senderAlias[MemberExposedEntity.grade]],
+                classNumber = this[senderAlias[MemberExposedEntity.classNumber]],
+                number = this[senderAlias[MemberExposedEntity.number]],
+                role = this[senderAlias[MemberExposedEntity.role]],
+            )
+
+        val receiver =
+            Member(
+                id = this[receiverAlias[MemberExposedEntity.id]],
+                name = this[receiverAlias[MemberExposedEntity.name]],
+                email = this[receiverAlias[MemberExposedEntity.email]],
+                grade = this[receiverAlias[MemberExposedEntity.grade]],
+                classNumber = this[receiverAlias[MemberExposedEntity.classNumber]],
+                number = this[receiverAlias[MemberExposedEntity.number]],
+                role = this[receiverAlias[MemberExposedEntity.role]],
+            )
+
+        val score =
+            Score(
+                id = this[ScoreExposedEntity.id],
+                member = receiver,
+                categoryType = CategoryType.fromEnglishName(this[ScoreExposedEntity.categoryEnglishName]),
+                status = this[ScoreExposedEntity.status],
+                sourceId = this[ScoreExposedEntity.sourceId],
+                activityName = this[ScoreExposedEntity.activityName],
+                scoreValue = this[ScoreExposedEntity.scoreValue],
+                rejectionReason = this[ScoreExposedEntity.rejectionReason],
+            )
+
+        val createdAtInstant = this[AlertExposedEntity.createdAt]
+        val createdAt = LocalDateTime.ofInstant(createdAtInstant, ZoneId.systemDefault())
+
+        return Alert(
+            id = this[AlertExposedEntity.id],
+            sender = sender,
+            receiver = receiver,
+            score = score,
+            alertType = this[AlertExposedEntity.alertType],
+            isRead = this[AlertExposedEntity.isRead],
+            content = this[AlertExposedEntity.content],
+            createdAt = createdAt,
+        )
+    }
 }
