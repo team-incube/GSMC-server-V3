@@ -1,11 +1,22 @@
-version: "3.9"
-
 services:
-  app:
-    image: 588738598492.dkr.ecr.ap-northeast-2.amazonaws.com/gsmc-ecr:latest
-    container_name: backend-app
+  mysql:
+    image: mysql:latest
+    env_file:
+      - .env.mysql
     ports:
-      - "8080:8080"
-    restart: always
+      - "3306:3306"
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  application:
+    image: ${ECR_REGISTRY}/gsmc-application:latest
     env_file:
       - .env
+    depends_on:
+      - mysql
+      - redis
+    ports:
+      - "8080:8080"

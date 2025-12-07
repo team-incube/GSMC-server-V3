@@ -6,16 +6,21 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
 
-      - name: Configure AWS Credentials
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: arn:aws:iam::588738598492:role/gsmc-github
           aws-region: ap-northeast-2
 
       - name: Login to Amazon ECR
@@ -29,11 +34,11 @@ jobs:
       - name: Tag Docker Image
         run: |
           docker tag gsmc-application:latest \
-            ${{ steps.login-ecr.outputs.registry }}/gsmc-application:latest
+            ${{ steps.login-ecr.outputs.registry }}/gsmc-ecr:latest
 
       - name: Push Docker Image to ECR
         run: |
-          docker push ${{ steps.login-ecr.outputs.registry }}/gsmc-application:latest
+          docker push ${{ steps.login-ecr.outputs.registry }}/gsmc-ecr:latest
 
       - name: Create appspec & scripts artifact
         run: |
