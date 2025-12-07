@@ -7,6 +7,9 @@ enum class ErrorCode(
     // Evidence
     EVIDENCE_NOT_FOUND("해당 증빙자료를 찾을 수 없습니다.", 404),
 
+    // Alert
+    ALERT_NOT_FOUND("해당 알림을 찾을 수 없습니다.", 404),
+
     // Score
     SCORE_NOT_FOUND("존재하지 않는 점수 객체입니다.", 404),
     SCORE_NOT_OWNED("해당 점수에 대한 소유권이 없습니다.", 403),
