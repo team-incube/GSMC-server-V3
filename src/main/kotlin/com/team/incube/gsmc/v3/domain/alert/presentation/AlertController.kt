@@ -69,9 +69,9 @@ class AlertController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @DeleteMapping("/{alert_id}")
+    @DeleteMapping("/{alertId}")
     fun deleteAlert(
-        @PathVariable("alert_id") alertId: Long,
+        @PathVariable alertId: Long,
     ): CommonApiResponse<Nothing> {
         deleteAlertService.execute(alertId)
         return CommonApiResponse.success("OK")
