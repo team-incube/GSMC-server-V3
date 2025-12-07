@@ -48,13 +48,15 @@ dependencies {
 
     // Spring Data
     implementation(dependency.Dependencies.SPRING_DATA_REDIS)
+    implementation(dependency.Dependencies.SPRING_JDBC)
 
     // Exposed ORM
     implementation(dependency.Dependencies.EXPOSED_CORE)
     implementation(dependency.Dependencies.EXPOSED_DAO)
     implementation(dependency.Dependencies.EXPOSED_JDBC)
     implementation(dependency.Dependencies.EXPOSED_JAVA_TIME)
-    implementation(dependency.Dependencies.EXPOSED_SPRING_BOOT)
+    implementation(dependency.Dependencies.EXPOSED_TRANSCTION)
+    // implementation(dependency.Dependencies.EXPOSED_SPRING_BOOT)
 
     // HikariCP
     implementation(dependency.Dependencies.HIKARI_CP)

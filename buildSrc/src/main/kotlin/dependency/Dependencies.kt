@@ -11,12 +11,14 @@ object Dependencies {
     /* Spring Data */
     const val SPRING_DATA_JPA = "org.springframework.boot:spring-boot-starter-data-jpa"
     const val SPRING_DATA_REDIS = "org.springframework.boot:spring-boot-starter-data-redis"
+    const val SPRING_JDBC = "org.springframework.boot:spring-boot-starter-jdbc"
 
     /* Exposed ORM */
     const val EXPOSED_CORE = "org.jetbrains.exposed:exposed-core:${DependencyVersions.EXPOSED_VERSION}"
     const val EXPOSED_DAO = "org.jetbrains.exposed:exposed-dao:${DependencyVersions.EXPOSED_VERSION}"
     const val EXPOSED_JDBC = "org.jetbrains.exposed:exposed-jdbc:${DependencyVersions.EXPOSED_VERSION}"
     const val EXPOSED_JAVA_TIME = "org.jetbrains.exposed:exposed-java-time:${DependencyVersions.EXPOSED_VERSION}"
+    const val EXPOSED_TRANSCTION = "org.jetbrains.exposed:spring-transaction:${DependencyVersions.EXPOSED_VERSION}"
     const val EXPOSED_SPRING_BOOT = "org.jetbrains.exposed:exposed-spring-boot-starter:${DependencyVersions.EXPOSED_VERSION}"
 
     /* HikariCP */
