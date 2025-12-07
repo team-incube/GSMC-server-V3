@@ -6,6 +6,10 @@ import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 
 interface AlertExposedRepository {
+    fun findById(alertId: Long): Alert?
+
+    fun deleteById(alertId: Long): Int
+
     fun findAllByReceiverId(receiverId: Long): List<Alert>
 
     fun save(
