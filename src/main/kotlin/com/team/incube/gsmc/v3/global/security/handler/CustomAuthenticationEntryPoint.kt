@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.global.security.handler
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
