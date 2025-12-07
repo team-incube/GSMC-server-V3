@@ -27,6 +27,10 @@ tasks.jar {
     enabled = false
 }
 
+tasks.withType<org.springframework.boot.gradle.tasks.bundling.BootJar> {
+    archiveFileName.set("app.jar")
+}
+
 repositories {
     mavenCentral()
     maven { url = uri("https://jitpack.io") }

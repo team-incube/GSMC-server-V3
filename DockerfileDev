@@ -4,7 +4,7 @@ EXPOSE 8080
 
 WORKDIR /gsmc-server-v3
 
-COPY build/libs/*.jar GSMC-v3-dev-server.jar
+COPY build/libs/app.jar GSMC-v3-dev-server.jar
 
 RUN ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
 
