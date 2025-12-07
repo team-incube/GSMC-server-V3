@@ -2,7 +2,7 @@ name: GSMC-ECR-CodeDeploy
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "fix/cd-test" ]
   workflow_dispatch:
 
 env:
