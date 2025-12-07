@@ -16,11 +16,11 @@ version = "0.0.1-SNAPSHOT"
 description = "GSM 인증제 관리 서비스 GSMC v3 서버 애플리케이션"
 java.sourceCompatibility = JavaVersion.VERSION_24
 
-//  java {
-//     toolchain {
-//         languageVersion = JavaLanguageVersion.of(24)
-//     }
-// }
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(24)
+    }
+}
 
 repositories {
     mavenCentral()
