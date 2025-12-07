@@ -20,24 +20,17 @@ class DiscordNotificationService(
     private val discordWebhookClient: DiscordWebhookClient,
     private val environment: Environment,
 ) {
-    private fun getActiveProfile(): String {
-        return try {
-            val activeProfiles = environment.activeProfiles
-            if (activeProfiles.isNotEmpty()) {
-                return activeProfiles.joinToString(", ")
+    private fun getActiveProfile(): String =
+        try {
+            when {
+                environment.activeProfiles.isNotEmpty() -> environment.activeProfiles.joinToString(", ")
+                environment.defaultProfiles.isNotEmpty() -> environment.defaultProfiles.joinToString(", ")
+                else -> "default"
             }
-
-            val defaultProfiles = environment.defaultProfiles
-            if (defaultProfiles.isNotEmpty()) {
-                return defaultProfiles.joinToString(", ")
-            }
-
-            "default"
         } catch (exception: Exception) {
             logger().warn("프로파일 정보를 가져오는데 실패했습니다", exception)
             "default"
         }
-    }
 
     fun sendServerStartNotification() {
         CoroutineScope(Dispatchers.IO).launch {
