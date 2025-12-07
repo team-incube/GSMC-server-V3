@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-LOG=/home/ec2-user/application/deploy.log
+LOG=/home/ec2-user/gsmc-application/deploy.log
 echo "[$(date --iso-8601=seconds)] docker health-check start" | tee -a $LOG
 
 sleep 5

@@ -1,9 +1,8 @@
 version: 0.0
 os: linux
-
 files:
   - source: /
-    destination: /home/ec2-user/application
+    destination: /home/ec2-user/gsmc-application
 
 hooks:
   AfterInstall:

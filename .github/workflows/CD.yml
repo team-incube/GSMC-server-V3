@@ -6,79 +6,46 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      
-      - name: Setup JDK 24
-        uses: actions/setup-java@v5
-        with:
-          java-version: '24'
-          distribution: temurin
-          
-      - uses: gradle/actions/setup-gradle@v5
-      
-#      - name: Run KtLint Check
-#        run: ./gradlew ktlintCheck
-      
-      - name: Run Tests
-        run: ./gradlew test
 
-  deploy:
-    runs-on: ubuntu-latest
-    environment: Dev-CD
-    needs: test
-    steps:
-      - uses: actions/checkout@v5
-      
-      - name: Create Application Profile
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker image
         run: |
-          rm -f src/main/resources/application*.yaml
-          cat <<'EOF' > src/main/resources/application-prod.yml
-          ${{ secrets.DEV_APPLICATION_YAML }}
-          EOF
-          
-      - name: Setup JDK 24
-        uses: actions/setup-java@v5
-        with:
-          java-version: '24'
-          distribution: temurin
-          
-      - uses: gradle/actions/setup-gradle@v5
-      
-      - name: Build Application
-        run: ./gradlew --build-cache clean bootJar -x check
-        
-      - name: Deploy to Server
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          port: ${{ secrets.SERVER_PORT }}
-          source: "build/libs/*.jar"
-          target: "/home/ec2-user/gsmc"
-          strip_components: 2
-          
-      - name: Restart Application
-        uses: appleboy/ssh-action@v0.1.6
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          port: ${{ secrets.SERVER_PORT }}
-          script: |
-            cd /home/ec2-user/gsmc
-            [ -f app.pid ] && kill -9 $(cat app.pid) 2>/dev/null || true
-            nohup java -jar *.jar --spring.profiles.active=prod > app.log 2>&1 &
-            echo $! > app.pid
-            sleep 5
-            curl -f http://localhost:8080/api/v3/health || exit 1
-            
-      - name: Notify Discord
-        if: always()
-        uses: sarisia/actions-status-discord@v1
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          color: ${{ job.status == 'success' && '0x4CAF50' || '0xFF4C4C' }}
+          docker build -t gsmc-application .
+
+      - name: Tag Docker Image
+        run: |
+          docker tag gsmc-application:latest \
+            ${{ steps.login-ecr.outputs.registry }}/gsmc-application:latest
+
+      - name: Push Docker Image to ECR
+        run: |
+          docker push ${{ steps.login-ecr.outputs.registry }}/gsmc-application:latest
+
+      - name: Create appspec & scripts artifact
+        run: |
+          zip -r deploy.zip appspec.yml scripts docker-compose.yml
+
+      - name: Upload to S3 for CodeDeploy
+        run: |
+          aws s3 cp deploy.zip s3://${{ secrets.S3_BUCKET }}/gsmc-application/deploy.zip
+
+      - name: Trigger CodeDeploy
+        run: |
+          aws deploy create-deployment \
+            --application-name gsmc-application \
+            --deployment-group-name gsmc-application-group \
+            --s3-location bucket=${{ secrets.S3_BUCKET }},key=gsmc-application/deploy.zip,bundleType=zip
