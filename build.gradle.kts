@@ -23,6 +23,10 @@ java {
     }
 }
 
+tasks.jar {
+    enabled = false
+}
+
 repositories {
     mavenCentral()
     maven { url = uri("https://jitpack.io") }
