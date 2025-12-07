@@ -9,8 +9,8 @@ env:
   AWS_REGION: ap-northeast-2
   ECR_REPOSITORY: gsmc-ecr
   S3_BUCKET: gsmc-deploy
-  CODEDEPLOY_APP: gsmc-application
-  CODEDEPLOY_GROUP: gsmc-dev-group
+  CODEDEPLOY_APP: GSMC-application 
+  CODEDEPLOY_GROUP: GSMC-dg
   JAR_NAME: app.jar
 
 jobs:
@@ -39,10 +39,10 @@ jobs:
           ${{ secrets.DEV_APPLICATION_YAML }}
           EOF
       
-      - name: Setup JDK 24
+      - name: Setup JDK 25
         uses: actions/setup-java@v4
         with:
-          java-version: '24'
+          java-version: '25'
           distribution: temurin
           cache: gradle
       
@@ -97,8 +97,8 @@ jobs:
             --s3-location bucket=${{ env.S3_BUCKET }},key=deployments/${{ github.sha }}.zip,bundleType=zip \
             --description "Deployment from GitHub Actions SHA: ${{ github.sha }}" \
             --query 'deploymentId' \
-            --output text) # 📌 수정된 부분: 출력 포맷 지정 추가
-          echo "deployment_id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT # 📌 추가된 부분: 다음 스텝에서 ID를 사용할 수 있도록 출력
+            --output text)
+          echo "deployment_id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
       
       - name: Notify Discord (Success/Failure)
         if: always()
