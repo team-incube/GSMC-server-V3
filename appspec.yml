@@ -1,19 +1,26 @@
 version: 0.0
 os: linux
+files:
+  - source: /appspec.yml
+    destination: /home/ec2-user/gsmc-application/
+  
+  - source: /scripts
+    destination: /home/ec2-user/gsmc-application/scripts/ 
 
 hooks:
   ApplicationStop:
     - location: scripts/stop.sh
       timeout: 60
       runas: ec2-user
-      
-  ApplicationStart:
-    - location: scripts/start.sh
-      timeout: 300
-      runas: ec2-user
-      
-  ValidateService:
+  BeforeInstall:
     - location: scripts/health-check.sh
       timeout: 60
       runas: ec2-user
-      
+  ApplicationStart:
+    - location: scripts/start.sh
+      timeout: 60
+      runas: ec2-user
+  ValidateService:
+    - location: scripts/health-check.sh
+      timeout: 180
+      runas: ec2-user
