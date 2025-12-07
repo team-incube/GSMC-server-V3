@@ -1,16 +1,21 @@
 package com.team.incube.gsmc.v3.domain.evidence.service.impl
 
+import com.team.incube.gsmc.v3.domain.alert.dto.constant.AlertType
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.CreateEvidenceResponse
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.CreateEvidenceService
 import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
+import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.event.alert.CreateAlertEvent
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 
 @Service
@@ -19,6 +24,8 @@ class CreateEvidenceServiceImpl(
     private val currentMemberProvider: CurrentMemberProvider,
     private val scoreExposedRepository: ScoreExposedRepository,
     private val fileExposedRepository: FileExposedRepository,
+    private val memberExposedRepository: MemberExposedRepository,
+    private val eventPublisher: ApplicationEventPublisher,
 ) : CreateEvidenceService {
     override fun execute(
         scoreId: Long,
@@ -51,6 +58,28 @@ class CreateEvidenceServiceImpl(
 
             if (score.status == ScoreStatus.INCOMPLETE) {
                 scoreExposedRepository.updateStatusByScoreId(scoreId, ScoreStatus.PENDING)
+            }
+
+            val member = currentMemberProvider.getCurrentMember()
+            member.grade?.let { grade ->
+                member.classNumber?.let { classNumber ->
+                    memberExposedRepository
+                        .findByGradeAndClassNumberAndRole(
+                            grade = grade,
+                            classNumber = classNumber,
+                            role = MemberRole.HOMEROOM_TEACHER,
+                        ).firstOrNull()
+                        ?.let {
+                            eventPublisher.publishEvent(
+                                CreateAlertEvent(
+                                    senderId = member.id,
+                                    receiverId = it.id,
+                                    scoreId = score.id!!,
+                                    alertType = AlertType.ADD_SCORE,
+                                ),
+                            )
+                        }
+                }
             }
 
             CreateEvidenceResponse(

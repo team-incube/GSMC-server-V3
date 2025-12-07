@@ -1,6 +1,9 @@
 package com.team.incube.gsmc.v3.domain.score.service.impl
 
+import com.team.incube.gsmc.v3.domain.alert.dto.constant.AlertType
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
+import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
@@ -10,8 +13,10 @@ import com.team.incube.gsmc.v3.domain.score.service.CreateProjectParticipationSe
 import com.team.incube.gsmc.v3.domain.score.validator.ScoreLimitValidator
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.event.alert.CreateAlertEvent
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 
 @Service
@@ -20,6 +25,8 @@ class CreateProjectParticipationServiceImpl(
     private val projectExposedRepository: ProjectExposedRepository,
     currentMemberProvider: CurrentMemberProvider,
     private val scoreLimitValidator: ScoreLimitValidator,
+    private val eventPublisher: ApplicationEventPublisher,
+    private val memberExposedRepository: MemberExposedRepository,
 ) : BaseCountBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateProjectParticipationService {
     override fun execute(projectId: Long): CreateScoreResponse =
@@ -64,6 +71,26 @@ class CreateProjectParticipationServiceImpl(
                 scoreId = createdScore.scoreId,
             )
 
+            member.grade?.let { grade ->
+                member.classNumber?.let { classNumber ->
+                    memberExposedRepository
+                        .findByGradeAndClassNumberAndRole(
+                            grade = grade,
+                            classNumber = classNumber,
+                            role = MemberRole.HOMEROOM_TEACHER,
+                        ).firstOrNull()
+                        ?.let {
+                            eventPublisher.publishEvent(
+                                CreateAlertEvent(
+                                    senderId = member.id,
+                                    receiverId = it.id,
+                                    scoreId = createdScore.scoreId,
+                                    alertType = AlertType.ADD_SCORE,
+                                ),
+                            )
+                        }
+                }
+            }
             createdScore
         }
 }
