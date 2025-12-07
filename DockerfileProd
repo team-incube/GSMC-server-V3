@@ -1,4 +1,5 @@
-FROM eclipse-temurin:23-jre-jammy
+
+FROM eclipse-temurin:24-jdk
 
 EXPOSE 8080
 
@@ -6,8 +7,7 @@ WORKDIR /hellogsm-server-v3
 
 COPY build/libs/GSMC-v3-0.0.1-SNAPSHOT.jar GSMC-v3-prod-server.jar
 
-RUN apt-get update && apt-get install -y tzdata \
-    && ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime \
-    && rm -rf /var/lib/apt/lists/*
+
+RUN ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
 
 ENTRYPOINT ["java", "-jar", "GSMC-v3-prod-server.jar", "--spring.profiles.active=prod"]
