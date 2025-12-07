@@ -9,4 +9,4 @@ if curl -f http://localhost:8080/api/v3/health; then
 else
   echo "Health check failed!"
   exit 1
-if
+fi
