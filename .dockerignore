@@ -9,5 +9,6 @@ CLAUDE.md
 .env.example
 .gitattributes
 .gitignore
-build/reports/
+build/
+!build/libs/app.jar
 scripts/
