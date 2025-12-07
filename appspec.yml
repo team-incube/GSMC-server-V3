@@ -22,7 +22,8 @@ hooks:
       timeout: 60
       runas: ec2-user
   BeforeInstall:
-    - location: scripts/health-check.sh
+   
+    - location: scripts/health-check.sh 
       timeout: 60
       runas: ec2-user
   ApplicationStart:
