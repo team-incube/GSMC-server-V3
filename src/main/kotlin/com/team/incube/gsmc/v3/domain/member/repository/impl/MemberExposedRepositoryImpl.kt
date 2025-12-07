@@ -22,6 +22,19 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class MemberExposedRepositoryImpl : MemberExposedRepository {
+    override fun findByGradeAndClassNumberAndRole(
+        grade: Int,
+        classNumber: Int,
+        role: MemberRole,
+    ): List<Member> =
+        MemberExposedEntity
+            .selectAll()
+            .where {
+                (MemberExposedEntity.grade eq grade) and
+                    (MemberExposedEntity.classNumber eq classNumber) and
+                    (MemberExposedEntity.role eq role)
+            }.map { it.toMember() }
+
     override fun searchMembers(
         email: String?,
         name: String?,
