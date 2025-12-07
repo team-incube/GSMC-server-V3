@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.springframework.context.annotation.Profile
+import org.springframework.core.env.Environment
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -17,7 +18,27 @@ import java.time.Instant
 @Service
 class DiscordNotificationService(
     private val discordWebhookClient: DiscordWebhookClient,
+    private val environment: Environment,
 ) {
+    private fun getActiveProfile(): String {
+        return try {
+            val activeProfiles = environment.activeProfiles
+            if (activeProfiles.isNotEmpty()) {
+                return activeProfiles.joinToString(", ")
+            }
+
+            val defaultProfiles = environment.defaultProfiles
+            if (defaultProfiles.isNotEmpty()) {
+                return defaultProfiles.joinToString(", ")
+            }
+
+            "default"
+        } catch (exception: Exception) {
+            logger().warn("프로파일 정보를 가져오는데 실패했습니다", exception)
+            "default"
+        }
+    }
+
     fun sendServerStartNotification() {
         CoroutineScope(Dispatchers.IO).launch {
             runCatching {
@@ -28,7 +49,7 @@ class DiscordNotificationService(
                         fields =
                             listOf(
                                 DiscordField("상태", "GSMC V3 서버 애플리케이션이 시작되었습니다.", false),
-                                DiscordField("환경", System.getProperty("spring.profiles.active") ?: "unknown", true),
+                                DiscordField("환경", getActiveProfile(), true),
                             ),
                         timestamp = Instant.now().toString(),
                     )
@@ -50,7 +71,7 @@ class DiscordNotificationService(
                     fields =
                         listOf(
                             DiscordField("상태", "GSMC V3 서버 애플리케이션이 종료되었습니다.", false),
-                            DiscordField("환경", System.getProperty("spring.profiles.active") ?: "unknown", true),
+                            DiscordField("환경", getActiveProfile(), true),
                         ),
                     timestamp = Instant.now().toString(),
                 )
