@@ -96,4 +96,13 @@ jobs:
             --deployment-group-name ${{ env.CODEDEPLOY_GROUP }} \
             --s3-location bucket=${{ env.S3_BUCKET }},key=deployments/${{ github.sha }}.zip,bundleType=zip \
             --description "Deployment from GitHub Actions SHA: ${{ github.sha }}" \
-            --query 'deploymentId' 
+            --query 'deploymentId' \
+            --output text) # 📌 수정된 부분: 출력 포맷 지정 추가
+          echo "deployment_id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT # 📌 추가된 부분: 다음 스텝에서 ID를 사용할 수 있도록 출력
+      
+      - name: Notify Discord (Success/Failure)
+        if: always()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          color: ${{ job.status == 'success' && '0x4CAF50' || '0xFF4C4C' }}
