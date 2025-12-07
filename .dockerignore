@@ -1,0 +1,13 @@
+.claude/
+.github/
+.idea/
+qodana.yaml
+README.md
+CODE_OF_CONDUCT.md
+LICENSE
+CLAUDE.md
+.env.example
+.gitattributes
+.gitignore
+build/reports/
+scripts/
