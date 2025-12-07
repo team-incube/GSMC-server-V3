@@ -12,7 +12,8 @@ aws ecr get-login-password --region ap-northeast-2 | \
 docker pull $ECR_REGISTRY/$ECR_REPOSITORY_NAME:$IMAGE_TAG
 
 docker run -d \
-  --name $APP_NAME \
+  --name gsmc-application \
   -p 8080:8080 \
   --restart unless-stopped \
-  $ECR_REGISTRY/$ECR_REPOSITORY_NAME:$IMAGE_TAG
+  -e SPRING_PROFILES_ACTIVE=dev \
+  588738598492.dkr.ecr.ap-northeast-2.amazonaws.com/gsmc-ecr:latest

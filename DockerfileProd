@@ -8,4 +8,4 @@ COPY build/libs/app.jar GSMC-v3-prod-server.jar
 
 RUN ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
 
-ENTRYPOINT ["java", "-jar", "GSMC-v3-prod-server.jar", "--spring.profiles.active=prod"]
+ENTRYPOINT ["java", "-jar", "GSMC-v3-prod-server.jar"]
