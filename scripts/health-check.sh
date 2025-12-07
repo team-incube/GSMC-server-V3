@@ -1,15 +1,12 @@
 #!/bin/bash
-set -e
+echo "Waiting for application to start..."
+sleep 15
 
-LOG=/home/ec2-user/gsmc-application/deploy.log
-echo "[$(date --iso-8601=seconds)] docker health-check start" | tee -a $LOG
-
-sleep 5
-
-if curl -sfS http://localhost:8080/api/v3/health > /dev/null; then
-  echo "[$(date --iso-8601=seconds)] health-check OK" | tee -a $LOG
+echo "Checking health..."
+if curl -f http://localhost:8080/api/v3/health; then
+  echo "Health check passed!"
   exit 0
 else
-  echo "[$(date --iso-8601=seconds)] health-check FAILED" | tee -a $LOG
+  echo "Health check failed!"
   exit 1
-fi
+if

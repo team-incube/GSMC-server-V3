@@ -1,56 +1,98 @@
-name: GSMC-Dev-CD
+name: GSMC-ECR-CodeDeploy
 
 on:
   push:
-    branches: [ "fix/cd-test" ]
+    branches: [ "develop" ]
   workflow_dispatch:
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECR_REPOSITORY: gsmc-ecr
+  S3_BUCKET: gsmc-deploy
+  CODEDEPLOY_APP: gsmc-application
+  CODEDEPLOY_GROUP: gsmc-dev-group
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
-    permissions:
-      id-token: write
-      contents: read
-
+    environment: Dev-CD
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Configure AWS Credentials (OIDC)
+      - name: Checkout code
+        uses: actions/checkout@v5
+      
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::588738598492:role/gsmc-github
-          aws-region: ap-northeast-2
-
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build Docker image
+      
+      - name: Create Application Profile
         run: |
-          docker build -t gsmc-application .
-
-      - name: Tag Docker Image
+          rm -f src/main/resources/application*.yaml
+          cat <<'EOF' > src/main/resources/application-prod.yml
+          ${{ secrets.DEV_APPLICATION_YAML }}
+          EOF
+      
+      - name: Setup JDK 24
+        uses: actions/setup-java@v5
+        with:
+          java-version: '24'
+          distribution: temurin
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+      
+      - name: Build with Gradle
+        run: ./gradlew clean bootJar -x test -x check
+      
+      - name: Build and Push Docker Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker tag gsmc-application:latest \
-            ${{ steps.login-ecr.outputs.registry }}/gsmc-ecr:latest
-
-      - name: Push Docker Image to ECR
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+      
+      - name: Update deployment scripts
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker push ${{ steps.login-ecr.outputs.registry }}/gsmc-ecr:latest
-
-      - name: Create appspec & scripts artifact
+          sed -i "s|ECR_REGISTRY=\"PLACEHOLDER\"|ECR_REGISTRY=\"$ECR_REGISTRY\"|" scripts/start.sh
+      
+      - name: Create Deployment Package
         run: |
-          zip -r deploy.zip appspec.yml scripts docker-compose.yml
-
-      - name: Upload to S3 for CodeDeploy
+          mkdir -p deploy
+          cp appspec.yml deploy/
+          cp -r scripts deploy/
+          cd deploy && zip -r ../deploy.zip . && cd ..
+      
+      - name: Upload to S3
         run: |
-          aws s3 cp deploy.zip s3://${{ secrets.S3_BUCKET }}/gsmc-application/deploy.zip
-
-      - name: Trigger CodeDeploy
+          aws s3 cp deploy.zip s3://${{ env.S3_BUCKET }}/deployments/${{ github.sha }}.zip
+      
+      - name: Deploy with CodeDeploy
+        id: deploy
         run: |
-          aws deploy create-deployment \
-            --application-name gsmc-application \
-            --deployment-group-name gsmc-application-group \
-            --s3-location bucket=${{ secrets.S3_BUCKET }},key=gsmc-application/deploy.zip,bundleType=zip
+          DEPLOYMENT_ID=$(aws deploy create-deployment \
+            --application-name ${{ env.CODEDEPLOY_APP }} \
+            --deployment-group-name ${{ env.CODEDEPLOY_GROUP }} \
+            --s3-location bucket=${{ env.S3_BUCKET }},key=deployments/${{ github.sha }}.zip,bundleType=zip \
+            --description "Deployment from GitHub Actions" \
+            --query 'deploymentId' \
+            --output text)
+          echo "deployment_id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
+      
+      - name: Notify Discord
+        if: always()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          color: ${{ job.status == 'success' && '0x4CAF50' || '0xFF4C4C' }}
