@@ -1,10 +1,10 @@
-FROM eclipse-temurin:24-jdk-noble
+FROM eclipse-temurin:25.0.1_8-jre-ubi10-minimal
 
 EXPOSE 8080
 
 WORKDIR /gsmc-server-v3
 
-COPY build/libs/GSMC-v3-0.0.1-SNAPSHOT.jar GSMC-v3-prod-server.jar
+COPY build/libs/*.jar GSMC-v3-prod-server.jar
 
 RUN ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
 
