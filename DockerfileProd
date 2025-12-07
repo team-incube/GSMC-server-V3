@@ -1,4 +1,4 @@
-FROM eclipse-temurin:23-jre-jammy
+FROM eclipse-temurin:24-jre
 
 EXPOSE 8080
 
