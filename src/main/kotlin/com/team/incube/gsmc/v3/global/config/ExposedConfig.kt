@@ -13,21 +13,20 @@ import javax.sql.DataSource
 @Configuration
 @EnableTransactionManagement
 class ExposedConfig {
-
     @Bean
     fun database(dataSource: DataSource): Database {
-        val database = Database.connect(
-            datasource = dataSource,
-            databaseConfig = DatabaseConfig {
-                useNestedTransactions = true
-            }
-        )
+        val database =
+            Database.connect(
+                datasource = dataSource,
+                databaseConfig =
+                    DatabaseConfig {
+                        useNestedTransactions = true
+                    },
+            )
         TransactionManager.defaultDatabase = database
         return database
     }
 
     @Bean
-    fun transactionManager(dataSource: DataSource): PlatformTransactionManager {
-        return DataSourceTransactionManager(dataSource)
-    }
+    fun transactionManager(dataSource: DataSource): PlatformTransactionManager = DataSourceTransactionManager(dataSource)
 }
