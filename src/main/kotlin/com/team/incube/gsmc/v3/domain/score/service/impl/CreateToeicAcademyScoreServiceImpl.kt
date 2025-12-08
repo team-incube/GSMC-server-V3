@@ -24,13 +24,14 @@ class CreateToeicAcademyScoreServiceImpl(
     CreateToeicAcademyScoreService {
     override fun execute(): CreateScoreResponse =
         transaction {
+            val member = currentMemberProvider.getCurrentMember()
             val score =
                 createOrUpdateScore(
+                    member = member,
                     categoryType = CategoryType.TOEIC_ACADEMY,
                     scoreValue = null,
                     sourceId = null,
                 )
-            val member = currentMemberProvider.getCurrentMember()
             member.grade?.let { grade ->
                 member.classNumber?.let { classNumber ->
                     memberExposedRepository

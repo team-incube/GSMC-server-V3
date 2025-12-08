@@ -34,14 +34,16 @@ class CreateVolunteerScoreServiceImpl(
                 throw GsmcException(ErrorCode.SCORE_VALUE_OUT_OF_RANGE)
             }
 
+            val member = currentMemberProvider.getCurrentMember()
+
             val score =
                 createOrUpdateScore(
+                    member = member,
                     categoryType = CategoryType.VOLUNTEER,
                     scoreValue = intValue.toDouble(),
                     sourceId = null,
                 )
 
-            val member = currentMemberProvider.getCurrentMember()
             member.grade?.let { grade ->
                 member.classNumber?.let { classNumber ->
                     memberExposedRepository
