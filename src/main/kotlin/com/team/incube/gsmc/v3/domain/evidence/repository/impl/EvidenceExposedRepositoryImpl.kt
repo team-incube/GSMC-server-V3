@@ -6,13 +6,14 @@ import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedReposit
 import com.team.incube.gsmc.v3.domain.file.dto.File
 import com.team.incube.gsmc.v3.domain.file.entity.EvidenceFileExposedEntity
 import com.team.incube.gsmc.v3.domain.file.entity.FileExposedEntity
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.jdbc.batchInsert
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
 import org.springframework.stereotype.Repository
 import java.time.Instant
 import java.time.ZoneOffset
@@ -33,10 +34,10 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
         val files =
             rows
                 .mapNotNull { it.toFile() }
-                .distinctBy { it.fileId }
+                .distinctBy { it.id }
         return Evidence(
             id = firstRow[EvidenceExposedEntity.id],
-            memberId = firstRow[EvidenceExposedEntity.memberId],
+            member = firstRow[EvidenceExposedEntity.member],
             title = firstRow[EvidenceExposedEntity.title],
             content = firstRow[EvidenceExposedEntity.content],
             createdAt = firstRow[EvidenceExposedEntity.createdAt].atOffset(ZoneOffset.UTC).toLocalDateTime(),
@@ -51,7 +52,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                 .leftJoin(EvidenceFileExposedEntity)
                 .leftJoin(FileExposedEntity)
                 .selectAll()
-                .where { EvidenceExposedEntity.memberId eq memberId }
+                .where { EvidenceExposedEntity.member eq memberId }
 
         return rows
             .groupBy { it[EvidenceExposedEntity.id] }
@@ -60,10 +61,10 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
                 val files =
                     evidenceRows
                         .mapNotNull { it.toFile() }
-                        .distinctBy { it.fileId }
+                        .distinctBy { it.id }
                 Evidence(
                     id = firstRow[EvidenceExposedEntity.id],
-                    memberId = firstRow[EvidenceExposedEntity.memberId],
+                    member = firstRow[EvidenceExposedEntity.member],
                     title = firstRow[EvidenceExposedEntity.title],
                     content = firstRow[EvidenceExposedEntity.content],
                     createdAt = firstRow[EvidenceExposedEntity.createdAt].atOffset(ZoneOffset.UTC).toLocalDateTime(),
@@ -83,7 +84,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
 
         val evidenceId =
             EvidenceExposedEntity.insert {
-                it[this.memberId] = userId
+                it[this.member] = userId
                 it[this.title] = title
                 it[this.content] = content
                 it[createdAt] = now
@@ -92,8 +93,8 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
 
         if (fileIds.isNotEmpty()) {
             EvidenceFileExposedEntity.batchInsert(fileIds) { fileId ->
-                this[EvidenceFileExposedEntity.evidenceId] = evidenceId
-                this[EvidenceFileExposedEntity.fileId] = fileId
+                this[EvidenceFileExposedEntity.evidence] = evidenceId
+                this[EvidenceFileExposedEntity.file] = fileId
             }
         }
 
@@ -109,7 +110,7 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
 
         return Evidence(
             id = evidenceId,
-            memberId = userId,
+            member = userId,
             title = title,
             content = content,
             createdAt = now.atOffset(ZoneOffset.UTC).toLocalDateTime(),
@@ -132,12 +133,12 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
             it[updatedAt] = now
         }
 
-        EvidenceFileExposedEntity.deleteWhere { EvidenceFileExposedEntity.evidenceId eq id }
+        EvidenceFileExposedEntity.deleteWhere { evidence eq id }
 
         if (fileIds.isNotEmpty()) {
             EvidenceFileExposedEntity.batchInsert(fileIds) { fileId ->
-                this[EvidenceFileExposedEntity.evidenceId] = id
-                this[EvidenceFileExposedEntity.fileId] = fileId
+                this[EvidenceFileExposedEntity.evidence] = id
+                this[EvidenceFileExposedEntity.file] = fileId
             }
         }
 
@@ -152,11 +153,11 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
         val files =
             rows
                 .mapNotNull { it.toFile() }
-                .distinctBy { it.fileId }
+                .distinctBy { it.id }
 
         return Evidence(
             id = firstRow[EvidenceExposedEntity.id],
-            memberId = firstRow[EvidenceExposedEntity.memberId],
+            member = firstRow[EvidenceExposedEntity.member],
             title = firstRow[EvidenceExposedEntity.title],
             content = firstRow[EvidenceExposedEntity.content],
             createdAt = firstRow[EvidenceExposedEntity.createdAt].atOffset(ZoneOffset.UTC).toLocalDateTime(),
@@ -166,24 +167,60 @@ class EvidenceExposedRepositoryImpl : EvidenceExposedRepository {
     }
 
     override fun deleteById(evidenceId: Long) {
-        EvidenceFileExposedEntity.deleteWhere { EvidenceFileExposedEntity.evidenceId eq evidenceId }
-        EvidenceExposedEntity.deleteWhere { EvidenceExposedEntity.id eq evidenceId }
+        EvidenceFileExposedEntity.deleteWhere { EvidenceFileExposedEntity.evidence eq evidenceId }
+        EvidenceExposedEntity.deleteWhere { id eq evidenceId }
+    }
+
+    override fun findAllByIdIn(ids: List<Long>): List<Evidence> {
+        if (ids.isEmpty()) return emptyList()
+
+        val rows =
+            EvidenceExposedEntity
+                .leftJoin(EvidenceFileExposedEntity)
+                .leftJoin(FileExposedEntity)
+                .selectAll()
+                .where { EvidenceExposedEntity.id inList ids }
+
+        return rows
+            .groupBy { it[EvidenceExposedEntity.id] }
+            .map { (_, evidenceRows) ->
+                val firstRow = evidenceRows.first()
+                val files =
+                    evidenceRows
+                        .mapNotNull { it.toFile() }
+                        .distinctBy { it.id }
+                Evidence(
+                    id = firstRow[EvidenceExposedEntity.id],
+                    member = firstRow[EvidenceExposedEntity.member],
+                    title = firstRow[EvidenceExposedEntity.title],
+                    content = firstRow[EvidenceExposedEntity.content],
+                    createdAt = firstRow[EvidenceExposedEntity.createdAt].atOffset(ZoneOffset.UTC).toLocalDateTime(),
+                    updatedAt = firstRow[EvidenceExposedEntity.updatedAt].atOffset(ZoneOffset.UTC).toLocalDateTime(),
+                    files = files,
+                )
+            }
+    }
+
+    override fun deleteAllByIdIn(ids: List<Long>) {
+        if (ids.isEmpty()) return
+        EvidenceFileExposedEntity.deleteWhere { EvidenceFileExposedEntity.evidence inList ids }
+        EvidenceExposedEntity.deleteWhere { id inList ids }
     }
 
     private fun ResultRow.toFile(): File? {
-        val fileId = this.getOrNull(FileExposedEntity.id)
-        val memberId = this.getOrNull(FileExposedEntity.memberId)
+        val id = this.getOrNull(FileExposedEntity.id)
+        val member = this.getOrNull(FileExposedEntity.member)
         val originalName = this.getOrNull(FileExposedEntity.originalName)
-        val storedName = this.getOrNull(FileExposedEntity.storedName)
+        val storedName = this.getOrNull(FileExposedEntity.storeName)
         val uri = this.getOrNull(FileExposedEntity.uri)
 
-        return if (fileId != null && memberId != null && originalName != null && storedName != null && uri != null) {
+        return if (id != null && member != null && originalName != null && storedName != null && uri != null) {
             File(
-                fileId = fileId,
-                memberId = memberId,
-                fileOriginalName = originalName,
-                fileStoredName = storedName,
-                fileUri = uri,
+                id = id,
+                member = member,
+                originalName = originalName,
+                storeName = storedName,
+                uri = uri,
             )
         } else {
             null

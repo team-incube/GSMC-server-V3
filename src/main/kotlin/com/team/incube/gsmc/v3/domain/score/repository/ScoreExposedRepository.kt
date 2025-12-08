@@ -52,6 +52,8 @@ interface ScoreExposedRepository {
         status: ScoreStatus,
     ): List<Score>
 
+    fun findAllByStatus(status: ScoreStatus): List<Score>
+
     fun findByMemberIdAndCategoryType(
         memberId: Long,
         categoryType: CategoryType,
@@ -69,5 +71,36 @@ interface ScoreExposedRepository {
         sourceId: Long,
     ): Boolean
 
+    fun findProjectParticipationScore(
+        memberId: Long,
+        projectId: Long,
+    ): Score?
+
+    fun existsProjectParticipationScore(
+        memberId: Long,
+        projectId: Long,
+    ): Boolean
+
+    fun updateActivityName(
+        scoreId: Long,
+        activityName: String,
+    )
+
+    fun updateActivityNameByIdIn(
+        scoreIds: List<Long>,
+        activityName: String,
+    )
+
+    fun findAllByIdIn(scoreIds: List<Long>): List<Score>
+
+    fun findAllByActivityName(activityName: String): List<Score>
+
+    fun findAllByActivityNameAndCategoryType(
+        activityName: String,
+        categoryType: CategoryType,
+    ): List<Score>
+
     fun deleteById(scoreId: Long)
+
+    fun deleteAllByIdIn(scoreIds: List<Long>)
 }

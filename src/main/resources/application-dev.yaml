@@ -7,11 +7,16 @@ spring:
       mode: always
   cloud:
     aws:
+      region:
+        static: ${AWS_REGION:ap-northeast-2}
       credentials:
         access-key: ${AWS_ACCESS_KEY}
         secret-key: ${AWS_SECRET_KEY}
       s3:
         bucket-name: ${AWS_S3_BUCKET_NAME}
+    discord:
+      webhook:
+        url: ${DISCORD_WEBHOOK_URL}
   security:
     oauth2:
       client:

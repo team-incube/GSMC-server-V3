@@ -22,4 +22,8 @@ interface EvidenceExposedRepository {
     ): Evidence
 
     fun deleteById(evidenceId: Long)
+
+    fun findAllByIdIn(ids: List<Long>): List<Evidence>
+
+    fun deleteAllByIdIn(ids: List<Long>)
 }

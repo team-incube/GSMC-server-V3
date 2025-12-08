@@ -8,16 +8,20 @@ import com.team.incube.gsmc.v3.domain.project.dto.Project
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectExposedEntity
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectFileExposedEntity
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectParticipantExposedEntity
+import com.team.incube.gsmc.v3.domain.project.entity.ProjectScoreExposedEntity
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.like
+import org.jetbrains.exposed.v1.jdbc.batchInsert
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -38,7 +42,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
 
         return Project(
             id = projectRow[ProjectExposedEntity.id],
-            ownerId = projectRow[ProjectExposedEntity.ownerId],
+            ownerId = projectRow[ProjectExposedEntity.owner],
             title = projectRow[ProjectExposedEntity.title],
             description = projectRow[ProjectExposedEntity.description],
             files = files,
@@ -50,7 +54,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
         val projectRows =
             ProjectExposedEntity
                 .selectAll()
-                .where { ProjectExposedEntity.ownerId eq ownerId }
+                .where { ProjectExposedEntity.owner eq ownerId }
                 .toList()
 
         if (projectRows.isEmpty()) return emptyList()
@@ -64,7 +68,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
 
             Project(
                 id = projectId,
-                ownerId = projectRow[ProjectExposedEntity.ownerId],
+                ownerId = projectRow[ProjectExposedEntity.owner],
                 title = projectRow[ProjectExposedEntity.title],
                 description = projectRow[ProjectExposedEntity.description],
                 files = filesMap[projectId] ?: emptyList(),
@@ -77,8 +81,8 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
         val projectIds =
             ProjectParticipantExposedEntity
                 .selectAll()
-                .where { ProjectParticipantExposedEntity.memberId eq participantId }
-                .map { it[ProjectParticipantExposedEntity.projectId] }
+                .where { ProjectParticipantExposedEntity.member eq participantId }
+                .map { it[ProjectParticipantExposedEntity.project] }
 
         if (projectIds.isEmpty()) return emptyList()
 
@@ -96,7 +100,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
 
             Project(
                 id = projectId,
-                ownerId = projectRow[ProjectExposedEntity.ownerId],
+                ownerId = projectRow[ProjectExposedEntity.owner],
                 title = projectRow[ProjectExposedEntity.title],
                 description = projectRow[ProjectExposedEntity.description],
                 files = filesMap[projectId] ?: emptyList(),
@@ -136,7 +140,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
 
                 Project(
                     id = projectId,
-                    ownerId = projectRow[ProjectExposedEntity.ownerId],
+                    ownerId = projectRow[ProjectExposedEntity.owner],
                     title = projectRow[ProjectExposedEntity.title],
                     description = projectRow[ProjectExposedEntity.description],
                     files = filesMap[projectId] ?: emptyList(),
@@ -156,15 +160,15 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
     ): Project {
         val projectId =
             ProjectExposedEntity.insert {
-                it[this.ownerId] = ownerId
+                it[this.owner] = ownerId
                 it[this.title] = title
                 it[this.description] = description
             } get ProjectExposedEntity.id
 
         if (fileIds.isNotEmpty()) {
             ProjectFileExposedEntity.batchInsert(fileIds) { fileId ->
-                this[ProjectFileExposedEntity.projectId] = projectId
-                this[ProjectFileExposedEntity.fileId] = fileId
+                this[ProjectFileExposedEntity.project] = projectId
+                this[ProjectFileExposedEntity.file] = fileId
             }
         }
 
@@ -173,30 +177,13 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
 
         if (allParticipantIds.isNotEmpty()) {
             ProjectParticipantExposedEntity.batchInsert(allParticipantIds) { memberId ->
-                this[ProjectParticipantExposedEntity.projectId] = projectId
-                this[ProjectParticipantExposedEntity.memberId] = memberId
+                this[ProjectParticipantExposedEntity.project] = projectId
+                this[ProjectParticipantExposedEntity.member] = memberId
             }
         }
 
-        val files =
-            if (fileIds.isNotEmpty()) {
-                FileExposedEntity
-                    .selectAll()
-                    .where { FileExposedEntity.id inList fileIds }
-                    .map { it.toFile() }
-            } else {
-                emptyList()
-            }
-
-        val participants =
-            if (allParticipantIds.isNotEmpty()) {
-                MemberExposedEntity
-                    .selectAll()
-                    .where { MemberExposedEntity.id inList allParticipantIds }
-                    .map { it.toMember() }
-            } else {
-                emptyList()
-            }
+        val files = getProjectFiles(projectId)
+        val participants = getProjectParticipants(projectId)
 
         return Project(
             id = projectId,
@@ -221,13 +208,13 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             it[this.description] = description
         }
 
-        ProjectFileExposedEntity.deleteWhere { ProjectFileExposedEntity.projectId eq id }
-        ProjectParticipantExposedEntity.deleteWhere { ProjectParticipantExposedEntity.projectId eq id }
+        ProjectFileExposedEntity.deleteWhere { project eq id }
+        ProjectParticipantExposedEntity.deleteWhere { project eq id }
 
         if (fileIds.isNotEmpty()) {
             ProjectFileExposedEntity.batchInsert(fileIds) { fileId ->
-                this[ProjectFileExposedEntity.projectId] = id
-                this[ProjectFileExposedEntity.fileId] = fileId
+                this[ProjectFileExposedEntity.project] = id
+                this[ProjectFileExposedEntity.file] = fileId
             }
         }
 
@@ -235,30 +222,13 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
 
         if (allParticipantIds.isNotEmpty()) {
             ProjectParticipantExposedEntity.batchInsert(allParticipantIds) { memberId ->
-                this[ProjectParticipantExposedEntity.projectId] = id
-                this[ProjectParticipantExposedEntity.memberId] = memberId
+                this[ProjectParticipantExposedEntity.project] = id
+                this[ProjectParticipantExposedEntity.member] = memberId
             }
         }
 
-        val files =
-            if (fileIds.isNotEmpty()) {
-                FileExposedEntity
-                    .selectAll()
-                    .where { FileExposedEntity.id inList fileIds }
-                    .map { it.toFile() }
-            } else {
-                emptyList()
-            }
-
-        val participants =
-            if (allParticipantIds.isNotEmpty()) {
-                MemberExposedEntity
-                    .selectAll()
-                    .where { MemberExposedEntity.id inList allParticipantIds }
-                    .map { it.toMember() }
-            } else {
-                emptyList()
-            }
+        val files = getProjectFiles(id)
+        val participants = getProjectParticipants(id)
 
         return Project(
             id = id,
@@ -275,10 +245,10 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
         memberId: Long,
     ): Boolean =
         !ProjectParticipantExposedEntity
-            .select(ProjectParticipantExposedEntity.projectId)
+            .select(ProjectParticipantExposedEntity.project)
             .where {
-                (ProjectParticipantExposedEntity.projectId eq projectId) and
-                    (ProjectParticipantExposedEntity.memberId eq memberId)
+                (ProjectParticipantExposedEntity.project eq projectId) and
+                    (ProjectParticipantExposedEntity.member eq memberId)
             }.limit(1)
             .empty()
 
@@ -298,22 +268,38 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             .select(ProjectExposedEntity.title)
             .where {
                 (ProjectExposedEntity.id eq projectId) and
-                    (ProjectParticipantExposedEntity.memberId eq memberId)
+                    (ProjectParticipantExposedEntity.member eq memberId)
             }.singleOrNull()
             ?.get(ProjectExposedEntity.title)
 
     override fun deleteProjectById(projectId: Long) {
-        ProjectFileExposedEntity.deleteWhere { ProjectFileExposedEntity.projectId eq projectId }
-        ProjectParticipantExposedEntity.deleteWhere { ProjectParticipantExposedEntity.projectId eq projectId }
-        ProjectExposedEntity.deleteWhere { ProjectExposedEntity.id eq projectId }
+        ProjectFileExposedEntity.deleteWhere { ProjectFileExposedEntity.project eq projectId }
+        ProjectParticipantExposedEntity.deleteWhere { ProjectParticipantExposedEntity.project eq projectId }
+        ProjectExposedEntity.deleteWhere { id eq projectId }
+    }
+
+    override fun findScoreIdsByProjectId(projectId: Long): List<Long> =
+        ProjectScoreExposedEntity
+            .select(ProjectScoreExposedEntity.score)
+            .where { ProjectScoreExposedEntity.project eq projectId }
+            .map { it[ProjectScoreExposedEntity.score] }
+
+    override fun linkProjectAndScore(
+        projectId: Long,
+        scoreId: Long,
+    ) {
+        ProjectScoreExposedEntity.insert {
+            it[project] = projectId
+            it[score] = scoreId
+        }
     }
 
     private fun getProjectFiles(projectId: Long): List<File> {
         val fileIds =
             ProjectFileExposedEntity
                 .selectAll()
-                .where { ProjectFileExposedEntity.projectId eq projectId }
-                .map { it[ProjectFileExposedEntity.fileId] }
+                .where { ProjectFileExposedEntity.project eq projectId }
+                .map { it[ProjectFileExposedEntity.file] }
 
         if (fileIds.isEmpty()) return emptyList()
 
@@ -327,8 +313,8 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
         val memberIds =
             ProjectParticipantExposedEntity
                 .selectAll()
-                .where { ProjectParticipantExposedEntity.projectId eq projectId }
-                .map { it[ProjectParticipantExposedEntity.memberId] }
+                .where { ProjectParticipantExposedEntity.project eq projectId }
+                .map { it[ProjectParticipantExposedEntity.member] }
 
         if (memberIds.isEmpty()) return emptyList()
 
@@ -342,8 +328,8 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
         val fileRelations =
             ProjectFileExposedEntity
                 .selectAll()
-                .where { ProjectFileExposedEntity.projectId inList projectIds }
-                .map { it[ProjectFileExposedEntity.projectId] to it[ProjectFileExposedEntity.fileId] }
+                .where { ProjectFileExposedEntity.project inList projectIds }
+                .map { it[ProjectFileExposedEntity.project] to it[ProjectFileExposedEntity.file] }
 
         if (fileRelations.isEmpty()) return emptyMap()
 
@@ -364,28 +350,19 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
     }
 
     private fun getParticipantsByProjectIds(projectIds: List<Long>): Map<Long, List<Member>> {
-        val participantRelations =
-            ProjectParticipantExposedEntity
-                .selectAll()
-                .where { ProjectParticipantExposedEntity.projectId inList projectIds }
-                .map { it[ProjectParticipantExposedEntity.projectId] to it[ProjectParticipantExposedEntity.memberId] }
+        if (projectIds.isEmpty()) return emptyMap()
 
-        if (participantRelations.isEmpty()) return emptyMap()
-
-        val memberIds = participantRelations.map { it.second }.distinct()
-        val membersById =
+        val participantData =
             MemberExposedEntity
+                .innerJoin(ProjectParticipantExposedEntity)
                 .selectAll()
-                .where { MemberExposedEntity.id inList memberIds }
-                .associate { row ->
-                    row[MemberExposedEntity.id] to row.toMember()
+                .where { ProjectParticipantExposedEntity.project inList projectIds }
+                .map { row ->
+                    row[ProjectParticipantExposedEntity.project] to row.toMember()
                 }
 
-        return participantRelations
+        return participantData
             .groupBy({ it.first }, { it.second })
-            .mapValues { (_, memberIdList) ->
-                memberIdList.mapNotNull { membersById[it] }
-            }
     }
 
     private fun ResultRow.toMember(): Member =
@@ -401,10 +378,10 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
 
     private fun ResultRow.toFile(): File =
         File(
-            fileId = this[FileExposedEntity.id],
-            memberId = this[FileExposedEntity.memberId],
-            fileOriginalName = this[FileExposedEntity.originalName],
-            fileStoredName = this[FileExposedEntity.storedName],
-            fileUri = this[FileExposedEntity.uri],
+            id = this[FileExposedEntity.id],
+            member = this[FileExposedEntity.member],
+            originalName = this[FileExposedEntity.originalName],
+            storeName = this[FileExposedEntity.storeName],
+            uri = this[FileExposedEntity.uri],
         )
 }

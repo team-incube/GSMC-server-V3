@@ -5,7 +5,7 @@ import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.PatchE
 interface UpdateEvidenceService {
     fun execute(
         evidenceId: Long,
-        participantId: Long?,
+        scoreId: Long?,
         title: String?,
         content: String?,
         fileIds: List<Long>?,

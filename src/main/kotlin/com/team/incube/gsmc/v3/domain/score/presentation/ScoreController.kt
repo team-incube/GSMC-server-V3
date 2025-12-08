@@ -2,25 +2,19 @@ package com.team.incube.gsmc.v3.domain.score.presentation
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
-import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateAcademicGradeScoreRequest
-import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateAwardScoreRequest
-import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateCertificateScoreRequest
-import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateExternalActivityScoreRequest
-import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateJlptScoreRequest
-import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateNcsScoreRequest
-import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateNewrrowSchoolScoreRequest
-import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateProjectParticipationRequest
-import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateReadAThonScoreRequest
-import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateToeicScoreRequest
-import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateTopcitScoreRequest
-import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateVolunteerScoreRequest
+import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateProjectParticipationScoreRequest
+import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateScoreWithValueAndFileRequest
+import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateScoreWithValueAndMemberIdRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.RejectScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScoreStatusRequest
+import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScoreWithValueAndFileRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetMyScoresResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetScoreResponse
+import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetScoresByCategoryResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
 import com.team.incube.gsmc.v3.domain.score.service.ApproveScoreService
+import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreByMemberIdService
 import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateAcademicGradeScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateAwardScoreService
@@ -31,13 +25,19 @@ import com.team.incube.gsmc.v3.domain.score.service.CreateNcsScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateNewrrowSchoolScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateProjectParticipationService
 import com.team.incube.gsmc.v3.domain.score.service.CreateReadAThonScoreService
+import com.team.incube.gsmc.v3.domain.score.service.CreateToeicAcademyScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateToeicScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateTopcitScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateVolunteerScoreService
 import com.team.incube.gsmc.v3.domain.score.service.DeleteScoreService
 import com.team.incube.gsmc.v3.domain.score.service.FindMyScoresService
 import com.team.incube.gsmc.v3.domain.score.service.FindScoreByScoreIdService
+import com.team.incube.gsmc.v3.domain.score.service.FindScoresByCategoryByMemberIdService
+import com.team.incube.gsmc.v3.domain.score.service.FindScoresByCategoryService
 import com.team.incube.gsmc.v3.domain.score.service.RejectScoreService
+import com.team.incube.gsmc.v3.domain.score.service.UpdateAwardScoreService
+import com.team.incube.gsmc.v3.domain.score.service.UpdateCertificateScoreService
+import com.team.incube.gsmc.v3.domain.score.service.UpdateExternalActivityScoreService
 import com.team.incube.gsmc.v3.domain.score.service.UpdateScoreStatusService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -70,6 +70,7 @@ class ScoreController(
     private val createAwardScoreService: CreateAwardScoreService,
     private val createTopcitScoreService: CreateTopcitScoreService,
     private val createToeicScoreService: CreateToeicScoreService,
+    private val createToeicAcademyScoreService: CreateToeicAcademyScoreService,
     private val createJlptScoreService: CreateJlptScoreService,
     private val createReadAThonScoreService: CreateReadAThonScoreService,
     private val createVolunteerScoreService: CreateVolunteerScoreService,
@@ -78,9 +79,15 @@ class ScoreController(
     private val createAcademicGradeScoreService: CreateAcademicGradeScoreService,
     private val createExternalActivityScoreService: CreateExternalActivityScoreService,
     private val createProjectParticipationService: CreateProjectParticipationService,
+    private val updateCertificateScoreService: UpdateCertificateScoreService,
+    private val updateAwardScoreService: UpdateAwardScoreService,
+    private val updateExternalActivityScoreService: UpdateExternalActivityScoreService,
     private val calculateTotalScoreService: CalculateTotalScoreService,
+    private val calculateTotalScoreByMemberIdService: CalculateTotalScoreByMemberIdService,
     private val findMyScoresService: FindMyScoresService,
     private val findScoreByScoreIdService: FindScoreByScoreIdService,
+    private val findScoresByCategoryService: FindScoresByCategoryService,
+    private val findScoresByCategoryByMemberIdService: FindScoresByCategoryByMemberIdService,
 ) {
     @Operation(summary = "인증제 점수 상태 업데이트", description = "인증제 점수의 승인/거절 상태를 업데이트합니다")
     @ApiResponses(
@@ -203,12 +210,12 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/certificates")
+    @PostMapping("/certificate")
     fun addCertificateScore(
-        @RequestBody @Valid request: CreateCertificateScoreRequest,
+        @RequestBody @Valid request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
         createCertificateScoreService.execute(
-            certificateName = request.certificateName,
+            value = request.value,
             fileId = request.fileId,
         )
 
@@ -232,12 +239,12 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/awards")
+    @PostMapping("/award")
     fun addAwardScore(
-        @RequestBody @Valid request: CreateAwardScoreRequest,
+        @RequestBody @Valid request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
         createAwardScoreService.execute(
-            awardName = request.awardName,
+            value = request.value,
             fileId = request.fileId,
         )
 
@@ -249,6 +256,11 @@ class ScoreController(
                 description = "요청이 성공함",
             ),
             ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 점수 값이거나 점수 값이 허용 범위(1-1000)를 벗어남",
+                content = [Content()],
+            ),
+            ApiResponse(
                 responseCode = "404",
                 description = "존재하지 않는 파일을 매핑함",
                 content = [Content()],
@@ -258,7 +270,7 @@ class ScoreController(
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/topcit")
     fun addTopcitScore(
-        @Valid @RequestBody request: CreateTopcitScoreRequest,
+        @Valid @RequestBody request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
         createTopcitScoreService.execute(
             value = request.value,
@@ -273,6 +285,11 @@ class ScoreController(
                 description = "요청이 성공함",
             ),
             ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 점수 값이거나 점수 값이 허용 범위(10-990)를 벗어남",
+                content = [Content()],
+            ),
+            ApiResponse(
                 responseCode = "404",
                 description = "존재하지 않는 파일을 매핑함",
                 content = [Content()],
@@ -282,12 +299,25 @@ class ScoreController(
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/toeic")
     fun addToeicScore(
-        @Valid @RequestBody request: CreateToeicScoreRequest,
+        @Valid @RequestBody request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
         createToeicScoreService.execute(
             value = request.value,
             fileId = request.fileId,
         )
+
+    @Operation(summary = "토익사관학교 참여 등록 또는 개신", description = "현재 인증된 사용자의 토익사관학교 참여를 등록 또는 갱신합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/toeic-academy")
+    fun addToeicAcademyScore(): CreateScoreResponse = createToeicAcademyScoreService.execute()
 
     @Operation(summary = "JLPT 영역 인증제 점수 추가 또는 갱신", description = "현재 인증된 사용자의 JLPT 영역에 대한 인증제 점수를 추가하거나 갱신합니다")
     @ApiResponses(
@@ -295,6 +325,11 @@ class ScoreController(
             ApiResponse(
                 responseCode = "200",
                 description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 점수 값이거나 점수 값이 허용 범위(1-5)를 벗어남",
+                content = [Content()],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -306,10 +341,10 @@ class ScoreController(
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/jlpt")
     fun addJlptScore(
-        @Valid @RequestBody request: CreateJlptScoreRequest,
+        @Valid @RequestBody request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
         createJlptScoreService.execute(
-            grade = request.grade,
+            value = request.value,
             fileId = request.fileId,
         )
 
@@ -321,6 +356,11 @@ class ScoreController(
                 description = "요청이 성공함",
             ),
             ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 점수 값이거나 점수 값이 허용 범위(1-7)를 벗어남",
+                content = [Content()],
+            ),
+            ApiResponse(
                 responseCode = "404",
                 description = "존재하지 않는 파일을 매핑함",
                 content = [Content()],
@@ -328,12 +368,12 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/readathon")
+    @PostMapping("/read-a-thon")
     fun addReadAThonScore(
-        @Valid @RequestBody request: CreateReadAThonScoreRequest,
+        @Valid @RequestBody request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
         createReadAThonScoreService.execute(
-            grade = request.grade,
+            value = request.value,
             fileId = request.fileId,
         )
 
@@ -344,15 +384,21 @@ class ScoreController(
                 responseCode = "200",
                 description = "요청이 성공함",
             ),
+            ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 점수 값이거나 점수 값이 허용 범위(최소 1)를 벗어남",
+                content = [Content()],
+            ),
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/volunteer")
     fun addVolunteerScore(
-        @Valid @RequestBody request: CreateVolunteerScoreRequest,
+        @Valid @RequestBody request: CreateScoreWithValueAndMemberIdRequest,
     ): CreateScoreResponse =
         createVolunteerScoreService.execute(
-            hours = request.hours,
+            value = request.value,
+            memberId = request.memberId,
         )
 
     @Operation(summary = "직업기초능력평가 영역 인증제 점수 추가 또는 갱신", description = "현재 인증된 사용자의 직업기초능력평가 영역에 대한 인증제 점수를 추가하거나 갱신합니다")
@@ -361,6 +407,11 @@ class ScoreController(
             ApiResponse(
                 responseCode = "200",
                 description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 점수 값이거나 점수 값이 허용 범위(1.0-5.0)를 벗어남",
+                content = [Content()],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -372,10 +423,10 @@ class ScoreController(
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/ncs")
     fun addNcsScore(
-        @Valid @RequestBody request: CreateNcsScoreRequest,
+        @Valid @RequestBody request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
         createNcsScoreService.execute(
-            averageScore = request.averageScore,
+            value = request.value,
             fileId = request.fileId,
         )
 
@@ -387,6 +438,11 @@ class ScoreController(
                 description = "요청이 성공함",
             ),
             ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 점수 값이거나 점수 값이 허용 범위(0-100)를 벗어남",
+                content = [Content()],
+            ),
+            ApiResponse(
                 responseCode = "404",
                 description = "존재하지 않는 파일을 매핑함",
                 content = [Content()],
@@ -396,10 +452,10 @@ class ScoreController(
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/newrrow-school")
     fun addNewrrowSchoolScore(
-        @Valid @RequestBody request: CreateNewrrowSchoolScoreRequest,
+        @Valid @RequestBody request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
         createNewrrowSchoolScoreService.execute(
-            temperature = request.temperature,
+            value = request.value,
             fileId = request.fileId,
         )
 
@@ -410,15 +466,21 @@ class ScoreController(
                 responseCode = "200",
                 description = "요청이 성공함",
             ),
+            ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 점수 값이거나 점수 값이 허용 범위(1.0-9.0)를 벗어남",
+                content = [Content()],
+            ),
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/academic-grade")
     fun addAcademicGradeScore(
-        @Valid @RequestBody request: CreateAcademicGradeScoreRequest,
+        @Valid @RequestBody request: CreateScoreWithValueAndMemberIdRequest,
     ): CreateScoreResponse =
         createAcademicGradeScoreService.execute(
-            averageGrade = request.averageGrade,
+            value = request.value,
+            memberId = request.memberId,
         )
 
     @Operation(summary = "외부활동 영역 인증제 점수 추가", description = "현재 인증된 사용자의 외부활동 영역에 대한 인증제 점수를 추가합니다")
@@ -441,12 +503,12 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/external-activities")
+    @PostMapping("/external-activity")
     fun addExternalActivityScore(
-        @RequestBody @Valid request: CreateExternalActivityScoreRequest,
+        @RequestBody @Valid request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
         createExternalActivityScoreService.execute(
-            activityName = request.activityName,
+            value = request.value,
             fileId = request.fileId,
         )
 
@@ -477,7 +539,7 @@ class ScoreController(
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/project-participation")
     fun addProjectParticipationScore(
-        @RequestBody @Valid request: CreateProjectParticipationRequest,
+        @RequestBody @Valid request: CreateProjectParticipationScoreRequest,
     ): CreateScoreResponse =
         createProjectParticipationService.execute(
             projectId = request.projectId,
@@ -519,6 +581,42 @@ class ScoreController(
         @RequestParam(required = false) status: ScoreStatus?,
     ): GetMyScoresResponse = findMyScoresService.execute(categoryType = categoryType, status = status)
 
+    @Operation(summary = "현재 사용자의 카테고리별 점수 조회", description = "현재 인증된 사용자의 인증제 점수를 카테고리별로 그룹핑하여 환산 점수와 함께 조회합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/by-category")
+    fun getScoresByCategory(
+        @RequestParam(required = false) status: ScoreStatus?,
+    ): GetScoresByCategoryResponse = findScoresByCategoryService.execute(status = status)
+
+    @Operation(summary = "특정 사용자의 카테고리별 점수 조회", description = "특정 사용자의 인증제 점수를 카테고리별로 그룹핑하여 환산 점수와 함께 조회합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 사용자를 매핑함",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/by-category/{memberId}")
+    fun getScoresByCategoryByMemberId(
+        @PathVariable memberId: Long,
+        @RequestParam(required = false) status: ScoreStatus?,
+    ): GetScoresByCategoryResponse = findScoresByCategoryByMemberIdService.execute(memberId = memberId, status = status)
+
     @Operation(summary = "현재 사용자의 총점 조회", description = "현재 인증된 사용자의 인증제 총점을 조회합니다")
     @ApiResponses(
         value = [
@@ -537,4 +635,123 @@ class ScoreController(
             required = false,
         ) includeApprovedOnly: Boolean,
     ): GetTotalScoreResponse = calculateTotalScoreService.execute(includeApprovedOnly = includeApprovedOnly)
+
+    @Operation(summary = "특정 사용자의 총점 조회", description = "특정 사용자의 인증제 총점을 조회합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 사용자를 매핑함",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/total/{memberId}")
+    fun getTotalScoreByMemberId(
+        @PathVariable memberId: Long,
+        @RequestParam(
+            name = "includeApprovedOnly",
+            defaultValue = "true",
+            required = false,
+        ) includeApprovedOnly: Boolean,
+    ): GetTotalScoreResponse =
+        calculateTotalScoreByMemberIdService.execute(
+            memberId = memberId,
+            includeApprovedOnly = includeApprovedOnly,
+        )
+
+    @Operation(summary = "자격증 점수 수정", description = "자격증 점수의 활동명과 증빙 파일을 수정합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "해당 점수의 소유자가 아님",
+                content = [Content()],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 점수 또는 파일을 매핑함",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PatchMapping("/certificate/{scoreId}")
+    fun updateCertificateScore(
+        @PathVariable scoreId: Long,
+        @Valid @RequestBody request: UpdateScoreWithValueAndFileRequest,
+    ) = updateCertificateScoreService.execute(
+        scoreId = scoreId,
+        value = request.value,
+        fileId = request.fileId,
+    )
+
+    @Operation(summary = "수상경력 점수 수정", description = "수상경력 점수의 활동명과 증빙 파일을 수정합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "해당 점수의 소유자가 아님",
+                content = [Content()],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 점수 또는 파일을 매핑함",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PatchMapping("/award/{scoreId}")
+    fun updateAwardScore(
+        @PathVariable scoreId: Long,
+        @Valid @RequestBody request: UpdateScoreWithValueAndFileRequest,
+    ) = updateAwardScoreService.execute(
+        scoreId = scoreId,
+        value = request.value,
+        fileId = request.fileId,
+    )
+
+    @Operation(summary = "외부활동 점수 수정", description = "외부활동 점수의 활동명과 증빙 파일을 수정합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "해당 점수의 소유자가 아님",
+                content = [Content()],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 점수 또는 파일을 매핑함",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PatchMapping("/external-activity/{scoreId}")
+    fun updateExternalActivityScore(
+        @PathVariable scoreId: Long,
+        @Valid @RequestBody request: UpdateScoreWithValueAndFileRequest,
+    ) = updateExternalActivityScoreService.execute(
+        scoreId = scoreId,
+        value = request.value,
+        fileId = request.fileId,
+    )
 }

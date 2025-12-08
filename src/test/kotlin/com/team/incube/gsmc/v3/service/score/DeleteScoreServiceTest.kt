@@ -82,18 +82,18 @@ class DeleteScoreServiceTest :
             val files =
                 listOf(
                     File(
-                        fileId = 10L,
-                        memberId = 0L,
-                        fileOriginalName = "a.pdf",
-                        fileStoredName = "sa.pdf",
-                        fileUri = "s3://a",
+                        id = 10L,
+                        member = 0L,
+                        originalName = "a.pdf",
+                        storeName = "sa.pdf",
+                        uri = "s3://a",
                     ),
                     File(
-                        fileId = 11L,
-                        memberId = 0L,
-                        fileOriginalName = "b.jpg",
-                        fileStoredName = "sb.jpg",
-                        fileUri = "s3://b",
+                        id = 11L,
+                        member = 0L,
+                        originalName = "b.jpg",
+                        storeName = "sb.jpg",
+                        uri = "s3://b",
                     ),
                 )
             val score =
@@ -111,7 +111,7 @@ class DeleteScoreServiceTest :
             val evidence =
                 Evidence(
                     id = sourceId,
-                    memberId = 0L,
+                    member = 0L,
                     title = "t",
                     content = "c",
                     createdAt = now,
@@ -149,7 +149,7 @@ class DeleteScoreServiceTest :
             val scoreId = 2L
             val sourceId = 200L
             val file =
-                File(fileId = sourceId, memberId = 0L, fileOriginalName = "f", fileStoredName = "sf", fileUri = "s3://f")
+                File(id = sourceId, member = 0L, originalName = "f", storeName = "sf", uri = "s3://f")
             val score =
                 Score(
                     id = scoreId,
@@ -164,8 +164,8 @@ class DeleteScoreServiceTest :
 
             every { c.scoreRepo.findById(scoreId) } returns score
             every { c.fileRepo.findById(sourceId) } returns file
-            justRun { c.s3.execute(file.fileUri) }
-            justRun { c.fileRepo.deleteById(file.fileId) }
+            justRun { c.s3.execute(file.uri) }
+            justRun { c.fileRepo.deleteById(file.id) }
             justRun { c.scoreRepo.deleteById(scoreId) }
 
             When("execute를 호출하면") {
@@ -313,7 +313,7 @@ class DeleteScoreServiceTest :
             val evidence =
                 Evidence(
                     id = sourceId,
-                    memberId = 0L,
+                    member = 0L,
                     title = "t",
                     content = "c",
                     createdAt = now,

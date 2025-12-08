@@ -5,7 +5,7 @@ import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.PatchE
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.impl.UpdateEvidenceServiceImpl
 import com.team.incube.gsmc.v3.domain.file.dto.File
-import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
@@ -51,34 +51,52 @@ class UpdateEvidenceServiceTest :
         }
         afterTest { unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt") }
 
-        Given("증빙이 존재하고 참여자와 파일이 모두 변경되는 경우") {
+        Given("증빙이 존재하고 점수와 파일이 모두 변경되는 경우") {
             val c = ctx()
             val id = 1L
             val userId = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val originFiles = listOf(File(10, userId, "a.pdf", "sa.pdf", "uri-a"))
-            val found = Evidence(id, userId, "old-title", "old-content", now, now, originFiles)
-            val newParticipantId = 100L
+            val originFiles = listOf(File(id = 10, memberId = userId, originalName = "a.pdf", storeName = "sa.pdf", uri = "uri-a"))
+            val found =
+                Evidence(
+                    id,
+                    memberId = userId,
+                    title = "old-title",
+                    content = "old-content",
+                    createdAt = now,
+                    updatedAt = now,
+                    files = originFiles,
+                )
+            val newScoreId = 100L
             val newFileIds = listOf(20L, 21L)
             val updatedFiles =
                 listOf(
-                    File(20, userId, "b.pdf", "sb.pdf", "uri-b"),
-                    File(21, userId, "c.jpg", "sc.jpg", "uri-c"),
+                    File(id = 20, memberId = userId, originalName = "b.pdf", storeName = "sb.pdf", uri = "uri-b"),
+                    File(id = 21, memberId = userId, originalName = "c.jpg", storeName = "sc.jpg", uri = "uri-c"),
                 )
-            val updated = Evidence(id, userId, "new-title", "new-content", now, now, updatedFiles)
+            val updated =
+                Evidence(
+                    id,
+                    memberId = userId,
+                    title = "new-title",
+                    content = "new-content",
+                    createdAt = now,
+                    updatedAt = now,
+                    files = updatedFiles,
+                )
 
             every { c.evidenceRepo.findById(id) } returns found
             every { c.fileRepo.existsByIdIn(newFileIds) } returns true
-            every { c.scoreRepo.existsById(newParticipantId) } returns true
+            every { c.scoreRepo.existsById(newScoreId) } returns true
             justRun { c.scoreRepo.updateSourceIdToNull(id) }
-            justRun { c.scoreRepo.updateSourceId(newParticipantId, id) }
+            justRun { c.scoreRepo.updateSourceId(newScoreId, id) }
             every {
                 c.evidenceRepo.update(id = id, title = "new-title", content = "new-content", fileIds = newFileIds)
             } returns updated
 
             When("execute를 호출하면") {
                 val res: PatchEvidenceResponse =
-                    c.service.execute(id, newParticipantId, "new-title", "new-content", newFileIds)
+                    c.service.execute(id, newScoreId, "new-title", "new-content", newFileIds)
 
                 Then("수정된 정보가 반환된다") {
                     res shouldNotBe null
@@ -87,16 +105,16 @@ class UpdateEvidenceServiceTest :
                     res.content shouldBe "new-content"
                     res.files shouldBe
                         listOf(
-                            FileItem(20, "b.pdf", "sb.pdf", "uri-b"),
-                            FileItem(21, "c.jpg", "sc.jpg", "uri-c"),
+                            GetFileResponse(20, userId, "b.pdf", "sb.pdf", "uri-b"),
+                            GetFileResponse(21, userId, "c.jpg", "sc.jpg", "uri-c"),
                         )
                 }
 
-                Then("참여자 재매핑 및 파일 검증/업데이트가 수행된다") {
+                Then("점수 재매핑 및 파일 검증/업데이트가 수행된다") {
                     verify(exactly = 1) { c.fileRepo.existsByIdIn(newFileIds) }
-                    verify(exactly = 1) { c.scoreRepo.existsById(newParticipantId) }
+                    verify(exactly = 1) { c.scoreRepo.existsById(newScoreId) }
                     verify(exactly = 1) { c.scoreRepo.updateSourceIdToNull(id) }
-                    verify(exactly = 1) { c.scoreRepo.updateSourceId(newParticipantId, id) }
+                    verify(exactly = 1) { c.scoreRepo.updateSourceId(newScoreId, id) }
                     verify(exactly = 1) {
                         c.evidenceRepo.update(
                             id = id,
@@ -127,7 +145,7 @@ class UpdateEvidenceServiceTest :
             val id = 1L
             val userId = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val found = Evidence(id, userId, "t", "c", now, now, emptyList())
+            val found = Evidence(id, memberId = userId, title = "t", content = "c", createdAt = now, updatedAt = now, files = emptyList())
             every { c.evidenceRepo.findById(id) } returns found
             every { c.fileRepo.existsByIdIn(listOf(999L)) } returns false
 
@@ -139,12 +157,12 @@ class UpdateEvidenceServiceTest :
             }
         }
 
-        Given("참여자 ID가 주어졌지만 존재하지 않을 때") {
+        Given("점수 ID가 주어졌지만 존재하지 않을 때") {
             val c = ctx()
             val id = 1L
             val userId = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val found = Evidence(id, userId, "t", "c", now, now, emptyList())
+            val found = Evidence(id, memberId = userId, title = "t", content = "c", createdAt = now, updatedAt = now, files = emptyList())
             every { c.evidenceRepo.findById(id) } returns found
             every { c.fileRepo.existsByIdIn(any()) } returns true
             every { c.scoreRepo.existsById(100L) } returns false
@@ -168,14 +186,15 @@ class UpdateEvidenceServiceTest :
             }
         }
 
-        Given("타이틀/내용/파일/참여자 모두 null이면 기존 값으로 업데이트 된다") {
+        Given("타이틀/내용/파일/점수 모두 null이면 기존 값으로 업데이트 된다") {
             val c = ctx()
             val id = 1L
             val userId = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val originFiles = listOf(File(10, userId, "a.pdf", "sa.pdf", "uri-a"))
-            val found = Evidence(id, userId, "t0", "c0", now, now, originFiles)
-            val updated = Evidence(id, userId, "t0", "c0", now, now, originFiles)
+            val originFiles = listOf(File(id = 10, memberId = userId, originalName = "a.pdf", storeName = "sa.pdf", uri = "uri-a"))
+            val found = Evidence(id, memberId = userId, title = "t0", content = "c0", createdAt = now, updatedAt = now, files = originFiles)
+            val updated =
+                Evidence(id, memberId = userId, title = "t0", content = "c0", createdAt = now, updatedAt = now, files = originFiles)
 
             every { c.evidenceRepo.findById(id) } returns found
             every {
@@ -202,9 +221,11 @@ class UpdateEvidenceServiceTest :
             val id = 2L
             val userId = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val originFiles = listOf(File(10, userId, "a.pdf", "sa.pdf", "uri-a"))
-            val found = Evidence(id, userId, "old", "keep", now, now, originFiles)
-            val updated = Evidence(id, userId, "new", "keep", now, now, originFiles)
+            val originFiles = listOf(File(id = 10, memberId = userId, originalName = "a.pdf", storeName = "sa.pdf", uri = "uri-a"))
+            val found =
+                Evidence(id, memberId = userId, title = "old", content = "keep", createdAt = now, updatedAt = now, files = originFiles)
+            val updated =
+                Evidence(id, memberId = userId, title = "new", content = "keep", createdAt = now, updatedAt = now, files = originFiles)
             every { c.evidenceRepo.findById(id) } returns found
             every { c.evidenceRepo.update(id = id, title = "new", content = "keep", fileIds = listOf(10L)) } returns
                 updated
@@ -215,7 +236,7 @@ class UpdateEvidenceServiceTest :
                 Then("제목만 변경되어 반환된다") {
                     res.title shouldBe "new"
                     res.content shouldBe "keep"
-                    res.files shouldBe listOf(FileItem(10, "a.pdf", "sa.pdf", "uri-a"))
+                    res.files shouldBe listOf(GetFileResponse(10, userId, "a.pdf", "sa.pdf", "uri-a"))
                 }
             }
         }

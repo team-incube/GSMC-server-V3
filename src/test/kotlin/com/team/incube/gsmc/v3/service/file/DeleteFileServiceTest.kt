@@ -76,11 +76,11 @@ class DeleteFileServiceTest :
             val testFileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/test-file.pdf"
             val existingFile =
                 File(
-                    fileId = fileId,
-                    memberId = 0L,
-                    fileOriginalName = "test-document.pdf",
-                    fileStoredName = "20251015120000_abc123def456.pdf",
-                    fileUri = testFileUri,
+                    id = fileId,
+                    member = 0L,
+                    originalName = "test-document.pdf",
+                    storeName = "20251015120000_abc123def456.pdf",
+                    uri = testFileUri,
                 )
 
             every { context.mockFileRepository.findById(fileId) } returns existingFile
@@ -142,11 +142,11 @@ class DeleteFileServiceTest :
             fileIds.forEachIndexed { index, fileId ->
                 val file =
                     File(
-                        fileId = fileId,
-                        memberId = 0L,
-                        fileOriginalName = "file$fileId.pdf",
-                        fileStoredName = "stored-file$fileId.pdf",
-                        fileUri = fileUris[index],
+                        id = fileId,
+                        member = 0L,
+                        originalName = "file$fileId.pdf",
+                        storeName = "stored-file$fileId.pdf",
+                        uri = fileUris[index],
                     )
                 every { context.mockFileRepository.findById(fileId) } returns file
                 justRun { context.mockS3DeleteService.execute(fileUris[index]) }
@@ -184,11 +184,11 @@ class DeleteFileServiceTest :
             val testFileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/test-file.pdf"
             val existingFile =
                 File(
-                    fileId = fileId,
-                    memberId = 0L,
-                    fileOriginalName = "test-document.pdf",
-                    fileStoredName = "20251015120000_abc123def456.pdf",
-                    fileUri = testFileUri,
+                    id = fileId,
+                    member = 0L,
+                    originalName = "test-document.pdf",
+                    storeName = "20251015120000_abc123def456.pdf",
+                    uri = testFileUri,
                 )
 
             // Interaction - S3 삭제 시 예외 발생
@@ -222,11 +222,11 @@ class DeleteFileServiceTest :
                     val fileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/$fileName"
                     val file =
                         File(
-                            fileId = fileId,
-                            memberId = 0L,
-                            fileOriginalName = fileName,
-                            fileStoredName = "stored-$fileName",
-                            fileUri = fileUri,
+                            id = fileId,
+                            member = 0L,
+                            originalName = fileName,
+                            storeName = "stored-$fileName",
+                            uri = fileUri,
                         )
 
                     every { context.mockFileRepository.findById(fileId) } returns file
@@ -250,11 +250,11 @@ class DeleteFileServiceTest :
             val testFileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/test-file.pdf"
             val existingFile =
                 File(
-                    fileId = fileId,
-                    memberId = 0L,
-                    fileOriginalName = "test-document.pdf",
-                    fileStoredName = "20251015120000_abc123def456.pdf",
-                    fileUri = testFileUri,
+                    id = fileId,
+                    member = 0L,
+                    originalName = "test-document.pdf",
+                    storeName = "20251015120000_abc123def456.pdf",
+                    uri = testFileUri,
                 )
 
             every { context.mockFileRepository.findById(fileId) } returns existingFile

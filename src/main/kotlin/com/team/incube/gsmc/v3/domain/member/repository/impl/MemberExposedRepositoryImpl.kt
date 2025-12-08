@@ -5,15 +5,16 @@ import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.dto.constant.SortDirection
 import com.team.incube.gsmc.v3.domain.member.entity.MemberExposedEntity
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.like
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -21,6 +22,19 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class MemberExposedRepositoryImpl : MemberExposedRepository {
+    override fun findByGradeAndClassNumberAndRole(
+        grade: Int,
+        classNumber: Int,
+        role: MemberRole,
+    ): List<Member> =
+        MemberExposedEntity
+            .selectAll()
+            .where {
+                (MemberExposedEntity.grade eq grade) and
+                    (MemberExposedEntity.classNumber eq classNumber) and
+                    (MemberExposedEntity.role eq role)
+            }.map { it.toMember() }
+
     override fun searchMembers(
         email: String?,
         name: String?,
@@ -109,6 +123,19 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
             .limit(1)
             .firstOrNull()
             ?.toMember()
+
+    override fun findAllByIdIn(ids: List<Long>): List<Member> =
+        MemberExposedEntity
+            .selectAll()
+            .where { MemberExposedEntity.id inList ids }
+            .map { it.toMember() }
+
+    override fun existsById(id: Long): Boolean =
+        MemberExposedEntity
+            .selectAll()
+            .where { MemberExposedEntity.id eq id }
+            .empty()
+            .not()
 
     override fun updateMemberRoleByEmail(
         email: String,

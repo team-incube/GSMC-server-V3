@@ -9,7 +9,7 @@ import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.security.jwt.JwtParser
 import com.team.incube.gsmc.v3.global.security.jwt.JwtProvider
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.stereotype.Service
 
 @Service
@@ -43,7 +43,7 @@ class TokenRefreshServiceImpl(
         val newRefreshToken =
             RefreshTokenRedisEntity(
                 token = newRefresh.token,
-                memberId = memberId,
+                member = memberId,
                 expiration =
                     newRefresh.expiration
                         .atZone(java.time.ZoneId.systemDefault())

@@ -3,18 +3,20 @@ package com.team.incube.gsmc.v3.domain.project.presentation.controller
 import com.team.incube.gsmc.v3.domain.project.presentation.data.request.CreateProjectDraftRequest
 import com.team.incube.gsmc.v3.domain.project.presentation.data.request.CreateProjectRequest
 import com.team.incube.gsmc.v3.domain.project.presentation.data.request.PatchProjectRequest
+import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetMyProjectScoreAndEvidenceResponse
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectDraftResponse
-import com.team.incube.gsmc.v3.domain.project.presentation.data.response.ProjectResponse
+import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectResponse
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.SearchProjectResponse
-import com.team.incube.gsmc.v3.domain.project.service.CreateCurrentProjectService
-import com.team.incube.gsmc.v3.domain.project.service.CreateProjectDraftService
-import com.team.incube.gsmc.v3.domain.project.service.DeleteCurrentProjectService
-import com.team.incube.gsmc.v3.domain.project.service.DeleteProjectDraftService
-import com.team.incube.gsmc.v3.domain.project.service.FindCurrentProjectsService
+import com.team.incube.gsmc.v3.domain.project.service.CreateMyProjectDraftService
+import com.team.incube.gsmc.v3.domain.project.service.CreateProjectService
+import com.team.incube.gsmc.v3.domain.project.service.DeleteMyProjectDraftService
+import com.team.incube.gsmc.v3.domain.project.service.DeleteProjectService
+import com.team.incube.gsmc.v3.domain.project.service.FindMyProjectDraftService
+import com.team.incube.gsmc.v3.domain.project.service.FindMyProjectScoreAndEvidenceService
+import com.team.incube.gsmc.v3.domain.project.service.FindMyProjectsService
 import com.team.incube.gsmc.v3.domain.project.service.FindProjectByIdService
-import com.team.incube.gsmc.v3.domain.project.service.FindProjectDraftService
 import com.team.incube.gsmc.v3.domain.project.service.SearchProjectService
-import com.team.incube.gsmc.v3.domain.project.service.UpdateCurrentProjectService
+import com.team.incube.gsmc.v3.domain.project.service.UpdateProjectService
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -38,15 +40,16 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v3/projects")
 class ProjectController(
-    private val createCurrentProjectService: CreateCurrentProjectService,
-    private val updateCurrentProjectService: UpdateCurrentProjectService,
-    private val deleteCurrentProjectService: DeleteCurrentProjectService,
+    private val createProjectService: CreateProjectService,
+    private val updateProjectService: UpdateProjectService,
+    private val deleteProjectService: DeleteProjectService,
     private val searchProjectService: SearchProjectService,
-    private val findCurrentProjectsService: FindCurrentProjectsService,
+    private val findMyProjectsService: FindMyProjectsService,
     private val findProjectByIdService: FindProjectByIdService,
-    private val createProjectDraftService: CreateProjectDraftService,
-    private val findProjectDraftService: FindProjectDraftService,
-    private val deleteProjectDraftService: DeleteProjectDraftService,
+    private val createMyProjectDraftService: CreateMyProjectDraftService,
+    private val findMyProjectDraftService: FindMyProjectDraftService,
+    private val deleteMyProjectDraftService: DeleteMyProjectDraftService,
+    private val findMyProjectScoreAndEvidenceService: FindMyProjectScoreAndEvidenceService,
 ) {
     @Operation(summary = "프로젝트 생성", description = "현재 인증된 사용자를 대표자로 하는 프로젝트를 생성합니다")
     @ApiResponses(
@@ -61,8 +64,8 @@ class ProjectController(
     @PostMapping
     fun createProject(
         @Valid @RequestBody request: CreateProjectRequest,
-    ): ProjectResponse =
-        createCurrentProjectService.execute(
+    ): GetProjectResponse =
+        createProjectService.execute(
             title = request.title,
             description = request.description,
             fileIds = request.fileIds,
@@ -93,8 +96,8 @@ class ProjectController(
     fun updateProject(
         @PathVariable projectId: Long,
         @Valid @RequestBody request: PatchProjectRequest,
-    ): ProjectResponse =
-        updateCurrentProjectService.execute(
+    ): GetProjectResponse =
+        updateProjectService.execute(
             projectId = projectId,
             title = request.title,
             description = request.description,
@@ -127,7 +130,7 @@ class ProjectController(
     fun deleteProject(
         @PathVariable projectId: Long,
     ): CommonApiResponse<Nothing> {
-        deleteCurrentProjectService.execute(projectId)
+        deleteProjectService.execute(projectId)
         return CommonApiResponse.success("OK")
     }
 
@@ -163,7 +166,7 @@ class ProjectController(
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/current")
-    fun getCurrentProjects(): List<ProjectResponse> = findCurrentProjectsService.execute()
+    fun getCurrentProjects(): List<GetProjectResponse> = findMyProjectsService.execute()
 
     @Operation(summary = "프로젝트 단건 조회", description = "프로젝트 ID로 프로젝트를 조회합니다")
     @ApiResponses(
@@ -183,7 +186,7 @@ class ProjectController(
     @GetMapping("/{projectId}")
     fun getProject(
         @PathVariable projectId: Long,
-    ): ProjectResponse = findProjectByIdService.execute(projectId)
+    ): GetProjectResponse = findProjectByIdService.execute(projectId)
 
     @Operation(summary = "프로젝트 임시저장 생성", description = "프로젝트를 임시저장합니다")
     @ApiResponses(
@@ -198,7 +201,7 @@ class ProjectController(
     @PostMapping("/draft")
     fun createProjectDraft(
         @Valid @RequestBody request: CreateProjectDraftRequest,
-    ): GetProjectDraftResponse = createProjectDraftService.execute(request = request)
+    ): GetProjectDraftResponse = createMyProjectDraftService.execute(request = request)
 
     @Operation(summary = "프로젝트 임시저장 조회", description = "임시저장된 프로젝트를 조회합니다")
     @ApiResponses(
@@ -211,7 +214,7 @@ class ProjectController(
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/draft")
-    fun getProjectDraft(): GetProjectDraftResponse? = findProjectDraftService.execute()
+    fun getProjectDraft(): GetProjectDraftResponse? = findMyProjectDraftService.execute()
 
     @Operation(summary = "프로젝트 임시저장 삭제", description = "임시저장된 프로젝트를 삭제합니다")
     @ApiResponses(
@@ -225,7 +228,35 @@ class ProjectController(
     @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/draft")
     fun deleteProjectDraft(): CommonApiResponse<Nothing> {
-        deleteProjectDraftService.execute()
+        deleteMyProjectDraftService.execute()
         return CommonApiResponse.success("OK")
     }
+
+    @Operation(
+        summary = "내 프로젝트 참여 점수 및 증빙자료 조회",
+        description = "현재 인증된 사용자가 특정 프로젝트에 대해 작성한 점수와 증빙자료를 조회합니다. 작성하지 않았으면 해당 필드는 null입니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "프로젝트 참가자가 아님",
+                content = [Content()],
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 프로젝트",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/{projectId}/my-score-and-evidence")
+    fun getMyProjectScoreAndEvidence(
+        @PathVariable projectId: Long,
+    ): GetMyProjectScoreAndEvidenceResponse = findMyProjectScoreAndEvidenceService.execute(projectId)
 }

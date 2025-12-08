@@ -1,6 +1,6 @@
 package com.team.incube.gsmc.v3.domain.evidence.presentation.data.response
 
-import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 
@@ -17,5 +17,5 @@ data class GetEvidenceResponse(
     @param:Schema(description = "수정 일시", example = "2024-10-02T10:30:00")
     val updatedAt: LocalDateTime,
     @param:Schema(description = "파일 목록")
-    val files: List<FileItem>,
+    val files: List<GetFileResponse>,
 )

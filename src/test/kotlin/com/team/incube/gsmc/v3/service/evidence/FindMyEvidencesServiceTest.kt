@@ -4,7 +4,7 @@ import com.team.incube.gsmc.v3.domain.evidence.dto.Evidence
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.impl.FindMyEvidencesServiceImpl
 import com.team.incube.gsmc.v3.domain.file.dto.File
-import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
@@ -60,8 +60,8 @@ class FindMyEvidencesServiceTest :
                 )
 
             val now = LocalDateTime.of(2025, 11, 19, 10, 0)
-            val files1 = listOf(File(1L, 1L, "file1.pdf", "stored1.pdf", "uri1"))
-            val files2 = listOf(File(2L, 1L, "file2.pdf", "stored2.pdf", "uri2"))
+            val files1 = listOf(File(id = 1L, memberId = 1L, originalName = "file1.pdf", storeName = "stored1.pdf", uri = "uri1"))
+            val files2 = listOf(File(id = 2L, memberId = 1L, originalName = "file2.pdf", storeName = "stored2.pdf", uri = "uri2"))
 
             val evidences =
                 listOf(
@@ -96,12 +96,12 @@ class FindMyEvidencesServiceTest :
                     result.evidences[0].evidenceId shouldBe 10L
                     result.evidences[0].title shouldBe "대회 참가 증빙"
                     result.evidences[0].content shouldBe "2024년 전국 프로그래밍 대회 참가"
-                    result.evidences[0].files shouldBe listOf(FileItem(1L, "file1.pdf", "stored1.pdf", "uri1"))
+                    result.evidences[0].files shouldBe listOf(GetFileResponse(1L, 1L, "file1.pdf", "stored1.pdf", "uri1"))
 
                     result.evidences[1].evidenceId shouldBe 20L
                     result.evidences[1].title shouldBe "봉사활동 증빙"
                     result.evidences[1].content shouldBe "지역 봉사활동 참여"
-                    result.evidences[1].files shouldBe listOf(FileItem(2L, "file2.pdf", "stored2.pdf", "uri2"))
+                    result.evidences[1].files shouldBe listOf(GetFileResponse(2L, 1L, "file2.pdf", "stored2.pdf", "uri2"))
                 }
 
                 Then("현재 사용자 정보를 조회한다") {
@@ -161,7 +161,7 @@ class FindMyEvidencesServiceTest :
                 )
 
             val now = LocalDateTime.of(2025, 11, 15, 14, 30)
-            val files = listOf(File(3L, 3L, "doc.pdf", "stored_doc.pdf", "uri-doc"))
+            val files = listOf(File(id = 3L, memberId = 3L, originalName = "doc.pdf", storeName = "stored_doc.pdf", uri = "uri-doc"))
 
             val evidences =
                 listOf(
@@ -189,7 +189,7 @@ class FindMyEvidencesServiceTest :
                     result.evidences[0].content shouldBe "팀 프로젝트 최종 결과물입니다."
                     result.evidences[0].createdAt shouldBe now
                     result.evidences[0].updatedAt shouldBe now
-                    result.evidences[0].files shouldBe listOf(FileItem(3L, "doc.pdf", "stored_doc.pdf", "uri-doc"))
+                    result.evidences[0].files shouldBe listOf(GetFileResponse(3L, 3L, "doc.pdf", "stored_doc.pdf", "uri-doc"))
                 }
 
                 Then("리포지토리 조회가 정확히 한 번 수행된다") {

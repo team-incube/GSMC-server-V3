@@ -3,12 +3,12 @@ package com.team.incube.gsmc.v3.domain.evidence.service.impl
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.PatchEvidenceResponse
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.UpdateEvidenceService
-import com.team.incube.gsmc.v3.domain.file.presentation.data.dto.FileItem
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.stereotype.Service
 
 @Service
@@ -19,7 +19,7 @@ class UpdateEvidenceServiceImpl(
 ) : UpdateEvidenceService {
     override fun execute(
         evidenceId: Long,
-        participantId: Long?,
+        scoreId: Long?,
         title: String?,
         content: String?,
         fileIds: List<Long>?,
@@ -33,12 +33,12 @@ class UpdateEvidenceServiceImpl(
                 throw GsmcException(ErrorCode.FILE_NOT_FOUND)
             }
 
-            if (participantId != null) {
-                if (!scoreExposedRepository.existsById(participantId)) {
+            if (scoreId != null) {
+                if (!scoreExposedRepository.existsById(scoreId)) {
                     throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
                 }
                 scoreExposedRepository.updateSourceIdToNull(evidenceId)
-                scoreExposedRepository.updateSourceId(participantId, evidenceId)
+                scoreExposedRepository.updateSourceId(scoreId, evidenceId)
             }
 
             val updatedEvidence =
@@ -46,7 +46,7 @@ class UpdateEvidenceServiceImpl(
                     id = evidenceId,
                     title = title ?: evidence.title,
                     content = content ?: evidence.content,
-                    fileIds = fileIds ?: evidence.files.map { it.fileId },
+                    fileIds = fileIds ?: evidence.files.map { it.id },
                 )
 
             PatchEvidenceResponse(
@@ -57,11 +57,12 @@ class UpdateEvidenceServiceImpl(
                 updateAt = updatedEvidence.updatedAt,
                 files =
                     updatedEvidence.files.map {
-                        FileItem(
-                            fileId = it.fileId,
-                            originalName = it.fileOriginalName,
-                            storedName = it.fileStoredName,
-                            uri = it.fileUri,
+                        GetFileResponse(
+                            id = it.id,
+                            originalName = it.originalName,
+                            storeName = it.storeName,
+                            uri = it.uri,
+                            memberId = it.member,
                         )
                     },
             )

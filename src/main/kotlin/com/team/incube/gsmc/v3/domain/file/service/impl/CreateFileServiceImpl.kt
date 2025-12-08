@@ -7,7 +7,7 @@ import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.S3UploadService
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
@@ -35,10 +35,10 @@ class CreateFileServiceImpl(
                     uri = fileUri,
                 )
             CreateFileResponse(
-                id = savedFile.fileId,
-                fileOriginalName = savedFile.fileOriginalName,
-                fileStoredName = savedFile.fileStoredName,
-                fileUri = savedFile.fileUri,
+                id = savedFile.id,
+                originalName = savedFile.originalName,
+                storeName = savedFile.storeName,
+                uri = savedFile.uri,
             )
         }
     }

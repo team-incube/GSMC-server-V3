@@ -10,7 +10,7 @@ import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.config.logger
 import com.team.incube.gsmc.v3.global.security.jwt.JwtProvider
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
@@ -91,7 +91,7 @@ class OAuthAuthenticationServiceImpl(
             val refreshToken =
                 RefreshTokenRedisEntity(
                     token = refresh.token,
-                    memberId = member.id,
+                    member = member.id,
                     expiration =
                         refresh.expiration
                             .atZone(ZoneId.systemDefault())

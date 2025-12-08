@@ -10,14 +10,15 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
-import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
 import java.io.IOException
 
 class JwtAuthenticationFilter(
     private val jwtParser: JwtParser,
 ) : OncePerRequestFilter() {
-    private val pathMatcher = AntPathMatcher()
+    companion object {
+        private const val ACCESS_TOKEN_COOKIE_NAME = "accessToken"
+    }
 
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(
@@ -25,7 +26,7 @@ class JwtAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain,
     ) {
-        val token = jwtParser.resolveToken(request)
+        val token = extractTokenFromCookie(request)
 
         if (token != null && jwtParser.validateAccessToken(token)) {
             val userId = jwtParser.getUserIdFromAccessToken(token).toLong()
@@ -38,5 +39,12 @@ class JwtAuthenticationFilter(
         }
 
         filterChain.doFilter(request, response)
+    }
+
+    private fun extractTokenFromCookie(request: HttpServletRequest): String? {
+        val cookies = request.cookies ?: return null
+        return cookies
+            .firstOrNull { it.name == ACCESS_TOKEN_COOKIE_NAME }
+            ?.value
     }
 }
