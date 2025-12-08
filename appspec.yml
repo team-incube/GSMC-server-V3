@@ -5,7 +5,7 @@ files:
     destination: /home/ec2-user/gsmc-application/
   
   - source: /scripts
-    destination: /home/ec2-user/gsmc-application/scripts/ 
+    destination: /home/ec2-user/gsmc-application/scripts/
 
 permissions:
   - object: /home/ec2-user/gsmc-application/scripts/
