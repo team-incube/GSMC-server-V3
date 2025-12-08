@@ -24,10 +24,7 @@ class DeleteAlertServiceImpl(
                 throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
             }
 
-            val deletedRows = alertExposedRepository.deleteById(alertId)
-            if (deletedRows == 0) {
-                throw GsmcException(ErrorCode.ALERT_NOT_FOUND)
-            }
+            alertExposedRepository.deleteById(alertId)
         }
     }
 }
