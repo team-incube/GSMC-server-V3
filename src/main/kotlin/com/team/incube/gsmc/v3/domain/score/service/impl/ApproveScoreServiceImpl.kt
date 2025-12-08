@@ -35,7 +35,7 @@ class ApproveScoreServiceImpl(
                 CreateAlertEvent(
                     senderId = member.id,
                     receiverId = score.member.id,
-                    scoreId = score.id!!,
+                    scoreId = scoreId,
                     alertType = AlertType.APPROVED,
                 ),
             )
