@@ -5,7 +5,6 @@ import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateProjectParticipationScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateScoreWithValueAndFileRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateScoreWithValueAndMemberIdRequest
-import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateScoreWithValueRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.RejectScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScoreStatusRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScoreWithValueAndFileRequest

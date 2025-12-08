@@ -23,7 +23,10 @@ class CreateAcademicGradeScoreServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
 ) : BaseCreateOrUpdateBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateAcademicGradeScoreService {
-    override fun execute(value: String, memberId: Long): CreateScoreResponse =
+    override fun execute(
+        value: String,
+        memberId: Long,
+    ): CreateScoreResponse =
         transaction {
             val doubleValue =
                 value.toDoubleOrNull()
@@ -33,8 +36,9 @@ class CreateAcademicGradeScoreServiceImpl(
                 throw GsmcException(ErrorCode.SCORE_VALUE_OUT_OF_RANGE)
             }
 
-            val student = memberExposedRepository.findById(memberId)
-                ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
+            val student =
+                memberExposedRepository.findById(memberId)
+                    ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
 
             val score =
                 createOrUpdateScore(

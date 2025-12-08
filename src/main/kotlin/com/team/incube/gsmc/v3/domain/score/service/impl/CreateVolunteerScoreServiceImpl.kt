@@ -2,7 +2,6 @@ package com.team.incube.gsmc.v3.domain.score.service.impl
 
 import com.team.incube.gsmc.v3.domain.alert.dto.constant.AlertType
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
-import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
@@ -24,7 +23,10 @@ class CreateVolunteerScoreServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
 ) : BaseCreateOrUpdateBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateVolunteerScoreService {
-    override fun execute(value: String, memberId: Long): CreateScoreResponse =
+    override fun execute(
+        value: String,
+        memberId: Long,
+    ): CreateScoreResponse =
         transaction {
             val intValue =
                 value.toIntOrNull()
@@ -34,8 +36,9 @@ class CreateVolunteerScoreServiceImpl(
                 throw GsmcException(ErrorCode.SCORE_VALUE_OUT_OF_RANGE)
             }
 
-            val student = memberExposedRepository.findById(memberId)
-                ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
+            val student =
+                memberExposedRepository.findById(memberId)
+                    ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
 
             val score =
                 createOrUpdateScore(
@@ -48,13 +51,13 @@ class CreateVolunteerScoreServiceImpl(
             val teacher = currentMemberProvider.getCurrentMember()
 
             eventPublisher.publishEvent(
-                                CreateAlertEvent(
-                                    senderId = teacher.id,
-                                    receiverId = student.id,
-                                    scoreId = score.scoreId,
-                                    alertType = AlertType.ADD_SCORE,
-                                ),
-                            )
+                CreateAlertEvent(
+                    senderId = teacher.id,
+                    receiverId = student.id,
+                    scoreId = score.scoreId,
+                    alertType = AlertType.ADD_SCORE,
+                ),
+            )
             score
         }
 }

@@ -10,7 +10,6 @@ data class CreateScoreWithValueAndMemberIdRequest(
     )
     @field:NotBlank
     val value: String,
-
     @param:Schema(
         description = "학생 ID",
         example = "1",
