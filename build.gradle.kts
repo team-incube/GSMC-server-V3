@@ -8,18 +8,27 @@ plugins {
     id(plugin.Plugins.KOTLIN_ALLOPEN) version plugin.PluginVersions.KOTLIN_VERSION
     id(plugin.Plugins.KOTEST) version plugin.PluginVersions.KOTEST_VERSION
     id(plugin.Plugins.KTLINT) version plugin.PluginVersions.KTLINT_VERSION
+    jacoco
     idea
 }
 
 group = "com.team.incube"
 version = "0.0.1-SNAPSHOT"
 description = "GSM 인증제 관리 서비스 GSMC v3 서버 애플리케이션"
-java.sourceCompatibility = JavaVersion.VERSION_24
+java.sourceCompatibility = JavaVersion.VERSION_25
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(24)
+        languageVersion = JavaLanguageVersion.of(25)
     }
+}
+
+tasks.jar {
+    enabled = false
+}
+
+tasks.withType<org.springframework.boot.gradle.tasks.bundling.BootJar> {
+    archiveFileName.set("app.jar")
 }
 
 repositories {
@@ -39,12 +48,15 @@ dependencies {
 
     // Spring Data
     implementation(dependency.Dependencies.SPRING_DATA_REDIS)
+    implementation(dependency.Dependencies.SPRING_JDBC)
 
     // Exposed ORM
     implementation(dependency.Dependencies.EXPOSED_CORE)
     implementation(dependency.Dependencies.EXPOSED_DAO)
     implementation(dependency.Dependencies.EXPOSED_JDBC)
-    implementation(dependency.Dependencies.EXPOSED_SPRING_BOOT)
+    implementation(dependency.Dependencies.EXPOSED_JAVA_TIME)
+    implementation(dependency.Dependencies.EXPOSED_TRANSCTION)
+    // implementation(dependency.Dependencies.EXPOSED_SPRING_BOOT)
 
     // HikariCP
     implementation(dependency.Dependencies.HIKARI_CP)
@@ -78,9 +90,19 @@ dependencies {
     testImplementation(dependency.Dependencies.SPRING_TEST)
     testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)
     testImplementation(dependency.Dependencies.KOTEST)
+    testImplementation(dependency.Dependencies.KOTEST_RUNNER)
     testImplementation(dependency.Dependencies.SPRING_SECURITY_TEST)
     testRuntimeOnly(dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER)
     testImplementation(dependency.Dependencies.MOCKK)
+
+    // Jwt
+    implementation(dependency.Dependencies.JJWT_API)
+    runtimeOnly(dependency.Dependencies.JJWT_IMPL)
+    runtimeOnly(dependency.Dependencies.JJWT_JACKSON)
+
+    // Apache POI (Excel)
+    implementation(dependency.Dependencies.APACHE_POI)
+    implementation(dependency.Dependencies.APACHE_POI_OOXML)
 }
 
 dependencyManagement {
@@ -95,8 +117,40 @@ kotlin {
     }
 }
 
-tasks.withType<Test> {
+jacoco {
+    toolVersion = "0.8.10"
+    reportsDirectory.set(file("$rootDir/.qodana/code-coverage"))
+}
+
+tasks.test {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        html.required.set(false)
+    }
+
+    finalizedBy(tasks.jacocoTestCoverageVerification)
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            enabled = true
+            element = "CLASS"
+
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = "0.00".toBigDecimal()
+            }
+
+            excludes = listOf()
+        }
+    }
 }
 
 idea {

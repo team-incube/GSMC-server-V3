@@ -8,11 +8,13 @@ spring:
       mode: never
   cloud:
     aws:
+      region:
+        static: ${AWS_REGION}
       credentials:
         access-key: ${AWS_ACCESS_KEY}
         secret-key: ${AWS_SECRET_KEY}
       s3:
-        bucket-name: ${AWS_BUCKET_NAME}
+        bucket-name: ${AWS_S3_BUCKET_NAME}
     discord:
       webhook:
         url: ${DISCORD_WEBHOOK_URL}
@@ -31,8 +33,17 @@ spring:
       allowed-origins:
         - "https://gsmc.io.kr"
         - "https://gsmc-admin.vercel.app"
+    jwt:
+      issuer: ${JWT_ISSUER}
+      access-token:
+        secret: ${JWT_ACCESS_TOKEN_SECRET}
+        expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
+      refresh-token:
+        secret: ${JWT_REFRESH_TOKEN_SECRET}
+        expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
 springdoc:
   swagger-ui:
     enabled: false
   api-docs:
     enabled: false
+

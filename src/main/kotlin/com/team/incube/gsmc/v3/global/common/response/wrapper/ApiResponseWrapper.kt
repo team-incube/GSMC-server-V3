@@ -19,6 +19,7 @@ class ApiResponseWrapper : ResponseBodyAdvice<Any> {
             arrayOf(
                 "/api-docs/**",
                 "/swagger-ui/**",
+                "/api/v3/sheets/**",
             )
     }
 
@@ -41,19 +42,19 @@ class ApiResponseWrapper : ResponseBodyAdvice<Any> {
             return body
         }
 
-        when {
-            body is CommonApiResponse<*> -> {
+        when (body) {
+            is CommonApiResponse<*> -> {
                 return byPassResponse(body, response)
             }
 
-            body is Map<*, *> -> {
+            is Map<*, *> -> {
                 @Suppress("UNCHECKED_CAST")
                 val bodyMap = body as Map<String, Any>
                 val errorResponse = exceptionResponse(response, bodyMap)
                 if (errorResponse != null) return errorResponse
             }
 
-            body == null -> {
+            null -> {
                 response.setStatusCode(HttpStatus.NO_CONTENT)
                 return null
             }

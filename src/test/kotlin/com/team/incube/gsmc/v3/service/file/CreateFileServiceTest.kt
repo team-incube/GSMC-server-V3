@@ -1,0 +1,302 @@
+package com.team.incube.gsmc.v3.service.file
+
+import com.team.incube.gsmc.v3.domain.file.dto.File
+import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
+import com.team.incube.gsmc.v3.domain.file.service.impl.CreateFileServiceImpl
+import com.team.incube.gsmc.v3.domain.member.dto.Member
+import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.global.common.error.ErrorCode
+import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
+import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.S3UploadService
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldEndWith
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
+import io.mockk.verify
+import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.springframework.web.multipart.MultipartFile
+
+class CreateFileServiceTest :
+    BehaviorSpec({
+
+        data class TestData(
+            val validFile: MultipartFile,
+            val emptyFile: MultipartFile,
+            val fileWithoutExtension: MultipartFile,
+            val invalidExtensionFile: MultipartFile,
+            val mockS3UploadService: S3UploadService,
+            val mockCurrentMemberProvider: CurrentMemberProvider,
+            val mockFileRepository: FileExposedRepository,
+            val createFileService: CreateFileServiceImpl,
+        )
+
+        fun createTestContext(): TestData {
+            val mockS3UploadService = mockk<S3UploadService>()
+            val mockCurrentMemberProvider = mockk<CurrentMemberProvider>()
+            val mockFileRepository = mockk<FileExposedRepository>()
+
+            every { mockCurrentMemberProvider.getCurrentMember() } returns
+                Member(
+                    id = 0L,
+                    name = "Test User",
+                    email = "test@test.com",
+                    grade = 1,
+                    classNumber = 1,
+                    number = 1,
+                    role = MemberRole.STUDENT,
+                )
+
+            val createFileService = CreateFileServiceImpl(mockS3UploadService, mockCurrentMemberProvider, mockFileRepository)
+
+            val validFile =
+                mockk<MultipartFile> {
+                    every { isEmpty } returns false
+                    every { originalFilename } returns "test-document.pdf"
+                }
+
+            val emptyFile =
+                mockk<MultipartFile> {
+                    every { isEmpty } returns true
+                    every { originalFilename } returns "empty-file.pdf"
+                }
+
+            val fileWithoutExtension =
+                mockk<MultipartFile> {
+                    every { isEmpty } returns false
+                    every { originalFilename } returns null
+                }
+
+            val invalidExtensionFile =
+                mockk<MultipartFile> {
+                    every { isEmpty } returns false
+                    every { originalFilename } returns "malware.exe"
+                }
+
+            return TestData(
+                validFile = validFile,
+                emptyFile = emptyFile,
+                fileWithoutExtension = fileWithoutExtension,
+                invalidExtensionFile = invalidExtensionFile,
+                mockS3UploadService = mockS3UploadService,
+                mockCurrentMemberProvider = mockCurrentMemberProvider,
+                mockFileRepository = mockFileRepository,
+                createFileService = createFileService,
+            )
+        }
+
+        beforeTest {
+            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+            every {
+                transaction(db = any(), statement = any<Transaction.() -> Any>())
+            } answers {
+                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
+            }
+        }
+
+        afterTest {
+            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        }
+
+        Given("유효한 파일이 주어졌을 때") {
+            val context = createTestContext()
+            val testFileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/test-file.pdf"
+
+            every { context.mockS3UploadService.execute(context.validFile) } returns testFileUri
+            every {
+                context.mockFileRepository.saveFile(
+                    userId = 0L,
+                    originalName = "test-document.pdf",
+                    storedName = any(),
+                    uri = testFileUri,
+                )
+            } returns
+                File(
+                    id = 1L,
+                    member = 0L,
+                    originalName = "test-document.pdf",
+                    storeName = "20251015120000_abc123def456.pdf",
+                    uri = testFileUri,
+                )
+
+            When("파일 생성을 실행하면") {
+                val result = context.createFileService.execute(context.validFile)
+
+                Then("파일이 정상적으로 생성되어야 한다") {
+                    result shouldNotBe null
+                    result.id shouldBe 1L
+                    result.originalName shouldBe "test-document.pdf"
+                    result.storeName shouldContain "pdf"
+                    result.uri shouldBe testFileUri
+                }
+
+                Then("S3에 파일이 업로드되어야 한다") {
+                    verify(exactly = 1) { context.mockS3UploadService.execute(context.validFile) }
+                }
+
+                Then("저장된 파일명은 타임스탬프와 UUID를 포함해야 한다") {
+                    result.storeName shouldContain "_"
+                    result.storeName shouldEndWith ".pdf"
+                }
+
+                Then("파일 저장소에 저장되어야 한다") {
+                    verify(exactly = 1) {
+                        context.mockFileRepository.saveFile(
+                            userId = 0L,
+                            originalName = "test-document.pdf",
+                            storedName = any(),
+                            uri = testFileUri,
+                        )
+                    }
+                }
+            }
+        }
+
+        Given("허용된 다양한 확장자의 파일들이 주어졌을 때") {
+            val allowedExtensions = listOf("jpg", "png", "pdf", "docx", "xlsx", "pptx", "hwp")
+
+            allowedExtensions.forEach { extension ->
+                When("$extension 파일을 업로드하면") {
+                    val context = createTestContext()
+                    val testFile =
+                        mockk<MultipartFile> {
+                            every { isEmpty } returns false
+                            every { originalFilename } returns "test-file.$extension"
+                        }
+                    val testFileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/test-file.$extension"
+
+                    every { context.mockS3UploadService.execute(testFile) } returns testFileUri
+                    every {
+                        context.mockFileRepository.saveFile(
+                            userId = 0L,
+                            originalName = "test-file.$extension",
+                            storedName = any(),
+                            uri = testFileUri,
+                        )
+                    } returns
+                        File(
+                            id = 1L,
+                            member = 0L,
+                            originalName = "test-file.$extension",
+                            storeName = "20251015120000_test.$extension",
+                            uri = testFileUri,
+                        )
+
+                    val result = context.createFileService.execute(testFile)
+
+                    Then("파일이 정상적으로 업로드되어야 한다") {
+                        result shouldNotBe null
+                        result.originalName shouldBe "test-file.$extension"
+                    }
+                }
+            }
+        }
+
+        Given("빈 파일이 주어졌을 때") {
+            val context = createTestContext()
+
+            When("파일 생성을 실행하면") {
+                Then("FILE_EMPTY 예외가 발생해야 한다") {
+                    val exception =
+                        shouldThrow<GsmcException> {
+                            context.createFileService.execute(context.emptyFile)
+                        }
+                    exception.errorCode shouldBe ErrorCode.FILE_EMPTY
+                }
+            }
+        }
+
+        Given("파일명이 없는 파일이 주어졌을 때") {
+            val context = createTestContext()
+
+            When("파일 생성을 실행하면") {
+                Then("FILE_NOT_FOUND 예외가 발생해야 한다") {
+                    val exception =
+                        shouldThrow<GsmcException> {
+                            context.createFileService.execute(context.fileWithoutExtension)
+                        }
+                    exception.errorCode shouldBe ErrorCode.FILE_NOT_FOUND
+                }
+            }
+        }
+
+        Given("허용되지 않은 확장자의 파일이 주어졌을 때") {
+            val context = createTestContext()
+
+            When("파일 생성을 실행하면") {
+                Then("FILE_EXTENSION_NOT_ALLOWED 예외가 발생해야 한다") {
+                    val exception =
+                        shouldThrow<GsmcException> {
+                            context.createFileService.execute(context.invalidExtensionFile)
+                        }
+                    exception.errorCode shouldBe ErrorCode.FILE_EXTENSION_NOT_ALLOWED
+                }
+            }
+        }
+
+        Given("허용되지 않은 다양한 확장자의 파일들이 주어졌을 때") {
+            val notAllowedExtensions = listOf("exe", "bat", "sh", "js", "php", "asp")
+
+            notAllowedExtensions.forEach { extension ->
+                When("$extension 파일을 업로드하면") {
+                    val context = createTestContext()
+                    val testFile =
+                        mockk<MultipartFile> {
+                            every { isEmpty } returns false
+                            every { originalFilename } returns "malicious-file.$extension"
+                        }
+
+                    Then("FILE_EXTENSION_NOT_ALLOWED 예외가 발생해야 한다") {
+                        val exception =
+                            shouldThrow<GsmcException> {
+                                context.createFileService.execute(testFile)
+                            }
+                        exception.errorCode shouldBe ErrorCode.FILE_EXTENSION_NOT_ALLOWED
+                    }
+                }
+            }
+        }
+
+        Given("대문자 확장자를 가진 파일이 주어졌을 때") {
+            val context = createTestContext()
+            val upperCaseFile =
+                mockk<MultipartFile> {
+                    every { isEmpty } returns false
+                    every { originalFilename } returns "TEST-FILE.PDF"
+                }
+            val testFileUri = "https://gsmc-bucket.s3.amazonaws.com/evidences/test-file.PDF"
+
+            every { context.mockS3UploadService.execute(upperCaseFile) } returns testFileUri
+            every {
+                context.mockFileRepository.saveFile(
+                    userId = 0L,
+                    originalName = "TEST-FILE.PDF",
+                    storedName = any(),
+                    uri = testFileUri,
+                )
+            } returns
+                File(
+                    id = 1L,
+                    member = 0L,
+                    originalName = "TEST-FILE.PDF",
+                    storeName = "20251015120000_test.PDF",
+                    uri = testFileUri,
+                )
+
+            When("파일 생성을 실행하면") {
+                val result = context.createFileService.execute(upperCaseFile)
+
+                Then("확장자 대소문자 구분 없이 정상 처리되어야 한다") {
+                    result shouldNotBe null
+                    result.originalName shouldBe "TEST-FILE.PDF"
+                }
+            }
+        }
+    })

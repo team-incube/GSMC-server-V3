@@ -11,11 +11,14 @@ object Dependencies {
     /* Spring Data */
     const val SPRING_DATA_JPA = "org.springframework.boot:spring-boot-starter-data-jpa"
     const val SPRING_DATA_REDIS = "org.springframework.boot:spring-boot-starter-data-redis"
+    const val SPRING_JDBC = "org.springframework.boot:spring-boot-starter-jdbc"
 
     /* Exposed ORM */
     const val EXPOSED_CORE = "org.jetbrains.exposed:exposed-core:${DependencyVersions.EXPOSED_VERSION}"
     const val EXPOSED_DAO = "org.jetbrains.exposed:exposed-dao:${DependencyVersions.EXPOSED_VERSION}"
     const val EXPOSED_JDBC = "org.jetbrains.exposed:exposed-jdbc:${DependencyVersions.EXPOSED_VERSION}"
+    const val EXPOSED_JAVA_TIME = "org.jetbrains.exposed:exposed-java-time:${DependencyVersions.EXPOSED_VERSION}"
+    const val EXPOSED_TRANSCTION = "org.jetbrains.exposed:spring-transaction:${DependencyVersions.EXPOSED_VERSION}"
     const val EXPOSED_SPRING_BOOT = "org.jetbrains.exposed:exposed-spring-boot-starter:${DependencyVersions.EXPOSED_VERSION}"
 
     /* HikariCP */
@@ -50,7 +53,17 @@ object Dependencies {
     const val SPRING_TEST = "org.springframework.boot:spring-boot-starter-test"
     const val KOTLIN_JUNIT5 = "org.jetbrains.kotlin:kotlin-test-junit5"
     const val KOTEST = "io.kotest:kotest-assertions-core:${DependencyVersions.KOTEST_VERSION}"
+    const val KOTEST_RUNNER = "io.kotest:kotest-runner-junit5:${DependencyVersions.KOTEST_VERSION}"
     const val SPRING_SECURITY_TEST = "org.springframework.security:spring-security-test"
     const val JUNIT_PLATFORM_LAUNCHER = "org.junit.platform:junit-platform-launcher"
     const val MOCKK = "io.mockk:mockk:${DependencyVersions.MOCKK_VERSION}"
+
+    // JWT
+    const val JJWT_API = "io.jsonwebtoken:jjwt-api:${DependencyVersions.JJWT_VERSION}"
+    const val JJWT_IMPL = "io.jsonwebtoken:jjwt-impl:${DependencyVersions.JJWT_VERSION}"
+    const val JJWT_JACKSON = "io.jsonwebtoken:jjwt-jackson:${DependencyVersions.JJWT_VERSION}"
+
+    // Apache POI (Excel)
+    const val APACHE_POI = "org.apache.poi:poi:${DependencyVersions.APACHE_POI_VERSION}"
+    const val APACHE_POI_OOXML = "org.apache.poi:poi-ooxml:${DependencyVersions.APACHE_POI_VERSION}"
 }

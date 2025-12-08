@@ -7,7 +7,6 @@ import java.util.TimeZone
 
 @Configuration
 class TimeZoneConfig {
-
     @PostConstruct
     fun init() {
         System.setProperty("user.timezone", "Asia/Seoul")

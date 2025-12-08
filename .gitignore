@@ -43,3 +43,14 @@ out/
 
 ### Environment ###
 .env
+.env.*
+!.env.example
+.env.backup
+
+### Develop ###
+/src/main/resources/data.sql
+docs/
+
+### Claude Code ###
+.claude/settings.local.json
+.claude/agents/
