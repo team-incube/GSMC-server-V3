@@ -30,7 +30,7 @@ class ExposedConfig(
     private val generateDdl: Boolean,
     // IDEA 워닝 방지를 위한 설정
     @param:Value("\${spring.exposed.show-sql:true}")
-    private val showSql: Boolean
+    private val showSql: Boolean,
 ) {
     @Bean
     fun database(dataSource: DataSource): Database {
@@ -44,7 +44,7 @@ class ExposedConfig(
             )
         TransactionManager.defaultDatabase = database
         transaction {
-            if(generateDdl) {
+            if (generateDdl) {
                 SchemaUtils.createMissingTablesAndColumns(*allTables())
             }
             logger().info(SchemaUtils.listTables().joinToString(", ") { it } + " tables are created or already exist.")
@@ -52,18 +52,19 @@ class ExposedConfig(
         return database
     }
 
-    private fun allTables() = arrayOf(
-        ScoreExposedEntity,
-        EvidenceExposedEntity,
-        FileExposedEntity,
-        AlertExposedEntity,
-        EvidenceFileExposedEntity,
-        MemberExposedEntity,
-        ProjectFileExposedEntity,
-        ProjectParticipantExposedEntity,
-        ProjectScoreExposedEntity,
-        ProjectExposedEntity
-    )
+    private fun allTables() =
+        arrayOf(
+            ScoreExposedEntity,
+            EvidenceExposedEntity,
+            FileExposedEntity,
+            AlertExposedEntity,
+            EvidenceFileExposedEntity,
+            MemberExposedEntity,
+            ProjectFileExposedEntity,
+            ProjectParticipantExposedEntity,
+            ProjectScoreExposedEntity,
+            ProjectExposedEntity,
+        )
 
     @Bean
     fun transactionManager(dataSource: DataSource): PlatformTransactionManager = DataSourceTransactionManager(dataSource)
