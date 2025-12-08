@@ -24,7 +24,7 @@ class CreateVolunteerScoreServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
 ) : BaseCreateOrUpdateBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateVolunteerScoreService {
-    override fun execute(value: String): CreateScoreResponse =
+    override fun execute(value: String, memberId: Long): CreateScoreResponse =
         transaction {
             val intValue =
                 value.toIntOrNull()
@@ -34,36 +34,27 @@ class CreateVolunteerScoreServiceImpl(
                 throw GsmcException(ErrorCode.SCORE_VALUE_OUT_OF_RANGE)
             }
 
-            val member = currentMemberProvider.getCurrentMember()
+            val student = memberExposedRepository.findById(memberId)
+                ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
 
             val score =
                 createOrUpdateScore(
-                    member = member,
+                    member = student,
                     categoryType = CategoryType.VOLUNTEER,
                     scoreValue = intValue.toDouble(),
                     sourceId = null,
                 )
 
-            member.grade?.let { grade ->
-                member.classNumber?.let { classNumber ->
-                    memberExposedRepository
-                        .findByGradeAndClassNumberAndRole(
-                            grade = grade,
-                            classNumber = classNumber,
-                            role = MemberRole.HOMEROOM_TEACHER,
-                        ).firstOrNull()
-                        ?.let {
-                            eventPublisher.publishEvent(
+            val teacher = currentMemberProvider.getCurrentMember()
+
+            eventPublisher.publishEvent(
                                 CreateAlertEvent(
-                                    senderId = member.id,
-                                    receiverId = it.id,
+                                    senderId = teacher.id,
+                                    receiverId = student.id,
                                     scoreId = score.scoreId,
                                     alertType = AlertType.ADD_SCORE,
                                 ),
                             )
-                        }
-                }
-            }
             score
         }
 }

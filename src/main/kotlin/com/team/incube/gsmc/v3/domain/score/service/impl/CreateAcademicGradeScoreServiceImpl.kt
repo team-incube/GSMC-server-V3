@@ -2,7 +2,6 @@ package com.team.incube.gsmc.v3.domain.score.service.impl
 
 import com.team.incube.gsmc.v3.domain.alert.dto.constant.AlertType
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
-import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
@@ -24,7 +23,7 @@ class CreateAcademicGradeScoreServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
 ) : BaseCreateOrUpdateBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateAcademicGradeScoreService {
-    override fun execute(value: String): CreateScoreResponse =
+    override fun execute(value: String, memberId: Long): CreateScoreResponse =
         transaction {
             val doubleValue =
                 value.toDoubleOrNull()
@@ -34,36 +33,27 @@ class CreateAcademicGradeScoreServiceImpl(
                 throw GsmcException(ErrorCode.SCORE_VALUE_OUT_OF_RANGE)
             }
 
-            val member = currentMemberProvider.getCurrentMember()
+            val student = memberExposedRepository.findById(memberId)
+                ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
 
             val score =
                 createOrUpdateScore(
-                    member = member,
+                    member = student,
                     categoryType = CategoryType.ACADEMIC_GRADE,
                     scoreValue = doubleValue,
                     sourceId = null,
                 )
 
-            member.grade?.let { grade ->
-                member.classNumber?.let { classNumber ->
-                    memberExposedRepository
-                        .findByGradeAndClassNumberAndRole(
-                            grade = grade,
-                            classNumber = classNumber,
-                            role = MemberRole.HOMEROOM_TEACHER,
-                        ).firstOrNull()
-                        ?.let {
-                            eventPublisher.publishEvent(
-                                CreateAlertEvent(
-                                    senderId = member.id,
-                                    receiverId = it.id,
-                                    scoreId = score.scoreId,
-                                    alertType = AlertType.ADD_SCORE,
-                                ),
-                            )
-                        }
-                }
-            }
+            val teacher = currentMemberProvider.getCurrentMember()
+
+            eventPublisher.publishEvent(
+                CreateAlertEvent(
+                    senderId = teacher.id,
+                    receiverId = student.id,
+                    scoreId = score.scoreId,
+                    alertType = AlertType.ADD_SCORE,
+                ),
+            )
             score
         }
 }
