@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.springframework.context.annotation.Profile
+import org.springframework.core.env.Environment
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -18,8 +19,21 @@ import java.time.Instant
 @Service
 class DiscordNotificationService(
     private val discordWebhookClient: DiscordWebhookClient,
+    private val environment: Environment,
 ) {
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    private fun getActiveProfile(): String =
+        try {
+            when {
+                environment.activeProfiles.isNotEmpty() -> environment.activeProfiles.joinToString(", ")
+                environment.defaultProfiles.isNotEmpty() -> environment.defaultProfiles.joinToString(", ")
+                else -> "default"
+            }
+        } catch (exception: Exception) {
+            logger().warn("Failed to retrieve profile information", exception)
+            "default"
+        }
 
     private fun sendDiscordNotification(
         embed: DiscordEmbed,
@@ -43,7 +57,7 @@ class DiscordNotificationService(
                 fields =
                     listOf(
                         DiscordField("상태", "GSMC V3 서버 애플리케이션이 시작되었습니다.", false),
-                        DiscordField("환경", System.getProperty("spring.profiles.active") ?: "unknown", true),
+                        DiscordField("환경", getActiveProfile(), true),
                     ),
                 timestamp = Instant.now().toString(),
             )
@@ -58,7 +72,7 @@ class DiscordNotificationService(
                 fields =
                     listOf(
                         DiscordField("상태", "GSMC V3 서버 애플리케이션이 종료되었습니다.", false),
-                        DiscordField("환경", System.getProperty("spring.profiles.active") ?: "unknown", true),
+                        DiscordField("환경", getActiveProfile(), true),
                     ),
                 timestamp = Instant.now().toString(),
             )
