@@ -7,6 +7,12 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface MemberExposedRepository {
+    fun findByGradeAndClassNumberAndRole(
+        grade: Int,
+        classNumber: Int,
+        role: MemberRole,
+    ): List<Member>
+
     fun searchMembers(
         email: String?,
         name: String?,

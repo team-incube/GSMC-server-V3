@@ -4,7 +4,7 @@ import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateProjectParticipationScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateScoreWithValueAndFileRequest
-import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateScoreWithValueRequest
+import com.team.incube.gsmc.v3.domain.score.presentation.data.request.CreateScoreWithValueAndMemberIdRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.RejectScoreRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScoreStatusRequest
 import com.team.incube.gsmc.v3.domain.score.presentation.data.request.UpdateScoreWithValueAndFileRequest
@@ -394,10 +394,11 @@ class ScoreController(
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/volunteer")
     fun addVolunteerScore(
-        @Valid @RequestBody request: CreateScoreWithValueRequest,
+        @Valid @RequestBody request: CreateScoreWithValueAndMemberIdRequest,
     ): CreateScoreResponse =
         createVolunteerScoreService.execute(
             value = request.value,
+            memberId = request.memberId,
         )
 
     @Operation(summary = "직업기초능력평가 영역 인증제 점수 추가 또는 갱신", description = "현재 인증된 사용자의 직업기초능력평가 영역에 대한 인증제 점수를 추가하거나 갱신합니다")
@@ -475,10 +476,11 @@ class ScoreController(
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/academic-grade")
     fun addAcademicGradeScore(
-        @Valid @RequestBody request: CreateScoreWithValueRequest,
+        @Valid @RequestBody request: CreateScoreWithValueAndMemberIdRequest,
     ): CreateScoreResponse =
         createAcademicGradeScoreService.execute(
             value = request.value,
+            memberId = request.memberId,
         )
 
     @Operation(summary = "외부활동 영역 인증제 점수 추가", description = "현재 인증된 사용자의 외부활동 영역에 대한 인증제 점수를 추가합니다")
