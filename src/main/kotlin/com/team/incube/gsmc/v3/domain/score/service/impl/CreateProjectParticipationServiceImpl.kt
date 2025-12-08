@@ -71,24 +71,27 @@ class CreateProjectParticipationServiceImpl(
                 scoreId = createdScore.scoreId,
             )
 
-            member.grade?.let { grade ->
-                member.classNumber?.let { classNumber ->
+            val grade = member.grade
+            val classNumber = member.classNumber
+
+            if (grade != null && classNumber != null) {
+                val homeroomTeacher =
                     memberExposedRepository
                         .findByGradeAndClassNumberAndRole(
                             grade = grade,
                             classNumber = classNumber,
                             role = MemberRole.HOMEROOM_TEACHER,
                         ).firstOrNull()
-                        ?.let {
-                            eventPublisher.publishEvent(
-                                CreateAlertEvent(
-                                    senderId = member.id,
-                                    receiverId = it.id,
-                                    scoreId = createdScore.scoreId,
-                                    alertType = AlertType.ADD_SCORE,
-                                ),
-                            )
-                        }
+
+                homeroomTeacher?.let { teacher ->
+                    eventPublisher.publishEvent(
+                        CreateAlertEvent(
+                            senderId = member.id,
+                            receiverId = teacher.id,
+                            scoreId = createdScore.scoreId,
+                            alertType = AlertType.ADD_SCORE,
+                        ),
+                    )
                 }
             }
             createdScore
