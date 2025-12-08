@@ -66,12 +66,20 @@ class AlertController(
                 responseCode = "200",
                 description = "알림 삭제 성공",
             ),
+            ApiResponse(
+                responseCode = "401",
+                description = "알림을 삭제할 권한이 없습니다.",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "존재하지 않는 알림입니다.",
+            ),
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @DeleteMapping("/{alertId}")
+    @DeleteMapping("/{alert_id}")
     fun deleteAlert(
-        @PathVariable alertId: Long,
+        @PathVariable("alert_id") alertId: Long,
     ): CommonApiResponse<Nothing> {
         deleteAlertService.execute(alertId)
         return CommonApiResponse.success("OK")
