@@ -1,6 +1,7 @@
 package com.team.incube.gsmc.v3.domain.score.service
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
+import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.CategoryNames
@@ -13,13 +14,12 @@ abstract class BaseCreateOrUpdateBasedScoreService(
     protected val currentMemberProvider: CurrentMemberProvider,
 ) {
     protected fun createOrUpdateScore(
+        member: Member,
         categoryType: CategoryType,
         scoreValue: Double?,
         sourceId: Long?,
         activityName: String? = null,
     ): CreateScoreResponse {
-        val member = currentMemberProvider.getCurrentMember()
-
         val existingScore =
             scoreExposedRepository.findByMemberIdAndCategoryType(
                 memberId = member.id,
