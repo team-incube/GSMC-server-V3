@@ -50,7 +50,7 @@ class DiscordNotificationService(
                 val payload = DiscordWebhookPayload.embedMessage(embed)
                 discordWebhookClient.sendMessage(payload)
             }.onFailure { exception ->
-                logger().error("서버 시작 알림 전송 실패", exception)
+                logger().error("Failed to retrieve profile information", exception)
             }
         }
     }
