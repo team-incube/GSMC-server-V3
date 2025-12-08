@@ -10,7 +10,7 @@ import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.sheet.dto.ClassScoreData
-import com.team.incube.gsmc.v3.domain.sheet.service.CreateClassScoreSheetService
+import com.team.incube.gsmc.v3.domain.sheet.service.CreateGradeScoreSheetService
 import org.apache.poi.ss.usermodel.BorderStyle
 import org.apache.poi.ss.usermodel.CellStyle
 import org.apache.poi.ss.usermodel.FillPatternType
@@ -34,20 +34,17 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Service
-class CreateClassScoreSheetServiceImpl(
+class CreateGradeScoreSheetServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
     private val scoreExposedRepository: ScoreExposedRepository,
-) : CreateClassScoreSheetService {
+) : CreateGradeScoreSheetService {
     companion object {
-        private const val MAX_STUDENTS_PER_CLASS = 1000
+        private const val MAX_STUDENTS_PER_GRADE = 1000
     }
 
-    override fun execute(
-        grade: Int,
-        classNumber: Int,
-    ): ResponseEntity<ByteArrayResource> {
+    override fun execute(grade: Int): ResponseEntity<ByteArrayResource> {
         val allCategories = CategoryType.getAllCategories()
-        val classScoreDataList =
+        val gradeScoreDataList =
             transaction {
                 val students =
                     memberExposedRepository
@@ -56,10 +53,10 @@ class CreateClassScoreSheetServiceImpl(
                             name = null,
                             role = MemberRole.STUDENT,
                             grade = grade,
-                            classNumber = classNumber,
+                            classNumber = null,
                             number = null,
                             sortBy = SortDirection.ASC,
-                            pageable = PageRequest.of(0, MAX_STUDENTS_PER_CLASS),
+                            pageable = PageRequest.of(0, MAX_STUDENTS_PER_GRADE),
                         ).content
 
                 val studentIds = students.map { it.id }
@@ -112,17 +109,17 @@ class CreateClassScoreSheetServiceImpl(
             }
 
         val sortedList =
-            classScoreDataList
+            gradeScoreDataList
                 .sortedByDescending { it.totalScore }
                 .mapIndexed { index, data ->
                     data.copy(classRank = index + 1)
                 }
                 .sortedBy { it.studentNumber }
 
-        val resource = createExcelFile(grade, classNumber, sortedList, allCategories)
+        val resource = createExcelFile(grade, sortedList, allCategories)
 
         val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
-        val filename = "${grade}학년_${classNumber}반_점수현황_$timestamp.xlsx"
+        val filename = "${grade}학년_전체_점수현황_$timestamp.xlsx"
         val encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8).replace("+", "%20")
 
         return ResponseEntity
@@ -195,12 +192,11 @@ class CreateClassScoreSheetServiceImpl(
 
     private fun createExcelFile(
         grade: Int,
-        classNumber: Int,
         scoreDataList: List<ClassScoreData>,
         categories: List<CategoryType>,
     ): ByteArrayResource {
         val workbook = XSSFWorkbook()
-        val sheet = workbook.createSheet("${grade}학년 ${classNumber}반 점수 현황")
+        val sheet = workbook.createSheet("${grade}학년 전체 점수 현황")
 
         val headerStyle = createHeaderStyle(workbook)
         val cellStyle = createCellStyle(workbook)
@@ -246,7 +242,7 @@ class CreateClassScoreSheetServiceImpl(
         val headers = mutableListOf("학번", "이름")
         categories.forEach { headers.add(it.koreanName) }
         headers.add("총점")
-        headers.add("학급 내 순위")
+        headers.add("학년 내 순위")
         return headers
     }
 
