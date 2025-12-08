@@ -36,7 +36,7 @@ class CreateAlertServiceImpl(
                     }
 
                     AlertType.REJECTED -> {
-                        "${score.categoryType.name} 점수를 ${sender.name} 선생님께서 거부하셨습니다."
+                        "${score.categoryType.koreanName} 점수를 ${sender.name} 선생님께서 거부하셨습니다."
                     }
 
                     AlertType.APPROVED -> {
