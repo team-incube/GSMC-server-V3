@@ -48,17 +48,6 @@ jobs:
       
       - name: Build with Gradle
         run: ./gradlew clean bootJar -x test -x check
-        
-      - name: Rename JAR file for Docker consistency
-        run: |
-          JAR_PATH=$(find build/libs -name "*.jar" -print -quit)
-          if [ -f "$JAR_PATH" ]; then
-            mv "$JAR_PATH" "build/libs/${{ env.JAR_NAME }}"
-            echo "Renamed $JAR_PATH to build/libs/${{ env.JAR_NAME }}"
-          else
-            echo "Error: JAR file not found in build/libs/"
-            exit 1
-          fi
       
       - name: Build and Push Docker Image
         env:
