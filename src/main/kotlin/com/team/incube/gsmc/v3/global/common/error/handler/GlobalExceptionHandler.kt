@@ -143,6 +143,7 @@ class GlobalExceptionHandler(
 
         return "유효성 검사에 실패했습니다"
     }
+
     private fun getCurrentHttpMethod(): String =
         try {
             val requestAttributes = RequestContextHolder.getRequestAttributes() as? ServletRequestAttributes
@@ -150,6 +151,7 @@ class GlobalExceptionHandler(
         } catch (e: Exception) {
             "Unable to get HTTP method"
         }
+
     private fun getCurrentRequestUri(): String =
         try {
             val requestAttributes = RequestContextHolder.getRequestAttributes() as? ServletRequestAttributes
@@ -157,5 +159,4 @@ class GlobalExceptionHandler(
         } catch (e: Exception) {
             "Unable to get request URI"
         }
-
 }
