@@ -116,8 +116,7 @@ class CreateClassScoreSheetServiceImpl(
                 .sortedByDescending { it.totalScore }
                 .mapIndexed { index, data ->
                     data.copy(classRank = index + 1)
-                }
-                .sortedBy { it.studentNumber }
+                }.sortedBy { it.studentNumber }
 
         val resource = createExcelFile(grade, classNumber, sortedList, allCategories)
 
