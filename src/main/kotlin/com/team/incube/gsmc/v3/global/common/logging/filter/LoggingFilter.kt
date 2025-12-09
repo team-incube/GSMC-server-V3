@@ -113,11 +113,9 @@ class LoggingFilter : OncePerRequestFilter() {
         }
     }
 
-    private fun isNotLoggingURL(requestURI: String): Boolean =
-        NOT_LOGGING_URL.any { pattern -> matcher.match(pattern, requestURI) }
+    private fun isNotLoggingURL(requestURI: String): Boolean = NOT_LOGGING_URL.any { pattern -> matcher.match(pattern, requestURI) }
 
-    private fun isMultipart(request: HttpServletRequest): Boolean =
-        request.contentType?.lowercase()?.startsWith("multipart/") ?: false
+    private fun isMultipart(request: HttpServletRequest): Boolean = request.contentType?.lowercase()?.startsWith("multipart/") ?: false
 
     private fun requestLogging(
         request: HttpServletRequest,
@@ -165,7 +163,7 @@ class LoggingFilter : OncePerRequestFilter() {
         logId: UUID,
     ) {
         val responseTime = System.currentTimeMillis() - startTime
-        val responseBody = String(response.contentAsByteArray, StandardCharsets.UTF_8)
+        val responseBody = getResponseBody(response)
 
         logger().info(
             "Log-ID: {}, Status-Code: {}, Content-Type: {}, Response Time: {}ms, Response-Body: {}",
@@ -177,6 +175,25 @@ class LoggingFilter : OncePerRequestFilter() {
         )
     }
 
+    private fun getResponseBody(response: ContentCachingResponseWrapper): String {
+        val contentType = response.contentType?.lowercase() ?: ""
+
+        return when {
+            isBinaryContent(contentType) -> "[binary content omitted]"
+            response.contentAsByteArray.isEmpty() -> "[empty]"
+            else -> String(response.contentAsByteArray, StandardCharsets.UTF_8)
+        }
+    }
+
+    private fun isBinaryContent(contentType: String): Boolean =
+        contentType.startsWith("application/octet-stream") ||
+            contentType.startsWith("application/vnd.openxmlformats-officedocument") ||
+            contentType.startsWith("image/") ||
+            contentType.startsWith("video/") ||
+            contentType.startsWith("audio/") ||
+            contentType.startsWith("application/pdf") ||
+            contentType.startsWith("application/zip")
+
     private fun getRequestBody(byteArrayContent: ByteArray): String {
         val oneLineContent =
             String(byteArrayContent, StandardCharsets.UTF_8)
@@ -184,6 +201,5 @@ class LoggingFilter : OncePerRequestFilter() {
         return if (StringUtils.hasText(oneLineContent)) oneLineContent else "[empty]"
     }
 
-    private fun formatCookies(cookies: Array<Cookie>?): String =
-        cookies?.joinToString(", ") { "${it.name}=${it.value}" } ?: "[none]"
+    private fun formatCookies(cookies: Array<Cookie>?): String = cookies?.joinToString(", ") { "${it.name}=${it.value}" } ?: "[none]"
 }

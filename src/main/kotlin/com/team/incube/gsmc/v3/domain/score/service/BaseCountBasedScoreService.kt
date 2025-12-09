@@ -1,0 +1,48 @@
+package com.team.incube.gsmc.v3.domain.score.service
+
+import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
+import com.team.incube.gsmc.v3.domain.member.dto.Member
+import com.team.incube.gsmc.v3.domain.score.dto.Score
+import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
+import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.CategoryNames
+import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
+import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
+
+abstract class BaseCountBasedScoreService(
+    protected val scoreExposedRepository: ScoreExposedRepository,
+    protected val currentMemberProvider: CurrentMemberProvider,
+) {
+    protected fun createScore(
+        member: Member,
+        categoryType: CategoryType,
+        activityName: String,
+        sourceId: Long?,
+        status: ScoreStatus = ScoreStatus.PENDING,
+    ): CreateScoreResponse {
+        val savedScore =
+            scoreExposedRepository.save(
+                Score(
+                    id = null,
+                    member = member,
+                    categoryType = categoryType,
+                    status = status,
+                    sourceId = sourceId,
+                    activityName = activityName,
+                    scoreValue = null,
+                    rejectionReason = null,
+                ),
+            )
+
+        return CreateScoreResponse(
+            scoreId = savedScore.id!!,
+            categoryNames =
+                CategoryNames(
+                    koreanName = savedScore.categoryType.koreanName,
+                    englishName = savedScore.categoryType.englishName,
+                ),
+            scoreStatus = savedScore.status,
+            activityName = savedScore.activityName,
+        )
+    }
+}

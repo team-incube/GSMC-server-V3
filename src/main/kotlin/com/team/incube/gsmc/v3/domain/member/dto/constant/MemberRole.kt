@@ -14,5 +14,8 @@ enum class MemberRole : GrantedAuthority {
     },
     ROOT {
         override fun getAuthority(): String = "ROLE_ROOT"
-    }
+    },
+    HOMEROOM_TEACHER {
+        override fun getAuthority(): String = "ROLE_HOMEROOM_TEACHER"
+    },
 }

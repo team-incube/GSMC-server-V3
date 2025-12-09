@@ -6,15 +6,16 @@ import org.springframework.stereotype.Component
 
 @Component
 class DomainAuthorizationConfig {
-    fun configure(
-        authorizeRequests: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry,
-    ) {
+    fun configure(authorizeRequests: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry) {
         authorizeRequests
             // Swagger
             .requestMatchers("/swagger-ui/**", "/api-docs/**")
             .permitAll()
             // Health Check
             .requestMatchers("/api/v3/health")
+            .permitAll()
+            // Auth
+            .requestMatchers("/api/v3/auth/**")
             .permitAll()
             // Others
             .anyRequest()
