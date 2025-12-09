@@ -113,11 +113,14 @@ class CreateClassScoreSheetServiceImpl(
 
         val sortedList =
             classScoreDataList
-                .sortedByDescending { it.totalScore }
-                .mapIndexed { index, data ->
+                .sortedWith(
+                    compareByDescending<ClassScoreData> { it.totalScore }
+                        .thenByDescending { it.categoryScores["자격증"] ?: 0.0 }
+                        .thenByDescending { it.categoryScores["TOPCIT"] ?: 0.0 }
+                        .thenByDescending { it.categoryScores["교과성적"] ?: 0.0 },
+                ).mapIndexed { index, data ->
                     data.copy(classRank = index + 1)
-                }
-                .sortedBy { it.studentNumber }
+                }.sortedBy { it.studentNumber }
 
         val resource = createExcelFile(grade, classNumber, sortedList, allCategories)
 
