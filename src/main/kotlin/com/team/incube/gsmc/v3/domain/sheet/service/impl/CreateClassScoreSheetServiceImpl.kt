@@ -40,6 +40,12 @@ class CreateClassScoreSheetServiceImpl(
 ) : CreateClassScoreSheetService {
     companion object {
         private const val MAX_STUDENTS_PER_CLASS = 1000
+
+        private val scoreComparator =
+            compareByDescending<ClassScoreData> { it.totalScore }
+                .thenByDescending { it.categoryScores[CategoryType.CERTIFICATE.koreanName] ?: 0.0 }
+                .thenByDescending { it.categoryScores[CategoryType.TOPCIT.koreanName] ?: 0.0 }
+                .thenByDescending { it.categoryScores[CategoryType.ACADEMIC_GRADE.koreanName] ?: 0.0 }
     }
 
     override fun execute(
@@ -113,12 +119,8 @@ class CreateClassScoreSheetServiceImpl(
 
         val sortedList =
             classScoreDataList
-                .sortedWith(
-                    compareByDescending<ClassScoreData> { it.totalScore }
-                        .thenByDescending { it.categoryScores["자격증"] ?: 0.0 }
-                        .thenByDescending { it.categoryScores["TOPCIT"] ?: 0.0 }
-                        .thenByDescending { it.categoryScores["교과성적"] ?: 0.0 },
-                ).mapIndexed { index, data ->
+                .sortedWith(scoreComparator)
+                .mapIndexed { index, data ->
                     data.copy(classRank = index + 1)
                 }.sortedBy { it.studentNumber }
 
