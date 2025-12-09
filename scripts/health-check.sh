@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ex
 
-HEALTH_URL="https://api.gsmc.io.kr/api/v3/health"
+HEALTH_URL="http://localhost:8080/api/v3/health"
 MAX_RETRIES=10
 SLEEP_TIME=3
 
