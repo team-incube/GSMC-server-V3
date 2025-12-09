@@ -73,7 +73,7 @@ class OAuthAuthenticationServiceImpl(
             val name = (oauth2User.attributes["name"] as? String) ?: ""
 
             if (email.endsWith("@gsm.hs.kr").not()) {
-                throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
+                throw GsmcException(ErrorCode.INVALID_EMAIL_DOMAIN)
             }
 
             val member =
