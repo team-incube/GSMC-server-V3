@@ -40,6 +40,12 @@ class CreateClassScoreSheetServiceImpl(
 ) : CreateClassScoreSheetService {
     companion object {
         private const val MAX_STUDENTS_PER_CLASS = 1000
+
+        private val scoreComparator =
+            compareByDescending<ClassScoreData> { it.totalScore }
+                .thenByDescending { it.categoryScores[CategoryType.CERTIFICATE.koreanName] ?: 0.0 }
+                .thenByDescending { it.categoryScores[CategoryType.TOPCIT.koreanName] ?: 0.0 }
+                .thenByDescending { it.categoryScores[CategoryType.ACADEMIC_GRADE.koreanName] ?: 0.0 }
     }
 
     override fun execute(
@@ -113,11 +119,10 @@ class CreateClassScoreSheetServiceImpl(
 
         val sortedList =
             classScoreDataList
-                .sortedByDescending { it.totalScore }
+                .sortedWith(scoreComparator)
                 .mapIndexed { index, data ->
                     data.copy(classRank = index + 1)
-                }
-                .sortedBy { it.studentNumber }
+                }.sortedBy { it.studentNumber }
 
         val resource = createExcelFile(grade, classNumber, sortedList, allCategories)
 
