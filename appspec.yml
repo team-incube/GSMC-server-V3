@@ -16,17 +16,3 @@ permissions:
     type:
       - file
 
-hooks:
-  ApplicationStop:
-    - location: scripts/stop.sh
-      timeout: 60
-      runas: ec2-user
-  BeforeInstall:
-  ApplicationStart:
-    - location: scripts/start.sh
-      timeout: 60
-      runas: ec2-user
-  ValidateService:
-    - location: scripts/health-check.sh
-      timeout: 180
-      runas: ec2-user
