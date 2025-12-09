@@ -72,6 +72,10 @@ class OAuthAuthenticationServiceImpl(
                     ?: throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
             val name = (oauth2User.attributes["name"] as? String) ?: ""
 
+            if (email.endsWith("@gsm.hs.kr").not()) {
+                throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
+            }
+
             val member =
                 transaction {
                     memberExposedRepository.findByEmail(email)
