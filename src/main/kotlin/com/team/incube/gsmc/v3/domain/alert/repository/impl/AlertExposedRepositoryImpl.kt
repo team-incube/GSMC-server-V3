@@ -14,6 +14,7 @@ import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -204,4 +205,16 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
         }) {
             it[isRead] = true
         }
+
+    override fun deleteByScoreId(scoreId: Long): Int =
+        AlertExposedEntity.deleteWhere {
+            AlertExposedEntity.scoreId eq scoreId
+        }
+
+    override fun deleteAllByScoreIdIn(scoreIds: List<Long>): Int {
+        if (scoreIds.isEmpty()) return 0
+        return AlertExposedEntity.deleteWhere {
+            AlertExposedEntity.scoreId inList scoreIds
+        }
+    }
 }
