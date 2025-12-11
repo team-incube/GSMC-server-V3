@@ -1,31 +1,28 @@
 #!/bin/bash
+set -ex
 
-IMAGE_NAME="gsmc-server"
-CONTAINER_NAME="gsmc-app"
+APP_DIR="/home/ec2-user/gsmc-application"
+cd $APP_DIR
 
-echo "> Starting application deployment..."
-echo "> Building Docker image: $IMAGE_NAME"
-docker build -t $IMAGE_NAME -f DockerfileProd .
-if [ $? -eq 0 ]; then
-    echo "> Docker image built successfully"
-else
-    echo "> Failed to build Docker image"
-    exit 1
-fi
+IMAGE_REGISTRY="588738598492.dkr.ecr.ap-northeast-2.amazonaws.com"
+REPO_NAME="gsmc-ecr"
+TAG="latest"
+IMAGE_URI="$IMAGE_REGISTRY/$REPO_NAME:$TAG"
 
-echo "> Starting Docker container: $CONTAINER_NAME"
+CONTAINER_NAME="gsmc-application"
+
+aws ecr get-login-password --region ap-northeast-2 | \
+  docker login --username AWS --password-stdin $IMAGE_REGISTRY
+
+docker stop $CONTAINER_NAME || true
+docker rm $CONTAINER_NAME || true
+
+docker pull $IMAGE_URI
+
 docker run -d \
-    --name $CONTAINER_NAME \
-    --add-host=host.docker.internal:host-gateway \
-    -e RDB_HOST=host.docker.internal \
-    -e REDIS_HOST=host.docker.internal \
-    -p 8080:8080 \
-    $IMAGE_NAME
-
-if [ $? -eq 0 ]; then
-    echo "> Container started successfully"
-    echo "> Application is running on port 8080"
-else
-    echo "> Failed to start container"
-    exit 1
-fi
+  --name $CONTAINER_NAME \
+  -p 8080:8080 \
+  --restart unless-stopped \
+  --env-file $APP_DIR/.env \
+  -e SPRING_PROFILES_ACTIVE=prod \
+  $IMAGE_URI
