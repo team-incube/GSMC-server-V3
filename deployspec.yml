@@ -2,13 +2,13 @@ version: 1.0
 
 hooks:
   ApplicationStop:
-    - location: scripts/stop_application.sh
+    - location: scripts/dev/stop_application.sh
       timeout: 300
   BeforeInstall:
-    - location: scripts/cleanup.sh
+    - location: scripts/dev/cleanup.sh
       timeout: 300
   ApplicationStart:
-    - location: scripts/start_application.sh
+    - location: scripts/dev/start_application.sh
       timeout: 600
 permissions:
   - object: /

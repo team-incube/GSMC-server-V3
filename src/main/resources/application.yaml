@@ -4,10 +4,16 @@ spring:
     group: com.team.incube
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+  config:
+    import: optional:.env[.properties]
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 15MB
+    encoding:
+      enabled: true
+      charset: UTF-8
+      force: true
   datasource:
     driver-class-name: ${RDB_DRIVER:com.mysql.cj.jdbc.Driver}
     url: jdbc:${RDB_TYPE:mysql}://${RDB_HOST:localhost}:${RDB_PORT:3306}/${RDB_NAME:gsmc}
@@ -22,6 +28,9 @@ spring:
   exposed:
     generate-ddl: ${EXPOSED_DDL:true}
     show-sql: ${EXPOSED_SHOW_SQL:true}
+  sql:
+    init:
+      mode: ${SQL_INIT_MODE:always}
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -30,14 +39,50 @@ spring:
   web:
     resources:
       add-mappings: false
+  cloud:
+    aws:
+      region:
+        static: ${AWS_REGION:ap-northeast-2}
+      credentials:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      s3:
+        bucket-name: ${AWS_BUCKET_NAME}
+    discord:
+      webhook:
+        url: ${DISCORD_WEBHOOK_URL}
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:3000/callback}
+            authorization-grant-type: authorization_code
+            scope:
+              - openid
+              - email
+              - profile
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
+    cors:
+      allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001,https://gsmc.io.kr,https://gsmc-admin.vercel.app}
+    jwt:
+      issuer: ${JWT_ISSUER:gsmc}
+      access-token:
+        secret: ${JWT_ACCESS_TOKEN_SECRET:f2ba6a534025117d28f915841d241bb1ecb758550803220812374020ef48d3cf}
+        expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:86400}
+      refresh-token:
+        secret: ${JWT_REFRESH_TOKEN_SECRET:f1b1ce8f8c978ab7b6bab79cf406c51fdf2383d1cd1b10bd1080dad3ceb1dda3}
+        expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800}
 server:
   port: ${SERVER_PORT:8080}
   shutdown: graceful
-  servlet:
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
 management:
   endpoints:
     web:
@@ -46,3 +91,21 @@ management:
       base-path: /api/v3/health
 logging:
   config: classpath:logback-spring.xml
+  level:
+    org.jetbrains.exposed.sql.transactions: ${EXPOSED_LOG_LEVEL:DEBUG}
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: ${SPRINGDOC_ENABLED:true}
+    groups:
+      enabled: true
+  swagger-ui:
+    enabled: ${SWAGGER_ENABLED:true}
+    disable-swagger-default-url: true
+    display-request-duration: true
+    tags-sorter: alpha
+    operations-sorter: method
+  show-actuator: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  writer-with-default-pretty-printer: true
