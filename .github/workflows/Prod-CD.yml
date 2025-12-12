@@ -63,7 +63,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          sed -i 's|PLACEHOLDER|'${{ steps.login-ecr.outputs.registry }}'|g' scripts/start.sh
+          sed -i 's|PLACEHOLDER|'${{ steps.login-ecr.outputs.registry }}'|g' scripts/prod/start.sh
 
       - name: Create Deployment Package (Zip)
         run: |
