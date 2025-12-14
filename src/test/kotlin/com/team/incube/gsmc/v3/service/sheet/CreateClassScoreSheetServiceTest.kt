@@ -6,33 +6,38 @@ import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.sheet.service.impl.CreateClassScoreSheetServiceImpl
-import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 
 class CreateClassScoreSheetServiceTest :
-    BehaviorSpec({
-        beforeTest {
-            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-            every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
-            } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
-            }
+    FunSpec({
+        // 스펙 초기화 시점에 transaction mock 설정
+        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
+
+        mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        every {
+            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+                db = null,
+                statement = any<JdbcTransaction.() -> Any?>(),
+            )
+        } answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockTransaction)
         }
 
-        afterTest {
-            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        afterSpec {
+            unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         }
 
-        Given("반별 성적표 생성") {
+        test("반별 성적표가 정상적으로 생성된다") {
             val memberRepo = mockk<MemberExposedRepository>()
             val scoreRepo = mockk<ScoreExposedRepository>()
             val service = CreateClassScoreSheetServiceImpl(memberRepo, scoreRepo)
@@ -58,12 +63,8 @@ class CreateClassScoreSheetServiceTest :
             } returns page
             every { scoreRepo.findByMemberIdsAndStatus(any(), ScoreStatus.APPROVED) } returns emptyList()
 
-            When("1학년 1반의 성적표를 생성하면") {
-                val res = service.execute(1, 1)
+            val res = service.execute(1, 1)
 
-                Then("성적표가 생성된다") {
-                    res shouldNotBe null
-                }
-            }
+            res shouldNotBe null
         }
     })

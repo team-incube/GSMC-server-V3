@@ -1,10 +1,13 @@
 package com.team.incube.gsmc.v3.service.project
 
+import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
+import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.project.dto.Project
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.project.service.impl.DeleteProjectServiceImpl
+import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
@@ -17,19 +20,27 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.springframework.context.ApplicationEventPublisher
 
 class DeleteProjectServiceTest :
     BehaviorSpec({
         data class TestData(
             val projectRepo: ProjectExposedRepository,
+            val scoreRepo: ScoreExposedRepository,
+            val evidenceRepo: EvidenceExposedRepository,
+            val fileRepo: FileExposedRepository,
+            val eventPublisher: ApplicationEventPublisher,
             val currentMemberProvider: CurrentMemberProvider,
             val service: DeleteProjectServiceImpl,
         )
 
         fun ctx(): TestData {
             val projectRepo = mockk<ProjectExposedRepository>()
+            val scoreRepo = mockk<ScoreExposedRepository>()
+            val evidenceRepo = mockk<EvidenceExposedRepository>()
+            val fileRepo = mockk<FileExposedRepository>()
+            val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
             val currentMemberProvider = mockk<CurrentMemberProvider>()
 
             every { currentMemberProvider.getCurrentMember() } returns
@@ -43,21 +54,35 @@ class DeleteProjectServiceTest :
                     role = MemberRole.STUDENT,
                 )
 
-            val service = DeleteProjectServiceImpl(projectRepo, currentMemberProvider)
-            return TestData(projectRepo, currentMemberProvider, service)
+            val service =
+                DeleteProjectServiceImpl(
+                    projectExposedRepository = projectRepo,
+                    currentMemberProvider = currentMemberProvider,
+                    scoreExposedRepository = scoreRepo,
+                    evidenceExposedRepository = evidenceRepo,
+                    fileExposedRepository = fileRepo,
+                    eventPublisher = eventPublisher,
+                )
+            return TestData(projectRepo, scoreRepo, evidenceRepo, fileRepo, eventPublisher, currentMemberProvider, service)
         }
 
-        beforeTest {
-            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-            every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
-            } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
-            }
+        // 스펙 초기화 시점에 transaction mock 설정
+        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
+
+        mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        every {
+            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+                db = null,
+                statement = any<JdbcTransaction.() -> Any?>(),
+            )
+        } answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockTransaction)
         }
 
-        afterTest {
-            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        afterSpec {
+            unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         }
 
         Given("내가 소유한 프로젝트를 삭제할 때") {
@@ -74,7 +99,13 @@ class DeleteProjectServiceTest :
                 )
 
             every { c.projectRepo.findProjectById(projectId) } returns project
+            every { c.projectRepo.findScoreIdsByProjectId(projectId) } returns emptyList()
+            every { c.scoreRepo.findAllByIdIn(emptyList()) } returns emptyList()
+            every { c.evidenceRepo.findAllByIdIn(emptyList()) } returns emptyList()
+            justRun { c.evidenceRepo.deleteAllByIdIn(emptyList()) }
+            justRun { c.scoreRepo.deleteAllByIdIn(emptyList()) }
             justRun { c.projectRepo.deleteProjectById(projectId) }
+            justRun { c.fileRepo.deleteAllByIdIn(emptyList()) }
 
             When("execute를 호출하면") {
                 c.service.execute(projectId)

@@ -1,6 +1,7 @@
 package com.team.incube.gsmc.v3.service.file
 
 import com.team.incube.gsmc.v3.domain.file.dto.File
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.file.service.impl.FindMyFilesServiceImpl
 import com.team.incube.gsmc.v3.domain.member.dto.Member
@@ -14,8 +15,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 
 class FindMyFilesServiceTest :
     BehaviorSpec({
@@ -50,17 +50,23 @@ class FindMyFilesServiceTest :
             )
         }
 
-        beforeTest {
-            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-            every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
-            } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
-            }
+        // 스펙 초기화 시점에 transaction mock 설정
+        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
+
+        mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        every {
+            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+                db = null,
+                statement = any<JdbcTransaction.() -> Any?>(),
+            )
+        } answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockTransaction)
         }
 
-        afterTest {
-            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        afterSpec {
+            unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         }
 
         Given("현재 로그인한 사용자가 여러 개의 파일을 소유하고 있을 때") {
@@ -70,21 +76,21 @@ class FindMyFilesServiceTest :
                 listOf(
                     File(
                         id = 1L,
-                        memberId = userId,
+                        member = userId,
                         originalName = "document1.pdf",
                         storeName = "20251125120000_abc123.pdf",
                         uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/file1.pdf",
                     ),
                     File(
                         id = 2L,
-                        memberId = userId,
+                        member = userId,
                         originalName = "image1.jpg",
                         storeName = "20251125120001_def456.jpg",
                         uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/file2.jpg",
                     ),
                     File(
                         id = 3L,
-                        memberId = userId,
+                        member = userId,
                         originalName = "spreadsheet1.xlsx",
                         storeName = "20251125120002_ghi789.xlsx",
                         uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/file3.xlsx",
@@ -111,7 +117,7 @@ class FindMyFilesServiceTest :
                 Then("반환된 파일들이 올바른 정보를 포함해야 한다") {
                     val expectedFileItems =
                         mockFiles.map { file ->
-                            com.team.incube.gsmc.v3.domain.file.presentation.data.dto.GetFileResponse(
+                            GetFileResponse(
                                 id = file.id,
                                 memberId = file.member,
                                 originalName = file.originalName,
@@ -150,7 +156,7 @@ class FindMyFilesServiceTest :
                 listOf(
                     File(
                         id = 1L,
-                        memberId = userId,
+                        member = userId,
                         originalName = "single-file.pdf",
                         storeName = "20251125120000_single.pdf",
                         uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/single.pdf",
@@ -165,7 +171,7 @@ class FindMyFilesServiceTest :
                 Then("단일 파일이 반환되어야 한다") {
                     val expectedFileItems =
                         mockFiles.map { file ->
-                            com.team.incube.gsmc.v3.domain.file.presentation.data.dto.GetFileResponse(
+                            GetFileResponse(
                                 id = file.id,
                                 memberId = file.member,
                                 originalName = file.originalName,
