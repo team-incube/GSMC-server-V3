@@ -94,6 +94,7 @@ class UpdateCertificateScoreServiceTest :
                     activityName = "정보처리기사",
                     scoreValue = 2.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
             val updatedScore =
                 Score(
@@ -105,6 +106,7 @@ class UpdateCertificateScoreServiceTest :
                     activityName = value,
                     scoreValue = 2.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns existingScore
@@ -165,6 +167,7 @@ class UpdateCertificateScoreServiceTest :
                     activityName = "자격증",
                     scoreValue = 2.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score
@@ -200,6 +203,7 @@ class UpdateCertificateScoreServiceTest :
                     activityName = "수상",
                     scoreValue = 1.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score
@@ -236,6 +240,7 @@ class UpdateCertificateScoreServiceTest :
                     activityName = "자격증",
                     scoreValue = 2.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score

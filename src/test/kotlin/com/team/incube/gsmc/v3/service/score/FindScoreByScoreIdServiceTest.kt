@@ -85,6 +85,7 @@ class FindScoreByScoreIdServiceTest :
                     activityName = "프로젝트1",
                     scoreValue = 10.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
             val files =
                 listOf(
@@ -156,6 +157,7 @@ class FindScoreByScoreIdServiceTest :
                     activityName = "수상1",
                     scoreValue = 5.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
             val file =
                 File(
@@ -213,6 +215,7 @@ class FindScoreByScoreIdServiceTest :
                     activityName = "교과성적",
                     scoreValue = 95.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score
@@ -274,6 +277,7 @@ class FindScoreByScoreIdServiceTest :
                     activityName = "자격증1",
                     scoreValue = 0.0,
                     rejectionReason = "증빙이 불충분합니다.",
+                    updatedAt = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score

@@ -81,11 +81,11 @@ class CreateVolunteerScoreServiceTest :
             val c = ctx()
             val value = "24"
             val member = Member(0L, "Test User", "test@test.com", 1, 1, 1, MemberRole.STUDENT)
-            val score = Score(1L, member, CategoryType.VOLUNTEER, ScoreStatus.PENDING, null, null, 24.0, null)
+            val score = Score(1L, member, CategoryType.VOLUNTEER, ScoreStatus.PENDING, null, null, 24.0, null, null)
 
             every { c.memberRepo.findById(member.id) } returns member
             every { c.scoreRepo.findByMemberIdAndCategoryType(member.id, CategoryType.VOLUNTEER) } returns
-                Score(1L, member, CategoryType.VOLUNTEER, ScoreStatus.PENDING, null, null, 10.0, null)
+                Score(1L, member, CategoryType.VOLUNTEER, ScoreStatus.PENDING, null, null, 10.0, null, null)
             every { c.scoreRepo.save(any()) } returns score
             every { c.scoreRepo.update(any()) } returns score
 

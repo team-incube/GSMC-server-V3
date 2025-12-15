@@ -110,6 +110,7 @@ class CreateExternalActivityScoreServiceTest :
                     activityName = value,
                     scoreValue = 1.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every { c.fileRepo.existsById(fileId) } returns true

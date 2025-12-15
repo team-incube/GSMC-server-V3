@@ -77,6 +77,7 @@ class FindScoresByCategoryByMemberIdServiceTest :
                         activityName = "자격증1",
                         scoreValue = 2.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 2L,
@@ -87,6 +88,7 @@ class FindScoresByCategoryByMemberIdServiceTest :
                         activityName = "수상1",
                         scoreValue = 1.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                 )
 
@@ -146,6 +148,7 @@ class FindScoresByCategoryByMemberIdServiceTest :
                         activityName = "자격증1",
                         scoreValue = 2.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                 )
 

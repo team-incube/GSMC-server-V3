@@ -60,7 +60,7 @@ class CreateOtherScoreServicesTest :
 
             every { fileRepo.existsById(100L) } returns true
             every { scoreRepo.findByMemberIdAndCategoryType(0L, CategoryType.JLPT) } returns null
-            every { scoreRepo.save(any()) } returns Score(1L, member, CategoryType.JLPT, ScoreStatus.PENDING, 100L, null, 3.0, null)
+            every { scoreRepo.save(any()) } returns Score(1L, member, CategoryType.JLPT, ScoreStatus.PENDING, 100L, null, 3.0, null, null)
 
             When("유효한 값으로 실행하면") {
                 val res = service.execute("3", 100L)
@@ -86,7 +86,8 @@ class CreateOtherScoreServicesTest :
 
             every { fileRepo.existsById(100L) } returns true
             every { scoreRepo.findByMemberIdAndCategoryType(0L, CategoryType.TOPCIT) } returns null
-            every { scoreRepo.save(any()) } returns Score(1L, member, CategoryType.TOPCIT, ScoreStatus.PENDING, 100L, null, 500.0, null)
+            every { scoreRepo.save(any()) } returns
+                Score(1L, member, CategoryType.TOPCIT, ScoreStatus.PENDING, 100L, null, 500.0, null, null)
 
             When("유효한 값으로 실행하면") {
                 val res = service.execute("500", 100L)
@@ -112,7 +113,7 @@ class CreateOtherScoreServicesTest :
 
             every { fileRepo.existsById(100L) } returns true
             every { scoreRepo.findByMemberIdAndCategoryType(0L, CategoryType.NCS) } returns null
-            every { scoreRepo.save(any()) } returns Score(1L, member, CategoryType.NCS, ScoreStatus.PENDING, 100L, null, 3.5, null)
+            every { scoreRepo.save(any()) } returns Score(1L, member, CategoryType.NCS, ScoreStatus.PENDING, 100L, null, 3.5, null, null)
 
             When("유효한 값으로 실행하면") {
                 val res = service.execute("3.5", 100L)
@@ -132,7 +133,8 @@ class CreateOtherScoreServicesTest :
 
             every { fileRepo.existsById(100L) } returns true
             every { scoreRepo.findByMemberIdAndCategoryType(0L, CategoryType.READ_A_THON) } returns null
-            every { scoreRepo.save(any()) } returns Score(1L, member, CategoryType.READ_A_THON, ScoreStatus.PENDING, 100L, null, 5.0, null)
+            every { scoreRepo.save(any()) } returns
+                Score(1L, member, CategoryType.READ_A_THON, ScoreStatus.PENDING, 100L, null, 5.0, null, null)
 
             When("유효한 값으로 실행하면") {
                 val res = service.execute("5", 100L)
@@ -153,7 +155,7 @@ class CreateOtherScoreServicesTest :
             every { fileRepo.existsById(100L) } returns true
             every { scoreRepo.findByMemberIdAndCategoryType(0L, CategoryType.NEWRROW_SCHOOL) } returns null
             every { scoreRepo.save(any()) } returns
-                Score(1L, member, CategoryType.NEWRROW_SCHOOL, ScoreStatus.PENDING, 100L, null, 85.0, null)
+                Score(1L, member, CategoryType.NEWRROW_SCHOOL, ScoreStatus.PENDING, 100L, null, 85.0, null, null)
 
             When("유효한 값으로 실행하면") {
                 val res = service.execute("85", 100L)
@@ -172,7 +174,7 @@ class CreateOtherScoreServicesTest :
 
             every { scoreRepo.findByMemberIdAndCategoryType(0L, CategoryType.TOEIC_ACADEMY) } returns null
             every { scoreRepo.save(any()) } returns
-                Score(1L, member, CategoryType.TOEIC_ACADEMY, ScoreStatus.PENDING, null, null, null, null)
+                Score(1L, member, CategoryType.TOEIC_ACADEMY, ScoreStatus.PENDING, null, null, null, null, null)
 
             When("실행하면") {
                 val res = service.execute()

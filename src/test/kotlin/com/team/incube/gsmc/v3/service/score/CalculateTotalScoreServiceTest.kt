@@ -92,6 +92,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "자격증1",
                         scoreValue = 2.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 2L,
@@ -102,6 +103,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "수상1",
                         scoreValue = 1.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 3L,
@@ -112,6 +114,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "자격증2",
                         scoreValue = 2.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                 )
 
@@ -217,6 +220,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "TOEIC",
                         scoreValue = 800.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 2L,
@@ -227,6 +231,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "JLPT N2",
                         scoreValue = 2.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                 )
 
@@ -288,6 +293,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "자격증1",
                         scoreValue = 2.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 2L,
@@ -298,6 +304,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "자격증2",
                         scoreValue = 2.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 3L,
@@ -308,6 +315,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "수상1",
                         scoreValue = 1.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 4L,
@@ -318,6 +326,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "외부활동1",
                         scoreValue = 1.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                 )
 
