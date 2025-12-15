@@ -82,8 +82,8 @@ class MemberController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @GetMapping("/current")
-    fun getCurrentMember(): GetMemberResponse = findMyMemberService.execute()
+    @GetMapping("/my")
+    fun getMyMember(): GetMemberResponse = findMyMemberService.execute()
 
     @Operation(
         summary = "사용자 단건 조회",
