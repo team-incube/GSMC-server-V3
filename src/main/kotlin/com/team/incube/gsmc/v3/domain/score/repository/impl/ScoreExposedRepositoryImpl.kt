@@ -22,6 +22,7 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 import org.springframework.stereotype.Repository
+import java.time.Instant
 
 @Repository
 class ScoreExposedRepositoryImpl : ScoreExposedRepository {
@@ -70,6 +71,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
             it[sourceId] = score.sourceId
             it[activityName] = score.activityName
             it[scoreValue] = score.scoreValue
+            it[updatedAt] = Instant.now()
         }
         return score
     }
@@ -80,6 +82,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
     ) {
         ScoreExposedEntity.update({ ScoreExposedEntity.id eq scoreId }) {
             it[ScoreExposedEntity.sourceId] = sourceId
+            it[updatedAt] = Instant.now()
         }
     }
 
@@ -95,6 +98,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
     ): Int =
         ScoreExposedEntity.update({ ScoreExposedEntity.id eq scoreId }) {
             it[ScoreExposedEntity.status] = status
+            it[updatedAt] = Instant.now()
         }
 
     override fun updateStatusAndRejectionReasonByScoreId(
@@ -105,6 +109,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         ScoreExposedEntity.update({ ScoreExposedEntity.id eq scoreId }) {
             it[ScoreExposedEntity.status] = status
             it[ScoreExposedEntity.rejectionReason] = rejectionReason
+            it[updatedAt] = Instant.now()
         }
 
     override fun existsWithSource(scoreId: Long): Boolean =
@@ -313,6 +318,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
     ) {
         ScoreExposedEntity.update({ ScoreExposedEntity.id eq scoreId }) {
             it[ScoreExposedEntity.activityName] = activityName
+            it[updatedAt] = Instant.now()
         }
     }
 
@@ -323,6 +329,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         if (scoreIds.isEmpty()) return
         ScoreExposedEntity.update({ ScoreExposedEntity.id inList scoreIds }) {
             it[ScoreExposedEntity.activityName] = activityName
+            it[updatedAt] = Instant.now()
         }
     }
 
@@ -425,6 +432,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
             activityName = this[ScoreExposedEntity.activityName],
             scoreValue = this[ScoreExposedEntity.scoreValue],
             rejectionReason = this[ScoreExposedEntity.rejectionReason],
+            updatedAt = this[ScoreExposedEntity.updatedAt],
         )
     }
 }
