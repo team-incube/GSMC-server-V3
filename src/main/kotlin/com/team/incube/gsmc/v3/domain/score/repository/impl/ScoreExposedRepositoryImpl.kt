@@ -89,6 +89,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
     override fun updateSourceIdToNull(sourceId: Long) {
         ScoreExposedEntity.update({ ScoreExposedEntity.sourceId eq sourceId }) {
             it[ScoreExposedEntity.sourceId] = null
+            it[updatedAt] = Instant.now()
         }
     }
 
