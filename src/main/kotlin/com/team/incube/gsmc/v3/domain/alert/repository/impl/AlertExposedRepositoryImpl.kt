@@ -73,6 +73,7 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
                         activityName = row[ScoreExposedEntity.activityName],
                         scoreValue = row[ScoreExposedEntity.scoreValue],
                         rejectionReason = row[ScoreExposedEntity.rejectionReason],
+                        updatedAt = row[ScoreExposedEntity.updatedAt],
                     )
 
                 val createdAtInstant = row[AlertExposedEntity.createdAt]
@@ -145,6 +146,7 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
                         activityName = row[ScoreExposedEntity.activityName],
                         scoreValue = row[ScoreExposedEntity.scoreValue],
                         rejectionReason = row[ScoreExposedEntity.rejectionReason],
+                        updatedAt = row[ScoreExposedEntity.updatedAt],
                     )
 
                 val createdAtInstant = row[AlertExposedEntity.createdAt]
