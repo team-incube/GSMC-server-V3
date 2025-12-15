@@ -74,6 +74,7 @@ class DeleteScoreServiceTest :
                 activityName = null,
                 scoreValue = null,
                 rejectionReason = null,
+                updatedAt = null,
             )
 
         Given("점수가 존재하지 않을 때") {

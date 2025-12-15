@@ -108,6 +108,7 @@ class CreateEvidenceServiceTest :
                     activityName = null,
                     scoreValue = null,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
             val files =
                 listOf(
@@ -208,6 +209,7 @@ class CreateEvidenceServiceTest :
                     activityName = null,
                     scoreValue = null,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
             every { c.scoreRepo.findById(scoreId) } returns score
             every { c.scoreRepo.existsWithSource(scoreId) } returns true
@@ -244,6 +246,7 @@ class CreateEvidenceServiceTest :
                         activityName = null,
                         scoreValue = null,
                         rejectionReason = null,
+                        updatedAt = null,
                     )
                 every { c.scoreRepo.findById(scoreId) } returns score
                 every { c.scoreRepo.existsWithSource(scoreId) } returns false
@@ -280,6 +283,7 @@ class CreateEvidenceServiceTest :
                     activityName = null,
                     scoreValue = null,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
             val saved =
                 Evidence(

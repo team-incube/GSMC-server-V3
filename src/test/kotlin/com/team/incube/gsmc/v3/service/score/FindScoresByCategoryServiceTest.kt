@@ -85,6 +85,7 @@ class FindScoresByCategoryServiceTest :
                         activityName = "자격증1",
                         scoreValue = 2.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 2L,
@@ -95,6 +96,7 @@ class FindScoresByCategoryServiceTest :
                         activityName = "자격증2",
                         scoreValue = 2.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 3L,
@@ -105,6 +107,7 @@ class FindScoresByCategoryServiceTest :
                         activityName = "수상1",
                         scoreValue = 1.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                 )
 
@@ -149,6 +152,7 @@ class FindScoresByCategoryServiceTest :
                         activityName = "자격증1",
                         scoreValue = 2.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                 )
 
@@ -215,6 +219,7 @@ class FindScoresByCategoryServiceTest :
                         activityName = "TOEIC",
                         scoreValue = 800.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 2L,
@@ -225,6 +230,7 @@ class FindScoresByCategoryServiceTest :
                         activityName = "JLPT",
                         scoreValue = 150.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                 )
 

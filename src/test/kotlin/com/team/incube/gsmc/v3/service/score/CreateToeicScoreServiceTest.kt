@@ -86,7 +86,7 @@ class CreateToeicScoreServiceTest :
             val value = "850"
             val fileId = 100L
             val member = Member(0L, "Test User", "test@test.com", 1, 1, 1, MemberRole.STUDENT)
-            val score = Score(1L, member, CategoryType.TOEIC, ScoreStatus.PENDING, fileId, null, 850.0, null)
+            val score = Score(1L, member, CategoryType.TOEIC, ScoreStatus.PENDING, fileId, null, 850.0, null, null)
 
             every { c.fileRepo.existsById(fileId) } returns true
             every { c.scoreRepo.findByMemberIdAndCategoryType(0L, CategoryType.TOEIC) } returns null

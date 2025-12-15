@@ -111,6 +111,7 @@ class CreateProjectParticipationServiceTest :
                     activityName = projectTitle,
                     scoreValue = 2.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every {

@@ -111,6 +111,7 @@ class CreateCertificateScoreServiceTest :
                     activityName = value,
                     scoreValue = 2.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every { c.fileRepo.existsById(fileId) } returns true

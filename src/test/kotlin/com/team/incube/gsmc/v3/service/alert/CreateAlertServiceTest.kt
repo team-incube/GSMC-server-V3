@@ -77,6 +77,7 @@ class CreateAlertServiceTest :
             activityName = "정보처리기능사",
             scoreValue = 5.0,
             rejectionReason = null,
+            updatedAt = null,
         )
 
         // 스펙 초기화 시점에 transaction mock 설정 (beforeTest보다 먼저 실행)

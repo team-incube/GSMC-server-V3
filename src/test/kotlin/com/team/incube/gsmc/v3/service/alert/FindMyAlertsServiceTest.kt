@@ -84,6 +84,7 @@ class FindMyAlertsServiceTest :
                 activityName = "정보처리기능사",
                 scoreValue = 5.0,
                 rejectionReason = null,
+                updatedAt = null,
             )
 
         Given("내 알림 목록을 조회할 때") {

@@ -93,6 +93,7 @@ class UpdateExternalActivityScoreServiceTest :
                     activityName = "해커톤 참여",
                     scoreValue = 1.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
             val updatedScore =
                 Score(
@@ -104,6 +105,7 @@ class UpdateExternalActivityScoreServiceTest :
                     activityName = value,
                     scoreValue = 1.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns existingScore
@@ -156,6 +158,7 @@ class UpdateExternalActivityScoreServiceTest :
                     activityName = "활동",
                     scoreValue = 1.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every { c.scoreRepo.findById(1L) } returns score
@@ -190,6 +193,7 @@ class UpdateExternalActivityScoreServiceTest :
                     activityName = "수상",
                     scoreValue = 1.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every { c.scoreRepo.findById(1L) } returns score
@@ -224,6 +228,7 @@ class UpdateExternalActivityScoreServiceTest :
                     activityName = "활동",
                     scoreValue = 1.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every { c.scoreRepo.findById(1L) } returns score

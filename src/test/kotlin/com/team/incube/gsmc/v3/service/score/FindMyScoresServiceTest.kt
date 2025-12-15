@@ -86,6 +86,7 @@ class FindMyScoresServiceTest :
                         activityName = "수상1",
                         scoreValue = 10.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 2L,
@@ -96,6 +97,7 @@ class FindMyScoresServiceTest :
                         activityName = "자격증1",
                         scoreValue = 15.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                 )
 
@@ -158,6 +160,7 @@ class FindMyScoresServiceTest :
                         activityName = "수상1",
                         scoreValue = 10.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                 )
 
@@ -202,6 +205,7 @@ class FindMyScoresServiceTest :
                         activityName = "자격증1",
                         scoreValue = 15.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                 )
 
