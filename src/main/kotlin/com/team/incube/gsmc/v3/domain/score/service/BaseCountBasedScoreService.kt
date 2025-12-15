@@ -31,6 +31,7 @@ abstract class BaseCountBasedScoreService(
                     activityName = activityName,
                     scoreValue = null,
                     rejectionReason = null,
+                    updatedAt = null,
                 ),
             )
 

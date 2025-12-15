@@ -46,6 +46,7 @@ abstract class BaseCreateOrUpdateBasedScoreService(
                     activityName = activityName,
                     scoreValue = scoreValue,
                     rejectionReason = null,
+                    updatedAt = null,
                 ),
             )
 
