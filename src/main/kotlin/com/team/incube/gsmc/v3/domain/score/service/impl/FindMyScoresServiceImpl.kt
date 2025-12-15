@@ -44,6 +44,7 @@ class FindMyScoresServiceImpl(
                             activityName = score.activityName,
                             scoreValue = score.scoreValue,
                             rejectionReason = score.rejectionReason,
+                            updatedAt = score.updatedAt,
                         )
                     },
             )
