@@ -50,4 +50,7 @@ enum class ErrorCode(
     PROJECT_NOT_FOUND("존재하지 않는 프로젝트입니다.", 404),
     PROJECT_FORBIDDEN("프로젝트에 접근 권한이 없습니다.", 403),
     NOT_PROJECT_PARTICIPANT("프로젝트 참가자가 아닙니다.", 403),
+
+    // Sheet
+    NOT_ASSIGNED_HOMEROOM_CLASS("해당 학급의 담임 교사가 아닙니다.", 403),
 }
