@@ -17,7 +17,7 @@ class DomainAuthorizationConfig {
             .permitAll()
             // Auth
             .requestMatchers("/api/v3/auth/signup")
-            .hasRole("UNAUTHORIZED")
+            .hasRole(MemberRole.UNAUTHORIZED.name)
             .requestMatchers("/api/v3/auth/**")
             .permitAll()
             // Developer
@@ -25,47 +25,47 @@ class DomainAuthorizationConfig {
             .permitAll()
             // Alert
             .requestMatchers("/api/v3/alerts/**")
-            .hasAnyRole("STUDENT", "TEACHER", "HOMEROOM_TEACHER", "ROOT")
+            .hasAnyRole(MemberRole.STUDENT.name, MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
             // Category
             .requestMatchers("/api/v3/categories/**")
-            .hasRole("STUDENT")
+            .hasRole(MemberRole.STUDENT.name)
             // Evidence
             .requestMatchers(HttpMethod.GET, "/api/v3/evidences/my", "/api/v3/evidences/draft")
-            .hasRole("STUDENT")
+            .hasRole(MemberRole.STUDENT.name)
             .requestMatchers(HttpMethod.POST, "/api/v3/evidences/draft")
-            .hasRole("STUDENT")
+            .hasRole(MemberRole.STUDENT.name)
             .requestMatchers(HttpMethod.DELETE, "/api/v3/evidences/draft")
-            .hasRole("STUDENT")
+            .hasRole(MemberRole.STUDENT.name)
             .requestMatchers("/api/v3/evidences/**")
-            .hasAnyRole("STUDENT", "TEACHER", "HOMEROOM_TEACHER", "ROOT")
+            .hasAnyRole(MemberRole.STUDENT.name, MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
             // File
             .requestMatchers(HttpMethod.GET, "/api/v3/files/my", "/api/v3/files/my/unused")
-            .hasRole("STUDENT")
+            .hasRole(MemberRole.STUDENT.name)
             .requestMatchers("/api/v3/files/**")
-            .hasAnyRole("STUDENT", "TEACHER", "HOMEROOM_TEACHER", "ROOT")
+            .hasAnyRole(MemberRole.STUDENT.name, MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
             // Member
             .requestMatchers("/api/v3/members/**")
-            .hasAnyRole("STUDENT", "TEACHER", "HOMEROOM_TEACHER", "ROOT")
+            .hasAnyRole(MemberRole.STUDENT.name, MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
             // Project
             .requestMatchers(HttpMethod.GET, "/api/v3/projects/draft", "/api/v3/projects/*/my-score-and-evidence")
-            .hasRole("STUDENT")
+            .hasRole(MemberRole.STUDENT.name)
             .requestMatchers(HttpMethod.POST, "/api/v3/projects/draft")
-            .hasRole("STUDENT")
+            .hasRole(MemberRole.STUDENT.name)
             .requestMatchers(HttpMethod.DELETE, "/api/v3/projects/draft")
-            .hasRole("STUDENT")
+            .hasRole(MemberRole.STUDENT.name)
             .requestMatchers("/api/v3/projects/**")
-            .hasAnyRole("STUDENT", "TEACHER", "HOMEROOM_TEACHER", "ROOT")
+            .hasAnyRole(MemberRole.STUDENT.name, MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
             // Score
             .requestMatchers(HttpMethod.POST, "/api/v3/scores/volunteer", "/api/v3/scores/academic-grade")
-            .hasAnyRole("TEACHER", "HOMEROOM_TEACHER", "ROOT")
+            .hasAnyRole(MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
             .requestMatchers(HttpMethod.PUT, "/api/v3/scores/*/status")
-            .hasAnyRole("TEACHER", "HOMEROOM_TEACHER", "ROOT")
+            .hasAnyRole(MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
             .requestMatchers(HttpMethod.PATCH, "/api/v3/scores/*/approve", "/api/v3/scores/*/reject")
-            .hasAnyRole("TEACHER", "HOMEROOM_TEACHER", "ROOT")
+            .hasAnyRole(MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
             .requestMatchers(HttpMethod.GET, "/api/v3/scores/total/*", "/api/v3/scores/by-category/*")
-            .hasAnyRole("TEACHER", "HOMEROOM_TEACHER", "ROOT")
+            .hasAnyRole(MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
             .requestMatchers(HttpMethod.GET, "/api/v3/scores", "/api/v3/scores/by-category", "/api/v3/scores/total")
-            .hasRole("STUDENT")
+            .hasRole(MemberRole.STUDENT.name)
             .requestMatchers(
                 HttpMethod.POST,
                 "/api/v3/scores/certificate",
@@ -79,12 +79,12 @@ class DomainAuthorizationConfig {
                 "/api/v3/scores/newrrow-school",
                 "/api/v3/scores/external-activity",
                 "/api/v3/scores/project-participation",
-            ).hasRole("STUDENT")
+            ).hasRole(MemberRole.STUDENT.name)
             .requestMatchers("/api/v3/scores/**")
-            .hasAnyRole("STUDENT", "TEACHER", "HOMEROOM_TEACHER", "ROOT")
+            .hasAnyRole(MemberRole.STUDENT.name, MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
             // Sheet
             .requestMatchers("/api/v3/sheets/**")
-            .hasAnyRole("TEACHER", "HOMEROOM_TEACHER", "ROOT")
+            .hasAnyRole(MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
             .anyRequest()
             .authenticated()
     }
