@@ -58,12 +58,9 @@ class CreateClassScoreSheetServiceImpl(
         classNumber: Int,
     ): ResponseEntity<ByteArrayResource> {
         val requester: Member = currentMemberProvider.getCurrentMember()
-
-       if (requester.role != MemberRole.ROOT) {
-           if (requester.role != MemberRole.HOMEROOM_TEACHER || !(requester.grade == grade && requester.classNumber == classNumber)) {
-                throw GsmcException(ErrorCode.NOT_ASSIGNED_HOMEROOM_CLASS)
-           }
-       }
+        if (!(requester.grade == grade && requester.classNumber == classNumber)) {
+            throw GsmcException(ErrorCode.NOT_ASSIGNED_HOMEROOM_CLASS)
+        }
         val allCategories = CategoryType.getAllCategories()
         val classScoreDataList =
             transaction {
