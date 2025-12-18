@@ -26,7 +26,6 @@ class DeveloperController(
     private val updateMemberRoleService: UpdateMemberRoleService,
     private val deleteMemberByEmailService: DeleteMemberByEmailService,
 ) {
-
     @Operation(
         summary = "사용자 권한 변경",
         description = "요청 바디의 email, role 로 사용자의 권한을 변경합니다.",
