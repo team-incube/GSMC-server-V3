@@ -11,6 +11,7 @@ import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.config.logger
 import com.team.incube.gsmc.v3.global.security.jwt.JwtProvider
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.springframework.core.env.Environment
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
@@ -20,7 +21,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthorizationException
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse
-import org.springframework.core.env.Environment
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Service
 import java.net.URLDecoder
