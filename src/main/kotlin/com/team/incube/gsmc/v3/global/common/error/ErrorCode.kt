@@ -9,6 +9,7 @@ enum class ErrorCode(
 
     // Alert
     ALERT_NOT_FOUND("해당 알림을 찾을 수 없습니다.", 404),
+    INVALID_ALERT_TYPE("유효하지 않은 알림 타입입니다.", 400),
 
     // Score
     SCORE_NOT_FOUND("존재하지 않는 점수 객체입니다.", 404),
