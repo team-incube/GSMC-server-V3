@@ -11,7 +11,7 @@ object AlertExposedEntity : Table(name = "tb_alert") {
     val id = long(name = "alert_id").autoIncrement()
     val senderId = long(name = "alert_sender_id").references(MemberExposedEntity.id)
     val receiverId = long(name = "alert_receiver_id").references(MemberExposedEntity.id)
-    val scoreId = long(name = "score_id").references(ScoreExposedEntity.id)
+    val scoreId = long(name = "score_id").references(ScoreExposedEntity.id).nullable()
     val alertType = enumeration<AlertType>(name = "alert_type")
     val isRead = bool(name = "alert_is_read").default(false)
     val content = varchar(name = "alert_content", length = 255).default("")

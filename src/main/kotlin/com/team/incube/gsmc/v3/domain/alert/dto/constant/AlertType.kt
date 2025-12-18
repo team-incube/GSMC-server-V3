@@ -12,4 +12,7 @@ enum class AlertType(
     APPROVED(
         title = "합격 알림",
     ),
+    TEACHER_SIGNUP_REQUEST(
+        title = "선생님 회원가입 요청",
+    ),
 }

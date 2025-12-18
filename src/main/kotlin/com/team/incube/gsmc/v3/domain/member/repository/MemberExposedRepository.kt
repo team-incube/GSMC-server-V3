@@ -57,4 +57,6 @@ interface MemberExposedRepository {
         number: Int?,
         role: MemberRole,
     ): Int
+
+    fun findAllByRoleIn(roles: List<MemberRole>): List<Member>
 }

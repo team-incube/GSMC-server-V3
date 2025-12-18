@@ -165,6 +165,12 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
             it[this.role] = role
         }
 
+    override fun findAllByRoleIn(roles: List<MemberRole>): List<Member> =
+        MemberExposedEntity
+            .selectAll()
+            .where { MemberExposedEntity.role inList roles }
+            .map { it.toMember() }
+
     private fun ResultRow.toMember(): Member =
         Member(
             id = this[MemberExposedEntity.id],

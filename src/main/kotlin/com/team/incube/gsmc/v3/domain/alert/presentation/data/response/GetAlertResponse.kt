@@ -15,6 +15,6 @@ data class GetAlertResponse(
     val createdAt: LocalDateTime,
     @field:Schema(description = "알림 타입", example = "APPROVED")
     val alertType: AlertType,
-    @field:Schema(description = "점수 ID", example = "1")
-    val scoreId: Long,
+    @field:Schema(description = "점수 ID(Nullable)", example = "1")
+    val scoreId: Long?,
 )
