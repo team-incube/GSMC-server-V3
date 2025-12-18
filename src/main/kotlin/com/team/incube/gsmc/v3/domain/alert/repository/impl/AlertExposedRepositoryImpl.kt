@@ -31,7 +31,7 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
         val receiverAlias = MemberExposedEntity.alias("receiver")
 
         return AlertExposedEntity
-            .join(ScoreExposedEntity, JoinType.INNER) {
+            .join(ScoreExposedEntity, JoinType.LEFT) {
                 AlertExposedEntity.scoreId eq ScoreExposedEntity.id
             }.join(senderAlias, JoinType.INNER) {
                 AlertExposedEntity.senderId eq senderAlias[MemberExposedEntity.id]
@@ -64,17 +64,19 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
                     )
 
                 val score =
-                    Score(
-                        id = row[ScoreExposedEntity.id],
-                        member = receiver,
-                        categoryType = CategoryType.fromEnglishName(row[ScoreExposedEntity.categoryEnglishName]),
-                        status = row[ScoreExposedEntity.status],
-                        sourceId = row[ScoreExposedEntity.sourceId],
-                        activityName = row[ScoreExposedEntity.activityName],
-                        scoreValue = row[ScoreExposedEntity.scoreValue],
-                        rejectionReason = row[ScoreExposedEntity.rejectionReason],
-                        updatedAt = row[ScoreExposedEntity.updatedAt],
-                    )
+                    row[AlertExposedEntity.scoreId]?.let {
+                        Score(
+                            id = row[ScoreExposedEntity.id],
+                            member = receiver,
+                            categoryType = CategoryType.fromEnglishName(row[ScoreExposedEntity.categoryEnglishName]),
+                            status = row[ScoreExposedEntity.status],
+                            sourceId = row[ScoreExposedEntity.sourceId],
+                            activityName = row[ScoreExposedEntity.activityName],
+                            scoreValue = row[ScoreExposedEntity.scoreValue],
+                            rejectionReason = row[ScoreExposedEntity.rejectionReason],
+                            updatedAt = row[ScoreExposedEntity.updatedAt],
+                        )
+                    }
 
                 val createdAtInstant = row[AlertExposedEntity.createdAt]
                 val createdAt = LocalDateTime.ofInstant(createdAtInstant, ZoneId.systemDefault())
@@ -102,7 +104,7 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
         val receiverAlias = MemberExposedEntity.alias("receiver")
 
         return AlertExposedEntity
-            .join(ScoreExposedEntity, JoinType.INNER) {
+            .join(ScoreExposedEntity, JoinType.LEFT) {
                 AlertExposedEntity.scoreId eq ScoreExposedEntity.id
             }.join(senderAlias, JoinType.INNER) {
                 AlertExposedEntity.senderId eq senderAlias[MemberExposedEntity.id]
@@ -137,17 +139,19 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
                     )
 
                 val score =
-                    Score(
-                        id = row[ScoreExposedEntity.id],
-                        member = receiver,
-                        categoryType = CategoryType.fromEnglishName(row[ScoreExposedEntity.categoryEnglishName]),
-                        status = row[ScoreExposedEntity.status],
-                        sourceId = row[ScoreExposedEntity.sourceId],
-                        activityName = row[ScoreExposedEntity.activityName],
-                        scoreValue = row[ScoreExposedEntity.scoreValue],
-                        rejectionReason = row[ScoreExposedEntity.rejectionReason],
-                        updatedAt = row[ScoreExposedEntity.updatedAt],
-                    )
+                    row[AlertExposedEntity.scoreId]?.let {
+                        Score(
+                            id = row[ScoreExposedEntity.id],
+                            member = receiver,
+                            categoryType = CategoryType.fromEnglishName(row[ScoreExposedEntity.categoryEnglishName]),
+                            status = row[ScoreExposedEntity.status],
+                            sourceId = row[ScoreExposedEntity.sourceId],
+                            activityName = row[ScoreExposedEntity.activityName],
+                            scoreValue = row[ScoreExposedEntity.scoreValue],
+                            rejectionReason = row[ScoreExposedEntity.rejectionReason],
+                            updatedAt = row[ScoreExposedEntity.updatedAt],
+                        )
+                    }
 
                 val createdAtInstant = row[AlertExposedEntity.createdAt]
                 val createdAt = LocalDateTime.ofInstant(createdAtInstant, ZoneId.systemDefault())
@@ -190,6 +194,37 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
             sender = sender,
             receiver = receiver,
             score = score,
+            alertType = alertType,
+            isRead = false,
+            content = content,
+            createdAt = LocalDateTime.ofInstant(now, ZoneId.systemDefault()),
+        )
+    }
+
+    override fun saveWithoutScore(
+        sender: Member,
+        receiver: Member,
+        alertType: AlertType,
+        content: String,
+    ): Alert {
+        val now = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()
+
+        val insertedId =
+            AlertExposedEntity.insert {
+                it[this.senderId] = sender.id
+                it[this.receiverId] = receiver.id
+                it[this.scoreId] = null
+                it[this.alertType] = alertType
+                it[this.isRead] = false
+                it[this.content] = content
+                it[this.createdAt] = now
+            } get AlertExposedEntity.id
+
+        return Alert(
+            id = insertedId,
+            sender = sender,
+            receiver = receiver,
+            score = null,
             alertType = alertType,
             isRead = false,
             content = content,
