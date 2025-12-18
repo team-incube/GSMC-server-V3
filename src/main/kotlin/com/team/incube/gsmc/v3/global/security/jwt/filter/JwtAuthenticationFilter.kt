@@ -31,7 +31,7 @@ class JwtAuthenticationFilter(
         if (token != null && jwtParser.validateAccessToken(token)) {
             val userId = jwtParser.getUserIdFromAccessToken(token).toLong()
             val role = jwtParser.getRoleFromAccessToken(token)
-            val authorities: List<GrantedAuthority> = listOf(SimpleGrantedAuthority(role.name))
+            val authorities: List<GrantedAuthority> = listOf(SimpleGrantedAuthority("ROLE_${role.name}"))
             val authentication =
                 UsernamePasswordAuthenticationToken(userId, null, authorities)
             authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
