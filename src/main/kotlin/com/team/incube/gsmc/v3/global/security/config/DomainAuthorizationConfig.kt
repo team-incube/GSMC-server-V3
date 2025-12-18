@@ -21,9 +21,9 @@ class DomainAuthorizationConfig {
             .requestMatchers("/api/v3/auth/teacher-signup")
             .hasRole(MemberRole.UNAUTHORIZED.name)
             .requestMatchers("/api/v3/auth/teacher-signup/requests")
-            .hasAnyRole(MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name)
+            .hasAnyRole(MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
             .requestMatchers("/api/v3/auth/teacher-signup/*/approve", "/api/v3/auth/teacher-signup/*/reject")
-            .hasAnyRole(MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name)
+            .hasAnyRole(MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
             .requestMatchers("/api/v3/auth/**")
             .permitAll()
             // Developer
