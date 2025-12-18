@@ -14,15 +14,18 @@ class RejectTeacherSignUpRequestServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
 ) : RejectTeacherSignUpRequestService {
     override fun execute(memberId: Long) {
-        teacherSignUpRequestRedisRepository
-            .findById(memberId)
-            .orElseThrow { GsmcException(ErrorCode.TEACHER_SIGNUP_REQUEST_NOT_FOUND) }
-        teacherSignUpRequestRedisRepository.deleteById(memberId)
+        val request =
+            teacherSignUpRequestRedisRepository
+                .findById(memberId)
+                .orElseThrow { GsmcException(ErrorCode.TEACHER_SIGNUP_REQUEST_NOT_FOUND) }
+
         transaction {
             memberExposedRepository.deleteMemberByEmail(
                 memberExposedRepository.findById(memberId)?.email
                     ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND),
             )
         }
+
+        teacherSignUpRequestRedisRepository.deleteById(memberId)
     }
 }

@@ -127,14 +127,13 @@ class RejectTeacherSignUpRequestServiceTest :
             val request = teacherRequest(memberId = memberId)
 
             every { c.teacherSignUpRequestRedisRepository.findById(memberId) } returns Optional.of(request)
-            every { c.teacherSignUpRequestRedisRepository.deleteById(memberId) } returns Unit
             every { c.memberExposedRepository.findById(memberId) } returns null
 
             When("execute를 호출하면") {
                 Then("MEMBER_NOT_FOUND 예외가 발생한다") {
                     val ex = shouldThrow<GsmcException> { c.service.execute(memberId) }
                     ex.errorCode shouldBe ErrorCode.MEMBER_NOT_FOUND
-                    verify(exactly = 1) { c.teacherSignUpRequestRedisRepository.deleteById(memberId) }
+                    verify(exactly = 0) { c.teacherSignUpRequestRedisRepository.deleteById(memberId) }
                     verify(exactly = 0) { c.memberExposedRepository.deleteMemberByEmail(any()) }
                 }
             }
