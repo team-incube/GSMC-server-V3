@@ -72,7 +72,7 @@ class CreateTeacherSignUpRequestServiceTest :
         ) = Member(
             id = id,
             name = name,
-            email = "${name}@gsm.hs.kr",
+            email = "$name@gsm.hs.kr",
             grade = null,
             classNumber = null,
             number = null,
@@ -85,7 +85,7 @@ class CreateTeacherSignUpRequestServiceTest :
         ) = Member(
             id = id,
             name = name,
-            email = "${name}@gsm.hs.kr",
+            email = "$name@gsm.hs.kr",
             grade = 1,
             classNumber = 1,
             number = null,
@@ -98,7 +98,7 @@ class CreateTeacherSignUpRequestServiceTest :
         ) = Member(
             id = id,
             name = name,
-            email = "${name}@gsm.hs.kr",
+            email = "$name@gsm.hs.kr",
             grade = null,
             classNumber = null,
             number = null,
