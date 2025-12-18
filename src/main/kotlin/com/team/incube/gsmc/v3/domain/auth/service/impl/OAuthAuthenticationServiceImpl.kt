@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthorizationException
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse
+import org.springframework.core.env.Environment
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Service
 import java.net.URLDecoder
@@ -34,6 +35,7 @@ class OAuthAuthenticationServiceImpl(
     private val tokenResponseClient: OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>,
     private val oauth2UserService: OAuth2UserService<OAuth2UserRequest, OAuth2User>,
     private val refreshTokenRedisRepository: RefreshTokenRedisRepository,
+    private val environment: Environment,
 ) : OAuthAuthenticationService {
     override fun execute(code: String): AuthTokenResponse {
         val decodedCode = URLDecoder.decode(code, StandardCharsets.UTF_8)
@@ -72,7 +74,8 @@ class OAuthAuthenticationServiceImpl(
                     ?: throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
             val name = (oauth2User.attributes["name"] as? String) ?: ""
 
-            if (email.endsWith("@gsm.hs.kr").not()) {
+            val isDevProfile = environment.activeProfiles.contains("dev")
+            if (!isDevProfile && email.endsWith("@gsm.hs.kr").not()) {
                 throw GsmcException(ErrorCode.INVALID_EMAIL_DOMAIN)
             }
 
