@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import org.springframework.context.annotation.Profile
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -25,6 +26,7 @@ class DeveloperController(
     private val updateMemberRoleService: UpdateMemberRoleService,
     private val deleteMemberByEmailService: DeleteMemberByEmailService,
 ) {
+
     @Operation(
         summary = "사용자 권한 변경",
         description = "요청 바디의 email, role 로 사용자의 권한을 변경합니다.",
@@ -37,7 +39,7 @@ class DeveloperController(
     )
     @PatchMapping("/member/role")
     fun changeMemberRole(
-        @RequestBody request: PatchMemberRoleRequest,
+        @RequestBody @Valid request: PatchMemberRoleRequest,
     ): CommonApiResponse<Nothing> {
         updateMemberRoleService.execute(
             email = request.email,
@@ -58,7 +60,7 @@ class DeveloperController(
     )
     @DeleteMapping("/member")
     fun delete(
-        @RequestBody request: DeleteMemberByEmailServiceRequest,
+        @RequestBody @Valid request: DeleteMemberByEmailServiceRequest,
     ): CommonApiResponse<Nothing> {
         deleteMemberByEmailService.execute(email = request.email)
         return CommonApiResponse.success("OK")
