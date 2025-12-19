@@ -254,4 +254,14 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
             AlertExposedEntity.scoreId inList scoreIds
         }
     }
+
+    override fun deleteAllBySenderId(senderId: Long): Int =
+        AlertExposedEntity.deleteWhere {
+            AlertExposedEntity.senderId eq senderId
+        }
+
+    override fun deleteAllByReceiverId(receiverId: Long): Int =
+        AlertExposedEntity.deleteWhere {
+            AlertExposedEntity.receiverId eq receiverId
+        }
 }
