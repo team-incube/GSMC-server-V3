@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.service.developer
 
+import com.team.incube.gsmc.v3.domain.alert.repository.AlertExposedRepository
 import com.team.incube.gsmc.v3.domain.developer.service.impl.DeleteMemberByEmailServiceImpl
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
@@ -26,6 +27,7 @@ class DeleteMemberByEmailServiceTest :
             val memberRepo: MemberExposedRepository,
             val scoreRepo: ScoreExposedRepository,
             val evidenceRepo: EvidenceExposedRepository,
+            val alertRepo: AlertExposedRepository,
             val fileRepo: FileExposedRepository,
             val s3DeleteService: S3DeleteService,
             val service: DeleteMemberByEmailServiceImpl,
@@ -35,10 +37,11 @@ class DeleteMemberByEmailServiceTest :
             val memberRepo = mockk<MemberExposedRepository>()
             val scoreRepo = mockk<ScoreExposedRepository>()
             val evidenceRepo = mockk<EvidenceExposedRepository>()
+            val alertRepo = mockk<AlertExposedRepository>(relaxed = true)
             val fileRepo = mockk<FileExposedRepository>()
             val s3DeleteService = mockk<S3DeleteService>(relaxed = true)
-            val service = DeleteMemberByEmailServiceImpl(memberRepo, scoreRepo, evidenceRepo, fileRepo, s3DeleteService)
-            return TestData(memberRepo, scoreRepo, evidenceRepo, fileRepo, s3DeleteService, service)
+            val service = DeleteMemberByEmailServiceImpl(memberRepo, scoreRepo, alertRepo, evidenceRepo, fileRepo, s3DeleteService)
+            return TestData(memberRepo, scoreRepo, evidenceRepo, alertRepo, fileRepo, s3DeleteService, service)
         }
 
         // 스펙 초기화 시점에 transaction mock 설정
@@ -81,7 +84,8 @@ class DeleteMemberByEmailServiceTest :
             When("execute를 호출하면") {
                 c.service.execute(email)
 
-                Then("회원이 삭제된다") {
+                Then("회원 관련 데이터가 삭제된다") {
+                    verify(exactly = 1) { c.alertRepo.deleteAllByMemberId(member.id) }
                     verify(exactly = 1) { c.memberRepo.deleteMemberByEmail(email) }
                 }
             }
@@ -95,7 +99,10 @@ class DeleteMemberByEmailServiceTest :
 
             When("execute를 호출하면") {
                 Then("MEMBER_NOT_FOUND 예외가 발생한다") {
-                    val ex = shouldThrow<GsmcException> { c.service.execute(email) }
+                    val ex =
+                        shouldThrow<GsmcException> {
+                            c.service.execute(email)
+                        }
                     ex.errorCode shouldBe ErrorCode.MEMBER_NOT_FOUND
                 }
             }
