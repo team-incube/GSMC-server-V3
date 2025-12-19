@@ -68,7 +68,9 @@ class DeleteMemberByEmailServiceImpl(
                             }
                         }
 
-                        EvidenceType.UNREQUIRED -> Unit
+                        EvidenceType.UNREQUIRED -> {
+                            Unit
+                        }
                     }
                 }
 
