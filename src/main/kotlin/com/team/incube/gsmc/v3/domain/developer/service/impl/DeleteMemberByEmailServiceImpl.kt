@@ -6,11 +6,14 @@ import com.team.incube.gsmc.v3.domain.developer.service.DeleteMemberByEmailServi
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
+import com.team.incube.gsmc.v3.domain.project.entity.ProjectFileExposedEntity
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.config.logger
 import com.team.incube.gsmc.v3.global.thirdparty.aws.s3.service.S3DeleteService
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.stereotype.Service
 
@@ -42,6 +45,9 @@ class DeleteMemberByEmailServiceImpl(
             }
 
             if (memberFileIds.isNotEmpty()) {
+                ProjectFileExposedEntity.deleteWhere {
+                    ProjectFileExposedEntity.file inList memberFileIds
+                }
                 fileExposedRepository.deleteAllByIdIn(memberFileIds)
             }
 
