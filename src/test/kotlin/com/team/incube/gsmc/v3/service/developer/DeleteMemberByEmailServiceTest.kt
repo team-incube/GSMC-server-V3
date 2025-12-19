@@ -44,7 +44,6 @@ class DeleteMemberByEmailServiceTest :
             return TestData(memberRepo, scoreRepo, evidenceRepo, alertRepo, fileRepo, s3DeleteService, service)
         }
 
-        // 스펙 초기화 시점에 transaction mock 설정
         val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
 
         mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")

@@ -33,7 +33,6 @@ class FindEvidenceByIdServiceTest :
             return Ctx(r, s)
         }
 
-        // 스펙 초기화 시점에 transaction mock 설정
         val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
 
         mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
