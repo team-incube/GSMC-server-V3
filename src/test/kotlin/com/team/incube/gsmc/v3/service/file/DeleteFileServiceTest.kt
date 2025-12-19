@@ -56,7 +56,6 @@ class DeleteFileServiceTest :
             )
         }
 
-        // 스펙 초기화 시점에 transaction mock 설정
         val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
 
         mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
@@ -194,7 +193,6 @@ class DeleteFileServiceTest :
                     uri = testFileUri,
                 )
 
-            // Interaction - S3 삭제 시 예외 발생
             every { context.mockFileRepository.findById(fileId) } returns existingFile
             justRun { context.mockFileRepository.deleteById(fileId) }
             every { context.mockEventPublisher.publishEvent(any<Any>()) } throws RuntimeException("S3 삭제 실패")

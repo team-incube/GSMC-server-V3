@@ -33,7 +33,7 @@ class RejectTeacherSignUpRequestServiceTest :
         fun ctx(): TestContext {
             val teacherSignUpRequestRedisRepository = mockk<TeacherSignUpRequestRedisRepository>()
             val memberExposedRepository = mockk<MemberExposedRepository>()
-            val alertExposedRepository = mockk<AlertExposedRepository>()
+            val alertExposedRepository = mockk<AlertExposedRepository>(relaxed = true)
             val service =
                 RejectTeacherSignUpRequestServiceImpl(teacherSignUpRequestRedisRepository, memberExposedRepository, alertExposedRepository)
             return TestContext(teacherSignUpRequestRedisRepository, memberExposedRepository, alertExposedRepository, service)
