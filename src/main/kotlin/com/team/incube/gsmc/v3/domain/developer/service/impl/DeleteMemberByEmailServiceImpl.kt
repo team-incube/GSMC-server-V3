@@ -34,6 +34,17 @@ class DeleteMemberByEmailServiceImpl(
 
             alertExposedRepository.deleteAllByMemberId(member.id)
 
+            val memberFiles = fileExposedRepository.findAllByUserId(member.id)
+            val memberFileIds = memberFiles.map { it.id }
+
+            memberFiles.forEach { file ->
+                s3DeleteService.execute(file.uri)
+            }
+
+            if (memberFileIds.isNotEmpty()) {
+                fileExposedRepository.deleteAllByIdIn(memberFileIds)
+            }
+
             val scores = scoreExposedRepository.findAllByMemberId(member.id)
             if (scores.isNotEmpty()) {
                 val scoreIds = scores.mapNotNull { it.id }
