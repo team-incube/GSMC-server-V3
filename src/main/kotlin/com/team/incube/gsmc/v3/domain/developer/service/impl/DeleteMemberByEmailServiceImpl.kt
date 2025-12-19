@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.domain.developer.service.impl
 
+import com.team.incube.gsmc.v3.domain.alert.repository.AlertExposedRepository
 import com.team.incube.gsmc.v3.domain.category.constant.EvidenceType
 import com.team.incube.gsmc.v3.domain.developer.service.DeleteMemberByEmailService
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service
 class DeleteMemberByEmailServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
     private val scoreExposedRepository: ScoreExposedRepository,
+    private val alertExposedRepository: AlertExposedRepository,
     private val evidenceExposedRepository: EvidenceExposedRepository,
     private val fileExposedRepository: FileExposedRepository,
     private val s3DeleteService: S3DeleteService,
@@ -35,34 +37,39 @@ class DeleteMemberByEmailServiceImpl(
                 val scoreIds = mutableListOf<Long>()
 
                 scores.forEach { score ->
-                    val scoreId = score.id ?: return@forEach
-                    scoreIds += scoreId
+                    score.id?.let { scoreIds += it }
+                }
 
-                    score.sourceId?.let { sourceId ->
-                        when (score.categoryType.evidenceType) {
-                            EvidenceType.EVIDENCE -> {
-                                val evidence = evidenceExposedRepository.findById(sourceId)
-                                val files = evidence?.files ?: emptyList()
+                if (scoreIds.isNotEmpty()) {
+                    alertExposedRepository.deleteAllByScoreIdIn(scoreIds)
+                }
 
-                                evidenceExposedRepository.deleteById(sourceId)
+                scores.forEach { score ->
+                    val sourceId = score.sourceId ?: return@forEach
 
-                                files.forEach { file ->
-                                    s3DeleteService.execute(file.uri)
-                                    fileExposedRepository.deleteById(file.id)
-                                }
+                    when (score.categoryType.evidenceType) {
+                        EvidenceType.EVIDENCE -> {
+                            val evidence = evidenceExposedRepository.findById(sourceId)
+                            val files = evidence?.files ?: emptyList()
+
+                            evidenceExposedRepository.deleteById(sourceId)
+
+                            files.forEach { file ->
+                                s3DeleteService.execute(file.uri)
+                                fileExposedRepository.deleteById(file.id)
                             }
+                        }
 
-                            EvidenceType.FILE -> {
-                                val file = fileExposedRepository.findById(sourceId)
-                                file?.let {
-                                    s3DeleteService.execute(it.uri)
-                                    fileExposedRepository.deleteById(it.id)
-                                }
+                        EvidenceType.FILE -> {
+                            val file = fileExposedRepository.findById(sourceId)
+                            file?.let {
+                                s3DeleteService.execute(it.uri)
+                                fileExposedRepository.deleteById(it.id)
                             }
+                        }
 
-                            EvidenceType.UNREQUIRED -> {
-                                Unit
-                            }
+                        EvidenceType.UNREQUIRED -> {
+                            Unit
                         }
                     }
                 }
