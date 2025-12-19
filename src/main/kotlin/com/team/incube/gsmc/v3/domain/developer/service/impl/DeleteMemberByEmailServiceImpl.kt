@@ -32,6 +32,9 @@ class DeleteMemberByEmailServiceImpl(
                         throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
                     }
 
+            alertExposedRepository.deleteAllByReceiverId(member.id)
+            alertExposedRepository.deleteAllBySenderId(member.id)
+
             val scores = scoreExposedRepository.findAllByMemberId(member.id)
             if (scores.isNotEmpty()) {
                 val scoreIds = mutableListOf<Long>()
