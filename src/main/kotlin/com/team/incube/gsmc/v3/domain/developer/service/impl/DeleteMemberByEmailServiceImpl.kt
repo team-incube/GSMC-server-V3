@@ -64,26 +64,12 @@ class DeleteMemberByEmailServiceImpl(
 
                     when (score.categoryType.evidenceType) {
                         EvidenceType.EVIDENCE -> {
-                            val evidence = evidenceExposedRepository.findById(sourceId)
-                            val files = evidence?.files ?: emptyList()
-
                             evidenceExposedRepository.deleteById(sourceId)
-
-                            files.forEach { file ->
-                                s3DeleteService.execute(file.uri)
-                                fileExposedRepository.deleteById(file.id)
-                            }
                         }
 
-                        EvidenceType.FILE -> {
-                            val file = fileExposedRepository.findById(sourceId)
-                            file?.let {
-                                s3DeleteService.execute(it.uri)
-                                fileExposedRepository.deleteById(it.id)
-                            }
-                        }
-
-                        EvidenceType.UNREQUIRED -> {
+                        EvidenceType.FILE,
+                        EvidenceType.UNREQUIRED,
+                        -> {
                             Unit
                         }
                     }
