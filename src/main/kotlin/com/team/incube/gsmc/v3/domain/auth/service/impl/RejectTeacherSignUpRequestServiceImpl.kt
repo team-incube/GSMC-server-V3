@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.domain.auth.service.impl
 
+import com.team.incube.gsmc.v3.domain.alert.repository.AlertExposedRepository
 import com.team.incube.gsmc.v3.domain.auth.repository.TeacherSignUpRequestRedisRepository
 import com.team.incube.gsmc.v3.domain.auth.service.RejectTeacherSignUpRequestService
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service
 class RejectTeacherSignUpRequestServiceImpl(
     private val teacherSignUpRequestRedisRepository: TeacherSignUpRequestRedisRepository,
     private val memberExposedRepository: MemberExposedRepository,
+    private val alertExposedRepository: AlertExposedRepository,
 ) : RejectTeacherSignUpRequestService {
     override fun execute(memberId: Long) {
         val request =
@@ -20,6 +22,9 @@ class RejectTeacherSignUpRequestServiceImpl(
                 .orElseThrow { GsmcException(ErrorCode.TEACHER_SIGNUP_REQUEST_NOT_FOUND) }
 
         transaction {
+            alertExposedRepository.deleteAllBySenderId(memberId)
+            alertExposedRepository.deleteAllByReceiverId(memberId)
+
             memberExposedRepository.deleteMemberByEmail(
                 memberExposedRepository.findById(memberId)?.email
                     ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND),
