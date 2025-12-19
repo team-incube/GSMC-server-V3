@@ -16,6 +16,7 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.lessEq
+import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -26,6 +27,7 @@ import java.time.ZoneId
 
 @Repository
 class AlertExposedRepositoryImpl : AlertExposedRepository {
+
     override fun findById(alertId: Long): Alert? {
         val senderAlias = MemberExposedEntity.alias("sender")
         val receiverAlias = MemberExposedEntity.alias("receiver")
@@ -33,11 +35,14 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
         return AlertExposedEntity
             .join(ScoreExposedEntity, JoinType.LEFT) {
                 AlertExposedEntity.scoreId eq ScoreExposedEntity.id
-            }.join(senderAlias, JoinType.INNER) {
+            }
+            .join(senderAlias, JoinType.INNER) {
                 AlertExposedEntity.senderId eq senderAlias[MemberExposedEntity.id]
-            }.join(receiverAlias, JoinType.INNER) {
+            }
+            .join(receiverAlias, JoinType.INNER) {
                 AlertExposedEntity.receiverId eq receiverAlias[MemberExposedEntity.id]
-            }.selectAll()
+            }
+            .selectAll()
             .where { AlertExposedEntity.id eq alertId }
             .limit(1)
             .map { row ->
@@ -78,8 +83,11 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
                         )
                     }
 
-                val createdAtInstant = row[AlertExposedEntity.createdAt]
-                val createdAt = LocalDateTime.ofInstant(createdAtInstant, ZoneId.systemDefault())
+                val createdAt =
+                    LocalDateTime.ofInstant(
+                        row[AlertExposedEntity.createdAt],
+                        ZoneId.systemDefault(),
+                    )
 
                 Alert(
                     id = row[AlertExposedEntity.id],
@@ -91,7 +99,8 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
                     content = row[AlertExposedEntity.content],
                     createdAt = createdAt,
                 )
-            }.firstOrNull()
+            }
+            .firstOrNull()
     }
 
     override fun deleteById(alertId: Long): Int =
@@ -106,16 +115,20 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
         return AlertExposedEntity
             .join(ScoreExposedEntity, JoinType.LEFT) {
                 AlertExposedEntity.scoreId eq ScoreExposedEntity.id
-            }.join(senderAlias, JoinType.INNER) {
+            }
+            .join(senderAlias, JoinType.INNER) {
                 AlertExposedEntity.senderId eq senderAlias[MemberExposedEntity.id]
-            }.join(receiverAlias, JoinType.INNER) {
+            }
+            .join(receiverAlias, JoinType.INNER) {
                 AlertExposedEntity.receiverId eq receiverAlias[MemberExposedEntity.id]
-            }.selectAll()
+            }
+            .selectAll()
             .where { AlertExposedEntity.receiverId eq receiverId }
             .orderBy(
                 AlertExposedEntity.createdAt to SortOrder.DESC,
                 AlertExposedEntity.id to SortOrder.DESC,
-            ).map { row ->
+            )
+            .map { row ->
                 val sender =
                     Member(
                         id = row[senderAlias[MemberExposedEntity.id]],
@@ -153,8 +166,11 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
                         )
                     }
 
-                val createdAtInstant = row[AlertExposedEntity.createdAt]
-                val createdAt = LocalDateTime.ofInstant(createdAtInstant, ZoneId.systemDefault())
+                val createdAt =
+                    LocalDateTime.ofInstant(
+                        row[AlertExposedEntity.createdAt],
+                        ZoneId.systemDefault(),
+                    )
 
                 Alert(
                     id = row[AlertExposedEntity.id],
@@ -263,5 +279,11 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
     override fun deleteAllByReceiverId(receiverId: Long): Int =
         AlertExposedEntity.deleteWhere {
             AlertExposedEntity.receiverId eq receiverId
+        }
+
+    override fun deleteAllByMemberId(memberId: Long): Int =
+        AlertExposedEntity.deleteWhere {
+            (AlertExposedEntity.senderId eq memberId) or
+                (AlertExposedEntity.receiverId eq memberId)
         }
 }
