@@ -16,6 +16,7 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.lessEq
+import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -78,8 +79,11 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
                         )
                     }
 
-                val createdAtInstant = row[AlertExposedEntity.createdAt]
-                val createdAt = LocalDateTime.ofInstant(createdAtInstant, ZoneId.systemDefault())
+                val createdAt =
+                    LocalDateTime.ofInstant(
+                        row[AlertExposedEntity.createdAt],
+                        ZoneId.systemDefault(),
+                    )
 
                 Alert(
                     id = row[AlertExposedEntity.id],
@@ -153,8 +157,11 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
                         )
                     }
 
-                val createdAtInstant = row[AlertExposedEntity.createdAt]
-                val createdAt = LocalDateTime.ofInstant(createdAtInstant, ZoneId.systemDefault())
+                val createdAt =
+                    LocalDateTime.ofInstant(
+                        row[AlertExposedEntity.createdAt],
+                        ZoneId.systemDefault(),
+                    )
 
                 Alert(
                     id = row[AlertExposedEntity.id],
@@ -263,5 +270,11 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
     override fun deleteAllByReceiverId(receiverId: Long): Int =
         AlertExposedEntity.deleteWhere {
             AlertExposedEntity.receiverId eq receiverId
+        }
+
+    override fun deleteAllByMemberId(memberId: Long): Int =
+        AlertExposedEntity.deleteWhere {
+            (AlertExposedEntity.senderId eq memberId) or
+                (AlertExposedEntity.receiverId eq memberId)
         }
 }

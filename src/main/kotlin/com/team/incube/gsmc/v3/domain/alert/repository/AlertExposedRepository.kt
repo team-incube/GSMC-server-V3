@@ -39,4 +39,6 @@ interface AlertExposedRepository {
     fun deleteAllBySenderId(senderId: Long): Int
 
     fun deleteAllByReceiverId(receiverId: Long): Int
+
+    fun deleteAllByMemberId(memberId: Long): Int
 }
