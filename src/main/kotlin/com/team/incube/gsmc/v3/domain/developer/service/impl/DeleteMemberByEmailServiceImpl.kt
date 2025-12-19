@@ -29,21 +29,27 @@ class DeleteMemberByEmailServiceImpl(
                         logger().info("Member withdrawal failed: member not found. email={}", email)
                         throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
                     }
+
             val scores = scoreExposedRepository.findAllByMemberId(member.id)
             if (scores.isNotEmpty()) {
                 val scoreIds = mutableListOf<Long>()
+
                 scores.forEach { score ->
                     val scoreId = score.id ?: return@forEach
                     scoreIds += scoreId
+
                     score.sourceId?.let { sourceId ->
                         when (score.categoryType.evidenceType) {
                             EvidenceType.EVIDENCE -> {
                                 val evidence = evidenceExposedRepository.findById(sourceId)
-                                evidence?.files?.forEach { file ->
+                                val files = evidence?.files ?: emptyList()
+
+                                evidenceExposedRepository.deleteById(sourceId)
+
+                                files.forEach { file ->
                                     s3DeleteService.execute(file.uri)
                                     fileExposedRepository.deleteById(file.id)
                                 }
-                                evidenceExposedRepository.deleteById(sourceId)
                             }
 
                             EvidenceType.FILE -> {
@@ -55,18 +61,22 @@ class DeleteMemberByEmailServiceImpl(
                             }
 
                             EvidenceType.UNREQUIRED -> {
+                                Unit
                             }
                         }
                     }
                 }
+
                 scoreExposedRepository.deleteAllByIdIn(scoreIds)
             }
+
             val deleted = memberExposedRepository.deleteMemberByEmail(email)
             if (deleted == 0) {
                 logger().warn("Member withdrawal failed unexpectedly after it was found. email={}", email)
                 throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
             }
         }
+
         logger().info("Member withdrawn successfully. email={}", email)
     }
 }
