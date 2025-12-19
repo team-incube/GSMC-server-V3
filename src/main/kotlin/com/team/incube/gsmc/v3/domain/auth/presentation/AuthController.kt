@@ -145,7 +145,7 @@ class AuthController(
     @GetMapping("/teacher-signup/requests")
     fun getTeacherSignUpRequests(): List<GetTeacherSignUpRequestResponse> = findTeacherSignUpRequestsService.execute()
 
-    @Operation(summary = "내 교직원 회원가입 요청 정보 조회", description = "현재 로그인한 사용자의 교직원 회원가입 요청 정보를 조회합니다")
+    @Operation(summary = "현재 인증된 사용자의 교직원 회원가입 요청 정보 조회", description = "현재 로그인한 사용자의 교직원 회원가입 요청 정보를 조회합니다")
     @ApiResponses(
         value = [
             ApiResponse(
