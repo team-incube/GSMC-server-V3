@@ -7,6 +7,7 @@ import com.team.incube.gsmc.v3.domain.auth.presentation.data.response.AuthTokenR
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.response.GetTeacherSignUpRequestResponse
 import com.team.incube.gsmc.v3.domain.auth.service.ApproveTeacherSignUpRequestService
 import com.team.incube.gsmc.v3.domain.auth.service.CreateTeacherSignUpRequestService
+import com.team.incube.gsmc.v3.domain.auth.service.FindMyTeacherSignUpRequestService
 import com.team.incube.gsmc.v3.domain.auth.service.FindTeacherSignUpRequestsService
 import com.team.incube.gsmc.v3.domain.auth.service.OAuthAuthenticationService
 import com.team.incube.gsmc.v3.domain.auth.service.RejectTeacherSignUpRequestService
@@ -40,6 +41,7 @@ class AuthController(
     private val signUpService: SignUpService,
     private val createTeacherSignUpRequestService: CreateTeacherSignUpRequestService,
     private val findTeacherSignUpRequestsService: FindTeacherSignUpRequestsService,
+    private val findMyTeacherSignUpRequestService: FindMyTeacherSignUpRequestService,
     private val approveTeacherSignUpRequestService: ApproveTeacherSignUpRequestService,
     private val rejectTeacherSignUpRequestService: RejectTeacherSignUpRequestService,
 ) {
@@ -104,7 +106,7 @@ class AuthController(
         return CommonApiResponse.accepted("OK")
     }
 
-    @Operation(summary = "선생님 회원가입 요청", description = "선생님 권한 회원가입을 요청합니다 (UNAUTHORIZED 권한만 가능)")
+    @Operation(summary = "교직원 회원가입 요청", description = "교직원 권한 회원가입을 요청합니다 (UNAUTHORIZED 권한만 가능)")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -131,7 +133,7 @@ class AuthController(
         return CommonApiResponse.accepted("OK")
     }
 
-    @Operation(summary = "선생님 회원가입 요청 목록 조회", description = "대기 중인 선생님 회원가입 요청 목록을 조회합니다")
+    @Operation(summary = "교직원 회원가입 요청 목록 조회", description = "대기 중인 교직원 회원가입 요청 목록을 조회합니다")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -143,7 +145,24 @@ class AuthController(
     @GetMapping("/teacher-signup/requests")
     fun getTeacherSignUpRequests(): List<GetTeacherSignUpRequestResponse> = findTeacherSignUpRequestsService.execute()
 
-    @Operation(summary = "선생님 회원가입 요청 승인", description = "선생님 회원가입 요청을 승인합니다")
+    @Operation(summary = "현재 인증된 사용자의 교직원 회원가입 요청 정보 조회", description = "현재 로그인한 사용자의 교직원 회원가입 요청 정보를 조회합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "조회 성공",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "회원가입 요청을 찾을 수 없음",
+                content = [Content()],
+            ),
+        ],
+    )
+    @GetMapping("/teacher-signup/my-request")
+    fun getMyTeacherSignUpRequest(): GetTeacherSignUpRequestResponse = findMyTeacherSignUpRequestService.execute()
+
+    @Operation(summary = "교직원 회원가입 요청 승인", description = "교직원 회원가입 요청을 승인합니다")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -165,7 +184,7 @@ class AuthController(
         return CommonApiResponse.accepted("OK")
     }
 
-    @Operation(summary = "선생님 회원가입 요청 거부", description = "선생님 회원가입 요청을 거부하고 해당 회원을 삭제합니다")
+    @Operation(summary = "교직원 회원가입 요청 거부", description = "교직원 회원가입 요청을 거부하고 해당 회원을 삭제합니다")
     @ApiResponses(
         value = [
             ApiResponse(
