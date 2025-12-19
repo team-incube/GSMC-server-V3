@@ -7,6 +7,7 @@ import com.team.incube.gsmc.v3.domain.auth.presentation.data.response.AuthTokenR
 import com.team.incube.gsmc.v3.domain.auth.presentation.data.response.GetTeacherSignUpRequestResponse
 import com.team.incube.gsmc.v3.domain.auth.service.ApproveTeacherSignUpRequestService
 import com.team.incube.gsmc.v3.domain.auth.service.CreateTeacherSignUpRequestService
+import com.team.incube.gsmc.v3.domain.auth.service.FindMyTeacherSignUpRequestService
 import com.team.incube.gsmc.v3.domain.auth.service.FindTeacherSignUpRequestsService
 import com.team.incube.gsmc.v3.domain.auth.service.OAuthAuthenticationService
 import com.team.incube.gsmc.v3.domain.auth.service.RejectTeacherSignUpRequestService
@@ -40,6 +41,7 @@ class AuthController(
     private val signUpService: SignUpService,
     private val createTeacherSignUpRequestService: CreateTeacherSignUpRequestService,
     private val findTeacherSignUpRequestsService: FindTeacherSignUpRequestsService,
+    private val findMyTeacherSignUpRequestService: FindMyTeacherSignUpRequestService,
     private val approveTeacherSignUpRequestService: ApproveTeacherSignUpRequestService,
     private val rejectTeacherSignUpRequestService: RejectTeacherSignUpRequestService,
 ) {
@@ -142,6 +144,23 @@ class AuthController(
     )
     @GetMapping("/teacher-signup/requests")
     fun getTeacherSignUpRequests(): List<GetTeacherSignUpRequestResponse> = findTeacherSignUpRequestsService.execute()
+
+    @Operation(summary = "내 선생님 회원가입 요청 정보 조회", description = "현재 로그인한 사용자의 선생님 회원가입 요청 정보를 조회합니다")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "조회 성공",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "회원가입 요청을 찾을 수 없음",
+                content = [Content()],
+            ),
+        ],
+    )
+    @GetMapping("/teacher-signup/my-request")
+    fun getMyTeacherSignUpRequest(): GetTeacherSignUpRequestResponse = findMyTeacherSignUpRequestService.execute()
 
     @Operation(summary = "선생님 회원가입 요청 승인", description = "선생님 회원가입 요청을 승인합니다")
     @ApiResponses(
