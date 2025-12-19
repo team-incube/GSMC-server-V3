@@ -95,18 +95,13 @@ class RejectTeacherSignUpRequestServiceTest :
             every { c.teacherSignUpRequestRedisRepository.deleteById(memberId) } returns Unit
             every { c.memberExposedRepository.findById(memberId) } returns member
             every { c.memberExposedRepository.deleteMemberByEmail(email) } returns 1
-            every { c.alertExposedRepository.deleteAllBySenderId(memberId) } returns 0
-            every { c.alertExposedRepository.deleteAllByReceiverId(memberId) } returns 0
+            every { c.alertExposedRepository.deleteAllByMemberId(memberId) } returns 0
 
             When("execute를 호출하면") {
                 c.service.execute(memberId)
 
-                Then("발신자로 참조된 알림이 삭제된다") {
-                    verify(exactly = 1) { c.alertExposedRepository.deleteAllBySenderId(memberId) }
-                }
-
-                Then("수신자로 참조된 알림이 삭제된다") {
-                    verify(exactly = 1) { c.alertExposedRepository.deleteAllByReceiverId(memberId) }
+                Then("회원과 관련된 알림이 삭제된다") {
+                    verify(exactly = 1) { c.alertExposedRepository.deleteAllByMemberId(memberId) }
                 }
 
                 Then("DB에서 회원이 삭제된다") {
