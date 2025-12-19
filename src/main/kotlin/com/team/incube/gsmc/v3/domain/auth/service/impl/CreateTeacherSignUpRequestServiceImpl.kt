@@ -27,25 +27,27 @@ class CreateTeacherSignUpRequestServiceImpl(
         grade: Int?,
         classNumber: Int?,
     ) {
-        val currentMember = currentMemberProvider.getCurrentMember()
         if (requestedRole != MemberRole.TEACHER && requestedRole != MemberRole.HOMEROOM_TEACHER) {
             throw GsmcException(ErrorCode.INVALID_TEACHER_ROLE)
         }
         if (requestedRole == MemberRole.HOMEROOM_TEACHER && (grade == null || classNumber == null)) {
             throw GsmcException(ErrorCode.HOMEROOM_TEACHER_GRADE_CLASS_REQUIRED)
         }
-        val request =
-            TeacherSignUpRequestRedisEntity(
-                memberId = currentMember.id,
-                name = name,
-                email = currentMember.email,
-                requestedRole = requestedRole,
-                grade = grade,
-                classNumber = classNumber,
-                requestedAt = Instant.now(),
-            )
-        teacherSignUpRequestRedisRepository.save(request)
+
         transaction {
+            val currentMember = currentMemberProvider.getCurrentMember()
+            val request =
+                TeacherSignUpRequestRedisEntity(
+                    memberId = currentMember.id,
+                    name = name,
+                    email = currentMember.email,
+                    requestedRole = requestedRole,
+                    grade = grade,
+                    classNumber = classNumber,
+                    requestedAt = Instant.now(),
+                )
+            teacherSignUpRequestRedisRepository.save(request)
+
             val targetMembers =
                 memberExposedRepository.findAllByRoleIn(
                     listOf(MemberRole.TEACHER, MemberRole.HOMEROOM_TEACHER, MemberRole.ROOT),
