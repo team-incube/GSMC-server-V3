@@ -6,6 +6,7 @@ import com.team.incube.gsmc.v3.domain.auth.service.FindMyTeacherSignUpRequestSer
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
@@ -17,9 +18,8 @@ class FindMyTeacherSignUpRequestServiceImpl(
         val memberId = currentMemberProvider.getCurrentMemberId()
 
         val request =
-            teacherSignUpRequestRedisRepository.findById(memberId).orElseThrow {
-                GsmcException(ErrorCode.TEACHER_SIGNUP_REQUEST_NOT_FOUND)
-            }
+            teacherSignUpRequestRedisRepository.findByIdOrNull(memberId)
+                ?: throw GsmcException(ErrorCode.TEACHER_SIGNUP_REQUEST_NOT_FOUND)
 
         return GetTeacherSignUpRequestResponse(
             memberId = request.memberId,

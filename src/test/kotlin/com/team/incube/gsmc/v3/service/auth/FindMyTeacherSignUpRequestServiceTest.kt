@@ -12,8 +12,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import org.springframework.data.repository.findByIdOrNull
 import java.time.Instant
-import java.util.Optional
 
 class FindMyTeacherSignUpRequestServiceTest :
     FunSpec({
@@ -66,7 +66,7 @@ class FindMyTeacherSignUpRequestServiceTest :
             val request = teacherRequest(memberId = memberId, name = "김선생")
 
             every { c.currentMemberProvider.getCurrentMemberId() } returns memberId
-            every { c.teacherSignUpRequestRedisRepository.findById(memberId) } returns Optional.of(request)
+            every { c.teacherSignUpRequestRedisRepository.findByIdOrNull(memberId) } returns request
 
             val result = c.service.execute()
 
@@ -84,7 +84,7 @@ class FindMyTeacherSignUpRequestServiceTest :
             val request = homeroomTeacherRequest(memberId = memberId, name = "김담임", grade = 2, classNumber = 3)
 
             every { c.currentMemberProvider.getCurrentMemberId() } returns memberId
-            every { c.teacherSignUpRequestRedisRepository.findById(memberId) } returns Optional.of(request)
+            every { c.teacherSignUpRequestRedisRepository.findByIdOrNull(memberId) } returns request
 
             val result = c.service.execute()
 
@@ -101,7 +101,7 @@ class FindMyTeacherSignUpRequestServiceTest :
             val memberId = 999L
 
             every { c.currentMemberProvider.getCurrentMemberId() } returns memberId
-            every { c.teacherSignUpRequestRedisRepository.findById(memberId) } returns Optional.empty()
+            every { c.teacherSignUpRequestRedisRepository.findByIdOrNull(memberId) } returns null
 
             val ex = shouldThrow<GsmcException> { c.service.execute() }
             ex.errorCode shouldBe ErrorCode.TEACHER_SIGNUP_REQUEST_NOT_FOUND
