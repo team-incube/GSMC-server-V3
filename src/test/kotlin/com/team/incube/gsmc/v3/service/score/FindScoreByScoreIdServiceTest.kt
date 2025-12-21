@@ -13,6 +13,7 @@ import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.impl.FindScoreByScoreIdServiceImpl
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -31,15 +32,20 @@ class FindScoreByScoreIdServiceTest :
             val scoreRepo: ScoreExposedRepository,
             val evidenceRepo: EvidenceExposedRepository,
             val fileRepo: FileExposedRepository,
+            val memberRepo: com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository,
+            val currentMemberProvider: CurrentMemberProvider,
             val service: FindScoreByScoreIdServiceImpl,
         )
 
-        fun ctx(): TestData {
+        fun ctx(currentMember: Member = Member(1L, "Teacher", "t@test.com", 1, 1, 0, MemberRole.TEACHER)): TestData {
             val scoreRepo = mockk<ScoreExposedRepository>()
             val evidenceRepo = mockk<EvidenceExposedRepository>()
             val fileRepo = mockk<FileExposedRepository>()
-            val service = FindScoreByScoreIdServiceImpl(scoreRepo, evidenceRepo, fileRepo)
-            return TestData(scoreRepo, evidenceRepo, fileRepo, service)
+            val memberRepo = mockk<com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository>()
+            val currentMemberProvider = mockk<CurrentMemberProvider>()
+            every { currentMemberProvider.getCurrentMember() } returns currentMember
+            val service = FindScoreByScoreIdServiceImpl(scoreRepo, evidenceRepo, fileRepo, memberRepo, currentMemberProvider)
+            return TestData(scoreRepo, evidenceRepo, fileRepo, memberRepo, currentMemberProvider, service)
         }
 
         val mockTransaction = mockk<JdbcTransaction>(relaxed = true)

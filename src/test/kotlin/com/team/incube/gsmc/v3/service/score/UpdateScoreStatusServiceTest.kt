@@ -1,10 +1,14 @@
 package com.team.incube.gsmc.v3.service.score
 
+import com.team.incube.gsmc.v3.domain.member.dto.Member
+import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.impl.UpdateScoreStatusServiceImpl
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -19,13 +23,18 @@ class UpdateScoreStatusServiceTest :
     FunSpec({
         data class Ctx(
             val scoreRepo: ScoreExposedRepository,
+            val memberRepo: com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository,
+            val currentMemberProvider: CurrentMemberProvider,
             val service: UpdateScoreStatusServiceImpl,
         )
 
-        fun ctx(): Ctx {
+        fun ctx(currentMember: Member = Member(1L, "Teacher", "t@test.com", 0, 0, 0, MemberRole.TEACHER)): Ctx {
             val scoreRepo = mockk<ScoreExposedRepository>()
-            val service = UpdateScoreStatusServiceImpl(scoreRepo)
-            return Ctx(scoreRepo, service)
+            val memberRepo = mockk<com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository>()
+            val currentMemberProvider = mockk<CurrentMemberProvider>()
+            every { currentMemberProvider.getCurrentMember() } returns currentMember
+            val service = UpdateScoreStatusServiceImpl(scoreRepo, memberRepo, currentMemberProvider)
+            return Ctx(scoreRepo, memberRepo, currentMemberProvider, service)
         }
 
         val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
@@ -50,6 +59,11 @@ class UpdateScoreStatusServiceTest :
             val c = ctx()
             val scoreId = 1L
             val status = ScoreStatus.APPROVED
+            val score = mockk<Score>()
+            val student = Member(2L, "Student", "s@test.com", 1, 1, 1, MemberRole.STUDENT)
+
+            every { score.member } returns student
+            every { c.scoreRepo.findById(scoreId) } returns score
             every { c.scoreRepo.updateStatusByScoreId(scoreId, status) } returns 1
 
             c.service.execute(scoreId, status)
@@ -61,11 +75,10 @@ class UpdateScoreStatusServiceTest :
             val c = ctx()
             val scoreId = 999L
             val status = ScoreStatus.REJECTED
-            every { c.scoreRepo.updateStatusByScoreId(scoreId, status) } returns 0
+            every { c.scoreRepo.findById(scoreId) } returns null
 
             val ex = shouldThrow<GsmcException> { c.service.execute(scoreId, status) }
             ex.errorCode shouldBe ErrorCode.SCORE_NOT_FOUND
-            verify(exactly = 1) { c.scoreRepo.updateStatusByScoreId(scoreId, status) }
         }
 
         test("모든 상태 값이 정확히 전달되어 업데이트된다") {
@@ -73,6 +86,11 @@ class UpdateScoreStatusServiceTest :
             ScoreStatus.entries.forEachIndexed { idx, status ->
                 val c = ctx()
                 val scoreId = scoreIdBase + idx
+                val score = mockk<Score>()
+                val student = Member(2L, "Student", "s@test.com", 1, 1, 1, MemberRole.STUDENT)
+
+                every { score.member } returns student
+                every { c.scoreRepo.findById(scoreId) } returns score
                 every { c.scoreRepo.updateStatusByScoreId(scoreId, status) } returns 1
 
                 c.service.execute(scoreId, status)
