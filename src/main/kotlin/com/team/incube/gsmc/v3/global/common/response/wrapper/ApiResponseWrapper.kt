@@ -47,14 +47,18 @@ class ApiResponseWrapper(
             return body
         }
 
-        // AuthTokenResponse 처리: 쿠키 설정 후 토큰 필드를 null로 변경
-        if (body is AuthTokenResponse && body.accessToken != null && body.refreshToken != null) {
+        if (body is AuthTokenResponse &&
+            body.accessToken != null &&
+            body.refreshToken != null &&
+            body.accessExpiration != null &&
+            body.refreshExpiration != null
+        ) {
             val (accessCookie, refreshCookie) =
                 cookieUtil.createAuthCookies(
                     accessToken = body.accessToken,
-                    accessExpiration = body.accessExpiration!!,
+                    accessExpiration = body.accessExpiration,
                     refreshToken = body.refreshToken,
-                    refreshExpiration = body.refreshExpiration!!,
+                    refreshExpiration = body.refreshExpiration,
                 )
 
             response.headers.add(HttpHeaders.SET_COOKIE, accessCookie.toString())
@@ -65,14 +69,7 @@ class ApiResponseWrapper(
                 status = HttpStatus.OK,
                 code = HttpStatus.OK.value(),
                 message = "OK",
-                data =
-                    AuthTokenResponse(
-                        role = body.role,
-                        accessToken = null,
-                        refreshToken = null,
-                        accessExpiration = null,
-                        refreshExpiration = null,
-                    ),
+                data = AuthTokenResponse(role = body.role),
             )
         }
 
