@@ -13,7 +13,6 @@ import com.team.incube.gsmc.v3.domain.auth.service.OAuthAuthenticationService
 import com.team.incube.gsmc.v3.domain.auth.service.RejectTeacherSignUpRequestService
 import com.team.incube.gsmc.v3.domain.auth.service.SignUpService
 import com.team.incube.gsmc.v3.domain.auth.service.TokenRefreshService
-import com.team.incube.gsmc.v3.global.common.cookie.CookieUtil
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -24,7 +23,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
-import org.springframework.http.HttpHeaders
 import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -34,7 +32,6 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.time.Duration
 
 @Tag(name = "Auth API", description = "인증 관리 API")
 @RestController
@@ -48,7 +45,6 @@ class AuthController(
     private val findMyTeacherSignUpRequestService: FindMyTeacherSignUpRequestService,
     private val approveTeacherSignUpRequestService: ApproveTeacherSignUpRequestService,
     private val rejectTeacherSignUpRequestService: RejectTeacherSignUpRequestService,
-    private val cookieUtil: CookieUtil,
 ) {
     @Operation(summary = "OAuth 인증", description = "Authentication Code를 통해 OAuth 인증을 처리합니다")
     @ApiResponses(
@@ -68,20 +64,7 @@ class AuthController(
     fun oauthAuthentication(
         @Valid @RequestBody request: OAuthCodeRequest,
         response: HttpServletResponse,
-    ): AuthTokenResponse {
-        val tokenPair = oauthAuthenticationService.execute(code = request.code)
-
-        val accessTokenMaxAge = Duration.between(java.time.LocalDateTime.now(), tokenPair.accessTokenExpiresAt)
-        val refreshTokenMaxAge = Duration.between(java.time.LocalDateTime.now(), tokenPair.refreshTokenExpiresAt)
-
-        val accessCookie = cookieUtil.createAccessTokenCookie(tokenPair.accessToken, accessTokenMaxAge)
-        val refreshCookie = cookieUtil.createRefreshTokenCookie(tokenPair.refreshToken, refreshTokenMaxAge)
-
-        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString())
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-
-        return AuthTokenResponse(role = tokenPair.role)
-    }
+    ): AuthTokenResponse = oauthAuthenticationService.execute(request.code, response)
 
     @Operation(summary = "JWT 토큰 재발급", description = "RefreshToken을 이용하여 JWT 토큰을 재발급합니다")
     @ApiResponses(
@@ -102,20 +85,7 @@ class AuthController(
         @Parameter(name = "refreshToken", `in` = ParameterIn.COOKIE, required = true, description = "Refresh token cookie")
         @CookieValue("refreshToken") refreshToken: String,
         response: HttpServletResponse,
-    ): AuthTokenResponse {
-        val tokenPair = tokenRefreshService.execute(refreshToken = refreshToken)
-
-        val accessTokenMaxAge = Duration.between(java.time.LocalDateTime.now(), tokenPair.accessTokenExpiresAt)
-        val refreshTokenMaxAge = Duration.between(java.time.LocalDateTime.now(), tokenPair.refreshTokenExpiresAt)
-
-        val accessCookie = cookieUtil.createAccessTokenCookie(tokenPair.accessToken, accessTokenMaxAge)
-        val refreshCookie = cookieUtil.createRefreshTokenCookie(tokenPair.refreshToken, refreshTokenMaxAge)
-
-        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString())
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-
-        return AuthTokenResponse(role = tokenPair.role)
-    }
+    ): AuthTokenResponse = tokenRefreshService.execute(refreshToken, response)
 
     @Operation(summary = "회원가입", description = "회원가입합니다")
     @ApiResponses(
