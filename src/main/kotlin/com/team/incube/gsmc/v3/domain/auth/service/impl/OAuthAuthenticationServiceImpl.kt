@@ -6,15 +6,12 @@ import com.team.incube.gsmc.v3.domain.auth.repository.RefreshTokenRedisRepositor
 import com.team.incube.gsmc.v3.domain.auth.service.OAuthAuthenticationService
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
-import com.team.incube.gsmc.v3.global.common.cookie.CookieUtil
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.config.logger
 import com.team.incube.gsmc.v3.global.security.jwt.JwtProvider
-import jakarta.servlet.http.HttpServletResponse
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.core.env.Environment
-import org.springframework.http.HttpHeaders
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
@@ -28,7 +25,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Service
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import java.time.Duration
 import java.time.ZoneId
 
 @Service
@@ -40,12 +36,8 @@ class OAuthAuthenticationServiceImpl(
     private val oauth2UserService: OAuth2UserService<OAuth2UserRequest, OAuth2User>,
     private val refreshTokenRedisRepository: RefreshTokenRedisRepository,
     private val environment: Environment,
-    private val cookieUtil: CookieUtil,
 ) : OAuthAuthenticationService {
-    override fun execute(
-        code: String,
-        response: HttpServletResponse,
-    ): AuthTokenResponse {
+    override fun execute(code: String): AuthTokenResponse {
         val decodedCode = URLDecoder.decode(code, StandardCharsets.UTF_8)
 
         try {
@@ -116,16 +108,13 @@ class OAuthAuthenticationServiceImpl(
 
             refreshTokenRedisRepository.save(refreshToken)
 
-            val accessTokenMaxAge = Duration.between(java.time.LocalDateTime.now(), access.expiration)
-            val refreshTokenMaxAge = Duration.between(java.time.LocalDateTime.now(), refresh.expiration)
-
-            val accessCookie = cookieUtil.createAccessTokenCookie(access.token, accessTokenMaxAge)
-            val refreshCookie = cookieUtil.createRefreshTokenCookie(refresh.token, refreshTokenMaxAge)
-
-            response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString())
-            response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-
-            return AuthTokenResponse(role = member.role)
+            return AuthTokenResponse(
+                role = member.role,
+                accessToken = access.token,
+                refreshToken = refresh.token,
+                accessExpiration = access.expiration,
+                refreshExpiration = refresh.expiration,
+            )
         } catch (e: OAuth2AuthorizationException) {
             logger().error("OAuth2 authorization failed: ${e.error.errorCode} - ${e.error.description}", e)
             throw GsmcException(ErrorCode.OAUTH2_AUTHORIZATION_FAILED)
