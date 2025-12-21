@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.service.auth
 
+import com.team.incube.gsmc.v3.domain.auth.entity.RefreshTokenRedisEntity
 import com.team.incube.gsmc.v3.domain.auth.repository.RefreshTokenRedisRepository
 import com.team.incube.gsmc.v3.domain.auth.service.impl.TokenRefreshServiceImpl
 import com.team.incube.gsmc.v3.domain.member.dto.Member
@@ -108,6 +109,9 @@ class TokenRefreshServiceTest :
             every { c.jwtProvider.issueAccessToken(memberId, member.role) } returns newAccess
             every { c.jwtProvider.issueRefreshToken(memberId) } returns newRefresh
             every { c.refreshTokenRedisRepository.deleteById(refreshToken) } returns Unit
+            every { c.refreshTokenRedisRepository.save(any()) } answers {
+                firstArg<RefreshTokenRedisEntity>()
+            }
 
             When("execute를 호출하면") {
                 val result = c.service.execute(refreshToken)
@@ -133,9 +137,10 @@ class TokenRefreshServiceTest :
 
             When("execute를 호출하면") {
                 Then("REFRESH_TOKEN_INVALID 예외가 발생한다") {
-                    val ex = shouldThrow<GsmcException> {
-                        c.service.execute(refreshToken)
-                    }
+                    val ex =
+                        shouldThrow<GsmcException> {
+                            c.service.execute(refreshToken)
+                        }
                     ex.errorCode shouldBe ErrorCode.REFRESH_TOKEN_INVALID
                 }
             }
@@ -150,9 +155,10 @@ class TokenRefreshServiceTest :
 
             When("execute를 호출하면") {
                 Then("REFRESH_TOKEN_INVALID 예외가 발생한다") {
-                    val ex = shouldThrow<GsmcException> {
-                        c.service.execute(refreshToken)
-                    }
+                    val ex =
+                        shouldThrow<GsmcException> {
+                            c.service.execute(refreshToken)
+                        }
                     ex.errorCode shouldBe ErrorCode.REFRESH_TOKEN_INVALID
                 }
             }
@@ -170,12 +176,12 @@ class TokenRefreshServiceTest :
 
             When("execute를 호출하면") {
                 Then("MEMBER_NOT_FOUND 예외가 발생한다") {
-                    val ex = shouldThrow<GsmcException> {
-                        c.service.execute(refreshToken)
-                    }
+                    val ex =
+                        shouldThrow<GsmcException> {
+                            c.service.execute(refreshToken)
+                        }
                     ex.errorCode shouldBe ErrorCode.MEMBER_NOT_FOUND
                 }
             }
         }
     })
-
