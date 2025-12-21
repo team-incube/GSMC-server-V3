@@ -13,7 +13,7 @@ import io.mockk.unmockkStatic
 import io.mockk.verify
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 
-class SignUpServiceImplTest :
+class SignUpServiceTest :
     BehaviorSpec({
 
         data class TestContext(
@@ -74,7 +74,7 @@ class SignUpServiceImplTest :
                 )
 
             val name = "홍길동"
-            val studentNumber = 23123 // 2학년 3반 23번
+            val studentNumber = 2323
 
             every { c.currentMemberProvider.getCurrentMember() } returns member
             every {
@@ -108,4 +108,3 @@ class SignUpServiceImplTest :
             }
         }
     })
-
