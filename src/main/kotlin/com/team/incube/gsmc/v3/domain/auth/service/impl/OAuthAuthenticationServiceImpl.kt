@@ -1,7 +1,7 @@
 package com.team.incube.gsmc.v3.domain.auth.service.impl
 
+import com.team.incube.gsmc.v3.domain.auth.dto.TokenPair
 import com.team.incube.gsmc.v3.domain.auth.entity.RefreshTokenRedisEntity
-import com.team.incube.gsmc.v3.domain.auth.presentation.data.response.AuthTokenResponse
 import com.team.incube.gsmc.v3.domain.auth.repository.RefreshTokenRedisRepository
 import com.team.incube.gsmc.v3.domain.auth.service.OAuthAuthenticationService
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
@@ -37,7 +37,7 @@ class OAuthAuthenticationServiceImpl(
     private val refreshTokenRedisRepository: RefreshTokenRedisRepository,
     private val environment: Environment,
 ) : OAuthAuthenticationService {
-    override fun execute(code: String): AuthTokenResponse {
+    override fun execute(code: String): TokenPair {
         val decodedCode = URLDecoder.decode(code, StandardCharsets.UTF_8)
 
         try {
@@ -108,7 +108,7 @@ class OAuthAuthenticationServiceImpl(
 
             refreshTokenRedisRepository.save(refreshToken)
 
-            return AuthTokenResponse(
+            return TokenPair(
                 accessToken = access.token,
                 accessTokenExpiresAt = access.expiration,
                 refreshToken = refresh.token,

@@ -1,7 +1,7 @@
 package com.team.incube.gsmc.v3.domain.auth.service.impl
 
+import com.team.incube.gsmc.v3.domain.auth.dto.TokenPair
 import com.team.incube.gsmc.v3.domain.auth.entity.RefreshTokenRedisEntity
-import com.team.incube.gsmc.v3.domain.auth.presentation.data.response.AuthTokenResponse
 import com.team.incube.gsmc.v3.domain.auth.repository.RefreshTokenRedisRepository
 import com.team.incube.gsmc.v3.domain.auth.service.TokenRefreshService
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
@@ -19,7 +19,7 @@ class TokenRefreshServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
     private val refreshTokenRedisRepository: RefreshTokenRedisRepository,
 ) : TokenRefreshService {
-    override fun execute(refreshToken: String): AuthTokenResponse {
+    override fun execute(refreshToken: String): TokenPair {
         if (!jwtParser.validateRefreshToken(refreshToken)) {
             throw GsmcException(ErrorCode.REFRESH_TOKEN_INVALID)
         }
@@ -53,7 +53,7 @@ class TokenRefreshServiceImpl(
 
         refreshTokenRedisRepository.save(newRefreshToken)
 
-        return AuthTokenResponse(
+        return TokenPair(
             accessToken = newAccess.token,
             accessTokenExpiresAt = newAccess.expiration,
             refreshToken = newRefreshToken.token,
