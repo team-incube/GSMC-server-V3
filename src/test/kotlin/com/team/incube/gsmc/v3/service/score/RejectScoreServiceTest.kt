@@ -23,6 +23,7 @@ class RejectScoreServiceTest :
     BehaviorSpec({
         data class TestData(
             val scoreRepo: ScoreExposedRepository,
+            val memberRepo: com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository,
             val eventPublisher: ApplicationEventPublisher,
             val currentMemberProvider: CurrentMemberProvider,
             val service: RejectScoreServiceImpl,
@@ -30,6 +31,7 @@ class RejectScoreServiceTest :
 
         fun ctx(): TestData {
             val scoreRepo = mockk<ScoreExposedRepository>()
+            val memberRepo = mockk<com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository>()
             val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
             val currentMemberProvider = mockk<CurrentMemberProvider>()
 
@@ -44,8 +46,8 @@ class RejectScoreServiceTest :
                     role = MemberRole.TEACHER,
                 )
 
-            val service = RejectScoreServiceImpl(scoreRepo, eventPublisher, currentMemberProvider)
-            return TestData(scoreRepo, eventPublisher, currentMemberProvider, service)
+            val service = RejectScoreServiceImpl(scoreRepo, memberRepo, eventPublisher, currentMemberProvider)
+            return TestData(scoreRepo, memberRepo, eventPublisher, currentMemberProvider, service)
         }
 
         val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
