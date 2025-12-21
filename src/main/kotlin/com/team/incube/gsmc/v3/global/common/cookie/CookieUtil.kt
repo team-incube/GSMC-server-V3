@@ -18,6 +18,20 @@ class CookieUtil(
     private val isProduction: Boolean
         get() = environment.activeProfiles.contains("prod")
 
+    private fun buildCookie(
+        name: String,
+        value: String,
+        maxAge: Duration,
+    ): ResponseCookie =
+        ResponseCookie
+            .from(name, value)
+            .httpOnly(true)
+            .secure(isProduction)
+            .sameSite("Strict")
+            .path("/")
+            .maxAge(maxAge)
+            .build()
+
     fun createAuthCookies(
         accessToken: String,
         accessExpiration: LocalDateTime,
@@ -34,46 +48,14 @@ class CookieUtil(
     fun createAccessTokenCookie(
         token: String,
         maxAge: Duration,
-    ): ResponseCookie =
-        ResponseCookie
-            .from(ACCESS_TOKEN_COOKIE_NAME, token)
-            .httpOnly(true)
-            .secure(isProduction)
-            .sameSite("Strict")
-            .path("/")
-            .maxAge(maxAge)
-            .build()
+    ): ResponseCookie = buildCookie(ACCESS_TOKEN_COOKIE_NAME, token, maxAge)
 
     fun createRefreshTokenCookie(
         token: String,
         maxAge: Duration,
-    ): ResponseCookie =
-        ResponseCookie
-            .from(REFRESH_TOKEN_COOKIE_NAME, token)
-            .httpOnly(true)
-            .secure(isProduction)
-            .sameSite("Strict")
-            .path("/")
-            .maxAge(maxAge)
-            .build()
+    ): ResponseCookie = buildCookie(REFRESH_TOKEN_COOKIE_NAME, token, maxAge)
 
-    fun deleteAccessTokenCookie(): ResponseCookie =
-        ResponseCookie
-            .from(ACCESS_TOKEN_COOKIE_NAME, "")
-            .httpOnly(true)
-            .secure(isProduction)
-            .sameSite("Strict")
-            .path("/")
-            .maxAge(0)
-            .build()
+    fun deleteAccessTokenCookie(): ResponseCookie = buildCookie(ACCESS_TOKEN_COOKIE_NAME, "", Duration.ZERO)
 
-    fun deleteRefreshTokenCookie(): ResponseCookie =
-        ResponseCookie
-            .from(REFRESH_TOKEN_COOKIE_NAME, "")
-            .httpOnly(true)
-            .secure(isProduction)
-            .sameSite("Strict")
-            .path("/")
-            .maxAge(0)
-            .build()
+    fun deleteRefreshTokenCookie(): ResponseCookie = buildCookie(REFRESH_TOKEN_COOKIE_NAME, "", Duration.ZERO)
 }
