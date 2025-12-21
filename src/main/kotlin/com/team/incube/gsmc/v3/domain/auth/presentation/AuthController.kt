@@ -21,7 +21,6 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.GetMapping
@@ -63,8 +62,7 @@ class AuthController(
     @PostMapping
     fun oauthAuthentication(
         @Valid @RequestBody request: OAuthCodeRequest,
-        response: HttpServletResponse,
-    ): AuthTokenResponse = oauthAuthenticationService.execute(request.code, response)
+    ): AuthTokenResponse = oauthAuthenticationService.execute(request.code)
 
     @Operation(summary = "JWT 토큰 재발급", description = "RefreshToken을 이용하여 JWT 토큰을 재발급합니다")
     @ApiResponses(
@@ -84,8 +82,7 @@ class AuthController(
     fun tokenRefresh(
         @Parameter(name = "refreshToken", `in` = ParameterIn.COOKIE, required = true, description = "Refresh token cookie")
         @CookieValue("refreshToken") refreshToken: String,
-        response: HttpServletResponse,
-    ): AuthTokenResponse = tokenRefreshService.execute(refreshToken, response)
+    ): AuthTokenResponse = tokenRefreshService.execute(refreshToken)
 
     @Operation(summary = "회원가입", description = "회원가입합니다")
     @ApiResponses(
