@@ -4,6 +4,7 @@ import org.springframework.core.env.Environment
 import org.springframework.http.ResponseCookie
 import org.springframework.stereotype.Component
 import java.time.Duration
+import java.time.LocalDateTime
 
 @Component
 class CookieUtil(
@@ -16,6 +17,19 @@ class CookieUtil(
 
     private val isProduction: Boolean
         get() = environment.activeProfiles.contains("prod")
+
+    fun createAuthCookies(
+        accessToken: String,
+        accessExpiration: LocalDateTime,
+        refreshToken: String,
+        refreshExpiration: LocalDateTime,
+    ): Pair<ResponseCookie, ResponseCookie> {
+        val accessMaxAge = Duration.between(LocalDateTime.now(), accessExpiration)
+        val refreshMaxAge = Duration.between(LocalDateTime.now(), refreshExpiration)
+
+        return createAccessTokenCookie(accessToken, accessMaxAge) to
+            createRefreshTokenCookie(refreshToken, refreshMaxAge)
+    }
 
     fun createAccessTokenCookie(
         token: String,
