@@ -1,16 +1,20 @@
 package com.team.incube.gsmc.v3.domain.auth.service.impl
 
-import com.team.incube.gsmc.v3.domain.auth.dto.TokenPair
 import com.team.incube.gsmc.v3.domain.auth.entity.RefreshTokenRedisEntity
+import com.team.incube.gsmc.v3.domain.auth.presentation.data.response.AuthTokenResponse
 import com.team.incube.gsmc.v3.domain.auth.repository.RefreshTokenRedisRepository
 import com.team.incube.gsmc.v3.domain.auth.service.TokenRefreshService
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
+import com.team.incube.gsmc.v3.global.common.cookie.CookieUtil
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.security.jwt.JwtParser
 import com.team.incube.gsmc.v3.global.security.jwt.JwtProvider
+import jakarta.servlet.http.HttpServletResponse
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
+import java.time.Duration
 
 @Service
 class TokenRefreshServiceImpl(
@@ -18,8 +22,12 @@ class TokenRefreshServiceImpl(
     private val jwtParser: JwtParser,
     private val memberExposedRepository: MemberExposedRepository,
     private val refreshTokenRedisRepository: RefreshTokenRedisRepository,
+    private val cookieUtil: CookieUtil,
 ) : TokenRefreshService {
-    override fun execute(refreshToken: String): TokenPair {
+    override fun execute(
+        refreshToken: String,
+        response: HttpServletResponse,
+    ): AuthTokenResponse {
         if (!jwtParser.validateRefreshToken(refreshToken)) {
             throw GsmcException(ErrorCode.REFRESH_TOKEN_INVALID)
         }
@@ -53,12 +61,15 @@ class TokenRefreshServiceImpl(
 
         refreshTokenRedisRepository.save(newRefreshToken)
 
-        return TokenPair(
-            accessToken = newAccess.token,
-            accessTokenExpiresAt = newAccess.expiration,
-            refreshToken = newRefreshToken.token,
-            refreshTokenExpiresAt = newRefresh.expiration,
-            role = member.role,
-        )
+        val accessTokenMaxAge = Duration.between(java.time.LocalDateTime.now(), newAccess.expiration)
+        val refreshTokenMaxAge = Duration.between(java.time.LocalDateTime.now(), newRefresh.expiration)
+
+        val accessCookie = cookieUtil.createAccessTokenCookie(newAccess.token, accessTokenMaxAge)
+        val refreshCookie = cookieUtil.createRefreshTokenCookie(newRefreshToken.token, refreshTokenMaxAge)
+
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString())
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+
+        return AuthTokenResponse(role = member.role)
     }
 }
