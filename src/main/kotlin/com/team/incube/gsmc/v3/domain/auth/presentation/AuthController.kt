@@ -62,7 +62,7 @@ class AuthController(
     @PostMapping
     fun oauthAuthentication(
         @Valid @RequestBody request: OAuthCodeRequest,
-    ): AuthTokenResponse = oauthAuthenticationService.execute(code = request.code)
+    ): AuthTokenResponse = oauthAuthenticationService.execute(request.code)
 
     @Operation(summary = "JWT 토큰 재발급", description = "RefreshToken을 이용하여 JWT 토큰을 재발급합니다")
     @ApiResponses(
@@ -82,7 +82,7 @@ class AuthController(
     fun tokenRefresh(
         @Parameter(name = "refreshToken", `in` = ParameterIn.COOKIE, required = true, description = "Refresh token cookie")
         @CookieValue("refreshToken") refreshToken: String,
-    ): AuthTokenResponse = tokenRefreshService.execute(refreshToken = refreshToken)
+    ): AuthTokenResponse = tokenRefreshService.execute(refreshToken)
 
     @Operation(summary = "회원가입", description = "회원가입합니다")
     @ApiResponses(

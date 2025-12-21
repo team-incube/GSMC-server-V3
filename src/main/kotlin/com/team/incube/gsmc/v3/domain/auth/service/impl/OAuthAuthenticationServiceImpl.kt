@@ -109,11 +109,11 @@ class OAuthAuthenticationServiceImpl(
             refreshTokenRedisRepository.save(refreshToken)
 
             return AuthTokenResponse(
-                accessToken = access.token,
-                accessTokenExpiresAt = access.expiration,
-                refreshToken = refresh.token,
-                refreshTokenExpiresAt = refresh.expiration,
                 role = member.role,
+                accessToken = access.token,
+                refreshToken = refresh.token,
+                accessExpiration = access.expiration,
+                refreshExpiration = refresh.expiration,
             )
         } catch (e: OAuth2AuthorizationException) {
             logger().error("OAuth2 authorization failed: ${e.error.errorCode} - ${e.error.description}", e)

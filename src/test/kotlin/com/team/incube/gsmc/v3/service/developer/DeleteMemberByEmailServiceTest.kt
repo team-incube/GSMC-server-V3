@@ -83,6 +83,7 @@ class DeleteMemberByEmailServiceTest :
 
             every { c.memberRepo.findByEmail(email) } returns member
             every { c.scoreRepo.findAllByMemberId(member.id) } returns emptyList()
+            every { c.fileRepo.findAllByUserId(member.id) } returns emptyList()
             every { c.memberRepo.deleteMemberByEmail(email) } returns 1
 
             When("execute를 호출하면") {
@@ -154,6 +155,7 @@ class DeleteMemberByEmailServiceTest :
 
             every { c.memberRepo.findByEmail(email) } returns member
             every { c.scoreRepo.findAllByMemberId(member.id) } returns listOf(score1, score2)
+            every { c.fileRepo.findAllByUserId(member.id) } returns emptyList()
             every { c.scoreRepo.deleteAllByIdIn(listOf(10L, 20L)) } just runs
             every { c.memberRepo.deleteMemberByEmail(email) } returns 1
 
