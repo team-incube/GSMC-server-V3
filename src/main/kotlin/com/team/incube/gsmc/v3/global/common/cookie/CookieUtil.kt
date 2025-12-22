@@ -32,7 +32,7 @@ class CookieUtil(
             .from(name, value)
             .httpOnly(true)
             .secure(isProduction)
-            .sameSite(Cookie.SameSite.LAX.name)
+            .sameSite(Cookie.SameSite.LAX.attributeValue())
             .path("/")
             .maxAge(maxAge)
             .apply {
