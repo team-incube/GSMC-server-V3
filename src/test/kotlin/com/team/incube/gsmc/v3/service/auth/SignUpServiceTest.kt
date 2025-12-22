@@ -75,6 +75,9 @@ class SignUpServiceTest :
 
             val name = "홍길동"
             val studentNumber = 2323
+            val expectedGrade = studentNumber / 1000
+            val expectedClassNumber = (studentNumber / 100) % 10
+            val expectedNumber = studentNumber % 100
 
             every { c.currentMemberProvider.getCurrentMember() } returns member
             every {
@@ -82,9 +85,9 @@ class SignUpServiceTest :
                     id = memberId,
                     name = name,
                     email = email,
-                    grade = 2,
-                    classNumber = 3,
-                    number = 23,
+                    grade = expectedGrade,
+                    classNumber = expectedClassNumber,
+                    number = expectedNumber,
                     role = MemberRole.STUDENT,
                 )
             } returns 1
@@ -98,9 +101,9 @@ class SignUpServiceTest :
                             id = memberId,
                             name = name,
                             email = email,
-                            grade = 2,
-                            classNumber = 3,
-                            number = 23,
+                            grade = expectedGrade,
+                            classNumber = expectedClassNumber,
+                            number = expectedNumber,
                             role = MemberRole.STUDENT,
                         )
                     }
