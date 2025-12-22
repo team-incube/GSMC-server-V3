@@ -8,6 +8,7 @@ import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
+import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
@@ -34,6 +35,7 @@ class DeleteMemberByEmailServiceTest :
             val evidenceRepo: EvidenceExposedRepository,
             val alertRepo: AlertExposedRepository,
             val fileRepo: FileExposedRepository,
+            val projectRepo: ProjectExposedRepository,
             val s3DeleteService: S3DeleteService,
             val service: DeleteMemberByEmailServiceImpl,
         )
@@ -44,9 +46,19 @@ class DeleteMemberByEmailServiceTest :
             val evidenceRepo = mockk<EvidenceExposedRepository>()
             val alertRepo = mockk<AlertExposedRepository>(relaxed = true)
             val fileRepo = mockk<FileExposedRepository>()
+            val projectRepo = mockk<ProjectExposedRepository>(relaxed = true)
             val s3DeleteService = mockk<S3DeleteService>(relaxed = true)
-            val service = DeleteMemberByEmailServiceImpl(memberRepo, scoreRepo, alertRepo, evidenceRepo, fileRepo, s3DeleteService)
-            return TestData(memberRepo, scoreRepo, evidenceRepo, alertRepo, fileRepo, s3DeleteService, service)
+            val service =
+                DeleteMemberByEmailServiceImpl(
+                    memberRepo,
+                    scoreRepo,
+                    alertRepo,
+                    evidenceRepo,
+                    fileRepo,
+                    projectRepo,
+                    s3DeleteService,
+                )
+            return TestData(memberRepo, scoreRepo, evidenceRepo, alertRepo, fileRepo, projectRepo, s3DeleteService, service)
         }
 
         val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
