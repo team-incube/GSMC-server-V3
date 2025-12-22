@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.global.common.cookie
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.env.Environment
 import org.springframework.http.ResponseCookie
 import org.springframework.stereotype.Component
@@ -13,6 +14,9 @@ class CookieUtil(
     companion object {
         private const val ACCESS_TOKEN_COOKIE_NAME = "accessToken"
         private const val REFRESH_TOKEN_COOKIE_NAME = "refreshToken"
+
+        @Value("\${server.cookie.domain}")
+        private lateinit var cookieDomain: String
     }
 
     private val isProduction: Boolean
@@ -30,7 +34,11 @@ class CookieUtil(
             .sameSite("Strict")
             .path("/")
             .maxAge(maxAge)
-            .build()
+            .apply {
+                if (isProduction) {
+                    domain(cookieDomain)
+                }
+            }.build()
 
     fun createAuthCookies(
         accessToken: String,
