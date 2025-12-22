@@ -59,7 +59,7 @@ class OAuthAuthenticationServiceTest :
             val memberExposedRepository = mockk<MemberExposedRepository>()
             val tokenResponseClient = mockk<OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>>()
             val oauth2UserService = mockk<OAuth2UserService<OAuth2UserRequest, OAuth2User>>()
-            val refreshTokenRedisRepository = mockk<RefreshTokenRedisRepository>(relaxed = true)
+            val refreshTokenRedisRepository = mockk<RefreshTokenRedisRepository>()
             val environment = mockk<Environment>()
 
             val service =
