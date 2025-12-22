@@ -31,13 +31,8 @@ class CookieUtil(
             .from(name, value)
             .httpOnly(true)
             .secure(isProduction)
-            .sameSite(
-                if (isProduction) {
-                    Cookie.SameSite.NONE.attributeValue()
-                } else {
-                    Cookie.SameSite.LAX.attributeValue()
-                },
-            ).path("/")
+            .sameSite(Cookie.SameSite.LAX.attributeValue())
+            .path("/")
             .maxAge(maxAge)
             .apply {
                 if (isProduction) {
