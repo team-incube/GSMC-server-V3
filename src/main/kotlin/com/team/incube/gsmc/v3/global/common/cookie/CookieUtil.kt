@@ -11,13 +11,12 @@ import java.time.LocalDateTime
 @Component
 class CookieUtil(
     private val environment: Environment,
+    @param:Value("\${server.cookie.domain}")
+    private val cookieDomain: String,
 ) {
     companion object {
         private const val ACCESS_TOKEN_COOKIE_NAME = "accessToken"
         private const val REFRESH_TOKEN_COOKIE_NAME = "refreshToken"
-
-        @Value("\${server.cookie.domain}")
-        private lateinit var cookieDomain: String
     }
 
     private val isProduction: Boolean
