@@ -19,8 +19,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 
 class UpdateCertificateScoreServiceTest :
     BehaviorSpec({
@@ -51,17 +50,22 @@ class UpdateCertificateScoreServiceTest :
             return TestData(scoreRepo, fileRepo, currentMemberProvider, service)
         }
 
-        beforeTest {
-            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-            every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
-            } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
-            }
+        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
+
+        mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        every {
+            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+                db = null,
+                statement = any<JdbcTransaction.() -> Any?>(),
+            )
+        } answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockTransaction)
         }
 
-        afterTest {
-            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        afterSpec {
+            unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         }
 
         Given("자격증 점수를 업데이트할 때") {
@@ -89,6 +93,7 @@ class UpdateCertificateScoreServiceTest :
                     activityName = "정보처리기사",
                     scoreValue = 2.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
             val updatedScore =
                 Score(
@@ -100,6 +105,7 @@ class UpdateCertificateScoreServiceTest :
                     activityName = value,
                     scoreValue = 2.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns existingScore
@@ -160,6 +166,7 @@ class UpdateCertificateScoreServiceTest :
                     activityName = "자격증",
                     scoreValue = 2.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score
@@ -195,6 +202,7 @@ class UpdateCertificateScoreServiceTest :
                     activityName = "수상",
                     scoreValue = 1.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score
@@ -231,6 +239,7 @@ class UpdateCertificateScoreServiceTest :
                     activityName = "자격증",
                     scoreValue = 2.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score

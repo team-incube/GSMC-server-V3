@@ -54,11 +54,11 @@ class TokenRefreshServiceImpl(
         refreshTokenRedisRepository.save(newRefreshToken)
 
         return AuthTokenResponse(
-            accessToken = newAccess.token,
-            accessTokenExpiresAt = newAccess.expiration,
-            refreshToken = newRefreshToken.token,
-            refreshTokenExpiresAt = newRefresh.expiration,
             role = member.role,
+            accessToken = newAccess.token,
+            refreshToken = newRefreshToken.token,
+            accessExpiration = newAccess.expiration,
+            refreshExpiration = newRefresh.expiration,
         )
     }
 }

@@ -165,8 +165,8 @@ class ProjectController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @GetMapping("/current")
-    fun getCurrentProjects(): List<GetProjectResponse> = findMyProjectsService.execute()
+    @GetMapping("/my")
+    fun getMyProjects(): List<GetProjectResponse> = findMyProjectsService.execute()
 
     @Operation(summary = "프로젝트 단건 조회", description = "프로젝트 ID로 프로젝트를 조회합니다")
     @ApiResponses(

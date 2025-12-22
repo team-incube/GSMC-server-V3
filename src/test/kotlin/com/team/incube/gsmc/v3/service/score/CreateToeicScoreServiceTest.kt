@@ -4,6 +4,7 @@ import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
@@ -18,8 +19,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.springframework.context.ApplicationEventPublisher
 
 class CreateToeicScoreServiceTest :
     BehaviorSpec({
@@ -27,6 +28,8 @@ class CreateToeicScoreServiceTest :
             val scoreRepo: ScoreExposedRepository,
             val fileRepo: FileExposedRepository,
             val currentMemberProvider: CurrentMemberProvider,
+            val memberRepo: MemberExposedRepository,
+            val eventPublisher: ApplicationEventPublisher,
             val service: CreateToeicScoreServiceImpl,
         )
 
@@ -34,6 +37,8 @@ class CreateToeicScoreServiceTest :
             val scoreRepo = mockk<ScoreExposedRepository>()
             val fileRepo = mockk<FileExposedRepository>()
             val currentMemberProvider = mockk<CurrentMemberProvider>()
+            val memberRepo = mockk<MemberExposedRepository>(relaxed = true)
+            val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
 
             every { currentMemberProvider.getCurrentMember() } returns
                 Member(
@@ -46,21 +51,33 @@ class CreateToeicScoreServiceTest :
                     role = MemberRole.STUDENT,
                 )
 
-            val service = CreateToeicScoreServiceImpl(scoreRepo, fileRepo, currentMemberProvider)
-            return TestData(scoreRepo, fileRepo, currentMemberProvider, service)
+            val service =
+                CreateToeicScoreServiceImpl(
+                    scoreExposedRepository = scoreRepo,
+                    fileExposedRepository = fileRepo,
+                    currentMemberProvider = currentMemberProvider,
+                    eventPublisher = eventPublisher,
+                    memberExposedRepository = memberRepo,
+                )
+            return TestData(scoreRepo, fileRepo, currentMemberProvider, memberRepo, eventPublisher, service)
         }
 
-        beforeTest {
-            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-            every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
-            } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
-            }
+        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
+
+        mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        every {
+            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+                db = null,
+                statement = any<JdbcTransaction.() -> Any?>(),
+            )
+        } answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockTransaction)
         }
 
-        afterTest {
-            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        afterSpec {
+            unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         }
 
         Given("유효한 TOEIC 점수로 생성할 때") {
@@ -68,7 +85,7 @@ class CreateToeicScoreServiceTest :
             val value = "850"
             val fileId = 100L
             val member = Member(0L, "Test User", "test@test.com", 1, 1, 1, MemberRole.STUDENT)
-            val score = Score(1L, member, CategoryType.TOEIC, ScoreStatus.PENDING, fileId, null, 850.0, null)
+            val score = Score(1L, member, CategoryType.TOEIC, ScoreStatus.PENDING, fileId, null, 850.0, null, null)
 
             every { c.fileRepo.existsById(fileId) } returns true
             every { c.scoreRepo.findByMemberIdAndCategoryType(0L, CategoryType.TOEIC) } returns null

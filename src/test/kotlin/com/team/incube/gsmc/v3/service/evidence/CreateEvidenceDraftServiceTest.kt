@@ -1,6 +1,7 @@
 package com.team.incube.gsmc.v3.service.evidence
 
 import com.team.incube.gsmc.v3.domain.evidence.presentation.data.request.CreateEvidenceDraftRequest
+import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceDraftRedisRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.impl.CreateMyEvidenceDraftServiceImpl
 import com.team.incube.gsmc.v3.domain.file.dto.File
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
@@ -13,35 +14,41 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 
 class CreateEvidenceDraftServiceTest :
     BehaviorSpec({
         data class Ctx(
             val currentMemberProvider: CurrentMemberProvider,
             val fileExposedRepository: FileExposedRepository,
+            val evidenceDraftRedisRepository: EvidenceDraftRedisRepository,
             val service: CreateMyEvidenceDraftServiceImpl,
         )
 
         fun ctx(): Ctx {
             val c = mockk<CurrentMemberProvider>()
             val f = mockk<FileExposedRepository>()
-            val s = CreateMyEvidenceDraftServiceImpl(c, f)
-            return Ctx(c, f, s)
+            val e = mockk<EvidenceDraftRedisRepository>(relaxed = true)
+            val s = CreateMyEvidenceDraftServiceImpl(c, f, e)
+            return Ctx(c, f, e, s)
         }
 
-        beforeTest {
-            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-            every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
-            } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
-            }
+        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
+
+        mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        every {
+            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+                db = null,
+                statement = any<JdbcTransaction.() -> Any?>(),
+            )
+        } answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockTransaction)
         }
 
-        afterTest {
-            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        afterSpec {
+            unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         }
 
         Given("증빙자료 임시저장 요청이 주어지면") {
@@ -83,7 +90,9 @@ class CreateEvidenceDraftServiceTest :
                 )
 
             every { c.currentMemberProvider.getCurrentMember() } returns member
+            every { c.currentMemberProvider.getCurrentMemberId() } returns member.id
             every { c.fileExposedRepository.findAllByIdIn(listOf(1L, 2L)) } returns mockFiles
+            every { c.evidenceDraftRedisRepository.save(any()) } answers { firstArg() }
 
             When("임시저장을 생성하면") {
                 val result = c.service.execute(request)
@@ -117,11 +126,13 @@ class CreateEvidenceDraftServiceTest :
                 )
 
             every { c.currentMemberProvider.getCurrentMember() } returns member
+            every { c.currentMemberProvider.getCurrentMemberId() } returns member.id
+            every { c.evidenceDraftRedisRepository.save(any()) } answers { firstArg() }
 
             When("임시저장을 생성하면") {
                 val result = c.service.execute(request)
 
-                Then("빈 데이터가 응답으로 반환된다") {
+                Then("요청한 데이터가 응답으로 반환된다") {
                     result.title shouldBe ""
                     result.content shouldBe ""
                     result.files shouldBe emptyList()
@@ -161,7 +172,9 @@ class CreateEvidenceDraftServiceTest :
                 )
 
             every { c.currentMemberProvider.getCurrentMember() } returns member
+            every { c.currentMemberProvider.getCurrentMemberId() } returns member.id
             every { c.fileExposedRepository.findAllByIdIn(listOf(1L)) } returns mockFiles
+            every { c.evidenceDraftRedisRepository.save(any()) } answers { firstArg() }
 
             When("임시저장을 생성하면") {
                 val result = c.service.execute(request)

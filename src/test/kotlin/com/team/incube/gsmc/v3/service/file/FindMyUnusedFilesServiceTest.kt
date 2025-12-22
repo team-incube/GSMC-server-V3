@@ -1,6 +1,7 @@
 package com.team.incube.gsmc.v3.service.file
 
 import com.team.incube.gsmc.v3.domain.file.dto.File
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.file.service.impl.FindMyUnusedFilesServiceImpl
 import com.team.incube.gsmc.v3.domain.member.dto.Member
@@ -14,8 +15,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 
 class FindMyUnusedFilesServiceTest :
     BehaviorSpec({
@@ -50,17 +50,22 @@ class FindMyUnusedFilesServiceTest :
             )
         }
 
-        beforeTest {
-            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-            every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
-            } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
-            }
+        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
+
+        mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        every {
+            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+                db = null,
+                statement = any<JdbcTransaction.() -> Any?>(),
+            )
+        } answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockTransaction)
         }
 
-        afterTest {
-            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        afterSpec {
+            unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         }
 
         Given("현재 로그인한 사용자가 사용하지 않은 파일들을 소유하고 있을 때") {
@@ -70,14 +75,14 @@ class FindMyUnusedFilesServiceTest :
                 listOf(
                     File(
                         id = 1L,
-                        memberId = userId,
+                        member = userId,
                         originalName = "unused-document.pdf",
                         storeName = "20251125120000_unused1.pdf",
                         uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/unused1.pdf",
                     ),
                     File(
                         id = 2L,
-                        memberId = userId,
+                        member = userId,
                         originalName = "unused-image.jpg",
                         storeName = "20251125120001_unused2.jpg",
                         uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/unused2.jpg",
@@ -104,7 +109,7 @@ class FindMyUnusedFilesServiceTest :
                 Then("반환된 파일들이 올바른 정보를 포함해야 한다") {
                     val expectedFileItems =
                         mockUnusedFiles.map { file ->
-                            com.team.incube.gsmc.v3.domain.file.presentation.data.dto.GetFileResponse(
+                            GetFileResponse(
                                 id = file.id,
                                 memberId = file.member,
                                 originalName = file.originalName,
@@ -143,7 +148,7 @@ class FindMyUnusedFilesServiceTest :
                 listOf(
                     File(
                         id = 5L,
-                        memberId = userId,
+                        member = userId,
                         originalName = "single-unused.hwp",
                         storeName = "20251125120000_single_unused.hwp",
                         uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/single_unused.hwp",
@@ -158,7 +163,7 @@ class FindMyUnusedFilesServiceTest :
                 Then("단일 미사용 파일이 반환되어야 한다") {
                     val expectedFileItems =
                         mockUnusedFiles.map { file ->
-                            com.team.incube.gsmc.v3.domain.file.presentation.data.dto.GetFileResponse(
+                            GetFileResponse(
                                 id = file.id,
                                 memberId = file.member,
                                 originalName = file.originalName,
@@ -178,28 +183,28 @@ class FindMyUnusedFilesServiceTest :
                 listOf(
                     File(
                         id = 10L,
-                        memberId = userId,
+                        member = userId,
                         originalName = "document.pdf",
                         storeName = "20251125120000_doc.pdf",
                         uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/doc.pdf",
                     ),
                     File(
                         id = 11L,
-                        memberId = userId,
+                        member = userId,
                         originalName = "image.png",
                         storeName = "20251125120001_img.png",
                         uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/img.png",
                     ),
                     File(
                         id = 12L,
-                        memberId = userId,
+                        member = userId,
                         originalName = "sheet.xlsx",
                         storeName = "20251125120002_sheet.xlsx",
                         uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/sheet.xlsx",
                     ),
                     File(
                         id = 13L,
-                        memberId = userId,
+                        member = userId,
                         originalName = "presentation.pptx",
                         storeName = "20251125120003_ppt.pptx",
                         uri = "https://gsmc-bucket.s3.amazonaws.com/evidences/ppt.pptx",
@@ -214,7 +219,7 @@ class FindMyUnusedFilesServiceTest :
                 Then("모든 확장자의 파일들이 올바르게 반환되어야 한다") {
                     val expectedFileItems =
                         mockUnusedFiles.map { file ->
-                            com.team.incube.gsmc.v3.domain.file.presentation.data.dto.GetFileResponse(
+                            GetFileResponse(
                                 id = file.id,
                                 memberId = file.member,
                                 originalName = file.originalName,

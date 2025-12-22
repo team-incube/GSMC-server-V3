@@ -5,12 +5,15 @@ import com.team.incube.gsmc.v3.domain.evidence.presentation.data.response.GetEvi
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
+import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.CategoryNames
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.FindScoreByScoreIdService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.stereotype.Service
 
@@ -19,12 +22,36 @@ class FindScoreByScoreIdServiceImpl(
     private val scoreExposedRepository: ScoreExposedRepository,
     private val evidenceExposedRepository: EvidenceExposedRepository,
     private val fileExposedRepository: FileExposedRepository,
+    private val memberExposedRepository: MemberExposedRepository,
+    private val currentMemberProvider: CurrentMemberProvider,
 ) : FindScoreByScoreIdService {
     override fun execute(scoreId: Long): GetScoreResponse =
         transaction {
             val score =
                 scoreExposedRepository.findById(scoreId)
                     ?: throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
+
+            val currentMember = currentMemberProvider.getCurrentMember()
+            when (currentMember.role) {
+                MemberRole.STUDENT -> {
+                    if (score.member.id != currentMember.id) {
+                        throw GsmcException(ErrorCode.SCORE_NOT_OWNED)
+                    }
+                }
+
+                MemberRole.HOMEROOM_TEACHER -> {
+                    val student =
+                        memberExposedRepository.findById(score.member.id)
+                            ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
+
+                    if (student.grade != currentMember.grade || student.classNumber != currentMember.classNumber) {
+                        throw GsmcException(ErrorCode.SCORE_NOT_OWNED)
+                    }
+                }
+
+                MemberRole.TEACHER, MemberRole.ROOT, MemberRole.UNAUTHORIZED -> {
+                }
+            }
 
             val evidence =
                 score.sourceId

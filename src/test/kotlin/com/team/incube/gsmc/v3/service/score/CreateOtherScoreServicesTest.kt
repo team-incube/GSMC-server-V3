@@ -23,24 +23,28 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 
 class CreateOtherScoreServicesTest :
     BehaviorSpec({
         val member = Member(0L, "Test User", "test@test.com", 1, 1, 1, MemberRole.STUDENT)
 
-        beforeTest {
-            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-            every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
-            } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
-            }
+        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
+
+        mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        every {
+            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+                db = null,
+                statement = any<JdbcTransaction.() -> Any?>(),
+            )
+        } answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockTransaction)
         }
 
-        afterTest {
-            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        afterSpec {
+            unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         }
 
         // JLPT Test
@@ -48,12 +52,14 @@ class CreateOtherScoreServicesTest :
             val scoreRepo = mockk<ScoreExposedRepository>()
             val fileRepo = mockk<FileExposedRepository>()
             val currentMemberProvider = mockk<CurrentMemberProvider>()
+            val eventPublisher = mockk<org.springframework.context.ApplicationEventPublisher>(relaxed = true)
+            val memberRepo = mockk<com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository>(relaxed = true)
             every { currentMemberProvider.getCurrentMember() } returns member
-            val service = CreateJlptScoreServiceImpl(scoreRepo, fileRepo, currentMemberProvider)
+            val service = CreateJlptScoreServiceImpl(scoreRepo, fileRepo, currentMemberProvider, eventPublisher, memberRepo)
 
             every { fileRepo.existsById(100L) } returns true
             every { scoreRepo.findByMemberIdAndCategoryType(0L, CategoryType.JLPT) } returns null
-            every { scoreRepo.save(any()) } returns Score(1L, member, CategoryType.JLPT, ScoreStatus.PENDING, 100L, null, 3.0, null)
+            every { scoreRepo.save(any()) } returns Score(1L, member, CategoryType.JLPT, ScoreStatus.PENDING, 100L, null, 3.0, null, null)
 
             When("유효한 값으로 실행하면") {
                 val res = service.execute("3", 100L)
@@ -72,12 +78,15 @@ class CreateOtherScoreServicesTest :
             val scoreRepo = mockk<ScoreExposedRepository>()
             val fileRepo = mockk<FileExposedRepository>()
             val currentMemberProvider = mockk<CurrentMemberProvider>()
+            val eventPublisher = mockk<org.springframework.context.ApplicationEventPublisher>(relaxed = true)
+            val memberRepo = mockk<com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository>(relaxed = true)
             every { currentMemberProvider.getCurrentMember() } returns member
-            val service = CreateTopcitScoreServiceImpl(scoreRepo, fileRepo, currentMemberProvider)
+            val service = CreateTopcitScoreServiceImpl(scoreRepo, fileRepo, currentMemberProvider, eventPublisher, memberRepo)
 
             every { fileRepo.existsById(100L) } returns true
             every { scoreRepo.findByMemberIdAndCategoryType(0L, CategoryType.TOPCIT) } returns null
-            every { scoreRepo.save(any()) } returns Score(1L, member, CategoryType.TOPCIT, ScoreStatus.PENDING, 100L, null, 500.0, null)
+            every { scoreRepo.save(any()) } returns
+                Score(1L, member, CategoryType.TOPCIT, ScoreStatus.PENDING, 100L, null, 500.0, null, null)
 
             When("유효한 값으로 실행하면") {
                 val res = service.execute("500", 100L)
@@ -96,12 +105,14 @@ class CreateOtherScoreServicesTest :
             val scoreRepo = mockk<ScoreExposedRepository>()
             val fileRepo = mockk<FileExposedRepository>()
             val currentMemberProvider = mockk<CurrentMemberProvider>()
+            val eventPublisher = mockk<org.springframework.context.ApplicationEventPublisher>(relaxed = true)
+            val memberRepo = mockk<com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository>(relaxed = true)
             every { currentMemberProvider.getCurrentMember() } returns member
-            val service = CreateNcsScoreServiceImpl(scoreRepo, fileRepo, currentMemberProvider)
+            val service = CreateNcsScoreServiceImpl(scoreRepo, fileRepo, currentMemberProvider, eventPublisher, memberRepo)
 
             every { fileRepo.existsById(100L) } returns true
             every { scoreRepo.findByMemberIdAndCategoryType(0L, CategoryType.NCS) } returns null
-            every { scoreRepo.save(any()) } returns Score(1L, member, CategoryType.NCS, ScoreStatus.PENDING, 100L, null, 3.5, null)
+            every { scoreRepo.save(any()) } returns Score(1L, member, CategoryType.NCS, ScoreStatus.PENDING, 100L, null, 3.5, null, null)
 
             When("유효한 값으로 실행하면") {
                 val res = service.execute("3.5", 100L)
@@ -114,12 +125,15 @@ class CreateOtherScoreServicesTest :
             val scoreRepo = mockk<ScoreExposedRepository>()
             val fileRepo = mockk<FileExposedRepository>()
             val currentMemberProvider = mockk<CurrentMemberProvider>()
+            val eventPublisher = mockk<org.springframework.context.ApplicationEventPublisher>(relaxed = true)
+            val memberRepo = mockk<com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository>(relaxed = true)
             every { currentMemberProvider.getCurrentMember() } returns member
-            val service = CreateReadAThonScoreServiceImpl(scoreRepo, fileRepo, currentMemberProvider)
+            val service = CreateReadAThonScoreServiceImpl(scoreRepo, fileRepo, currentMemberProvider, eventPublisher, memberRepo)
 
             every { fileRepo.existsById(100L) } returns true
             every { scoreRepo.findByMemberIdAndCategoryType(0L, CategoryType.READ_A_THON) } returns null
-            every { scoreRepo.save(any()) } returns Score(1L, member, CategoryType.READ_A_THON, ScoreStatus.PENDING, 100L, null, 5.0, null)
+            every { scoreRepo.save(any()) } returns
+                Score(1L, member, CategoryType.READ_A_THON, ScoreStatus.PENDING, 100L, null, 5.0, null, null)
 
             When("유효한 값으로 실행하면") {
                 val res = service.execute("5", 100L)
@@ -132,13 +146,15 @@ class CreateOtherScoreServicesTest :
             val scoreRepo = mockk<ScoreExposedRepository>()
             val fileRepo = mockk<FileExposedRepository>()
             val currentMemberProvider = mockk<CurrentMemberProvider>()
+            val eventPublisher = mockk<org.springframework.context.ApplicationEventPublisher>(relaxed = true)
+            val memberRepo = mockk<com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository>(relaxed = true)
             every { currentMemberProvider.getCurrentMember() } returns member
-            val service = CreateNewrrowSchoolScoreServiceImpl(scoreRepo, fileRepo, currentMemberProvider)
+            val service = CreateNewrrowSchoolScoreServiceImpl(scoreRepo, fileRepo, currentMemberProvider, eventPublisher, memberRepo)
 
             every { fileRepo.existsById(100L) } returns true
             every { scoreRepo.findByMemberIdAndCategoryType(0L, CategoryType.NEWRROW_SCHOOL) } returns null
             every { scoreRepo.save(any()) } returns
-                Score(1L, member, CategoryType.NEWRROW_SCHOOL, ScoreStatus.PENDING, 100L, null, 85.0, null)
+                Score(1L, member, CategoryType.NEWRROW_SCHOOL, ScoreStatus.PENDING, 100L, null, 85.0, null, null)
 
             When("유효한 값으로 실행하면") {
                 val res = service.execute("85", 100L)
@@ -150,12 +166,14 @@ class CreateOtherScoreServicesTest :
         Given("토익사관학교 점수 생성") {
             val scoreRepo = mockk<ScoreExposedRepository>()
             val currentMemberProvider = mockk<CurrentMemberProvider>()
+            val eventPublisher = mockk<org.springframework.context.ApplicationEventPublisher>(relaxed = true)
+            val memberRepo = mockk<com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository>(relaxed = true)
             every { currentMemberProvider.getCurrentMember() } returns member
-            val service = CreateToeicAcademyScoreServiceImpl(scoreRepo, currentMemberProvider)
+            val service = CreateToeicAcademyScoreServiceImpl(scoreRepo, currentMemberProvider, eventPublisher, memberRepo)
 
             every { scoreRepo.findByMemberIdAndCategoryType(0L, CategoryType.TOEIC_ACADEMY) } returns null
             every { scoreRepo.save(any()) } returns
-                Score(1L, member, CategoryType.TOEIC_ACADEMY, ScoreStatus.PENDING, null, null, null, null)
+                Score(1L, member, CategoryType.TOEIC_ACADEMY, ScoreStatus.PENDING, null, null, null, null, null)
 
             When("실행하면") {
                 val res = service.execute()

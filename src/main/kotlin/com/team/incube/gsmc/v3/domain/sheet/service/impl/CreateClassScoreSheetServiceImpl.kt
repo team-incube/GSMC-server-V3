@@ -2,6 +2,7 @@ package com.team.incube.gsmc.v3.domain.sheet.service.impl
 
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.category.constant.ScoreCalculationType
+import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.dto.constant.SortDirection
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
@@ -11,6 +12,9 @@ import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.sheet.dto.ClassScoreData
 import com.team.incube.gsmc.v3.domain.sheet.service.CreateClassScoreSheetService
+import com.team.incube.gsmc.v3.global.common.error.ErrorCode
+import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.apache.poi.ss.usermodel.BorderStyle
 import org.apache.poi.ss.usermodel.CellStyle
 import org.apache.poi.ss.usermodel.FillPatternType
@@ -37,6 +41,7 @@ import java.time.format.DateTimeFormatter
 class CreateClassScoreSheetServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
     private val scoreExposedRepository: ScoreExposedRepository,
+    private val currentMemberProvider: CurrentMemberProvider,
 ) : CreateClassScoreSheetService {
     companion object {
         private const val MAX_STUDENTS_PER_CLASS = 1000
@@ -52,6 +57,12 @@ class CreateClassScoreSheetServiceImpl(
         grade: Int,
         classNumber: Int,
     ): ResponseEntity<ByteArrayResource> {
+        val requester: Member = currentMemberProvider.getCurrentMember()
+        if (requester.role == MemberRole.HOMEROOM_TEACHER) {
+            if (requester.grade != grade || requester.classNumber != classNumber) {
+                throw GsmcException(ErrorCode.NOT_ASSIGNED_HOMEROOM_CLASS)
+            }
+        }
         val allCategories = CategoryType.getAllCategories()
         val classScoreDataList =
             transaction {

@@ -13,6 +13,7 @@ import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.impl.FindScoreByScoreIdServiceImpl
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -22,8 +23,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import java.time.LocalDateTime
 
 class FindScoreByScoreIdServiceTest :
@@ -32,28 +32,38 @@ class FindScoreByScoreIdServiceTest :
             val scoreRepo: ScoreExposedRepository,
             val evidenceRepo: EvidenceExposedRepository,
             val fileRepo: FileExposedRepository,
+            val memberRepo: com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository,
+            val currentMemberProvider: CurrentMemberProvider,
             val service: FindScoreByScoreIdServiceImpl,
         )
 
-        fun ctx(): TestData {
+        fun ctx(currentMember: Member = Member(1L, "Teacher", "t@test.com", 1, 1, 0, MemberRole.TEACHER)): TestData {
             val scoreRepo = mockk<ScoreExposedRepository>()
             val evidenceRepo = mockk<EvidenceExposedRepository>()
             val fileRepo = mockk<FileExposedRepository>()
-            val service = FindScoreByScoreIdServiceImpl(scoreRepo, evidenceRepo, fileRepo)
-            return TestData(scoreRepo, evidenceRepo, fileRepo, service)
+            val memberRepo = mockk<com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository>()
+            val currentMemberProvider = mockk<CurrentMemberProvider>()
+            every { currentMemberProvider.getCurrentMember() } returns currentMember
+            val service = FindScoreByScoreIdServiceImpl(scoreRepo, evidenceRepo, fileRepo, memberRepo, currentMemberProvider)
+            return TestData(scoreRepo, evidenceRepo, fileRepo, memberRepo, currentMemberProvider, service)
         }
 
-        beforeTest {
-            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-            every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
-            } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
-            }
+        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
+
+        mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        every {
+            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+                db = null,
+                statement = any<JdbcTransaction.() -> Any?>(),
+            )
+        } answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockTransaction)
         }
 
-        afterTest {
-            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        afterSpec {
+            unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         }
 
         Given("EVIDENCE 타입의 점수를 조회할 때") {
@@ -80,6 +90,7 @@ class FindScoreByScoreIdServiceTest :
                     activityName = "프로젝트1",
                     scoreValue = 10.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
             val files =
                 listOf(
@@ -151,6 +162,7 @@ class FindScoreByScoreIdServiceTest :
                     activityName = "수상1",
                     scoreValue = 5.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
             val file =
                 File(
@@ -208,6 +220,7 @@ class FindScoreByScoreIdServiceTest :
                     activityName = "교과성적",
                     scoreValue = 95.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score
@@ -269,6 +282,7 @@ class FindScoreByScoreIdServiceTest :
                     activityName = "자격증1",
                     scoreValue = 0.0,
                     rejectionReason = "증빙이 불충분합니다.",
+                    updatedAt = null,
                 )
 
             every { c.scoreRepo.findById(scoreId) } returns score

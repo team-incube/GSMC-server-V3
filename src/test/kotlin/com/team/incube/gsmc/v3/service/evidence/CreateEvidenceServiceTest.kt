@@ -9,6 +9,7 @@ import com.team.incube.gsmc.v3.domain.file.dto.File
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
@@ -25,8 +26,8 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.springframework.context.ApplicationEventPublisher
 import java.time.LocalDateTime
 
 class CreateEvidenceServiceTest :
@@ -36,6 +37,8 @@ class CreateEvidenceServiceTest :
             val currentMemberProvider: CurrentMemberProvider,
             val scoreRepo: ScoreExposedRepository,
             val fileRepo: FileExposedRepository,
+            val memberRepo: MemberExposedRepository,
+            val eventPublisher: ApplicationEventPublisher,
             val service: CreateEvidenceServiceImpl,
         )
 
@@ -56,21 +59,28 @@ class CreateEvidenceServiceTest :
 
             val scoreRepo = mockk<ScoreExposedRepository>()
             val fileRepo = mockk<FileExposedRepository>()
-            val service = CreateEvidenceServiceImpl(evidenceRepo, currentMemberProvider, scoreRepo, fileRepo)
-            return TestData(evidenceRepo, currentMemberProvider, scoreRepo, fileRepo, service)
+            val memberRepo = mockk<MemberExposedRepository>(relaxed = true)
+            val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
+            val service = CreateEvidenceServiceImpl(evidenceRepo, currentMemberProvider, scoreRepo, fileRepo, memberRepo, eventPublisher)
+            return TestData(evidenceRepo, currentMemberProvider, scoreRepo, fileRepo, memberRepo, eventPublisher, service)
         }
 
-        beforeTest {
-            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-            every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
-            } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
-            }
+        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
+
+        mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        every {
+            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+                db = null,
+                statement = any<JdbcTransaction.() -> Any?>(),
+            )
+        } answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockTransaction)
         }
 
-        afterTest {
-            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        afterSpec {
+            unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         }
 
         Given("유효한 scoreId와 fileIds로 증빙 생성에 성공할 때") {
@@ -97,6 +107,7 @@ class CreateEvidenceServiceTest :
                     activityName = null,
                     scoreValue = null,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
             val files =
                 listOf(
@@ -197,6 +208,7 @@ class CreateEvidenceServiceTest :
                     activityName = null,
                     scoreValue = null,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
             every { c.scoreRepo.findById(scoreId) } returns score
             every { c.scoreRepo.existsWithSource(scoreId) } returns true
@@ -233,6 +245,7 @@ class CreateEvidenceServiceTest :
                         activityName = null,
                         scoreValue = null,
                         rejectionReason = null,
+                        updatedAt = null,
                     )
                 every { c.scoreRepo.findById(scoreId) } returns score
                 every { c.scoreRepo.existsWithSource(scoreId) } returns false
@@ -269,6 +282,7 @@ class CreateEvidenceServiceTest :
                     activityName = null,
                     scoreValue = null,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
             val saved =
                 Evidence(

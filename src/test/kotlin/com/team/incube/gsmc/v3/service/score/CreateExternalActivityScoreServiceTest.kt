@@ -4,6 +4,7 @@ import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
@@ -20,8 +21,8 @@ import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.springframework.context.ApplicationEventPublisher
 
 class CreateExternalActivityScoreServiceTest :
     BehaviorSpec({
@@ -30,6 +31,8 @@ class CreateExternalActivityScoreServiceTest :
             val fileRepo: FileExposedRepository,
             val currentMemberProvider: CurrentMemberProvider,
             val scoreLimitValidator: ScoreLimitValidator,
+            val memberRepo: MemberExposedRepository,
+            val eventPublisher: ApplicationEventPublisher,
             val service: CreateExternalActivityScoreServiceImpl,
         )
 
@@ -38,6 +41,8 @@ class CreateExternalActivityScoreServiceTest :
             val fileRepo = mockk<FileExposedRepository>()
             val currentMemberProvider = mockk<CurrentMemberProvider>()
             val scoreLimitValidator = mockk<ScoreLimitValidator>()
+            val memberRepo = mockk<MemberExposedRepository>(relaxed = true)
+            val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
 
             every { currentMemberProvider.getCurrentMember() } returns
                 Member(
@@ -50,21 +55,34 @@ class CreateExternalActivityScoreServiceTest :
                     role = MemberRole.STUDENT,
                 )
 
-            val service = CreateExternalActivityScoreServiceImpl(scoreRepo, fileRepo, currentMemberProvider, scoreLimitValidator)
-            return TestData(scoreRepo, fileRepo, currentMemberProvider, scoreLimitValidator, service)
+            val service =
+                CreateExternalActivityScoreServiceImpl(
+                    scoreExposedRepository = scoreRepo,
+                    fileExposedRepository = fileRepo,
+                    currentMemberProvider = currentMemberProvider,
+                    scoreLimitValidator = scoreLimitValidator,
+                    eventPublisher = eventPublisher,
+                    memberExposedRepository = memberRepo,
+                )
+            return TestData(scoreRepo, fileRepo, currentMemberProvider, scoreLimitValidator, memberRepo, eventPublisher, service)
         }
 
-        beforeTest {
-            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-            every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
-            } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
-            }
+        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
+
+        mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        every {
+            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+                db = null,
+                statement = any<JdbcTransaction.() -> Any?>(),
+            )
+        } answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockTransaction)
         }
 
-        afterTest {
-            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        afterSpec {
+            unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         }
 
         Given("유효한 외부활동 정보로 점수를 생성할 때") {
@@ -91,6 +109,7 @@ class CreateExternalActivityScoreServiceTest :
                     activityName = value,
                     scoreValue = 1.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every { c.fileRepo.existsById(fileId) } returns true

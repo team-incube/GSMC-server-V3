@@ -15,8 +15,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 
 class FindMyScoresServiceTest :
     BehaviorSpec({
@@ -45,17 +44,22 @@ class FindMyScoresServiceTest :
             return TestData(scoreRepo, currentMemberProvider, service)
         }
 
-        beforeTest {
-            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-            every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
-            } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
-            }
+        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
+
+        mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        every {
+            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+                db = null,
+                statement = any<JdbcTransaction.() -> Any?>(),
+            )
+        } answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockTransaction)
         }
 
-        afterTest {
-            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        afterSpec {
+            unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         }
 
         Given("내 점수 목록을 조회할 때") {
@@ -81,6 +85,7 @@ class FindMyScoresServiceTest :
                         activityName = "수상1",
                         scoreValue = 10.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 2L,
@@ -91,6 +96,7 @@ class FindMyScoresServiceTest :
                         activityName = "자격증1",
                         scoreValue = 15.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                 )
 
@@ -153,6 +159,7 @@ class FindMyScoresServiceTest :
                         activityName = "수상1",
                         scoreValue = 10.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                 )
 
@@ -197,6 +204,7 @@ class FindMyScoresServiceTest :
                         activityName = "자격증1",
                         scoreValue = 15.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                 )
 

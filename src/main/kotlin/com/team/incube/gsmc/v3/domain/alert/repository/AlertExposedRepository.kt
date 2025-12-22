@@ -20,6 +20,13 @@ interface AlertExposedRepository {
         content: String,
     ): Alert
 
+    fun saveWithoutScore(
+        sender: Member,
+        receiver: Member,
+        alertType: AlertType,
+        content: String,
+    ): Alert
+
     fun updateIsReadTrueByReceiverIdAndLastAlertId(
         receiverId: Long,
         lastAlertId: Long,
@@ -28,4 +35,6 @@ interface AlertExposedRepository {
     fun deleteByScoreId(scoreId: Long): Int
 
     fun deleteAllByScoreIdIn(scoreIds: List<Long>): Int
+
+    fun deleteAllByMemberId(memberId: Long): Int
 }

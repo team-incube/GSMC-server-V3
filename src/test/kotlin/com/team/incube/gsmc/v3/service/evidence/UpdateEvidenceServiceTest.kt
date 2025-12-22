@@ -20,8 +20,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import java.time.LocalDateTime
 
 class UpdateEvidenceServiceTest :
@@ -41,26 +40,32 @@ class UpdateEvidenceServiceTest :
             return Ctx(e, s, f, svc)
         }
 
-        beforeTest {
-            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-            every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
-            } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
-            }
+        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
+
+        mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        every {
+            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+                db = null,
+                statement = any<JdbcTransaction.() -> Any?>(),
+            )
+        } answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockTransaction)
         }
-        afterTest { unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt") }
+
+        afterSpec { unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt") }
 
         Given("증빙이 존재하고 점수와 파일이 모두 변경되는 경우") {
             val c = ctx()
             val id = 1L
             val userId = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val originFiles = listOf(File(id = 10, memberId = userId, originalName = "a.pdf", storeName = "sa.pdf", uri = "uri-a"))
+            val originFiles = listOf(File(id = 10, member = userId, originalName = "a.pdf", storeName = "sa.pdf", uri = "uri-a"))
             val found =
                 Evidence(
                     id,
-                    memberId = userId,
+                    member = userId,
                     title = "old-title",
                     content = "old-content",
                     createdAt = now,
@@ -71,13 +76,13 @@ class UpdateEvidenceServiceTest :
             val newFileIds = listOf(20L, 21L)
             val updatedFiles =
                 listOf(
-                    File(id = 20, memberId = userId, originalName = "b.pdf", storeName = "sb.pdf", uri = "uri-b"),
-                    File(id = 21, memberId = userId, originalName = "c.jpg", storeName = "sc.jpg", uri = "uri-c"),
+                    File(id = 20, member = userId, originalName = "b.pdf", storeName = "sb.pdf", uri = "uri-b"),
+                    File(id = 21, member = userId, originalName = "c.jpg", storeName = "sc.jpg", uri = "uri-c"),
                 )
             val updated =
                 Evidence(
                     id,
-                    memberId = userId,
+                    member = userId,
                     title = "new-title",
                     content = "new-content",
                     createdAt = now,
@@ -145,7 +150,7 @@ class UpdateEvidenceServiceTest :
             val id = 1L
             val userId = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val found = Evidence(id, memberId = userId, title = "t", content = "c", createdAt = now, updatedAt = now, files = emptyList())
+            val found = Evidence(id, member = userId, title = "t", content = "c", createdAt = now, updatedAt = now, files = emptyList())
             every { c.evidenceRepo.findById(id) } returns found
             every { c.fileRepo.existsByIdIn(listOf(999L)) } returns false
 
@@ -162,7 +167,7 @@ class UpdateEvidenceServiceTest :
             val id = 1L
             val userId = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val found = Evidence(id, memberId = userId, title = "t", content = "c", createdAt = now, updatedAt = now, files = emptyList())
+            val found = Evidence(id, member = userId, title = "t", content = "c", createdAt = now, updatedAt = now, files = emptyList())
             every { c.evidenceRepo.findById(id) } returns found
             every { c.fileRepo.existsByIdIn(any()) } returns true
             every { c.scoreRepo.existsById(100L) } returns false
@@ -191,10 +196,10 @@ class UpdateEvidenceServiceTest :
             val id = 1L
             val userId = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val originFiles = listOf(File(id = 10, memberId = userId, originalName = "a.pdf", storeName = "sa.pdf", uri = "uri-a"))
-            val found = Evidence(id, memberId = userId, title = "t0", content = "c0", createdAt = now, updatedAt = now, files = originFiles)
+            val originFiles = listOf(File(id = 10, member = userId, originalName = "a.pdf", storeName = "sa.pdf", uri = "uri-a"))
+            val found = Evidence(id, member = userId, title = "t0", content = "c0", createdAt = now, updatedAt = now, files = originFiles)
             val updated =
-                Evidence(id, memberId = userId, title = "t0", content = "c0", createdAt = now, updatedAt = now, files = originFiles)
+                Evidence(id, member = userId, title = "t0", content = "c0", createdAt = now, updatedAt = now, files = originFiles)
 
             every { c.evidenceRepo.findById(id) } returns found
             every {
@@ -221,11 +226,11 @@ class UpdateEvidenceServiceTest :
             val id = 2L
             val userId = 1L
             val now = LocalDateTime.of(2025, 10, 1, 12, 0)
-            val originFiles = listOf(File(id = 10, memberId = userId, originalName = "a.pdf", storeName = "sa.pdf", uri = "uri-a"))
+            val originFiles = listOf(File(id = 10, member = userId, originalName = "a.pdf", storeName = "sa.pdf", uri = "uri-a"))
             val found =
-                Evidence(id, memberId = userId, title = "old", content = "keep", createdAt = now, updatedAt = now, files = originFiles)
+                Evidence(id, member = userId, title = "old", content = "keep", createdAt = now, updatedAt = now, files = originFiles)
             val updated =
-                Evidence(id, memberId = userId, title = "new", content = "keep", createdAt = now, updatedAt = now, files = originFiles)
+                Evidence(id, member = userId, title = "new", content = "keep", createdAt = now, updatedAt = now, files = originFiles)
             every { c.evidenceRepo.findById(id) } returns found
             every { c.evidenceRepo.update(id = id, title = "new", content = "keep", fileIds = listOf(10L)) } returns
                 updated

@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.service.evidence
 
+import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceDraftRedisRepository
 import com.team.incube.gsmc.v3.domain.evidence.service.impl.DeleteMyEvidenceDraftServiceImpl
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
@@ -13,13 +14,15 @@ class DeleteEvidenceDraftServiceTest :
     BehaviorSpec({
         data class Ctx(
             val currentMemberProvider: CurrentMemberProvider,
+            val evidenceDraftRedisRepository: EvidenceDraftRedisRepository,
             val service: DeleteMyEvidenceDraftServiceImpl,
         )
 
         fun ctx(): Ctx {
             val c = mockk<CurrentMemberProvider>()
-            val s = DeleteMyEvidenceDraftServiceImpl(c)
-            return Ctx(c, s)
+            val e = mockk<EvidenceDraftRedisRepository>(relaxed = true)
+            val s = DeleteMyEvidenceDraftServiceImpl(c, e)
+            return Ctx(c, e, s)
         }
 
         Given("증빙자료 임시저장 삭제 요청이 주어지면") {
@@ -36,6 +39,7 @@ class DeleteEvidenceDraftServiceTest :
                 )
 
             every { c.currentMemberProvider.getCurrentMember() } returns member
+            every { c.currentMemberProvider.getCurrentMemberId() } returns member.id
 
             When("execute를 호출하면") {
                 val result = c.service.execute()

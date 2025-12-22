@@ -18,8 +18,7 @@ import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.unmockkStatic
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 
 class CalculateTotalScoreServiceTest :
     BehaviorSpec({
@@ -48,19 +47,24 @@ class CalculateTotalScoreServiceTest :
             return TestData(scoreRepo, currentMemberProvider, service)
         }
 
-        beforeTest {
-            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-            every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
-            } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
-            }
+        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
 
-            mockkObject(ScoreCalculatorFactory)
+        mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        every {
+            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+                db = null,
+                statement = any<JdbcTransaction.() -> Any?>(),
+            )
+        } answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockTransaction)
         }
 
-        afterTest {
-            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        mockkObject(ScoreCalculatorFactory)
+
+        afterSpec {
+            unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
             unmockkAll()
         }
 
@@ -87,6 +91,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "자격증1",
                         scoreValue = 2.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 2L,
@@ -97,6 +102,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "수상1",
                         scoreValue = 1.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 3L,
@@ -107,6 +113,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "자격증2",
                         scoreValue = 2.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                 )
 
@@ -212,6 +219,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "TOEIC",
                         scoreValue = 800.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 2L,
@@ -222,6 +230,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "JLPT N2",
                         scoreValue = 2.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                 )
 
@@ -283,6 +292,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "자격증1",
                         scoreValue = 2.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 2L,
@@ -293,6 +303,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "자격증2",
                         scoreValue = 2.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 3L,
@@ -303,6 +314,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "수상1",
                         scoreValue = 1.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                     Score(
                         id = 4L,
@@ -313,6 +325,7 @@ class CalculateTotalScoreServiceTest :
                         activityName = "외부활동1",
                         scoreValue = 1.0,
                         rejectionReason = null,
+                        updatedAt = null,
                     ),
                 )
 

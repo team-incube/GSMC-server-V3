@@ -3,6 +3,7 @@ package com.team.incube.gsmc.v3.service.score
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
@@ -21,8 +22,8 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.springframework.context.ApplicationEventPublisher
 
 class CreateProjectParticipationServiceTest :
     BehaviorSpec({
@@ -31,6 +32,8 @@ class CreateProjectParticipationServiceTest :
             val projectRepo: ProjectExposedRepository,
             val currentMemberProvider: CurrentMemberProvider,
             val scoreLimitValidator: ScoreLimitValidator,
+            val memberRepo: MemberExposedRepository,
+            val eventPublisher: ApplicationEventPublisher,
             val service: CreateProjectParticipationServiceImpl,
         )
 
@@ -39,6 +42,8 @@ class CreateProjectParticipationServiceTest :
             val projectRepo = mockk<ProjectExposedRepository>()
             val currentMemberProvider = mockk<CurrentMemberProvider>()
             val scoreLimitValidator = mockk<ScoreLimitValidator>()
+            val memberRepo = mockk<MemberExposedRepository>(relaxed = true)
+            val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
 
             every { currentMemberProvider.getCurrentMember() } returns
                 Member(
@@ -51,21 +56,34 @@ class CreateProjectParticipationServiceTest :
                     role = MemberRole.STUDENT,
                 )
 
-            val service = CreateProjectParticipationServiceImpl(scoreRepo, projectRepo, currentMemberProvider, scoreLimitValidator)
-            return TestData(scoreRepo, projectRepo, currentMemberProvider, scoreLimitValidator, service)
+            val service =
+                CreateProjectParticipationServiceImpl(
+                    scoreExposedRepository = scoreRepo,
+                    projectExposedRepository = projectRepo,
+                    currentMemberProvider = currentMemberProvider,
+                    scoreLimitValidator = scoreLimitValidator,
+                    eventPublisher = eventPublisher,
+                    memberExposedRepository = memberRepo,
+                )
+            return TestData(scoreRepo, projectRepo, currentMemberProvider, scoreLimitValidator, memberRepo, eventPublisher, service)
         }
 
-        beforeTest {
-            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-            every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
-            } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
-            }
+        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
+
+        mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        every {
+            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+                db = null,
+                statement = any<JdbcTransaction.() -> Any?>(),
+            )
+        } answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockTransaction)
         }
 
-        afterTest {
-            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        afterSpec {
+            unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         }
 
         Given("유효한 프로젝트로 참여 점수를 생성할 때") {
@@ -92,6 +110,7 @@ class CreateProjectParticipationServiceTest :
                     activityName = projectTitle,
                     scoreValue = 2.0,
                     rejectionReason = null,
+                    updatedAt = null,
                 )
 
             every {
@@ -101,11 +120,14 @@ class CreateProjectParticipationServiceTest :
                 c.scoreRepo.existsProjectParticipationScore(
                     memberId = 0L,
                     projectId = projectId,
-                    projectTitle = projectTitle,
                 )
             } returns false
             justRun { c.scoreLimitValidator.validateScoreLimit(0L, CategoryType.PROJECT_PARTICIPATION) }
             every { c.scoreRepo.save(any()) } returns score
+            justRun { c.projectRepo.linkProjectAndScore(projectId = projectId, scoreId = score.id!!) }
+            every {
+                c.memberRepo.findByGradeAndClassNumberAndRole(any(), any(), any())
+            } returns listOf(Member(10L, "Teacher", "t@test.com", 1, 1, 1, MemberRole.HOMEROOM_TEACHER))
 
             When("execute를 호출하면") {
                 val res = c.service.execute(projectId)
@@ -122,11 +144,11 @@ class CreateProjectParticipationServiceTest :
                         c.scoreRepo.existsProjectParticipationScore(
                             memberId = 0L,
                             projectId = projectId,
-                            projectTitle = projectTitle,
                         )
                     }
                     verify(exactly = 1) { c.scoreLimitValidator.validateScoreLimit(0L, CategoryType.PROJECT_PARTICIPATION) }
                     verify(exactly = 1) { c.scoreRepo.save(any()) }
+                    verify(exactly = 1) { c.projectRepo.linkProjectAndScore(projectId, 1L) }
                 }
             }
         }
@@ -177,7 +199,6 @@ class CreateProjectParticipationServiceTest :
                 c.scoreRepo.existsProjectParticipationScore(
                     memberId = 0L,
                     projectId = projectId,
-                    projectTitle = projectTitle,
                 )
             } returns true
 
@@ -201,7 +222,6 @@ class CreateProjectParticipationServiceTest :
                 c.scoreRepo.existsProjectParticipationScore(
                     memberId = 0L,
                     projectId = projectId,
-                    projectTitle = projectTitle,
                 )
             } returns false
             every {

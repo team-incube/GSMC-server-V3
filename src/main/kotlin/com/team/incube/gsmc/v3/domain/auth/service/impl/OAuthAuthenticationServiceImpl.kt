@@ -11,6 +11,7 @@ import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.config.logger
 import com.team.incube.gsmc.v3.global.security.jwt.JwtProvider
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.springframework.core.env.Environment
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
@@ -34,6 +35,7 @@ class OAuthAuthenticationServiceImpl(
     private val tokenResponseClient: OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>,
     private val oauth2UserService: OAuth2UserService<OAuth2UserRequest, OAuth2User>,
     private val refreshTokenRedisRepository: RefreshTokenRedisRepository,
+    private val environment: Environment,
 ) : OAuthAuthenticationService {
     override fun execute(code: String): AuthTokenResponse {
         val decodedCode = URLDecoder.decode(code, StandardCharsets.UTF_8)
@@ -72,7 +74,8 @@ class OAuthAuthenticationServiceImpl(
                     ?: throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
             val name = (oauth2User.attributes["name"] as? String) ?: ""
 
-            if (email.endsWith("@gsm.hs.kr").not()) {
+            val isDevProfile = environment.activeProfiles.contains("dev")
+            if (!isDevProfile && email.endsWith("@gsm.hs.kr").not()) {
                 throw GsmcException(ErrorCode.INVALID_EMAIL_DOMAIN)
             }
 
@@ -106,11 +109,11 @@ class OAuthAuthenticationServiceImpl(
             refreshTokenRedisRepository.save(refreshToken)
 
             return AuthTokenResponse(
-                accessToken = access.token,
-                accessTokenExpiresAt = access.expiration,
-                refreshToken = refresh.token,
-                refreshTokenExpiresAt = refresh.expiration,
                 role = member.role,
+                accessToken = access.token,
+                refreshToken = refresh.token,
+                accessExpiration = access.expiration,
+                refreshExpiration = refresh.expiration,
             )
         } catch (e: OAuth2AuthorizationException) {
             logger().error("OAuth2 authorization failed: ${e.error.errorCode} - ${e.error.description}", e)

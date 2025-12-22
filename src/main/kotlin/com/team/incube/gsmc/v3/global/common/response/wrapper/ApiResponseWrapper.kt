@@ -1,7 +1,10 @@
 package com.team.incube.gsmc.v3.global.common.response.wrapper
 
+import com.team.incube.gsmc.v3.domain.auth.presentation.data.response.AuthTokenResponse
+import com.team.incube.gsmc.v3.global.common.cookie.CookieUtil
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import org.springframework.core.MethodParameter
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
@@ -13,7 +16,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 
 @RestControllerAdvice
-class ApiResponseWrapper : ResponseBodyAdvice<Any> {
+class ApiResponseWrapper(
+    private val cookieUtil: CookieUtil,
+) : ResponseBodyAdvice<Any> {
     companion object {
         private val NOT_WRAPPING_URL =
             arrayOf(
@@ -40,6 +45,32 @@ class ApiResponseWrapper : ResponseBodyAdvice<Any> {
     ): Any? {
         if (isNotWrappingURL(request.uri.path)) {
             return body
+        }
+
+        if (body is AuthTokenResponse &&
+            body.accessToken != null &&
+            body.refreshToken != null &&
+            body.accessExpiration != null &&
+            body.refreshExpiration != null
+        ) {
+            val (accessCookie, refreshCookie) =
+                cookieUtil.createAuthCookies(
+                    accessToken = body.accessToken,
+                    accessExpiration = body.accessExpiration,
+                    refreshToken = body.refreshToken,
+                    refreshExpiration = body.refreshExpiration,
+                )
+
+            response.headers.add(HttpHeaders.SET_COOKIE, accessCookie.toString())
+            response.headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+
+            response.setStatusCode(HttpStatus.OK)
+            return CommonApiResponse(
+                status = HttpStatus.OK,
+                code = HttpStatus.OK.value(),
+                message = "OK",
+                data = AuthTokenResponse(role = body.role),
+            )
         }
 
         when (body) {

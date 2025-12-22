@@ -6,6 +6,7 @@ import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.project.dto.Project
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.project.service.impl.UpdateProjectServiceImpl
+import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
@@ -18,19 +19,20 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 
 class UpdateProjectServiceTest :
     BehaviorSpec({
         data class TestData(
             val projectRepo: ProjectExposedRepository,
+            val scoreRepo: ScoreExposedRepository,
             val currentMemberProvider: CurrentMemberProvider,
             val service: UpdateProjectServiceImpl,
         )
 
         fun ctx(): TestData {
             val projectRepo = mockk<ProjectExposedRepository>()
+            val scoreRepo = mockk<ScoreExposedRepository>(relaxed = true)
             val currentMemberProvider = mockk<CurrentMemberProvider>()
 
             every { currentMemberProvider.getCurrentMember() } returns
@@ -44,21 +46,26 @@ class UpdateProjectServiceTest :
                     role = MemberRole.STUDENT,
                 )
 
-            val service = UpdateProjectServiceImpl(projectRepo, currentMemberProvider)
-            return TestData(projectRepo, currentMemberProvider, service)
+            val service = UpdateProjectServiceImpl(projectRepo, scoreRepo, currentMemberProvider)
+            return TestData(projectRepo, scoreRepo, currentMemberProvider, service)
         }
 
-        beforeTest {
-            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-            every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
-            } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
-            }
+        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
+
+        mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        every {
+            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+                db = null,
+                statement = any<JdbcTransaction.() -> Any?>(),
+            )
+        } answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockTransaction)
         }
 
-        afterTest {
-            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
+        afterSpec {
+            unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         }
 
         Given("프로젝트의 제목과 설명을 업데이트할 때") {

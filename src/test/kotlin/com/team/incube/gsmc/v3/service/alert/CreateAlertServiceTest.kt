@@ -1,4 +1,5 @@
 package com.team.incube.gsmc.v3.service.alert
+
 import com.team.incube.gsmc.v3.domain.alert.dto.constant.AlertType
 import com.team.incube.gsmc.v3.domain.alert.repository.AlertExposedRepository
 import com.team.incube.gsmc.v3.domain.alert.service.impl.CreateAlertServiceImpl
@@ -12,132 +13,203 @@ import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 
 class CreateAlertServiceTest :
-    BehaviorSpec({
-        data class TestData(
+    FunSpec({
+        data class TestContext(
             val memberRepo: MemberExposedRepository,
             val alertRepo: AlertExposedRepository,
             val scoreRepo: ScoreExposedRepository,
             val service: CreateAlertServiceImpl,
         )
 
-        fun ctx(): TestData {
+        fun ctx(): TestContext {
             val memberRepo = mockk<MemberExposedRepository>()
             val alertRepo = mockk<AlertExposedRepository>()
             val scoreRepo = mockk<ScoreExposedRepository>()
             val service = CreateAlertServiceImpl(memberRepo, alertRepo, scoreRepo)
-            return TestData(memberRepo, alertRepo, scoreRepo, service)
+            return TestContext(memberRepo, alertRepo, scoreRepo, service)
         }
-        beforeTest {
-            mockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-            every {
-                transaction(db = any(), statement = any<Transaction.() -> Any>())
-            } answers {
-                secondArg<Transaction.() -> Any>().invoke(mockk(relaxed = true))
+
+        fun teacher(
+            id: Long = 1L,
+            name: String = "담임",
+        ) = Member(
+            id = id,
+            name = name,
+            email = "$name@school.com",
+            grade = 0,
+            classNumber = 0,
+            number = 0,
+            role = MemberRole.TEACHER,
+        )
+
+        fun student(
+            id: Long = 2L,
+            name: String = "학생",
+        ) = Member(
+            id = id,
+            name = name,
+            email = "$name@school.com",
+            grade = 1,
+            classNumber = 1,
+            number = 1,
+            role = MemberRole.STUDENT,
+        )
+
+        fun pendingScore(
+            id: Long = 10L,
+            owner: Member = student(),
+        ) = Score(
+            id = id,
+            member = owner,
+            categoryType = CategoryType.CERTIFICATE,
+            status = ScoreStatus.PENDING,
+            sourceId = null,
+            activityName = "정보처리기능사",
+            scoreValue = 5.0,
+            rejectionReason = null,
+            updatedAt = null,
+        )
+
+        // 스펙 초기화 시점에 transaction mock 설정 (beforeTest보다 먼저 실행)
+        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
+
+        mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        every {
+            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+                db = null,
+                statement = any<JdbcTransaction.() -> Any?>(),
+            )
+        } answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockTransaction)
+        }
+
+        afterSpec {
+            unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
+        }
+
+        test("승인 알림을 생성할 때 알림 저장 시 올바른 콘텐츠가 사용된다") {
+            val c = ctx()
+            val sender = teacher()
+            val receiver = student()
+            val score = pendingScore(owner = receiver)
+
+            every { c.memberRepo.findById(sender.id) } returns sender
+            every { c.memberRepo.findById(receiver.id) } returns receiver
+            every { c.scoreRepo.findById(score.id!!) } returns score
+            every { c.alertRepo.save(any(), any(), any(), any(), any()) } returns mockk()
+
+            c.service.execute(sender.id, receiver.id, score.id!!, AlertType.APPROVED)
+
+            verify(exactly = 1) {
+                c.alertRepo.save(
+                    sender,
+                    receiver,
+                    score,
+                    AlertType.APPROVED,
+                    "${score.categoryType.koreanName} 점수를 ${sender.name} 선생님께서 통과시키셨습니다.",
+                )
             }
         }
-        afterTest {
-            unmockkStatic("org.jetbrains.exposed.sql.transactions.ThreadLocalTransactionManagerKt")
-        }
-        Given("승인 알림을 생성할 때") {
+
+        test("거부 알림을 생성할 때 알림 저장 시 올바른 콘텐츠가 사용된다") {
             val c = ctx()
-            val sender =
-                Member(
-                    id = 1L,
-                    name = "선생님",
-                    email = "teacher@test.com",
-                    grade = 0,
-                    classNumber = 0,
-                    number = 0,
-                    role = MemberRole.TEACHER,
+            val sender = teacher()
+            val receiver = student()
+            val score = pendingScore(owner = receiver)
+
+            every { c.memberRepo.findById(sender.id) } returns sender
+            every { c.memberRepo.findById(receiver.id) } returns receiver
+            every { c.scoreRepo.findById(score.id!!) } returns score
+            every { c.alertRepo.save(any(), any(), any(), any(), any()) } returns mockk()
+
+            c.service.execute(sender.id, receiver.id, score.id!!, AlertType.REJECTED)
+
+            verify(exactly = 1) {
+                c.alertRepo.save(
+                    sender,
+                    receiver,
+                    score,
+                    AlertType.REJECTED,
+                    "${score.categoryType.koreanName} 점수를 ${sender.name} 선생님께서 거부하셨습니다.",
                 )
-            val receiver =
-                Member(
-                    id = 2L,
-                    name = "학생",
-                    email = "student@test.com",
-                    grade = 1,
-                    classNumber = 1,
-                    number = 1,
-                    role = MemberRole.STUDENT,
-                )
-            val score =
-                Score(
-                    id = 1L,
-                    member = receiver,
-                    categoryType = CategoryType.CERTIFICATE,
-                    status = ScoreStatus.PENDING,
-                    sourceId = null,
-                    activityName = "정보처리기능사",
-                    scoreValue = 5.0,
-                    rejectionReason = null,
-                )
-            every { c.memberRepo.findById(1L) } returns sender
-            every { c.memberRepo.findById(2L) } returns receiver
-            every { c.scoreRepo.findById(1L) } returns score
-            every { c.alertRepo.save(any(), any(), any(), any(), any()) } returns mockk(relaxed = true)
-            When("execute를 호출하면") {
-                c.service.execute(senderId = 1L, receiverId = 2L, scoreId = 1L, alertType = AlertType.APPROVED)
-                Then("올바른 내용의 알림이 저장된다") {
-                    verify(exactly = 1) {
-                        c.alertRepo.save(sender, receiver, score, AlertType.APPROVED, "정보처리기능사 점수를 선생님 선생님께서 통과시키셨습니다.")
-                    }
-                }
             }
         }
-        Given("존재하지 않는 회원에게 알림을 보내려고 할 때") {
+
+        test("점수 등록 알림을 생성할 때 알림 저장 시 올바른 콘텐츠가 사용된다") {
             val c = ctx()
-            val sender =
-                Member(id = 1L, name = "선생님", email = "teacher@test.com", grade = 0, classNumber = 0, number = 0, role = MemberRole.TEACHER)
-            every { c.memberRepo.findById(1L) } returns sender
+            val sender = student()
+            val receiver = teacher()
+            val score = pendingScore(owner = sender)
+
+            every { c.memberRepo.findById(sender.id) } returns sender
+            every { c.memberRepo.findById(receiver.id) } returns receiver
+            every { c.scoreRepo.findById(score.id!!) } returns score
+            every { c.alertRepo.save(any(), any(), any(), any(), any()) } returns mockk()
+
+            c.service.execute(sender.id, receiver.id, score.id!!, AlertType.ADD_SCORE)
+
+            verify(exactly = 1) {
+                c.alertRepo.save(
+                    sender,
+                    receiver,
+                    score,
+                    AlertType.ADD_SCORE,
+                    "${score.categoryType.koreanName} 점수를 ${sender.name} 학생이 등록하였습니다.",
+                )
+            }
+        }
+
+        test("sender가 존재하지 않으면 MEMBER_NOT_FOUND 예외가 발생한다") {
+            val c = ctx()
+
             every { c.memberRepo.findById(999L) } returns null
-            When("execute를 호출하면") {
-                Then("MEMBER_NOT_FOUND 예외가 발생한다") {
-                    val ex =
-                        shouldThrow<GsmcException> {
-                            c.service.execute(
-                                senderId = 1L,
-                                receiverId = 999L,
-                                scoreId = 1L,
-                                alertType = AlertType.APPROVED,
-                            )
-                        }
-                    ex.errorCode shouldBe ErrorCode.MEMBER_NOT_FOUND
+
+            val exception =
+                shouldThrow<GsmcException> {
+                    c.service.execute(999L, 2L, 1L, AlertType.REJECTED)
                 }
-            }
+            exception.errorCode shouldBe ErrorCode.MEMBER_NOT_FOUND
+            verify(exactly = 0) { c.alertRepo.save(any(), any(), any(), any(), any()) }
         }
-        Given("존재하지 않는 점수로 알림을 생성하려고 할 때") {
+
+        test("receiver가 존재하지 않으면 MEMBER_NOT_FOUND 예외가 발생한다") {
             val c = ctx()
-            val sender =
-                Member(id = 1L, name = "선생님", email = "teacher@test.com", grade = 0, classNumber = 0, number = 0, role = MemberRole.TEACHER)
-            val receiver =
-                Member(id = 2L, name = "학생", email = "student@test.com", grade = 1, classNumber = 1, number = 1, role = MemberRole.STUDENT)
-            every { c.memberRepo.findById(1L) } returns sender
-            every { c.memberRepo.findById(2L) } returns receiver
-            every { c.scoreRepo.findById(999L) } returns null
-            When("execute를 호출하면") {
-                Then("SCORE_NOT_FOUND 예외가 발생한다") {
-                    val ex =
-                        shouldThrow<GsmcException> {
-                            c.service.execute(
-                                senderId = 1L,
-                                receiverId = 2L,
-                                scoreId = 999L,
-                                alertType = AlertType.APPROVED,
-                            )
-                        }
-                    ex.errorCode shouldBe ErrorCode.SCORE_NOT_FOUND
+
+            every { c.memberRepo.findById(1L) } returns teacher()
+            every { c.memberRepo.findById(999L) } returns null
+
+            val exception =
+                shouldThrow<GsmcException> {
+                    c.service.execute(1L, 999L, 1L, AlertType.REJECTED)
                 }
-            }
+            exception.errorCode shouldBe ErrorCode.MEMBER_NOT_FOUND
+            verify(exactly = 0) { c.alertRepo.save(any(), any(), any(), any(), any()) }
+        }
+
+        test("scoreId가 존재하지 않으면 SCORE_NOT_FOUND 예외가 발생한다") {
+            val c = ctx()
+
+            every { c.memberRepo.findById(1L) } returns teacher()
+            every { c.memberRepo.findById(2L) } returns student()
+            every { c.scoreRepo.findById(999L) } returns null
+
+            val exception =
+                shouldThrow<GsmcException> {
+                    c.service.execute(1L, 2L, 999L, AlertType.ADD_SCORE)
+                }
+            exception.errorCode shouldBe ErrorCode.SCORE_NOT_FOUND
+            verify(exactly = 0) { c.alertRepo.save(any(), any(), any(), any(), any()) }
         }
     })
