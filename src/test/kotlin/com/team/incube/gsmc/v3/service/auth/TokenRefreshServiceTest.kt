@@ -17,10 +17,12 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.slot
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import java.time.LocalDateTime
+import java.time.ZoneId
 
 class TokenRefreshServiceTest :
     BehaviorSpec({
@@ -90,17 +92,21 @@ class TokenRefreshServiceTest :
                     role = MemberRole.STUDENT,
                 )
 
+            val fixedTime = LocalDateTime.of(2025, 12, 22, 1, 1)
+
             val newAccess =
                 TokenDto(
                     token = "new-access-token",
-                    expiration = LocalDateTime.now().plusSeconds(3600),
+                    expiration = fixedTime.plusSeconds(3600),
                 )
 
             val newRefresh =
                 TokenDto(
                     token = "new-refresh-token",
-                    expiration = LocalDateTime.now().plusSeconds(7200),
+                    expiration = fixedTime.plusSeconds(7200),
                 )
+
+            val refreshTokenSlot = slot<RefreshTokenRedisEntity>()
 
             every { c.jwtParser.validateRefreshToken(refreshToken) } returns true
             every { c.refreshTokenRedisRepository.existsById(refreshToken) } returns true
@@ -109,7 +115,7 @@ class TokenRefreshServiceTest :
             every { c.jwtProvider.issueAccessToken(memberId, member.role) } returns newAccess
             every { c.jwtProvider.issueRefreshToken(memberId) } returns newRefresh
             every { c.refreshTokenRedisRepository.deleteById(refreshToken) } returns Unit
-            every { c.refreshTokenRedisRepository.save(any()) } answers {
+            every { c.refreshTokenRedisRepository.save(capture(refreshTokenSlot)) } answers {
                 firstArg<RefreshTokenRedisEntity>()
             }
 
@@ -125,6 +131,18 @@ class TokenRefreshServiceTest :
                 Then("기존 RefreshToken은 삭제되고 새 토큰이 저장된다") {
                     verify(exactly = 1) { c.refreshTokenRedisRepository.deleteById(refreshToken) }
                     verify(exactly = 1) { c.refreshTokenRedisRepository.save(any()) }
+                }
+
+                Then("새 RefreshToken이 올바른 값으로 Redis에 저장된다") {
+                    val saved = refreshTokenSlot.captured
+
+                    saved.token shouldBe newRefresh.token
+                    saved.member shouldBe memberId
+                    saved.expiration shouldBe
+                        newRefresh.expiration
+                            .atZone(ZoneId.systemDefault())
+                            .toInstant()
+                            .toEpochMilli()
                 }
             }
         }
