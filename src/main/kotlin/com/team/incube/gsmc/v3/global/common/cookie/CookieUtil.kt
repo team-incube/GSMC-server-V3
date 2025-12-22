@@ -22,15 +22,20 @@ class CookieUtil(
         name: String,
         value: String,
         maxAge: Duration,
-    ): ResponseCookie =
-        ResponseCookie
-            .from(name, value)
-            .httpOnly(true)
-            .secure(isProduction)
-            .sameSite("Strict")
-            .path("/")
-            .maxAge(maxAge)
-            .build()
+    ): ResponseCookie {
+        val cookieBuilder =
+            ResponseCookie
+                .from(name, value)
+                .httpOnly(true)
+                .secure(isProduction)
+                .sameSite("Strict")
+                .path("/")
+                .maxAge(maxAge)
+        if (isProduction) {
+            cookieBuilder.domain(".gsmc.io.kr")
+        }
+        return cookieBuilder.build()
+    }
 
     fun createAuthCookies(
         accessToken: String,
