@@ -8,6 +8,8 @@ import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
+import com.team.incube.gsmc.v3.domain.project.dto.Project
+import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
@@ -35,6 +37,7 @@ class DeleteMemberByEmailServiceTest :
             val alertRepo: AlertExposedRepository,
             val fileRepo: FileExposedRepository,
             val s3DeleteService: S3DeleteService,
+            val projectRepo: ProjectExposedRepository,
             val service: DeleteMemberByEmailServiceImpl,
         )
 
@@ -45,8 +48,27 @@ class DeleteMemberByEmailServiceTest :
             val alertRepo = mockk<AlertExposedRepository>(relaxed = true)
             val fileRepo = mockk<FileExposedRepository>()
             val s3DeleteService = mockk<S3DeleteService>(relaxed = true)
-            val service = DeleteMemberByEmailServiceImpl(memberRepo, scoreRepo, alertRepo, evidenceRepo, fileRepo, s3DeleteService)
-            return TestData(memberRepo, scoreRepo, evidenceRepo, alertRepo, fileRepo, s3DeleteService, service)
+            val projectRepo = mockk<ProjectExposedRepository>()
+            val service =
+                DeleteMemberByEmailServiceImpl(
+                    memberRepo,
+                    scoreRepo,
+                    alertRepo,
+                    evidenceRepo,
+                    fileRepo,
+                    projectRepo,
+                    s3DeleteService,
+                )
+            return TestData(
+                memberRepo,
+                scoreRepo,
+                evidenceRepo,
+                alertRepo,
+                fileRepo,
+                s3DeleteService,
+                projectRepo,
+                service,
+            )
         }
 
         val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
@@ -85,6 +107,7 @@ class DeleteMemberByEmailServiceTest :
             every { c.scoreRepo.findAllByMemberId(member.id) } returns emptyList()
             every { c.fileRepo.findAllByUserId(member.id) } returns emptyList()
             every { c.memberRepo.deleteMemberByEmail(email) } returns 1
+            every { c.projectRepo.findProjectsByOwnerId(member.id) } returns emptyList()
 
             When("execute를 호출하면") {
                 c.service.execute(email)
@@ -158,6 +181,7 @@ class DeleteMemberByEmailServiceTest :
             every { c.fileRepo.findAllByUserId(member.id) } returns emptyList()
             every { c.scoreRepo.deleteAllByIdIn(listOf(10L, 20L)) } just runs
             every { c.memberRepo.deleteMemberByEmail(email) } returns 1
+            every { c.projectRepo.findProjectsByOwnerId(member.id) } returns emptyList()
 
             When("execute를 호출하면") {
                 c.service.execute(email)
@@ -178,6 +202,47 @@ class DeleteMemberByEmailServiceTest :
                     verify(exactly = 1) {
                         c.memberRepo.deleteMemberByEmail(email)
                     }
+                }
+            }
+        }
+
+        Given("회원이 소유한 프로젝트가 존재할 때") {
+            val c = ctx()
+            val email = "test@test.com"
+
+            val member =
+                Member(
+                    id = 1L,
+                    name = "Test User",
+                    email = email,
+                    grade = 1,
+                    classNumber = 1,
+                    number = 1,
+                    role = MemberRole.STUDENT,
+                )
+
+            val project1 =
+                mockk<Project> {
+                    every { id } returns 100L
+                }
+            val project2 =
+                mockk<Project> {
+                    every { id } returns 200L
+                }
+
+            every { c.memberRepo.findByEmail(email) } returns member
+            every { c.scoreRepo.findAllByMemberId(member.id) } returns emptyList()
+            every { c.fileRepo.findAllByUserId(member.id) } returns emptyList()
+            every { c.projectRepo.findProjectsByOwnerId(member.id) } returns listOf(project1, project2)
+            every { c.projectRepo.deleteProjectById(any()) } just runs
+            every { c.memberRepo.deleteMemberByEmail(email) } returns 1
+
+            When("execute를 호출하면") {
+                c.service.execute(email)
+
+                Then("소유한 프로젝트가 모두 삭제된다") {
+                    verify(exactly = 1) { c.projectRepo.deleteProjectById(100L) }
+                    verify(exactly = 1) { c.projectRepo.deleteProjectById(200L) }
                 }
             }
         }
