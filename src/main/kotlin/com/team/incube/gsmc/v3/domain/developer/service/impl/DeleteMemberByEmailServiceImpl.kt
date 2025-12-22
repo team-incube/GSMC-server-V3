@@ -7,6 +7,7 @@ import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedReposit
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectFileExposedEntity
+import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
@@ -24,6 +25,7 @@ class DeleteMemberByEmailServiceImpl(
     private val alertExposedRepository: AlertExposedRepository,
     private val evidenceExposedRepository: EvidenceExposedRepository,
     private val fileExposedRepository: FileExposedRepository,
+    private val projectExposedRepository: ProjectExposedRepository,
     private val s3DeleteService: S3DeleteService,
 ) : DeleteMemberByEmailService {
     override fun execute(email: String) {
@@ -69,8 +71,13 @@ class DeleteMemberByEmailServiceImpl(
                 ProjectFileExposedEntity.deleteWhere {
                     ProjectFileExposedEntity.file inList memberFileIds
                 }
-
                 fileExposedRepository.deleteAllByIdIn(memberFileIds)
+            }
+
+            val ownedProjects = projectExposedRepository.findProjectsByOwnerId(member.id)
+            ownedProjects.forEach { project ->
+                val projectId = project.id ?: return@forEach
+                projectExposedRepository.deleteProjectById(projectId)
             }
 
             val deleted = memberExposedRepository.deleteMemberByEmail(email)
