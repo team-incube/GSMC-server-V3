@@ -1,6 +1,7 @@
 package com.team.incube.gsmc.v3.global.common.cookie
 
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.web.server.Cookie
 import org.springframework.core.env.Environment
 import org.springframework.http.ResponseCookie
 import org.springframework.stereotype.Component
@@ -31,7 +32,7 @@ class CookieUtil(
             .from(name, value)
             .httpOnly(true)
             .secure(isProduction)
-            .sameSite("Strict")
+            .sameSite(Cookie.SameSite.LAX.name)
             .path("/")
             .maxAge(maxAge)
             .apply {
