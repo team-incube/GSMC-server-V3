@@ -30,12 +30,33 @@ class DeleteMemberByEmailServiceImpl(
         transaction {
             val member =
                 memberExposedRepository.findByEmail(email)
-                    ?: run {
-                        logger().info("Member withdrawal failed: member not found. email={}", email)
-                        throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
-                    }
+                    ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
 
             alertExposedRepository.deleteAllByMemberId(member.id)
+
+            val scores = scoreExposedRepository.findAllByMemberId(member.id)
+            val scoreIds = scores.mapNotNull { it.id }
+
+            scores.forEach { score ->
+                val sourceId = score.sourceId ?: return@forEach
+
+                when (score.categoryType.evidenceType) {
+                    EvidenceType.EVIDENCE -> {
+                        evidenceExposedRepository.deleteById(sourceId)
+                    }
+
+                    EvidenceType.FILE,
+                    EvidenceType.UNREQUIRED,
+                    -> {
+                        Unit
+                    }
+                }
+            }
+
+            if (scoreIds.isNotEmpty()) {
+                alertExposedRepository.deleteAllByScoreIdIn(scoreIds)
+                scoreExposedRepository.deleteAllByIdIn(scoreIds)
+            }
 
             val memberFiles = fileExposedRepository.findAllByUserId(member.id)
             val memberFileIds = memberFiles.map { it.id }
@@ -48,39 +69,12 @@ class DeleteMemberByEmailServiceImpl(
                 ProjectFileExposedEntity.deleteWhere {
                     ProjectFileExposedEntity.file inList memberFileIds
                 }
+
                 fileExposedRepository.deleteAllByIdIn(memberFileIds)
-            }
-
-            val scores = scoreExposedRepository.findAllByMemberId(member.id)
-            if (scores.isNotEmpty()) {
-                val scoreIds = scores.mapNotNull { it.id }
-
-                if (scoreIds.isNotEmpty()) {
-                    alertExposedRepository.deleteAllByScoreIdIn(scoreIds)
-                }
-
-                scores.forEach { score ->
-                    val sourceId = score.sourceId ?: return@forEach
-
-                    when (score.categoryType.evidenceType) {
-                        EvidenceType.EVIDENCE -> {
-                            evidenceExposedRepository.deleteById(sourceId)
-                        }
-
-                        EvidenceType.FILE,
-                        EvidenceType.UNREQUIRED,
-                        -> {
-                            Unit
-                        }
-                    }
-                }
-
-                scoreExposedRepository.deleteAllByIdIn(scoreIds)
             }
 
             val deleted = memberExposedRepository.deleteMemberByEmail(email)
             if (deleted == 0) {
-                logger().warn("Member withdrawal failed unexpectedly after it was found. email={}", email)
                 throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
             }
         }
