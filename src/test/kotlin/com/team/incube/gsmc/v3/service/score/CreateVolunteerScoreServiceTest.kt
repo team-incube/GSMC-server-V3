@@ -31,7 +31,11 @@ class CreateVolunteerScoreServiceTest :
             val service: CreateVolunteerScoreServiceImpl,
         )
 
-        fun ctx(): TestData {
+        fun ctx(
+            teacherRole: MemberRole = MemberRole.TEACHER,
+            teacherGrade: Int = 0,
+            teacherClassNumber: Int = 0,
+        ): TestData {
             val scoreRepo = mockk<ScoreExposedRepository>()
             val currentMemberProvider = mockk<CurrentMemberProvider>()
             val memberRepo = mockk<MemberExposedRepository>()
@@ -42,10 +46,10 @@ class CreateVolunteerScoreServiceTest :
                     id = 1L,
                     name = "Teacher",
                     email = "teacher@test.com",
-                    grade = 0,
-                    classNumber = 0,
+                    grade = teacherGrade,
+                    classNumber = teacherClassNumber,
                     number = 0,
-                    role = MemberRole.TEACHER,
+                    role = teacherRole,
                 )
 
             val service =
@@ -120,78 +124,32 @@ class CreateVolunteerScoreServiceTest :
         }
 
         Given("담임 선생님이 다른 학급 학생의 점수를 생성하려고 할 때") {
-            val scoreRepo = mockk<ScoreExposedRepository>()
-            val memberRepo = mockk<MemberExposedRepository>()
-            val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
-            val currentMemberProvider = mockk<CurrentMemberProvider>()
-
-            every { currentMemberProvider.getCurrentMember() } returns
-                Member(
-                    id = 1L,
-                    name = "Homeroom Teacher",
-                    email = "homeroom@test.com",
-                    grade = 1,
-                    classNumber = 1,
-                    number = 0,
-                    role = MemberRole.HOMEROOM_TEACHER,
-                )
-
-            val service =
-                CreateVolunteerScoreServiceImpl(
-                    scoreExposedRepository = scoreRepo,
-                    currentMemberProvider = currentMemberProvider,
-                    eventPublisher = eventPublisher,
-                    memberExposedRepository = memberRepo,
-                )
-
+            val c = ctx(teacherRole = MemberRole.HOMEROOM_TEACHER, teacherGrade = 1, teacherClassNumber = 1)
             val value = "24"
             val otherClassStudent = Member(2L, "Other Student", "other@test.com", 1, 2, 1, MemberRole.STUDENT)
 
-            every { memberRepo.findById(otherClassStudent.id) } returns otherClassStudent
+            every { c.memberRepo.findById(otherClassStudent.id) } returns otherClassStudent
 
             When("execute를 호출하면") {
                 Then("NOT_ASSIGNED_HOMEROOM_CLASS 예외가 발생한다") {
-                    val ex = shouldThrow<GsmcException> { service.execute(value, otherClassStudent.id) }
+                    val ex = shouldThrow<GsmcException> { c.service.execute(value, otherClassStudent.id) }
                     ex.errorCode shouldBe ErrorCode.NOT_ASSIGNED_HOMEROOM_CLASS
                 }
             }
         }
 
         Given("담임 선생님이 자신의 학급 학생의 점수를 생성할 때") {
-            val scoreRepo = mockk<ScoreExposedRepository>()
-            val memberRepo = mockk<MemberExposedRepository>()
-            val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
-            val currentMemberProvider = mockk<CurrentMemberProvider>()
-
-            every { currentMemberProvider.getCurrentMember() } returns
-                Member(
-                    id = 1L,
-                    name = "Homeroom Teacher",
-                    email = "homeroom@test.com",
-                    grade = 1,
-                    classNumber = 1,
-                    number = 0,
-                    role = MemberRole.HOMEROOM_TEACHER,
-                )
-
-            val service =
-                CreateVolunteerScoreServiceImpl(
-                    scoreExposedRepository = scoreRepo,
-                    currentMemberProvider = currentMemberProvider,
-                    eventPublisher = eventPublisher,
-                    memberExposedRepository = memberRepo,
-                )
-
+            val c = ctx(teacherRole = MemberRole.HOMEROOM_TEACHER, teacherGrade = 1, teacherClassNumber = 1)
             val value = "24"
             val sameClassStudent = Member(2L, "Same Class Student", "same@test.com", 1, 1, 1, MemberRole.STUDENT)
             val score = Score(1L, sameClassStudent, CategoryType.VOLUNTEER, ScoreStatus.APPROVED, null, null, 24.0, null, null)
 
-            every { memberRepo.findById(sameClassStudent.id) } returns sameClassStudent
-            every { scoreRepo.findByMemberIdAndCategoryType(sameClassStudent.id, CategoryType.VOLUNTEER) } returns null
-            every { scoreRepo.save(any()) } returns score
+            every { c.memberRepo.findById(sameClassStudent.id) } returns sameClassStudent
+            every { c.scoreRepo.findByMemberIdAndCategoryType(sameClassStudent.id, CategoryType.VOLUNTEER) } returns null
+            every { c.scoreRepo.save(any()) } returns score
 
             When("execute를 호출하면") {
-                val res = service.execute(value, sameClassStudent.id)
+                val res = c.service.execute(value, sameClassStudent.id)
 
                 Then("봉사활동 점수가 정상적으로 생성된다") {
                     res.scoreId shouldBe 1L
