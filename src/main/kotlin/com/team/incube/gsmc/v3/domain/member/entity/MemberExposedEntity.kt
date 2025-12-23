@@ -6,11 +6,15 @@ import org.jetbrains.exposed.v1.core.Table
 object MemberExposedEntity : Table(name = "tb_member") {
     val id = long(name = "member_id").autoIncrement()
     val name = varchar(name = "member_name", length = 25)
-    val email = varchar(name = "member_email", length = 50)
+    val email = varchar(name = "member_email", length = 50).uniqueIndex()
     val grade = integer(name = "member_grade").nullable()
     val classNumber = integer(name = "member_class_number").nullable()
     val number = integer(name = "member_number").nullable()
     val role = enumeration<MemberRole>(name = "member_role").default(MemberRole.UNAUTHORIZED)
 
     override val primaryKey = PrimaryKey(id)
+
+    init {
+        uniqueIndex(grade, classNumber, number)
+    }
 }
