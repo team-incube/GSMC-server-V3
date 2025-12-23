@@ -85,12 +85,10 @@ class SignUpServiceTest :
 
             every { c.currentMemberProvider.getCurrentMember() } returns member
             every {
-                c.memberExposedRepository.existsByEmailOrGradeAndClassNumberAndNumberAndIdNot(
-                    email = email,
+                c.memberExposedRepository.existsByGradeAndClassNumberAndNumber(
                     grade = expectedGrade,
                     classNumber = expectedClassNumber,
                     number = expectedNumber,
-                    id = memberId,
                 )
             } returns false
             every {
@@ -105,17 +103,15 @@ class SignUpServiceTest :
                 )
             } returns 1
 
-            When("중복된 이메일이나 학번이 없을 때 execute를 호출하면") {
+            When("중복된 학번이 없을 때 execute를 호출하면") {
                 c.service.execute(name, studentNumber)
 
                 Then("회원 정보가 STUDENT 권한과 학번 정보로 업데이트된다") {
                     verify(exactly = 1) {
-                        c.memberExposedRepository.existsByEmailOrGradeAndClassNumberAndNumberAndIdNot(
-                            email = email,
+                        c.memberExposedRepository.existsByGradeAndClassNumberAndNumber(
                             grade = expectedGrade,
                             classNumber = expectedClassNumber,
                             number = expectedNumber,
-                            id = memberId,
                         )
                     }
                     verify(exactly = 1) {
@@ -133,7 +129,7 @@ class SignUpServiceTest :
             }
         }
 
-        Given("다른 사용자가 이미 사용 중인 학번으로 회원가입을 시도할 때") {
+        Given("이미 사용 중인 학번으로 회원가입을 시도할 때") {
             val c = ctx()
             val memberId = 1L
             val email = "new@gsm.hs.kr"
@@ -157,12 +153,10 @@ class SignUpServiceTest :
 
             every { c.currentMemberProvider.getCurrentMember() } returns member
             every {
-                c.memberExposedRepository.existsByEmailOrGradeAndClassNumberAndNumberAndIdNot(
-                    email = email,
+                c.memberExposedRepository.existsByGradeAndClassNumberAndNumber(
                     grade = expectedGrade,
                     classNumber = expectedClassNumber,
                     number = expectedNumber,
-                    id = memberId,
                 )
             } returns true
 
