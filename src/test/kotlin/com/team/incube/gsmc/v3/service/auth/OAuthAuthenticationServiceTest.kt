@@ -177,7 +177,6 @@ class OAuthAuthenticationServiceTest :
             val refreshTokenSlot = slot<RefreshTokenRedisEntity>()
 
             every { c.environment.activeProfiles } returns arrayOf("dev")
-            "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } returns oauth2User
@@ -299,7 +298,6 @@ class OAuthAuthenticationServiceTest :
                 )
 
             every { c.environment.activeProfiles } returns arrayOf("dev")
-            "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } returns oauth2User
@@ -389,7 +387,6 @@ class OAuthAuthenticationServiceTest :
                 )
 
             every { c.environment.activeProfiles } returns arrayOf("prod")
-            "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } returns oauth2User
@@ -475,7 +472,6 @@ class OAuthAuthenticationServiceTest :
                 )
 
             every { c.environment.activeProfiles } returns arrayOf("dev")
-            "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } returns oauth2User
@@ -548,7 +544,6 @@ class OAuthAuthenticationServiceTest :
                 )
 
             every { c.environment.activeProfiles } returns arrayOf("dev")
-            "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } returns oauth2User
@@ -568,7 +563,6 @@ class OAuthAuthenticationServiceTest :
             val c = ctx()
             val authCode = "valid-google-auth-code"
 
-            "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns null
 
             When("execute를 호출하면") {
@@ -600,7 +594,6 @@ class OAuthAuthenticationServiceTest :
                     .userNameAttributeName("sub")
                     .build()
 
-            "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } throws
                 OAuth2AuthorizationException(OAuth2Error("invalid_grant", "Authorization code is invalid", null))
@@ -649,7 +642,6 @@ class OAuthAuthenticationServiceTest :
                     .expiresIn(3600)
                     .build()
 
-            "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } throws RuntimeException("User info endpoint error")
