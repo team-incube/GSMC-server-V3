@@ -37,7 +37,10 @@ class OAuthAuthenticationServiceImpl(
     private val refreshTokenRedisRepository: RefreshTokenRedisRepository,
     private val environment: Environment,
 ) : OAuthAuthenticationService {
-    override fun execute(code: String): AuthTokenResponse {
+    override fun execute(
+        code: String,
+        redirectUri: String,
+    ): AuthTokenResponse {
         val decodedCode = URLDecoder.decode(code, StandardCharsets.UTF_8)
 
         try {
@@ -50,14 +53,14 @@ class OAuthAuthenticationServiceImpl(
                     .authorizationCode()
                     .clientId(clientRegistration.clientId)
                     .authorizationUri(clientRegistration.providerDetails.authorizationUri)
-                    .redirectUri(clientRegistration.redirectUri)
+                    .redirectUri(redirectUri)
                     .scopes(clientRegistration.scopes)
                     .build()
 
             val authorizationResponse =
                 OAuth2AuthorizationResponse
                     .success(decodedCode)
-                    .redirectUri(clientRegistration.redirectUri)
+                    .redirectUri(redirectUri)
                     .build()
 
             val authorizationExchange = OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse)
