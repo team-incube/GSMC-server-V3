@@ -193,4 +193,91 @@ class FindScoresByCategoryByMemberIdServiceTest :
                 }
             }
         }
+
+        Given("외국어 점수가 있는 멤버를 조회할 때") {
+            val c = ctx()
+            val memberId = 1L
+            val member =
+                Member(
+                    id = memberId,
+                    name = "Test User",
+                    email = "test@test.com",
+                    grade = 1,
+                    classNumber = 1,
+                    number = 1,
+                    role = MemberRole.STUDENT,
+                )
+            val scores =
+                listOf(
+                    Score(
+                        id = 1L,
+                        member = member,
+                        categoryType = CategoryType.TOEIC,
+                        status = ScoreStatus.APPROVED,
+                        sourceId = 100L,
+                        activityName = "TOEIC",
+                        scoreValue = 850.0,
+                        rejectionReason = null,
+                        updatedAt = null,
+                    ),
+                    Score(
+                        id = 2L,
+                        member = member,
+                        categoryType = CategoryType.JLPT,
+                        status = ScoreStatus.APPROVED,
+                        sourceId = 101L,
+                        activityName = "JLPT",
+                        scoreValue = 2.0,
+                        rejectionReason = null,
+                        updatedAt = null,
+                    ),
+                    Score(
+                        id = 3L,
+                        member = member,
+                        categoryType = CategoryType.TOEIC_ACADEMY,
+                        status = ScoreStatus.APPROVED,
+                        sourceId = null,
+                        activityName = null,
+                        scoreValue = null,
+                        rejectionReason = null,
+                        updatedAt = null,
+                    ),
+                )
+
+            every { c.memberRepo.existsById(memberId) } returns true
+            every {
+                c.scoreRepo.findByMemberIdAndCategoryTypeAndStatus(
+                    memberId = memberId,
+                    categoryType = null,
+                    status = null,
+                )
+            } returns scores
+
+            When("execute를 호출하면") {
+                val res = c.service.execute(memberId, status = null)
+
+                Then("TOEIC, JLPT, TOEIC_ACADEMY가 각각 별도 카테고리로 반환된다") {
+                    // TOEIC 그룹 확인
+                    val toeicGroup = res.categories.find { it.categoryType == CategoryType.TOEIC }
+                    toeicGroup?.categoryNames?.koreanName shouldBe "TOEIC"
+                    toeicGroup?.categoryNames?.englishName shouldBe "TOEIC"
+                    toeicGroup?.scores?.size shouldBe 1
+                    toeicGroup?.scores?.first()?.scoreId shouldBe 1L
+
+                    // JLPT 그룹 확인
+                    val jlptGroup = res.categories.find { it.categoryType == CategoryType.JLPT }
+                    jlptGroup?.categoryNames?.koreanName shouldBe "JLPT"
+                    jlptGroup?.categoryNames?.englishName shouldBe "JLPT"
+                    jlptGroup?.scores?.size shouldBe 1
+                    jlptGroup?.scores?.first()?.scoreId shouldBe 2L
+
+                    // TOEIC_ACADEMY 그룹 확인
+                    val academyGroup = res.categories.find { it.categoryType == CategoryType.TOEIC_ACADEMY }
+                    academyGroup?.categoryNames?.koreanName shouldBe "토익사관학교"
+                    academyGroup?.categoryNames?.englishName shouldBe "TOEIC-ACADEMY"
+                    academyGroup?.scores?.size shouldBe 1
+                    academyGroup?.scores?.first()?.scoreId shouldBe 3L
+                }
+            }
+        }
     })
