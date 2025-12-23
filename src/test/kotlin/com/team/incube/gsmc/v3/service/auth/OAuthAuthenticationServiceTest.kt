@@ -106,6 +106,7 @@ class OAuthAuthenticationServiceTest :
         Given("기존 회원이 Google OAuth 인증 코드로 로그인할 때") {
             val c = ctx()
             val authCode = "valid-google-auth-code"
+            val redirectUri = "http://localhost:3000/callback"
             val email = "student@gsm.hs.kr"
             val name = "홍길동"
             val memberId = 1L
@@ -176,6 +177,8 @@ class OAuthAuthenticationServiceTest :
             val refreshTokenSlot = slot<RefreshTokenRedisEntity>()
 
             every { c.environment.activeProfiles } returns arrayOf("dev")
+            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
+                "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } returns oauth2User
@@ -187,7 +190,7 @@ class OAuthAuthenticationServiceTest :
             }
 
             When("execute를 호출하면") {
-                val result = c.service.execute(authCode)
+                val result = c.service.execute(authCode, redirectUri)
 
                 Then("AuthTokenResponse가 반환된다") {
                     result shouldNotBe null
@@ -297,6 +300,8 @@ class OAuthAuthenticationServiceTest :
                 )
 
             every { c.environment.activeProfiles } returns arrayOf("dev")
+            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
+                "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } returns oauth2User
@@ -316,7 +321,7 @@ class OAuthAuthenticationServiceTest :
             every { c.refreshTokenRedisRepository.save(any()) } answers { firstArg() }
 
             When("execute를 호출하면") {
-                val result = c.service.execute(authCode)
+                val result = c.service.execute(authCode, "http://localhost:3000/callback")
 
                 Then("UNAUTHORIZED 권한으로 회원이 생성된다") {
                     verify(exactly = 1) {
@@ -386,6 +391,8 @@ class OAuthAuthenticationServiceTest :
                 )
 
             every { c.environment.activeProfiles } returns arrayOf("prod")
+            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
+                "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } returns oauth2User
@@ -394,7 +401,7 @@ class OAuthAuthenticationServiceTest :
                 Then("INVALID_EMAIL_DOMAIN 예외가 발생한다") {
                     val ex =
                         shouldThrow<GsmcException> {
-                            c.service.execute(authCode)
+                            c.service.execute(authCode, "http://localhost:3000/callback")
                         }
                     ex.errorCode shouldBe ErrorCode.INVALID_EMAIL_DOMAIN
                 }
@@ -471,6 +478,8 @@ class OAuthAuthenticationServiceTest :
                 )
 
             every { c.environment.activeProfiles } returns arrayOf("dev")
+            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
+                "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } returns oauth2User
@@ -490,7 +499,7 @@ class OAuthAuthenticationServiceTest :
             every { c.refreshTokenRedisRepository.save(any()) } answers { firstArg() }
 
             When("execute를 호출하면") {
-                val result = c.service.execute(authCode)
+                val result = c.service.execute(authCode, "http://localhost:3000/callback")
 
                 Then("dev 환경에서는 이메일 도메인 검증을 건너뛰고 정상 처리된다") {
                     result shouldNotBe null
@@ -543,6 +552,8 @@ class OAuthAuthenticationServiceTest :
                 )
 
             every { c.environment.activeProfiles } returns arrayOf("dev")
+            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
+                "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } returns oauth2User
@@ -551,7 +562,7 @@ class OAuthAuthenticationServiceTest :
                 Then("AUTHENTICATION_FAILED 예외가 발생한다") {
                     val ex =
                         shouldThrow<GsmcException> {
-                            c.service.execute(authCode)
+                            c.service.execute(authCode, "http://localhost:3000/callback")
                         }
                     ex.errorCode shouldBe ErrorCode.AUTHENTICATION_FAILED
                 }
@@ -562,13 +573,15 @@ class OAuthAuthenticationServiceTest :
             val c = ctx()
             val authCode = "valid-google-auth-code"
 
+            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
+                "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns null
 
             When("execute를 호출하면") {
                 Then("OAUTH2_AUTHORIZATION_FAILED 예외가 발생한다") {
                     val ex =
                         shouldThrow<GsmcException> {
-                            c.service.execute(authCode)
+                            c.service.execute(authCode, "http://localhost:3000/callback")
                         }
                     ex.errorCode shouldBe ErrorCode.OAUTH2_AUTHORIZATION_FAILED
                 }
@@ -593,6 +606,8 @@ class OAuthAuthenticationServiceTest :
                     .userNameAttributeName("sub")
                     .build()
 
+            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
+                "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } throws
                 OAuth2AuthorizationException(OAuth2Error("invalid_grant", "Authorization code is invalid", null))
@@ -601,7 +616,7 @@ class OAuthAuthenticationServiceTest :
                 Then("OAUTH2_AUTHORIZATION_FAILED 예외가 발생한다") {
                     val ex =
                         shouldThrow<GsmcException> {
-                            c.service.execute(authCode)
+                            c.service.execute(authCode, "http://localhost:3000/callback")
                         }
                     ex.errorCode shouldBe ErrorCode.OAUTH2_AUTHORIZATION_FAILED
                 }
@@ -641,6 +656,8 @@ class OAuthAuthenticationServiceTest :
                     .expiresIn(3600)
                     .build()
 
+            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
+                "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } throws RuntimeException("User info endpoint error")
@@ -649,9 +666,28 @@ class OAuthAuthenticationServiceTest :
                 Then("AUTHENTICATION_FAILED 예외가 발생한다") {
                     val ex =
                         shouldThrow<GsmcException> {
-                            c.service.execute(authCode)
+                            c.service.execute(authCode, "http://localhost:3000/callback")
                         }
                     ex.errorCode shouldBe ErrorCode.AUTHENTICATION_FAILED
+                }
+            }
+        }
+
+        Given("허용되지 않은 Redirect URI로 인증을 시도할 때") {
+            val c = ctx()
+            val authCode = "valid-google-auth-code"
+            val invalidRedirectUri = "https://malicious-site.com/callback"
+
+            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
+                "http://localhost:3000/callback,http://localhost:3001/callback"
+
+            When("execute를 호출하면") {
+                Then("INVALID_REDIRECT_URI 예외가 발생한다") {
+                    val ex =
+                        shouldThrow<GsmcException> {
+                            c.service.execute(authCode, invalidRedirectUri)
+                        }
+                    ex.errorCode shouldBe ErrorCode.INVALID_REDIRECT_URI
                 }
             }
         }

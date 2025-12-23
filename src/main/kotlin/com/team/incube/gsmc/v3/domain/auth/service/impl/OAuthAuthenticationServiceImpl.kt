@@ -37,8 +37,12 @@ class OAuthAuthenticationServiceImpl(
     private val refreshTokenRedisRepository: RefreshTokenRedisRepository,
     private val environment: Environment,
 ) : OAuthAuthenticationService {
-    override fun execute(code: String): AuthTokenResponse {
+    override fun execute(
+        code: String,
+        redirectUri: String,
+    ): AuthTokenResponse {
         val decodedCode = URLDecoder.decode(code, StandardCharsets.UTF_8)
+        validateRedirectUri(redirectUri)
 
         try {
             val clientRegistration =
@@ -50,14 +54,14 @@ class OAuthAuthenticationServiceImpl(
                     .authorizationCode()
                     .clientId(clientRegistration.clientId)
                     .authorizationUri(clientRegistration.providerDetails.authorizationUri)
-                    .redirectUri(clientRegistration.redirectUri)
+                    .redirectUri(redirectUri)
                     .scopes(clientRegistration.scopes)
                     .build()
 
             val authorizationResponse =
                 OAuth2AuthorizationResponse
                     .success(decodedCode)
-                    .redirectUri(clientRegistration.redirectUri)
+                    .redirectUri(redirectUri)
                     .build()
 
             val authorizationExchange = OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse)
@@ -123,6 +127,23 @@ class OAuthAuthenticationServiceImpl(
         } catch (e: Exception) {
             logger().error("Authentication failed: ${e.message}", e)
             throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
+        }
+    }
+
+    /**
+     * 추후 Properties Scan 기반 DTO로 전환
+     */
+    private fun validateRedirectUri(redirectUri: String) {
+        val allowedUris =
+            environment
+                .getProperty("spring.security.oauth2.allowed-redirect-uris")
+                ?.split(",")
+                ?.map { it.trim() }
+                ?: emptyList()
+
+        if (redirectUri !in allowedUris) {
+            logger().warn("Invalid redirect URI attempted: $redirectUri")
+            throw GsmcException(ErrorCode.INVALID_REDIRECT_URI)
         }
     }
 }

@@ -45,7 +45,7 @@ class AuthController(
     private val approveTeacherSignUpRequestService: ApproveTeacherSignUpRequestService,
     private val rejectTeacherSignUpRequestService: RejectTeacherSignUpRequestService,
 ) {
-    @Operation(summary = "OAuth 인증", description = "Authentication Code를 통해 OAuth 인증을 처리합니다")
+    @Operation(summary = "OAuth 인증", description = "Authentication Code와 Redirect URI를 통해 OAuth 인증을 처리합니다")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -57,12 +57,17 @@ class AuthController(
                 description = "OAuth 인증에 실패함",
                 content = [Content()],
             ),
+            ApiResponse(
+                responseCode = "403",
+                description = "허용되지 않은 Redirect URI",
+                content = [Content()],
+            ),
         ],
     )
     @PostMapping
     fun oauthAuthentication(
         @Valid @RequestBody request: OAuthCodeRequest,
-    ): AuthTokenResponse = oauthAuthenticationService.execute(request.code)
+    ): AuthTokenResponse = oauthAuthenticationService.execute(request.code, request.redirectUri)
 
     @Operation(summary = "JWT 토큰 재발급", description = "RefreshToken을 이용하여 JWT 토큰을 재발급합니다")
     @ApiResponses(
