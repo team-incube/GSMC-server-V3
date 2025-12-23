@@ -171,4 +171,103 @@ class SignUpServiceTest :
                 }
             }
         }
+
+        Given("유효하지 않은 학년으로 회원가입을 시도할 때") {
+            val c = ctx()
+            val memberId = 1L
+            val email = "student@gsm.hs.kr"
+
+            val member =
+                Member(
+                    id = memberId,
+                    name = "기존이름",
+                    email = email,
+                    grade = null,
+                    classNumber = null,
+                    number = null,
+                    role = MemberRole.UNAUTHORIZED,
+                )
+
+            val name = "홍길동"
+            val studentNumber = 4101 // 4학년은 없음
+
+            every { c.currentMemberProvider.getCurrentMember() } returns member
+
+            When("execute를 호출하면") {
+                val exception =
+                    shouldThrow<GsmcException> {
+                        c.service.execute(name, studentNumber)
+                    }
+
+                Then("MEMBER_INVALID_STUDENT_NUMBER 예외가 발생한다") {
+                    exception.errorCode shouldBe ErrorCode.MEMBER_INVALID_STUDENT_NUMBER
+                }
+            }
+        }
+
+        Given("유효하지 않은 반으로 회원가입을 시도할 때") {
+            val c = ctx()
+            val memberId = 1L
+            val email = "student@gsm.hs.kr"
+
+            val member =
+                Member(
+                    id = memberId,
+                    name = "기존이름",
+                    email = email,
+                    grade = null,
+                    classNumber = null,
+                    number = null,
+                    role = MemberRole.UNAUTHORIZED,
+                )
+
+            val name = "홍길동"
+            val studentNumber = 1501 // 5반은 없음
+
+            every { c.currentMemberProvider.getCurrentMember() } returns member
+
+            When("execute를 호출하면") {
+                val exception =
+                    shouldThrow<GsmcException> {
+                        c.service.execute(name, studentNumber)
+                    }
+
+                Then("MEMBER_INVALID_STUDENT_NUMBER 예외가 발생한다") {
+                    exception.errorCode shouldBe ErrorCode.MEMBER_INVALID_STUDENT_NUMBER
+                }
+            }
+        }
+
+        Given("유효하지 않은 번호로 회원가입을 시도할 때") {
+            val c = ctx()
+            val memberId = 1L
+            val email = "student@gsm.hs.kr"
+
+            val member =
+                Member(
+                    id = memberId,
+                    name = "기존이름",
+                    email = email,
+                    grade = null,
+                    classNumber = null,
+                    number = null,
+                    role = MemberRole.UNAUTHORIZED,
+                )
+
+            val name = "홍길동"
+            val studentNumber = 1119 // 19번은 없음
+
+            every { c.currentMemberProvider.getCurrentMember() } returns member
+
+            When("execute를 호출하면") {
+                val exception =
+                    shouldThrow<GsmcException> {
+                        c.service.execute(name, studentNumber)
+                    }
+
+                Then("MEMBER_INVALID_STUDENT_NUMBER 예외가 발생한다") {
+                    exception.errorCode shouldBe ErrorCode.MEMBER_INVALID_STUDENT_NUMBER
+                }
+            }
+        }
     })
