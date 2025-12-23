@@ -60,10 +60,11 @@ interface MemberExposedRepository {
 
     fun findAllByRoleIn(roles: List<MemberRole>): List<Member>
 
-    fun existsByEmailOrGradeAndClassNumberAndNumber(
+    fun existsByEmailOrGradeAndClassNumberAndNumberAndIdNot(
         email: String,
         grade: Int,
         classNumber: Int,
         number: Int,
+        id: Long,
     ): Boolean
 }

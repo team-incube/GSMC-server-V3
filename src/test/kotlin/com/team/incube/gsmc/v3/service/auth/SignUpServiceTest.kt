@@ -85,11 +85,12 @@ class SignUpServiceTest :
 
             every { c.currentMemberProvider.getCurrentMember() } returns member
             every {
-                c.memberExposedRepository.existsByEmailOrGradeAndClassNumberAndNumber(
+                c.memberExposedRepository.existsByEmailOrGradeAndClassNumberAndNumberAndIdNot(
                     email = email,
                     grade = expectedGrade,
                     classNumber = expectedClassNumber,
                     number = expectedNumber,
+                    id = memberId,
                 )
             } returns false
             every {
@@ -109,11 +110,12 @@ class SignUpServiceTest :
 
                 Then("회원 정보가 STUDENT 권한과 학번 정보로 업데이트된다") {
                     verify(exactly = 1) {
-                        c.memberExposedRepository.existsByEmailOrGradeAndClassNumberAndNumber(
+                        c.memberExposedRepository.existsByEmailOrGradeAndClassNumberAndNumberAndIdNot(
                             email = email,
                             grade = expectedGrade,
                             classNumber = expectedClassNumber,
                             number = expectedNumber,
+                            id = memberId,
                         )
                     }
                     verify(exactly = 1) {
@@ -131,51 +133,7 @@ class SignUpServiceTest :
             }
         }
 
-        Given("이미 등록된 이메일로 회원가입을 시도할 때") {
-            val c = ctx()
-            val memberId = 1L
-            val email = "duplicate@gsm.hs.kr"
-
-            val member =
-                Member(
-                    id = memberId,
-                    name = "기존이름",
-                    email = email,
-                    grade = null,
-                    classNumber = null,
-                    number = null,
-                    role = MemberRole.UNAUTHORIZED,
-                )
-
-            val name = "홍길동"
-            val studentNumber = 2323
-            val expectedGrade = studentNumber / 1000
-            val expectedClassNumber = (studentNumber / 100) % 10
-            val expectedNumber = studentNumber % 100
-
-            every { c.currentMemberProvider.getCurrentMember() } returns member
-            every {
-                c.memberExposedRepository.existsByEmailOrGradeAndClassNumberAndNumber(
-                    email = email,
-                    grade = expectedGrade,
-                    classNumber = expectedClassNumber,
-                    number = expectedNumber,
-                )
-            } returns true
-
-            When("execute를 호출하면") {
-                val exception =
-                    shouldThrow<GsmcException> {
-                        c.service.execute(name, studentNumber)
-                    }
-
-                Then("MEMBER_STUDENT_NUMBER_ALREADY_EXISTS 예외가 발생한다") {
-                    exception.errorCode shouldBe ErrorCode.MEMBER_STUDENT_NUMBER_ALREADY_EXISTS
-                }
-            }
-        }
-
-        Given("이미 등록된 학번으로 회원가입을 시도할 때") {
+        Given("다른 사용자가 이미 사용 중인 학번으로 회원가입을 시도할 때") {
             val c = ctx()
             val memberId = 1L
             val email = "new@gsm.hs.kr"
@@ -199,11 +157,12 @@ class SignUpServiceTest :
 
             every { c.currentMemberProvider.getCurrentMember() } returns member
             every {
-                c.memberExposedRepository.existsByEmailOrGradeAndClassNumberAndNumber(
+                c.memberExposedRepository.existsByEmailOrGradeAndClassNumberAndNumberAndIdNot(
                     email = email,
                     grade = expectedGrade,
                     classNumber = expectedClassNumber,
                     number = expectedNumber,
+                    id = memberId,
                 )
             } returns true
 

@@ -25,11 +25,12 @@ class SignUpServiceImpl(
             val classNumber = (studentNumber / 100) % 10
             val number = studentNumber % 100
 
-            if (memberExposedRepository.existsByEmailOrGradeAndClassNumberAndNumber(
+            if (memberExposedRepository.existsByEmailOrGradeAndClassNumberAndNumberAndIdNot(
                     email = member.email,
                     grade = grade,
                     classNumber = classNumber,
                     number = number,
+                    id = member.id,
                 )
             ) {
                 throw GsmcException(ErrorCode.MEMBER_STUDENT_NUMBER_ALREADY_EXISTS)
