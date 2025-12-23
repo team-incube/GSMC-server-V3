@@ -61,10 +61,10 @@ class CreateClassScoreSheetServiceImpl(
         val classScoreDataList =
             transaction {
                 val requester: Member = currentMemberProvider.getCurrentMember()
-                if (requester.role == MemberRole.HOMEROOM_TEACHER) {
-                    if (requester.grade != grade || requester.classNumber != classNumber) {
-                        throw GsmcException(ErrorCode.NOT_ASSIGNED_HOMEROOM_CLASS)
-                    }
+                if (requester.role == MemberRole.HOMEROOM_TEACHER &&
+                    (requester.grade != grade || requester.classNumber != classNumber)
+                ) {
+                    throw GsmcException(ErrorCode.NOT_ASSIGNED_HOMEROOM_CLASS)
                 }
 
                 val students =
