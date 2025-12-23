@@ -7,7 +7,7 @@ import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
-import com.team.incube.gsmc.v3.domain.score.service.impl.CreateVolunteerScoreServiceImpl
+import com.team.incube.gsmc.v3.domain.score.service.impl.CreateAcademicGradeScoreServiceImpl
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
@@ -21,14 +21,14 @@ import io.mockk.unmockkStatic
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.springframework.context.ApplicationEventPublisher
 
-class CreateVolunteerScoreServiceTest :
+class CreateAcademicGradeScoreServiceTest :
     BehaviorSpec({
         data class TestData(
             val scoreRepo: ScoreExposedRepository,
             val currentMemberProvider: CurrentMemberProvider,
             val memberRepo: MemberExposedRepository,
             val eventPublisher: ApplicationEventPublisher,
-            val service: CreateVolunteerScoreServiceImpl,
+            val service: CreateAcademicGradeScoreServiceImpl,
         )
 
         fun ctx(
@@ -53,7 +53,7 @@ class CreateVolunteerScoreServiceTest :
                 )
 
             val service =
-                CreateVolunteerScoreServiceImpl(
+                CreateAcademicGradeScoreServiceImpl(
                     scoreExposedRepository = scoreRepo,
                     currentMemberProvider = currentMemberProvider,
                     eventPublisher = eventPublisher,
@@ -80,21 +80,21 @@ class CreateVolunteerScoreServiceTest :
             unmockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         }
 
-        Given("유효한 봉사시간으로 점수를 생성할 때") {
+        Given("유효한 등급으로 교과성적 점수를 생성할 때") {
             val c = ctx()
-            val value = "24"
+            val value = "1.5"
             val member = Member(0L, "Test User", "test@test.com", 1, 1, 1, MemberRole.STUDENT)
-            val score = Score(1L, member, CategoryType.VOLUNTEER, ScoreStatus.APPROVED, null, null, 24.0, null, null)
+            val score = Score(1L, member, CategoryType.ACADEMIC_GRADE, ScoreStatus.APPROVED, null, null, 1.5, null, null)
 
             every { c.memberRepo.findById(member.id) } returns member
-            every { c.scoreRepo.findByMemberIdAndCategoryType(member.id, CategoryType.VOLUNTEER) } returns null
+            every { c.scoreRepo.findByMemberIdAndCategoryType(member.id, CategoryType.ACADEMIC_GRADE) } returns null
             every { c.scoreRepo.save(any()) } returns score
             every { c.scoreRepo.update(any()) } returns score
 
             When("execute를 호출하면") {
                 val res = c.service.execute(value, member.id)
 
-                Then("봉사활동 점수가 APPROVED 상태로 생성된다") {
+                Then("교과성적 점수가 APPROVED 상태로 생성된다") {
                     res.scoreId shouldBe 1L
                     res.scoreStatus shouldBe ScoreStatus.APPROVED
                 }
@@ -112,12 +112,19 @@ class CreateVolunteerScoreServiceTest :
             }
         }
 
-        Given("0 이하의 값으로 생성하려고 할 때") {
+        Given("범위를 벗어난 값으로 생성하려고 할 때") {
             val c = ctx()
 
-            When("execute를 호출하면") {
+            When("0.5 값으로 execute를 호출하면") {
                 Then("SCORE_VALUE_OUT_OF_RANGE 예외가 발생한다") {
-                    val ex = shouldThrow<GsmcException> { c.service.execute("0", 0L) }
+                    val ex = shouldThrow<GsmcException> { c.service.execute("0.5", 0L) }
+                    ex.errorCode shouldBe ErrorCode.SCORE_VALUE_OUT_OF_RANGE
+                }
+            }
+
+            When("9.5 값으로 execute를 호출하면") {
+                Then("SCORE_VALUE_OUT_OF_RANGE 예외가 발생한다") {
+                    val ex = shouldThrow<GsmcException> { c.service.execute("9.5", 0L) }
                     ex.errorCode shouldBe ErrorCode.SCORE_VALUE_OUT_OF_RANGE
                 }
             }
@@ -125,8 +132,8 @@ class CreateVolunteerScoreServiceTest :
 
         Given("담임 선생님이 다른 학급 학생의 점수를 생성하려고 할 때") {
             val c = ctx(teacherRole = MemberRole.HOMEROOM_TEACHER, teacherGrade = 1, teacherClassNumber = 1)
-            val value = "24"
-            val otherClassStudent = Member(2L, "Other Student", "other@test.com", 1, 2, 1, MemberRole.STUDENT)
+            val value = "2.0"
+            val otherClassStudent = Member(2L, "Other Student", "other@test.com", 2, 1, 1, MemberRole.STUDENT)
 
             every { c.memberRepo.findById(otherClassStudent.id) } returns otherClassStudent
 
@@ -140,18 +147,18 @@ class CreateVolunteerScoreServiceTest :
 
         Given("담임 선생님이 자신의 학급 학생의 점수를 생성할 때") {
             val c = ctx(teacherRole = MemberRole.HOMEROOM_TEACHER, teacherGrade = 1, teacherClassNumber = 1)
-            val value = "24"
+            val value = "2.0"
             val sameClassStudent = Member(2L, "Same Class Student", "same@test.com", 1, 1, 1, MemberRole.STUDENT)
-            val score = Score(1L, sameClassStudent, CategoryType.VOLUNTEER, ScoreStatus.APPROVED, null, null, 24.0, null, null)
+            val score = Score(1L, sameClassStudent, CategoryType.ACADEMIC_GRADE, ScoreStatus.APPROVED, null, null, 2.0, null, null)
 
             every { c.memberRepo.findById(sameClassStudent.id) } returns sameClassStudent
-            every { c.scoreRepo.findByMemberIdAndCategoryType(sameClassStudent.id, CategoryType.VOLUNTEER) } returns null
+            every { c.scoreRepo.findByMemberIdAndCategoryType(sameClassStudent.id, CategoryType.ACADEMIC_GRADE) } returns null
             every { c.scoreRepo.save(any()) } returns score
 
             When("execute를 호출하면") {
                 val res = c.service.execute(value, sameClassStudent.id)
 
-                Then("봉사활동 점수가 정상적으로 생성된다") {
+                Then("교과성적 점수가 정상적으로 생성된다") {
                     res.scoreId shouldBe 1L
                     res.scoreStatus shouldBe ScoreStatus.APPROVED
                 }

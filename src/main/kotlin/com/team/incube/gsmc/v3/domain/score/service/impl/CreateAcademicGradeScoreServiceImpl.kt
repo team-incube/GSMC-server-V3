@@ -2,6 +2,7 @@ package com.team.incube.gsmc.v3.domain.score.service.impl
 
 import com.team.incube.gsmc.v3.domain.alert.dto.constant.AlertType
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
+import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
@@ -40,15 +41,22 @@ class CreateAcademicGradeScoreServiceImpl(
                 memberExposedRepository.findById(memberId)
                     ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
 
+            val teacher = currentMemberProvider.getCurrentMember()
+
+            if (teacher.role == MemberRole.HOMEROOM_TEACHER) {
+                if (teacher.grade != student.grade || teacher.classNumber != student.classNumber) {
+                    throw GsmcException(ErrorCode.NOT_ASSIGNED_HOMEROOM_CLASS)
+                }
+            }
+
             val score =
                 createOrUpdateScore(
                     member = student,
                     categoryType = CategoryType.ACADEMIC_GRADE,
                     scoreValue = doubleValue,
                     sourceId = null,
+                    isApprovedByDefault = true,
                 )
-
-            val teacher = currentMemberProvider.getCurrentMember()
 
             eventPublisher.publishEvent(
                 CreateAlertEvent(
