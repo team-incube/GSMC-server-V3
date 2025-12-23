@@ -11,6 +11,7 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.like
+import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -170,6 +171,22 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
             .selectAll()
             .where { MemberExposedEntity.role inList roles }
             .map { it.toMember() }
+
+    override fun existsByEmailOrGradeAndClassNumberAndNumber(
+        email: String,
+        grade: Int,
+        classNumber: Int,
+        number: Int,
+    ): Boolean =
+        MemberExposedEntity
+            .selectAll()
+            .where {
+                (MemberExposedEntity.email eq email) or
+                    ((MemberExposedEntity.grade eq grade) and
+                        (MemberExposedEntity.classNumber eq classNumber) and
+                        (MemberExposedEntity.number eq number))
+            }.empty()
+            .not()
 
     private fun ResultRow.toMember(): Member =
         Member(
