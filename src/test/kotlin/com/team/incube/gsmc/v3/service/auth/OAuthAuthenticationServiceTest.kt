@@ -177,8 +177,7 @@ class OAuthAuthenticationServiceTest :
             val refreshTokenSlot = slot<RefreshTokenRedisEntity>()
 
             every { c.environment.activeProfiles } returns arrayOf("dev")
-            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
-                "http://localhost:3000/callback,http://localhost:3001/callback"
+            "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } returns oauth2User
@@ -300,8 +299,7 @@ class OAuthAuthenticationServiceTest :
                 )
 
             every { c.environment.activeProfiles } returns arrayOf("dev")
-            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
-                "http://localhost:3000/callback,http://localhost:3001/callback"
+            "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } returns oauth2User
@@ -391,8 +389,7 @@ class OAuthAuthenticationServiceTest :
                 )
 
             every { c.environment.activeProfiles } returns arrayOf("prod")
-            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
-                "http://localhost:3000/callback,http://localhost:3001/callback"
+            "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } returns oauth2User
@@ -478,8 +475,7 @@ class OAuthAuthenticationServiceTest :
                 )
 
             every { c.environment.activeProfiles } returns arrayOf("dev")
-            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
-                "http://localhost:3000/callback,http://localhost:3001/callback"
+            "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } returns oauth2User
@@ -552,8 +548,7 @@ class OAuthAuthenticationServiceTest :
                 )
 
             every { c.environment.activeProfiles } returns arrayOf("dev")
-            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
-                "http://localhost:3000/callback,http://localhost:3001/callback"
+            "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } returns oauth2User
@@ -573,8 +568,7 @@ class OAuthAuthenticationServiceTest :
             val c = ctx()
             val authCode = "valid-google-auth-code"
 
-            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
-                "http://localhost:3000/callback,http://localhost:3001/callback"
+            "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns null
 
             When("execute를 호출하면") {
@@ -606,8 +600,7 @@ class OAuthAuthenticationServiceTest :
                     .userNameAttributeName("sub")
                     .build()
 
-            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
-                "http://localhost:3000/callback,http://localhost:3001/callback"
+            "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } throws
                 OAuth2AuthorizationException(OAuth2Error("invalid_grant", "Authorization code is invalid", null))
@@ -656,8 +649,7 @@ class OAuthAuthenticationServiceTest :
                     .expiresIn(3600)
                     .build()
 
-            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
-                "http://localhost:3000/callback,http://localhost:3001/callback"
+            "http://localhost:3000/callback,http://localhost:3001/callback"
             every { c.clientRegistrationRepository.findByRegistrationId("google") } returns clientRegistration
             every { c.tokenResponseClient.getTokenResponse(any()) } returns tokenResponse
             every { c.oauth2UserService.loadUser(any()) } throws RuntimeException("User info endpoint error")
@@ -669,25 +661,6 @@ class OAuthAuthenticationServiceTest :
                             c.service.execute(authCode, "http://localhost:3000/callback")
                         }
                     ex.errorCode shouldBe ErrorCode.AUTHENTICATION_FAILED
-                }
-            }
-        }
-
-        Given("허용되지 않은 Redirect URI로 인증을 시도할 때") {
-            val c = ctx()
-            val authCode = "valid-google-auth-code"
-            val invalidRedirectUri = "https://malicious-site.com/callback"
-
-            every { c.environment.getProperty("spring.security.oauth2.allowed-redirect-uris") } returns
-                "http://localhost:3000/callback,http://localhost:3001/callback"
-
-            When("execute를 호출하면") {
-                Then("INVALID_REDIRECT_URI 예외가 발생한다") {
-                    val ex =
-                        shouldThrow<GsmcException> {
-                            c.service.execute(authCode, invalidRedirectUri)
-                        }
-                    ex.errorCode shouldBe ErrorCode.INVALID_REDIRECT_URI
                 }
             }
         }

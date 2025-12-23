@@ -43,7 +43,6 @@ enum class ErrorCode(
     OAUTH2_AUTHORIZATION_FAILED("OAuth 2.0 인증에 실패했습니다.", 401),
     AUTHENTICATION_FAILED("인증 과정에서 오류가 발생했습니다.", 401),
     INVALID_EMAIL_DOMAIN("허용되지 않는 이메일 도메인입니다.", 403),
-    INVALID_REDIRECT_URI("허용되지 않는 Redirect URI입니다.", 403),
     TEACHER_SIGNUP_REQUEST_NOT_FOUND("선생님 회원가입 요청을 찾을 수 없습니다.", 404),
     HOMEROOM_TEACHER_GRADE_CLASS_REQUIRED("담임선생님은 학년과 반이 필수입니다.", 400),
     INVALID_TEACHER_ROLE("선생님 또는 담임선생님 권한만 선택 가능합니다.", 400),

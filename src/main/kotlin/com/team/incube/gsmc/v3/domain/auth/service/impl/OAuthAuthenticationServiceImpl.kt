@@ -42,7 +42,6 @@ class OAuthAuthenticationServiceImpl(
         redirectUri: String,
     ): AuthTokenResponse {
         val decodedCode = URLDecoder.decode(code, StandardCharsets.UTF_8)
-        validateRedirectUri(redirectUri)
 
         try {
             val clientRegistration =
@@ -127,23 +126,6 @@ class OAuthAuthenticationServiceImpl(
         } catch (e: Exception) {
             logger().error("Authentication failed: ${e.message}", e)
             throw GsmcException(ErrorCode.AUTHENTICATION_FAILED)
-        }
-    }
-
-    /**
-     * 추후 Properties Scan 기반 DTO로 전환
-     */
-    private fun validateRedirectUri(redirectUri: String) {
-        val allowedUris =
-            environment
-                .getProperty("spring.security.oauth2.allowed-redirect-uris")
-                ?.split(",")
-                ?.map { it.trim() }
-                ?: emptyList()
-
-        if (redirectUri !in allowedUris) {
-            logger().warn("Invalid redirect URI attempted: $redirectUri")
-            throw GsmcException(ErrorCode.INVALID_REDIRECT_URI)
         }
     }
 }

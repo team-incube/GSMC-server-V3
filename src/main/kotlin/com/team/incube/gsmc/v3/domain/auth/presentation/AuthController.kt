@@ -57,11 +57,6 @@ class AuthController(
                 description = "OAuth 인증에 실패함",
                 content = [Content()],
             ),
-            ApiResponse(
-                responseCode = "403",
-                description = "허용되지 않은 Redirect URI",
-                content = [Content()],
-            ),
         ],
     )
     @PostMapping
