@@ -19,6 +19,7 @@ abstract class BaseCreateOrUpdateBasedScoreService(
         scoreValue: Double?,
         sourceId: Long?,
         activityName: String? = null,
+        isApprovedByDefault: Boolean = false,
     ): CreateScoreResponse {
         val existingScore =
             scoreExposedRepository.findByMemberIdAndCategoryType(
@@ -26,11 +27,13 @@ abstract class BaseCreateOrUpdateBasedScoreService(
                 categoryType = categoryType,
             )
 
+        val defaultStatus = if (isApprovedByDefault) ScoreStatus.APPROVED else ScoreStatus.PENDING
+
         val savedScore =
             existingScore?.let {
                 scoreExposedRepository.update(
                     it.copy(
-                        status = ScoreStatus.PENDING,
+                        status = defaultStatus,
                         sourceId = sourceId,
                         scoreValue = scoreValue,
                         activityName = activityName,
@@ -41,7 +44,7 @@ abstract class BaseCreateOrUpdateBasedScoreService(
                     id = null,
                     member = member,
                     categoryType = categoryType,
-                    status = ScoreStatus.PENDING,
+                    status = defaultStatus,
                     sourceId = sourceId,
                     activityName = activityName,
                     scoreValue = scoreValue,
