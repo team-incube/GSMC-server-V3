@@ -182,9 +182,11 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
             .selectAll()
             .where {
                 (MemberExposedEntity.email eq email) or
-                    ((MemberExposedEntity.grade eq grade) and
-                        (MemberExposedEntity.classNumber eq classNumber) and
-                        (MemberExposedEntity.number eq number))
+                    (
+                        (MemberExposedEntity.grade eq grade) and
+                            (MemberExposedEntity.classNumber eq classNumber) and
+                            (MemberExposedEntity.number eq number)
+                    )
             }.empty()
             .not()
 
