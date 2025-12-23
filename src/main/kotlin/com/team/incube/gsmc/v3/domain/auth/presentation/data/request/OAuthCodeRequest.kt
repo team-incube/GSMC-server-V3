@@ -11,7 +11,7 @@ data class OAuthCodeRequest(
     @param:Schema(description = "OAuth Redirect URI", example = "http://localhost:3000/callback")
     @field:NotBlank(message = "Redirect URI는 필수입니다.")
     @field:Pattern(
-        regexp = "^https?://.*",
+        regexp = "^https?://[a-zA-Z0-9.-]+(:[0-9]{1,5})?(/.*)?$",
         message = "올바른 URL 형식이어야 합니다.",
     )
     val redirectUri: String,
