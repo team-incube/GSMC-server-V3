@@ -15,7 +15,6 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 
 class SignUpServiceTest :
     BehaviorSpec({
@@ -43,18 +42,16 @@ class SignUpServiceTest :
             )
         }
 
-        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
-
         mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         every {
             org.jetbrains.exposed.v1.jdbc.transactions.transaction(
                 db = null,
-                statement = any<JdbcTransaction.() -> Any?>(),
+                statement = any<org.jetbrains.exposed.v1.jdbc.JdbcTransaction.() -> Any?>(),
             )
-        } answers {
+        } answers { call ->
             @Suppress("UNCHECKED_CAST")
-            val block = it.invocation.args.last() as JdbcTransaction.() -> Any?
-            block.invoke(mockTransaction)
+            val block = call.invocation.args.last() as org.jetbrains.exposed.v1.jdbc.JdbcTransaction.() -> Any?
+            block.invoke(mockk(relaxed = true))
         }
 
         afterSpec {
@@ -78,7 +75,7 @@ class SignUpServiceTest :
                 )
 
             val name = "홍길동"
-            val studentNumber = 2323
+            val studentNumber = 2318
             val expectedGrade = studentNumber / 1000
             val expectedClassNumber = (studentNumber / 100) % 10
             val expectedNumber = studentNumber % 100
@@ -146,7 +143,7 @@ class SignUpServiceTest :
                 )
 
             val name = "홍길동"
-            val studentNumber = 2323
+            val studentNumber = 2318
             val expectedGrade = studentNumber / 1000
             val expectedClassNumber = (studentNumber / 100) % 10
             val expectedNumber = studentNumber % 100
