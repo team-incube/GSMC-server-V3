@@ -106,6 +106,7 @@ class OAuthAuthenticationServiceTest :
         Given("기존 회원이 Google OAuth 인증 코드로 로그인할 때") {
             val c = ctx()
             val authCode = "valid-google-auth-code"
+            val redirectUri = "http://localhost:3000/callback"
             val email = "student@gsm.hs.kr"
             val name = "홍길동"
             val memberId = 1L
@@ -187,7 +188,7 @@ class OAuthAuthenticationServiceTest :
             }
 
             When("execute를 호출하면") {
-                val result = c.service.execute(authCode)
+                val result = c.service.execute(authCode, redirectUri)
 
                 Then("AuthTokenResponse가 반환된다") {
                     result shouldNotBe null
@@ -316,7 +317,7 @@ class OAuthAuthenticationServiceTest :
             every { c.refreshTokenRedisRepository.save(any()) } answers { firstArg() }
 
             When("execute를 호출하면") {
-                val result = c.service.execute(authCode)
+                val result = c.service.execute(authCode, "http://localhost:3000/callback")
 
                 Then("UNAUTHORIZED 권한으로 회원이 생성된다") {
                     verify(exactly = 1) {
@@ -394,7 +395,7 @@ class OAuthAuthenticationServiceTest :
                 Then("INVALID_EMAIL_DOMAIN 예외가 발생한다") {
                     val ex =
                         shouldThrow<GsmcException> {
-                            c.service.execute(authCode)
+                            c.service.execute(authCode, "http://localhost:3000/callback")
                         }
                     ex.errorCode shouldBe ErrorCode.INVALID_EMAIL_DOMAIN
                 }
@@ -490,7 +491,7 @@ class OAuthAuthenticationServiceTest :
             every { c.refreshTokenRedisRepository.save(any()) } answers { firstArg() }
 
             When("execute를 호출하면") {
-                val result = c.service.execute(authCode)
+                val result = c.service.execute(authCode, "http://localhost:3000/callback")
 
                 Then("dev 환경에서는 이메일 도메인 검증을 건너뛰고 정상 처리된다") {
                     result shouldNotBe null
@@ -551,7 +552,7 @@ class OAuthAuthenticationServiceTest :
                 Then("AUTHENTICATION_FAILED 예외가 발생한다") {
                     val ex =
                         shouldThrow<GsmcException> {
-                            c.service.execute(authCode)
+                            c.service.execute(authCode, "http://localhost:3000/callback")
                         }
                     ex.errorCode shouldBe ErrorCode.AUTHENTICATION_FAILED
                 }
@@ -568,7 +569,7 @@ class OAuthAuthenticationServiceTest :
                 Then("OAUTH2_AUTHORIZATION_FAILED 예외가 발생한다") {
                     val ex =
                         shouldThrow<GsmcException> {
-                            c.service.execute(authCode)
+                            c.service.execute(authCode, "http://localhost:3000/callback")
                         }
                     ex.errorCode shouldBe ErrorCode.OAUTH2_AUTHORIZATION_FAILED
                 }
@@ -601,7 +602,7 @@ class OAuthAuthenticationServiceTest :
                 Then("OAUTH2_AUTHORIZATION_FAILED 예외가 발생한다") {
                     val ex =
                         shouldThrow<GsmcException> {
-                            c.service.execute(authCode)
+                            c.service.execute(authCode, "http://localhost:3000/callback")
                         }
                     ex.errorCode shouldBe ErrorCode.OAUTH2_AUTHORIZATION_FAILED
                 }
@@ -649,7 +650,7 @@ class OAuthAuthenticationServiceTest :
                 Then("AUTHENTICATION_FAILED 예외가 발생한다") {
                     val ex =
                         shouldThrow<GsmcException> {
-                            c.service.execute(authCode)
+                            c.service.execute(authCode, "http://localhost:3000/callback")
                         }
                     ex.errorCode shouldBe ErrorCode.AUTHENTICATION_FAILED
                 }

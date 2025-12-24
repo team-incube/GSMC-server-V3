@@ -30,79 +30,42 @@ class FindScoresByCategoryServiceImpl(
                     status = status,
                 )
 
-            val foreignLanguageCategories = CategoryType.getForeignLanguageCategories()
-            val groupingResult = groupScoresByCategory(scores, foreignLanguageCategories)
+            val scoresByCategory = scores.groupBy { it.categoryType }
 
             val categoryGroups =
-                CategoryType.entries
-                    .filter { !it.isForeignLanguage || it == groupingResult.foreignRepresentative }
-                    .map { categoryType ->
-                        val categoryScores = groupingResult.groupedScores[categoryType] ?: emptyList()
-                        val recognizedScore = if (categoryScores.isNotEmpty()) calculateRecognizedScore(categoryScores, categoryType) else 0
-                        val isForeignLanguage = categoryType.isForeignLanguage
+                CategoryType.entries.map { categoryType ->
+                    val categoryScores = scoresByCategory[categoryType] ?: emptyList()
+                    val recognizedScore = if (categoryScores.isNotEmpty()) calculateRecognizedScore(categoryScores, categoryType) else 0
 
-                        CategoryScoreGroup(
-                            categoryType = categoryType,
-                            categoryNames =
-                                CategoryNames(
-                                    koreanName = if (isForeignLanguage) "공인 점수" else categoryType.koreanName,
-                                    englishName = if (isForeignLanguage) "Foreign Language" else categoryType.englishName,
-                                ),
-                            recognizedScore = recognizedScore,
-                            scores =
-                                categoryScores.map { score ->
-                                    ScoreItem(
-                                        scoreId = score.id!!,
-                                        categoryNames =
-                                            CategoryNames(
-                                                koreanName = score.categoryType.koreanName,
-                                                englishName = score.categoryType.englishName,
-                                            ),
-                                        scoreStatus = score.status,
-                                        activityName = score.activityName,
-                                        scoreValue = score.scoreValue,
-                                        rejectionReason = score.rejectionReason,
-                                        updatedAt = score.updatedAt,
-                                    )
-                                },
-                        )
-                    }
+                    CategoryScoreGroup(
+                        categoryType = categoryType,
+                        categoryNames =
+                            CategoryNames(
+                                koreanName = categoryType.koreanName,
+                                englishName = categoryType.englishName,
+                            ),
+                        recognizedScore = recognizedScore,
+                        scores =
+                            categoryScores.map { score ->
+                                ScoreItem(
+                                    scoreId = score.id!!,
+                                    categoryNames =
+                                        CategoryNames(
+                                            koreanName = score.categoryType.koreanName,
+                                            englishName = score.categoryType.englishName,
+                                        ),
+                                    scoreStatus = score.status,
+                                    activityName = score.activityName,
+                                    scoreValue = score.scoreValue,
+                                    rejectionReason = score.rejectionReason,
+                                    updatedAt = score.updatedAt,
+                                )
+                            },
+                    )
+                }
 
             GetScoresByCategoryResponse(categories = categoryGroups)
         }
-
-    private data class GroupingResult(
-        val groupedScores: Map<CategoryType, List<Score>>,
-        val foreignRepresentative: CategoryType,
-    )
-
-    private fun groupScoresByCategory(
-        scores: List<Score>,
-        foreignLanguageCategories: List<CategoryType>,
-    ): GroupingResult {
-        val (foreignLanguageScores, otherScores) = scores.partition { it.categoryType in foreignLanguageCategories }
-
-        val grouped = mutableMapOf<CategoryType, List<Score>>()
-
-        val representativeCategory =
-            if (foreignLanguageScores.isNotEmpty()) {
-                val categoriesInScore = foreignLanguageScores.map { it.categoryType }.toSet()
-                when {
-                    CategoryType.TOEIC in categoriesInScore -> CategoryType.TOEIC
-                    CategoryType.JLPT in categoriesInScore -> CategoryType.JLPT
-                    else -> CategoryType.TOEIC
-                }.also { grouped[it] = foreignLanguageScores }
-            } else {
-                CategoryType.TOEIC
-            }
-
-        grouped.putAll(otherScores.groupBy { it.categoryType })
-
-        return GroupingResult(
-            groupedScores = grouped,
-            foreignRepresentative = representativeCategory,
-        )
-    }
 
     private fun calculateRecognizedScore(
         scores: List<Score>,

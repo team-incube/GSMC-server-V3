@@ -59,4 +59,10 @@ interface MemberExposedRepository {
     ): Int
 
     fun findAllByRoleIn(roles: List<MemberRole>): List<Member>
+
+    fun existsByGradeAndClassNumberAndNumber(
+        grade: Int,
+        classNumber: Int,
+        number: Int,
+    ): Boolean
 }

@@ -49,6 +49,8 @@ enum class ErrorCode(
 
     // Member
     MEMBER_NOT_FOUND("존재하지 않는 사용자입니다.", 404),
+    MEMBER_STUDENT_NUMBER_ALREADY_EXISTS("이미 등록된 학번입니다.", 409),
+    MEMBER_INVALID_STUDENT_NUMBER("유효하지 않은 학번입니다.", 400),
 
     // Project
     PROJECT_NOT_FOUND("존재하지 않는 프로젝트입니다.", 404),

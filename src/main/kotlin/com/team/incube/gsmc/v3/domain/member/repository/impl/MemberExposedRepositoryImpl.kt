@@ -171,6 +171,20 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
             .where { MemberExposedEntity.role inList roles }
             .map { it.toMember() }
 
+    override fun existsByGradeAndClassNumberAndNumber(
+        grade: Int,
+        classNumber: Int,
+        number: Int,
+    ): Boolean =
+        MemberExposedEntity
+            .selectAll()
+            .where {
+                (MemberExposedEntity.grade eq grade) and
+                    (MemberExposedEntity.classNumber eq classNumber) and
+                    (MemberExposedEntity.number eq number)
+            }.empty()
+            .not()
+
     private fun ResultRow.toMember(): Member =
         Member(
             id = this[MemberExposedEntity.id],

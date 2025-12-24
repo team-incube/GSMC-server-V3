@@ -9,3 +9,5 @@ if [ -n "$CONTAINER_ID" ]; then
     docker stop $CONTAINER_ID
     docker rm $CONTAINER_ID
 fi
+
+docker system prune -a --volumes -f

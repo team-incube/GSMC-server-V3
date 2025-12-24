@@ -4,14 +4,19 @@ import com.team.incube.gsmc.v3.domain.auth.service.impl.SignUpServiceImpl
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
+import com.team.incube.gsmc.v3.global.common.error.ErrorCode
+import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 class SignUpServiceTest :
     BehaviorSpec({
@@ -39,18 +44,16 @@ class SignUpServiceTest :
             )
         }
 
-        val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
-
         mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         every {
-            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+            transaction(
                 db = null,
                 statement = any<JdbcTransaction.() -> Any?>(),
             )
-        } answers {
+        } answers { call ->
             @Suppress("UNCHECKED_CAST")
-            val block = it.invocation.args.last() as JdbcTransaction.() -> Any?
-            block.invoke(mockTransaction)
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
+            block.invoke(mockk(relaxed = true))
         }
 
         afterSpec {
@@ -74,12 +77,19 @@ class SignUpServiceTest :
                 )
 
             val name = "홍길동"
-            val studentNumber = 2323
+            val studentNumber = 2318
             val expectedGrade = studentNumber / 1000
             val expectedClassNumber = (studentNumber / 100) % 10
             val expectedNumber = studentNumber % 100
 
             every { c.currentMemberProvider.getCurrentMember() } returns member
+            every {
+                c.memberExposedRepository.existsByGradeAndClassNumberAndNumber(
+                    grade = expectedGrade,
+                    classNumber = expectedClassNumber,
+                    number = expectedNumber,
+                )
+            } returns false
             every {
                 c.memberExposedRepository.update(
                     id = memberId,
@@ -92,10 +102,17 @@ class SignUpServiceTest :
                 )
             } returns 1
 
-            When("execute를 호출하면") {
+            When("중복된 학번이 없을 때 execute를 호출하면") {
                 c.service.execute(name, studentNumber)
 
                 Then("회원 정보가 STUDENT 권한과 학번 정보로 업데이트된다") {
+                    verify(exactly = 1) {
+                        c.memberExposedRepository.existsByGradeAndClassNumberAndNumber(
+                            grade = expectedGrade,
+                            classNumber = expectedClassNumber,
+                            number = expectedNumber,
+                        )
+                    }
                     verify(exactly = 1) {
                         c.memberExposedRepository.update(
                             id = memberId,
@@ -106,6 +123,90 @@ class SignUpServiceTest :
                             number = expectedNumber,
                             role = MemberRole.STUDENT,
                         )
+                    }
+                }
+            }
+        }
+
+        Given("이미 사용 중인 학번으로 회원가입을 시도할 때") {
+            val c = ctx()
+            val memberId = 1L
+            val email = "new@gsm.hs.kr"
+
+            val member =
+                Member(
+                    id = memberId,
+                    name = "기존이름",
+                    email = email,
+                    grade = null,
+                    classNumber = null,
+                    number = null,
+                    role = MemberRole.UNAUTHORIZED,
+                )
+
+            val name = "홍길동"
+            val studentNumber = 2318
+            val expectedGrade = studentNumber / 1000
+            val expectedClassNumber = (studentNumber / 100) % 10
+            val expectedNumber = studentNumber % 100
+
+            every { c.currentMemberProvider.getCurrentMember() } returns member
+            every {
+                c.memberExposedRepository.existsByGradeAndClassNumberAndNumber(
+                    grade = expectedGrade,
+                    classNumber = expectedClassNumber,
+                    number = expectedNumber,
+                )
+            } returns true
+
+            When("execute를 호출하면") {
+                val exception =
+                    shouldThrow<GsmcException> {
+                        c.service.execute(name, studentNumber)
+                    }
+
+                Then("MEMBER_STUDENT_NUMBER_ALREADY_EXISTS 예외가 발생한다") {
+                    exception.errorCode shouldBe ErrorCode.MEMBER_STUDENT_NUMBER_ALREADY_EXISTS
+                }
+            }
+        }
+
+        Given("유효하지 않은 학번으로 회원가입을 시도할 때") {
+            val testCases =
+                listOf(
+                    "유효하지 않은 학년" to 4101,
+                    "유효하지 않은 반" to 1501,
+                    "유효하지 않은 번호" to 1119,
+                )
+
+            testCases.forEach { (description, studentNumber) ->
+                When("$description ($studentNumber)으로 execute를 호출하면") {
+                    val c = ctx()
+                    val memberId = 1L
+                    val email = "student@gsm.hs.kr"
+
+                    val member =
+                        Member(
+                            id = memberId,
+                            name = "기존이름",
+                            email = email,
+                            grade = null,
+                            classNumber = null,
+                            number = null,
+                            role = MemberRole.UNAUTHORIZED,
+                        )
+
+                    val name = "홍길동"
+
+                    every { c.currentMemberProvider.getCurrentMember() } returns member
+
+                    val exception =
+                        shouldThrow<GsmcException> {
+                            c.service.execute(name, studentNumber)
+                        }
+
+                    Then("MEMBER_INVALID_STUDENT_NUMBER 예외가 발생한다") {
+                        exception.errorCode shouldBe ErrorCode.MEMBER_INVALID_STUDENT_NUMBER
                     }
                 }
             }
