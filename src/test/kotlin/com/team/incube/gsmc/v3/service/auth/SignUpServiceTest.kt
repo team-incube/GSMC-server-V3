@@ -15,6 +15,8 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 class SignUpServiceTest :
     BehaviorSpec({
@@ -44,13 +46,13 @@ class SignUpServiceTest :
 
         mockkStatic("org.jetbrains.exposed.v1.jdbc.transactions.TransactionsKt")
         every {
-            org.jetbrains.exposed.v1.jdbc.transactions.transaction(
+            transaction(
                 db = null,
-                statement = any<org.jetbrains.exposed.v1.jdbc.JdbcTransaction.() -> Any?>(),
+                statement = any<JdbcTransaction.() -> Any?>(),
             )
         } answers { call ->
             @Suppress("UNCHECKED_CAST")
-            val block = call.invocation.args.last() as org.jetbrains.exposed.v1.jdbc.JdbcTransaction.() -> Any?
+            val block = call.invocation.args.last() as JdbcTransaction.() -> Any?
             block.invoke(mockk(relaxed = true))
         }
 
