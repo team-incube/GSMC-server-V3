@@ -2,7 +2,7 @@ name: GSMC-Prod-CD
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "fix/*"]
   workflow_dispatch:
 
 env:
