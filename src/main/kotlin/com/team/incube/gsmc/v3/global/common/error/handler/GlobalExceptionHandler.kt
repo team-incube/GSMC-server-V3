@@ -124,7 +124,7 @@ class GlobalExceptionHandler(
         warnTrace("The file is too big", ex)
         return CommonApiResponse.error(
             message = "파일이 너무 큽니다, 최대 파일 용량 : ${ex.maxUploadSize}",
-            status = HttpStatus.BAD_REQUEST,
+            status = HttpStatus.CONTENT_TOO_LARGE,
         )
     }
 
