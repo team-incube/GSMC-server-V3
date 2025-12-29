@@ -21,9 +21,13 @@ import io.mockk.unmockkStatic
 import io.mockk.verify
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.S3Utilities
+import software.amazon.awssdk.services.s3.model.GetUrlRequest
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException
+import java.net.URL
+import java.util.function.Consumer
 
 class ConfirmFileUploadServiceTest :
     BehaviorSpec({
@@ -38,6 +42,7 @@ class ConfirmFileUploadServiceTest :
 
         fun createTestContext(): TestData {
             val mockS3Client = mockk<S3Client>()
+            val mockS3Utilities = mockk<S3Utilities>(relaxed = true)
             val s3Environment = S3Environment(bucketName = "test-bucket")
             val mockCurrentMemberProvider = mockk<CurrentMemberProvider>()
             val mockFileRepository = mockk<FileExposedRepository>()
@@ -52,6 +57,8 @@ class ConfirmFileUploadServiceTest :
                     number = 1,
                     role = MemberRole.STUDENT,
                 )
+
+            every { mockS3Client.utilities() } returns mockS3Utilities
 
             val confirmFileUploadService =
                 ConfirmFileUploadServiceImpl(
@@ -97,8 +104,12 @@ class ConfirmFileUploadServiceTest :
                 )
 
             val mockHeadObjectResponse = mockk<HeadObjectResponse>()
+            val expectedUrl = URL("https://test-bucket.s3.amazonaws.com/file/20250101120000_abc123.pdf")
+            val mockS3Utilities = mockk<S3Utilities>()
 
             every { context.mockS3Client.headObject(any<HeadObjectRequest>()) } returns mockHeadObjectResponse
+            every { context.mockS3Client.utilities() } returns mockS3Utilities
+            every { mockS3Utilities.getUrl(any<Consumer<GetUrlRequest.Builder>>()) } returns expectedUrl
             every {
                 context.mockFileRepository.saveFile(
                     userId = 1L,
@@ -182,8 +193,12 @@ class ConfirmFileUploadServiceTest :
                         )
 
                     val mockHeadObjectResponse = mockk<HeadObjectResponse>()
+                    val expectedUrl = URL("https://test-bucket.s3.amazonaws.com/$fileKey")
+                    val mockS3Utilities = mockk<S3Utilities>()
 
                     every { context.mockS3Client.headObject(any<HeadObjectRequest>()) } returns mockHeadObjectResponse
+                    every { context.mockS3Client.utilities() } returns mockS3Utilities
+                    every { mockS3Utilities.getUrl(any<Consumer<GetUrlRequest.Builder>>()) } returns expectedUrl
                     every {
                         context.mockFileRepository.saveFile(
                             userId = 1L,

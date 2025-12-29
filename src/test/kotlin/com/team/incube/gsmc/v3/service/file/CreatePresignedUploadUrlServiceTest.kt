@@ -205,7 +205,7 @@ class CreatePresignedUploadUrlServiceTest :
 
             val mockPresignedRequest =
                 mockk<PresignedPutObjectRequest> {
-                    every { url() } returns URL("https://test-bucket.s3.amazonaws.com/file/test.PDF?signature=xyz")
+                    every { url() } returns URL("https://test-bucket.s3.amazonaws.com/file/test.pdf?signature=xyz")
                 }
 
             every { context.mockS3Presigner.presignPutObject(any<PutObjectPresignRequest>()) } returns mockPresignedRequest
@@ -213,9 +213,9 @@ class CreatePresignedUploadUrlServiceTest :
             When("Pre-signed URL 생성을 실행하면") {
                 val result = context.createPresignedUploadUrlService.execute(request)
 
-                Then("확장자 대소문자 구분 없이 정상 처리되어야 한다") {
+                Then("확장자가 소문자로 정규화되어야 한다") {
                     result shouldNotBe null
-                    result.fileKey shouldContain ".PDF"
+                    result.fileKey shouldContain ".pdf"
                 }
             }
         }
