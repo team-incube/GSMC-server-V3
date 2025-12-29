@@ -3,7 +3,6 @@ package com.team.incube.gsmc.v3.service.score
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
-import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
@@ -19,47 +18,39 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
-import org.springframework.context.ApplicationEventPublisher
 
 class CreateVolunteerScoreServiceTest :
     BehaviorSpec({
         data class TestData(
             val scoreRepo: ScoreExposedRepository,
             val currentMemberProvider: CurrentMemberProvider,
-            val memberRepo: MemberExposedRepository,
-            val eventPublisher: ApplicationEventPublisher,
             val service: CreateVolunteerScoreServiceImpl,
+            val student: Member,
         )
 
-        fun ctx(
-            teacherRole: MemberRole = MemberRole.TEACHER,
-            teacherGrade: Int = 0,
-            teacherClassNumber: Int = 0,
-        ): TestData {
+        fun ctx(): TestData {
             val scoreRepo = mockk<ScoreExposedRepository>()
             val currentMemberProvider = mockk<CurrentMemberProvider>()
-            val memberRepo = mockk<MemberExposedRepository>()
-            val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
 
-            every { currentMemberProvider.getCurrentMember() } returns
+            val student =
                 Member(
                     id = 1L,
-                    name = "Teacher",
-                    email = "teacher@test.com",
-                    grade = teacherGrade,
-                    classNumber = teacherClassNumber,
-                    number = 0,
-                    role = teacherRole,
+                    name = "Student",
+                    email = "student@test.com",
+                    grade = 1,
+                    classNumber = 1,
+                    number = 1,
+                    role = MemberRole.STUDENT,
                 )
+
+            every { currentMemberProvider.getCurrentMember() } returns student
 
             val service =
                 CreateVolunteerScoreServiceImpl(
                     scoreExposedRepository = scoreRepo,
                     currentMemberProvider = currentMemberProvider,
-                    eventPublisher = eventPublisher,
-                    memberExposedRepository = memberRepo,
                 )
-            return TestData(scoreRepo, currentMemberProvider, memberRepo, eventPublisher, service)
+            return TestData(scoreRepo, currentMemberProvider, service, student)
         }
 
         val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
@@ -83,20 +74,18 @@ class CreateVolunteerScoreServiceTest :
         Given("유효한 봉사시간으로 점수를 생성할 때") {
             val c = ctx()
             val value = "24"
-            val member = Member(0L, "Test User", "test@test.com", 1, 1, 1, MemberRole.STUDENT)
-            val score = Score(1L, member, CategoryType.VOLUNTEER, ScoreStatus.APPROVED, null, null, 24.0, null, null)
+            val score = Score(1L, c.student, CategoryType.VOLUNTEER, ScoreStatus.PENDING, null, null, 24.0, null, null)
 
-            every { c.memberRepo.findById(member.id) } returns member
-            every { c.scoreRepo.findByMemberIdAndCategoryType(member.id, CategoryType.VOLUNTEER) } returns null
+            every { c.scoreRepo.findByMemberIdAndCategoryType(c.student.id, CategoryType.VOLUNTEER) } returns null
             every { c.scoreRepo.save(any()) } returns score
             every { c.scoreRepo.update(any()) } returns score
 
             When("execute를 호출하면") {
-                val res = c.service.execute(value, member.id)
+                val res = c.service.execute(value)
 
-                Then("봉사활동 점수가 APPROVED 상태로 생성된다") {
+                Then("봉사활동 점수가 PENDING 상태로 생성된다") {
                     res.scoreId shouldBe 1L
-                    res.scoreStatus shouldBe ScoreStatus.APPROVED
+                    res.scoreStatus shouldBe ScoreStatus.PENDING
                 }
             }
         }
@@ -106,7 +95,7 @@ class CreateVolunteerScoreServiceTest :
 
             When("execute를 호출하면") {
                 Then("SCORE_INVALID_VALUE 예외가 발생한다") {
-                    val ex = shouldThrow<GsmcException> { c.service.execute("invalid", 0L) }
+                    val ex = shouldThrow<GsmcException> { c.service.execute("invalid") }
                     ex.errorCode shouldBe ErrorCode.SCORE_INVALID_VALUE
                 }
             }
@@ -117,43 +106,8 @@ class CreateVolunteerScoreServiceTest :
 
             When("execute를 호출하면") {
                 Then("SCORE_VALUE_OUT_OF_RANGE 예외가 발생한다") {
-                    val ex = shouldThrow<GsmcException> { c.service.execute("0", 0L) }
+                    val ex = shouldThrow<GsmcException> { c.service.execute("0") }
                     ex.errorCode shouldBe ErrorCode.SCORE_VALUE_OUT_OF_RANGE
-                }
-            }
-        }
-
-        Given("담임 선생님이 다른 학급 학생의 점수를 생성하려고 할 때") {
-            val c = ctx(teacherRole = MemberRole.HOMEROOM_TEACHER, teacherGrade = 1, teacherClassNumber = 1)
-            val value = "24"
-            val otherClassStudent = Member(2L, "Other Student", "other@test.com", 1, 2, 1, MemberRole.STUDENT)
-
-            every { c.memberRepo.findById(otherClassStudent.id) } returns otherClassStudent
-
-            When("execute를 호출하면") {
-                Then("NOT_ASSIGNED_HOMEROOM_CLASS 예외가 발생한다") {
-                    val ex = shouldThrow<GsmcException> { c.service.execute(value, otherClassStudent.id) }
-                    ex.errorCode shouldBe ErrorCode.NOT_ASSIGNED_HOMEROOM_CLASS
-                }
-            }
-        }
-
-        Given("담임 선생님이 자신의 학급 학생의 점수를 생성할 때") {
-            val c = ctx(teacherRole = MemberRole.HOMEROOM_TEACHER, teacherGrade = 1, teacherClassNumber = 1)
-            val value = "24"
-            val sameClassStudent = Member(2L, "Same Class Student", "same@test.com", 1, 1, 1, MemberRole.STUDENT)
-            val score = Score(1L, sameClassStudent, CategoryType.VOLUNTEER, ScoreStatus.APPROVED, null, null, 24.0, null, null)
-
-            every { c.memberRepo.findById(sameClassStudent.id) } returns sameClassStudent
-            every { c.scoreRepo.findByMemberIdAndCategoryType(sameClassStudent.id, CategoryType.VOLUNTEER) } returns null
-            every { c.scoreRepo.save(any()) } returns score
-
-            When("execute를 호출하면") {
-                val res = c.service.execute(value, sameClassStudent.id)
-
-                Then("봉사활동 점수가 정상적으로 생성된다") {
-                    res.scoreId shouldBe 1L
-                    res.scoreStatus shouldBe ScoreStatus.APPROVED
                 }
             }
         }
