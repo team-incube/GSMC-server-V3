@@ -3,6 +3,7 @@ package com.team.incube.gsmc.v3.service.score
 import com.team.incube.gsmc.v3.domain.category.constant.CategoryType
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
+import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
 import com.team.incube.gsmc.v3.domain.score.dto.Score
 import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
@@ -18,12 +19,15 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.springframework.context.ApplicationEventPublisher
 
 class CreateAcademicGradeScoreServiceTest :
     BehaviorSpec({
         data class TestData(
             val scoreRepo: ScoreExposedRepository,
             val currentMemberProvider: CurrentMemberProvider,
+            val memberRepo: MemberExposedRepository,
+            val eventPublisher: ApplicationEventPublisher,
             val service: CreateAcademicGradeScoreServiceImpl,
             val student: Member,
         )
@@ -31,6 +35,8 @@ class CreateAcademicGradeScoreServiceTest :
         fun ctx(): TestData {
             val scoreRepo = mockk<ScoreExposedRepository>()
             val currentMemberProvider = mockk<CurrentMemberProvider>()
+            val memberRepo = mockk<MemberExposedRepository>()
+            val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
 
             val student =
                 Member(
@@ -44,13 +50,16 @@ class CreateAcademicGradeScoreServiceTest :
                 )
 
             every { currentMemberProvider.getCurrentMember() } returns student
+            every { memberRepo.findByGradeAndClassNumberAndRole(any(), any(), any()) } returns emptyList()
 
             val service =
                 CreateAcademicGradeScoreServiceImpl(
                     scoreExposedRepository = scoreRepo,
                     currentMemberProvider = currentMemberProvider,
+                    eventPublisher = eventPublisher,
+                    memberExposedRepository = memberRepo,
                 )
-            return TestData(scoreRepo, currentMemberProvider, service, student)
+            return TestData(scoreRepo, currentMemberProvider, memberRepo, eventPublisher, service, student)
         }
 
         val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
