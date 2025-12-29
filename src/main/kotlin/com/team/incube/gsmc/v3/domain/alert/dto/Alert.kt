@@ -10,6 +10,7 @@ data class Alert(
     val sender: Member,
     val receiver: Member,
     val score: Score?,
+    val projectId: Long?,
     val alertType: AlertType,
     val isRead: Boolean,
     val content: String,
