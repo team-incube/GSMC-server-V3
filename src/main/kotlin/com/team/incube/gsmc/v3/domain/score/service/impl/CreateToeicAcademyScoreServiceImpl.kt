@@ -8,7 +8,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateSco
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.BaseCreateOrUpdateBasedScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateToeicAcademyScoreService
-import com.team.incube.gsmc.v3.global.event.alert.CreateAlertEvent
+import com.team.incube.gsmc.v3.global.event.alert.CreateScoreAlertEvent
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.context.ApplicationEventPublisher
@@ -42,7 +42,7 @@ class CreateToeicAcademyScoreServiceImpl(
                         ).firstOrNull()
                         ?.let {
                             eventPublisher.publishEvent(
-                                CreateAlertEvent(
+                                CreateScoreAlertEvent(
                                     senderId = member.id,
                                     receiverId = it.id,
                                     scoreId = score.scoreId,
