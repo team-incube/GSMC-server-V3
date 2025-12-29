@@ -20,8 +20,7 @@ class CustomAuthenticationEntryPoint(
     ) {
         val errorResponse = CommonApiResponse.error("인증에 실패했습니다.", HttpStatus.UNAUTHORIZED)
         response.status = HttpServletResponse.SC_UNAUTHORIZED
-        response.contentType = "application/json"
+        response.contentType = "application/json; charset=UTF-8"
         response.writer.write(objectMapper.writeValueAsString(errorResponse))
-        response.characterEncoding = "UTF-8"
     }
 }
