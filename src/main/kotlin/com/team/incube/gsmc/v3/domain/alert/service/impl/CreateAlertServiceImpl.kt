@@ -43,7 +43,7 @@ class CreateAlertServiceImpl(
                         "${score.categoryType.koreanName} 점수를 ${sender.name} 선생님께서 통과시키셨습니다."
                     }
 
-                    AlertType.TEACHER_SIGNUP_REQUEST -> {
+                    AlertType.TEACHER_SIGNUP_REQUEST, AlertType.PROJECT_INVITATION -> {
                         throw GsmcException(ErrorCode.INVALID_ALERT_TYPE)
                     }
                 }

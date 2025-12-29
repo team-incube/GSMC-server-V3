@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.domain.project.service.impl
 
+import com.team.incube.gsmc.v3.domain.alert.dto.constant.AlertType
 import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectResponse
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
@@ -7,8 +8,10 @@ import com.team.incube.gsmc.v3.domain.project.service.UpdateProjectService
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
+import com.team.incube.gsmc.v3.global.event.alert.CreateProjectAlertEvent
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,6 +19,7 @@ class UpdateProjectServiceImpl(
     private val projectExposedRepository: ProjectExposedRepository,
     private val scoreExposedRepository: ScoreExposedRepository,
     private val currentMemberProvider: CurrentMemberProvider,
+    private val eventPublisher: ApplicationEventPublisher,
 ) : UpdateProjectService {
     override fun execute(
         projectId: Long,
@@ -38,6 +42,8 @@ class UpdateProjectServiceImpl(
                 scoreExposedRepository.updateActivityNameByIdIn(scoreIds, newTitle)
             }
 
+            val existingParticipantIds = project.participants.map { it.id }
+
             val updatedProject =
                 projectExposedRepository.updateProject(
                     id = projectId,
@@ -45,8 +51,23 @@ class UpdateProjectServiceImpl(
                     title = newTitle,
                     description = description ?: project.description,
                     fileIds = fileIds ?: project.files.map { it.id },
-                    participantIds = participantIds ?: project.participants.map { it.id },
+                    participantIds = participantIds ?: existingParticipantIds,
                 )
+
+            if (participantIds != null) {
+                val newParticipantIds = participantIds.filter { it !in existingParticipantIds }
+                if (newParticipantIds.isNotEmpty()) {
+                    eventPublisher.publishEvent(
+                        CreateProjectAlertEvent(
+                            senderId = currentUser.id,
+                            receiverIds = newParticipantIds,
+                            projectId = projectId,
+                            projectTitle = newTitle,
+                            alertType = AlertType.PROJECT_INVITATION,
+                        ),
+                    )
+                }
+            }
 
             val scoreIds = projectExposedRepository.findScoreIdsByProjectId(projectId)
             val fileItems =
