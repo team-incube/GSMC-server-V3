@@ -27,6 +27,14 @@ interface AlertExposedRepository {
         content: String,
     ): Alert
 
+    fun saveWithProject(
+        sender: Member,
+        receiver: Member,
+        projectId: Long,
+        alertType: AlertType,
+        content: String,
+    ): Alert
+
     fun updateIsReadTrueByReceiverIdAndLastAlertId(
         receiverId: Long,
         lastAlertId: Long,
