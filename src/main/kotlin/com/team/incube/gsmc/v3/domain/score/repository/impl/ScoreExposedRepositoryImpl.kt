@@ -410,6 +410,37 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         ScoreExposedEntity.deleteWhere { id inList scoreIds }
     }
 
+    override fun findByIdForUpdate(scoreId: Long): Score? =
+        ScoreExposedEntity
+            .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                ScoreExposedEntity.member eq MemberExposedEntity.id
+            }.selectAll()
+            .where { ScoreExposedEntity.id eq scoreId }
+            .forUpdate()
+            .map { row ->
+                val member = row.toMember()
+                row.toScore(member)
+            }.singleOrNull()
+
+    override fun findByMemberIdAndCategoryTypeAndSourceIdForUpdate(
+        memberId: Long,
+        categoryType: CategoryType,
+        sourceId: Long,
+    ): Score? =
+        ScoreExposedEntity
+            .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                ScoreExposedEntity.member eq MemberExposedEntity.id
+            }.selectAll()
+            .where {
+                (ScoreExposedEntity.member eq memberId) and
+                    (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName) and
+                    (ScoreExposedEntity.sourceId eq sourceId)
+            }.forUpdate()
+            .map { row ->
+                val member = row.toMember()
+                row.toScore(member)
+            }.singleOrNull()
+
     private fun ResultRow.toMember(): Member =
         Member(
             id = this[MemberExposedEntity.id],

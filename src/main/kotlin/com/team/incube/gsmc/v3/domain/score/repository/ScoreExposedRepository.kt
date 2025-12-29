@@ -103,4 +103,12 @@ interface ScoreExposedRepository {
     fun deleteById(scoreId: Long)
 
     fun deleteAllByIdIn(scoreIds: List<Long>)
+
+    fun findByIdForUpdate(scoreId: Long): Score?
+
+    fun findByMemberIdAndCategoryTypeAndSourceIdForUpdate(
+        memberId: Long,
+        categoryType: CategoryType,
+        sourceId: Long,
+    ): Score?
 }
