@@ -22,5 +22,6 @@ class CustomAuthenticationEntryPoint(
         response.status = HttpServletResponse.SC_UNAUTHORIZED
         response.contentType = "application/json"
         response.writer.write(objectMapper.writeValueAsString(errorResponse))
+        response.characterEncoding = "UTF-8"
     }
 }
