@@ -35,10 +35,10 @@ class CreateEvidenceServiceImpl(
     ): CreateEvidenceResponse =
         transaction {
             val score =
-                scoreExposedRepository.findById(scoreId)
+                scoreExposedRepository.findByIdForUpdate(scoreId)
                     ?: throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
 
-            if (scoreExposedRepository.existsWithSource(scoreId)) {
+            if (score.sourceId != null) {
                 throw GsmcException(ErrorCode.SCORE_ALREADY_HAS_EVIDENCE)
             }
 
