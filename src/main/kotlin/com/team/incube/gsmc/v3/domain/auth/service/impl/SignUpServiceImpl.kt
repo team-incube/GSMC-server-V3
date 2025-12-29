@@ -25,17 +25,18 @@ class SignUpServiceImpl(
             val classNumber = (studentNumber / 100) % 10
             val number = studentNumber % 100
 
-            // 학번 범위 검증: 1101~1418, 2101~2418, 3101~3418
             if (!isValidStudentNumber(grade, classNumber, number)) {
                 throw GsmcException(ErrorCode.MEMBER_INVALID_STUDENT_NUMBER)
             }
 
-            if (memberExposedRepository.existsByGradeAndClassNumberAndNumber(
+            val existingMember =
+                memberExposedRepository.findByGradeAndClassNumberAndNumberForUpdate(
                     grade = grade,
                     classNumber = classNumber,
                     number = number,
                 )
-            ) {
+
+            if (existingMember != null) {
                 throw GsmcException(ErrorCode.MEMBER_STUDENT_NUMBER_ALREADY_EXISTS)
             }
 

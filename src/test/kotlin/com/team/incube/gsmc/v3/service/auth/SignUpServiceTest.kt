@@ -84,12 +84,12 @@ class SignUpServiceTest :
 
             every { c.currentMemberProvider.getCurrentMember() } returns member
             every {
-                c.memberExposedRepository.existsByGradeAndClassNumberAndNumber(
+                c.memberExposedRepository.findByGradeAndClassNumberAndNumberForUpdate(
                     grade = expectedGrade,
                     classNumber = expectedClassNumber,
                     number = expectedNumber,
                 )
-            } returns false
+            } returns null
             every {
                 c.memberExposedRepository.update(
                     id = memberId,
@@ -107,7 +107,7 @@ class SignUpServiceTest :
 
                 Then("회원 정보가 STUDENT 권한과 학번 정보로 업데이트된다") {
                     verify(exactly = 1) {
-                        c.memberExposedRepository.existsByGradeAndClassNumberAndNumber(
+                        c.memberExposedRepository.findByGradeAndClassNumberAndNumberForUpdate(
                             grade = expectedGrade,
                             classNumber = expectedClassNumber,
                             number = expectedNumber,
@@ -150,14 +150,25 @@ class SignUpServiceTest :
             val expectedClassNumber = (studentNumber / 100) % 10
             val expectedNumber = studentNumber % 100
 
+            val existingMember =
+                Member(
+                    id = 999L,
+                    name = "다른학생",
+                    email = "other@gsm.hs.kr",
+                    grade = expectedGrade,
+                    classNumber = expectedClassNumber,
+                    number = expectedNumber,
+                    role = MemberRole.STUDENT,
+                )
+
             every { c.currentMemberProvider.getCurrentMember() } returns member
             every {
-                c.memberExposedRepository.existsByGradeAndClassNumberAndNumber(
+                c.memberExposedRepository.findByGradeAndClassNumberAndNumberForUpdate(
                     grade = expectedGrade,
                     classNumber = expectedClassNumber,
                     number = expectedNumber,
                 )
-            } returns true
+            } returns existingMember
 
             When("execute를 호출하면") {
                 val exception =

@@ -114,6 +114,13 @@ class CreateExternalActivityScoreServiceTest :
 
             every { c.fileRepo.existsById(fileId) } returns true
             justRun { c.scoreLimitValidator.validateScoreLimit(0L, CategoryType.EXTERNAL_ACTIVITY) }
+            every {
+                c.scoreRepo.findByMemberIdAndCategoryTypeAndSourceIdForUpdate(
+                    memberId = 0L,
+                    categoryType = CategoryType.EXTERNAL_ACTIVITY,
+                    sourceId = fileId,
+                )
+            } returns null
             every { c.scoreRepo.save(any()) } returns score
 
             When("execute를 호출하면") {
