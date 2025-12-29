@@ -42,7 +42,7 @@ class UpdateProjectServiceImpl(
                 scoreExposedRepository.updateActivityNameByIdIn(scoreIds, newTitle)
             }
 
-            val existingParticipantIds = project.participants.map { it.id }
+            val existingParticipantIds = project.participants.map { it.id }.toSet()
 
             val updatedProject =
                 projectExposedRepository.updateProject(
@@ -51,7 +51,7 @@ class UpdateProjectServiceImpl(
                     title = newTitle,
                     description = description ?: project.description,
                     fileIds = fileIds ?: project.files.map { it.id },
-                    participantIds = participantIds ?: existingParticipantIds,
+                    participantIds = participantIds ?: existingParticipantIds.toList(),
                 )
 
             if (participantIds != null) {
