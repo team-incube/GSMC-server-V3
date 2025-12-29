@@ -65,4 +65,10 @@ interface MemberExposedRepository {
         classNumber: Int,
         number: Int,
     ): Boolean
+
+    fun findByGradeAndClassNumberAndNumberForUpdate(
+        grade: Int,
+        classNumber: Int,
+        number: Int,
+    ): Member?
 }
