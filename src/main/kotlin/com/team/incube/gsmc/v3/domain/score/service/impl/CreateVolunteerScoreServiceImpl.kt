@@ -24,10 +24,7 @@ class CreateVolunteerScoreServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
 ) : BaseCreateOrUpdateBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateVolunteerScoreService {
-    override fun execute(
-        value: String,
-        memberId: Long,
-    ): CreateScoreResponse =
+    override fun execute(value: String): CreateScoreResponse =
         transaction {
             val intValue =
                 value.toIntOrNull()
@@ -37,17 +34,7 @@ class CreateVolunteerScoreServiceImpl(
                 throw GsmcException(ErrorCode.SCORE_VALUE_OUT_OF_RANGE)
             }
 
-            val student =
-                memberExposedRepository.findById(memberId)
-                    ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
-
-            val teacher = currentMemberProvider.getCurrentMember()
-
-            if (teacher.role == MemberRole.HOMEROOM_TEACHER) {
-                if (teacher.grade != student.grade || teacher.classNumber != student.classNumber) {
-                    throw GsmcException(ErrorCode.NOT_ASSIGNED_HOMEROOM_CLASS)
-                }
-            }
+            val student = currentMemberProvider.getCurrentMember()
 
             val score =
                 createOrUpdateScore(
@@ -55,17 +42,27 @@ class CreateVolunteerScoreServiceImpl(
                     categoryType = CategoryType.VOLUNTEER,
                     scoreValue = intValue.toDouble(),
                     sourceId = null,
-                    isApprovedByDefault = true,
+                    isApprovedByDefault = false,
                 )
 
-            eventPublisher.publishEvent(
-                CreateAlertEvent(
-                    senderId = teacher.id,
-                    receiverId = student.id,
-                    scoreId = score.scoreId,
-                    alertType = AlertType.ADD_SCORE,
-                ),
-            )
+            val homeroomTeachers =
+                memberExposedRepository.findByGradeAndClassNumberAndRole(
+                    grade = student.grade!!,
+                    classNumber = student.classNumber!!,
+                    role = MemberRole.HOMEROOM_TEACHER,
+                )
+
+            if (homeroomTeachers.isNotEmpty()) {
+                eventPublisher.publishEvent(
+                    CreateAlertEvent(
+                        senderId = student.id,
+                        receiverId = homeroomTeachers.first().id,
+                        scoreId = score.scoreId,
+                        alertType = AlertType.ADD_SCORE,
+                    ),
+                )
+            }
+
             score
         }
 }
