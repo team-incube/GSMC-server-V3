@@ -27,7 +27,9 @@ class CreatePresignedUploadUrlServiceImpl(
         validateRequest(request)
 
         val fileExtension =
-            StringUtils.getFilenameExtension(request.fileName)
+            StringUtils
+                .getFilenameExtension(request.fileName)
+                ?.lowercase()
                 ?: throw GsmcException(ErrorCode.FILE_EXTENSION_NOT_FOUND)
 
         validateFileExtension(fileExtension)
@@ -69,7 +71,7 @@ class CreatePresignedUploadUrlServiceImpl(
     }
 
     private fun validateFileExtension(extension: String) {
-        if (extension.lowercase() !in ALLOWED_EXTENSIONS) {
+        if (extension !in ALLOWED_EXTENSIONS) {
             throw GsmcException(ErrorCode.FILE_EXTENSION_NOT_ALLOWED)
         }
     }
