@@ -59,7 +59,12 @@ class ConfirmFileUploadServiceImpl(
         }
     }
 
-    private fun buildFileUri(fileKey: String): String = "https://${s3Environment.bucketName}.s3.amazonaws.com/$fileKey"
+    private fun buildFileUri(fileKey: String): String =
+        s3Client
+            .utilities()
+            .getUrl { builder ->
+                builder.bucket(s3Environment.bucketName).key(fileKey)
+            }.toString()
 
     private fun extractStoredNameFromKey(fileKey: String): String = fileKey.substringAfterLast("/")
 }
