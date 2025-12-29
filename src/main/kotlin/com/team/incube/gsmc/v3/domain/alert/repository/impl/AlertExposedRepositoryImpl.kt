@@ -90,6 +90,7 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
                     sender = sender,
                     receiver = receiver,
                     score = score,
+                    projectId = row[AlertExposedEntity.projectId],
                     alertType = row[AlertExposedEntity.alertType],
                     isRead = row[AlertExposedEntity.isRead],
                     content = row[AlertExposedEntity.content],
@@ -168,6 +169,7 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
                     sender = sender,
                     receiver = receiver,
                     score = score,
+                    projectId = row[AlertExposedEntity.projectId],
                     alertType = row[AlertExposedEntity.alertType],
                     isRead = row[AlertExposedEntity.isRead],
                     content = row[AlertExposedEntity.content],
@@ -190,6 +192,7 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
                 it[this.senderId] = sender.id
                 it[this.receiverId] = receiver.id
                 it[this.scoreId] = score.id!!
+                it[this.projectId] = null
                 it[this.alertType] = alertType
                 it[this.isRead] = false
                 it[this.content] = content
@@ -201,6 +204,7 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
             sender = sender,
             receiver = receiver,
             score = score,
+            projectId = null,
             alertType = alertType,
             isRead = false,
             content = content,
@@ -221,6 +225,7 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
                 it[this.senderId] = sender.id
                 it[this.receiverId] = receiver.id
                 it[this.scoreId] = null
+                it[this.projectId] = null
                 it[this.alertType] = alertType
                 it[this.isRead] = false
                 it[this.content] = content
@@ -232,6 +237,41 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
             sender = sender,
             receiver = receiver,
             score = null,
+            projectId = null,
+            alertType = alertType,
+            isRead = false,
+            content = content,
+            createdAt = LocalDateTime.ofInstant(now, ZoneId.systemDefault()),
+        )
+    }
+
+    override fun saveWithProject(
+        sender: Member,
+        receiver: Member,
+        projectId: Long,
+        alertType: AlertType,
+        content: String,
+    ): Alert {
+        val now = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()
+
+        val insertedId =
+            AlertExposedEntity.insert {
+                it[this.senderId] = sender.id
+                it[this.receiverId] = receiver.id
+                it[this.scoreId] = null
+                it[this.projectId] = projectId
+                it[this.alertType] = alertType
+                it[this.isRead] = false
+                it[this.content] = content
+                it[this.createdAt] = now
+            } get AlertExposedEntity.id
+
+        return Alert(
+            id = insertedId,
+            sender = sender,
+            receiver = receiver,
+            score = null,
+            projectId = projectId,
             alertType = alertType,
             isRead = false,
             content = content,

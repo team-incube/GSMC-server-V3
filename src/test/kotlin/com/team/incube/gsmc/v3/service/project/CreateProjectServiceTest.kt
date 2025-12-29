@@ -17,18 +17,21 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
+import org.springframework.context.ApplicationEventPublisher
 
 class CreateProjectServiceTest :
     BehaviorSpec({
         data class TestData(
             val projectRepo: ProjectExposedRepository,
             val currentMemberProvider: CurrentMemberProvider,
+            val eventPublisher: ApplicationEventPublisher,
             val service: CreateProjectServiceImpl,
         )
 
         fun ctx(): TestData {
             val projectRepo = mockk<ProjectExposedRepository>()
             val currentMemberProvider = mockk<CurrentMemberProvider>()
+            val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
 
             every { currentMemberProvider.getCurrentMember() } returns
                 Member(
@@ -41,8 +44,8 @@ class CreateProjectServiceTest :
                     role = MemberRole.STUDENT,
                 )
 
-            val service = CreateProjectServiceImpl(projectRepo, currentMemberProvider)
-            return TestData(projectRepo, currentMemberProvider, service)
+            val service = CreateProjectServiceImpl(projectRepo, currentMemberProvider, eventPublisher)
+            return TestData(projectRepo, currentMemberProvider, eventPublisher, service)
         }
 
         val mockTransaction = mockk<JdbcTransaction>(relaxed = true)

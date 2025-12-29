@@ -13,7 +13,7 @@ import com.team.incube.gsmc.v3.domain.score.service.CreateProjectParticipationSe
 import com.team.incube.gsmc.v3.domain.score.validator.ScoreLimitValidator
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
-import com.team.incube.gsmc.v3.global.event.alert.CreateAlertEvent
+import com.team.incube.gsmc.v3.global.event.alert.CreateScoreAlertEvent
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.context.ApplicationEventPublisher
@@ -85,7 +85,7 @@ class CreateProjectParticipationServiceImpl(
 
                 homeroomTeacher?.let { teacher ->
                     eventPublisher.publishEvent(
-                        CreateAlertEvent(
+                        CreateScoreAlertEvent(
                             senderId = member.id,
                             receiverId = teacher.id,
                             scoreId = createdScore.scoreId,

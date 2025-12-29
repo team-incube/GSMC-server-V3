@@ -10,7 +10,7 @@ import com.team.incube.gsmc.v3.domain.score.service.BaseCreateOrUpdateBasedScore
 import com.team.incube.gsmc.v3.domain.score.service.CreateVolunteerScoreService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
-import com.team.incube.gsmc.v3.global.event.alert.CreateAlertEvent
+import com.team.incube.gsmc.v3.global.event.alert.CreateScoreAlertEvent
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.context.ApplicationEventPublisher
@@ -54,7 +54,7 @@ class CreateVolunteerScoreServiceImpl(
 
             if (homeroomTeachers.isNotEmpty()) {
                 eventPublisher.publishEvent(
-                    CreateAlertEvent(
+                    CreateScoreAlertEvent(
                         senderId = student.id,
                         receiverId = homeroomTeachers.first().id,
                         scoreId = score.scoreId,

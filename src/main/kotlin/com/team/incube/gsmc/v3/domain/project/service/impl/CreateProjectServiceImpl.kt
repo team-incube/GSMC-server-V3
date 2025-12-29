@@ -1,17 +1,21 @@
 package com.team.incube.gsmc.v3.domain.project.service.impl
 
+import com.team.incube.gsmc.v3.domain.alert.dto.constant.AlertType
 import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.project.presentation.data.response.GetProjectResponse
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
 import com.team.incube.gsmc.v3.domain.project.service.CreateProjectService
+import com.team.incube.gsmc.v3.global.event.alert.CreateProjectAlertEvent
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 
 @Service
 class CreateProjectServiceImpl(
     private val projectExposedRepository: ProjectExposedRepository,
     private val currentMemberProvider: CurrentMemberProvider,
+    private val eventPublisher: ApplicationEventPublisher,
 ) : CreateProjectService {
     override fun execute(
         title: String,
@@ -42,6 +46,18 @@ class CreateProjectServiceImpl(
                         uri = file.uri,
                     )
                 }
+
+            if (participantIds.isNotEmpty()) {
+                eventPublisher.publishEvent(
+                    CreateProjectAlertEvent(
+                        senderId = currentUser.id,
+                        receiverIds = participantIds,
+                        projectId = project.id!!,
+                        projectTitle = title,
+                        alertType = AlertType.PROJECT_INVITATION,
+                    ),
+                )
+            }
 
             GetProjectResponse(
                 id = project.id!!,
