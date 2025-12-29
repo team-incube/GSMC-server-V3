@@ -45,4 +45,6 @@ interface AlertExposedRepository {
     fun deleteAllByScoreIdIn(scoreIds: List<Long>): Int
 
     fun deleteAllByMemberId(memberId: Long): Int
+
+    fun deleteByProjectId(projectId: Long): Int
 }

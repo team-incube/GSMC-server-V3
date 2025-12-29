@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.domain.project.service.impl
 
+import com.team.incube.gsmc.v3.domain.alert.repository.AlertExposedRepository
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.project.repository.ProjectExposedRepository
@@ -20,6 +21,7 @@ class DeleteProjectServiceImpl(
     private val scoreExposedRepository: ScoreExposedRepository,
     private val evidenceExposedRepository: EvidenceExposedRepository,
     private val fileExposedRepository: FileExposedRepository,
+    private val alertExposedRepository: AlertExposedRepository,
     private val eventPublisher: ApplicationEventPublisher,
 ) : DeleteProjectService {
     override fun execute(projectId: Long) {
@@ -37,6 +39,8 @@ class DeleteProjectServiceImpl(
             val evidences = evidenceExposedRepository.findAllByIdIn(sourceIds)
             val allFiles = (evidences.flatMap { it.files } + project.files).distinctBy { it.id }
             val evidenceIds = evidences.map { it.id }
+            alertExposedRepository.deleteAllByScoreIdIn(scoreIds)
+            alertExposedRepository.deleteByProjectId(projectId)
             evidenceExposedRepository.deleteAllByIdIn(evidenceIds)
             scoreExposedRepository.deleteAllByIdIn(scoreIds)
             projectExposedRepository.deleteProjectById(projectId)

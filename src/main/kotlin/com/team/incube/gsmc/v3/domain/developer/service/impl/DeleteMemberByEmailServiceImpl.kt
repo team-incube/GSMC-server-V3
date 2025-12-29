@@ -77,6 +77,7 @@ class DeleteMemberByEmailServiceImpl(
             val ownedProjects = projectExposedRepository.findProjectsByOwnerId(member.id)
             ownedProjects.forEach { project ->
                 val projectId = project.id ?: return@forEach
+                alertExposedRepository.deleteByProjectId(projectId)
                 projectExposedRepository.deleteProjectById(projectId)
             }
 

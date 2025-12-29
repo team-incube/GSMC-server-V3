@@ -307,4 +307,9 @@ class AlertExposedRepositoryImpl : AlertExposedRepository {
             (AlertExposedEntity.senderId eq memberId) or
                 (AlertExposedEntity.receiverId eq memberId)
         }
+
+    override fun deleteByProjectId(projectId: Long): Int =
+        AlertExposedEntity.deleteWhere {
+            AlertExposedEntity.projectId eq projectId
+        }
 }
