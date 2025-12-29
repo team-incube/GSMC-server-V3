@@ -27,6 +27,14 @@ interface AlertExposedRepository {
         content: String,
     ): Alert
 
+    fun saveWithProject(
+        sender: Member,
+        receiver: Member,
+        projectId: Long,
+        alertType: AlertType,
+        content: String,
+    ): Alert
+
     fun updateIsReadTrueByReceiverIdAndLastAlertId(
         receiverId: Long,
         lastAlertId: Long,
@@ -37,4 +45,6 @@ interface AlertExposedRepository {
     fun deleteAllByScoreIdIn(scoreIds: List<Long>): Int
 
     fun deleteAllByMemberId(memberId: Long): Int
+
+    fun deleteByProjectId(projectId: Long): Int
 }

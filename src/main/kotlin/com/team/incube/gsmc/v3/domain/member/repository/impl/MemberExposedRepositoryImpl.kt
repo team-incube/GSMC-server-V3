@@ -185,6 +185,22 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
             }.empty()
             .not()
 
+    override fun findByGradeAndClassNumberAndNumberForUpdate(
+        grade: Int,
+        classNumber: Int,
+        number: Int,
+    ): Member? =
+        MemberExposedEntity
+            .selectAll()
+            .where {
+                (MemberExposedEntity.grade eq grade) and
+                    (MemberExposedEntity.classNumber eq classNumber) and
+                    (MemberExposedEntity.number eq number)
+            }.forUpdate()
+            .limit(1)
+            .firstOrNull()
+            ?.toMember()
+
     private fun ResultRow.toMember(): Member =
         Member(
             id = this[MemberExposedEntity.id],

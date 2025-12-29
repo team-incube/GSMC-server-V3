@@ -6,6 +6,7 @@ import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.common.response.data.CommonApiResponse
 import com.team.incube.gsmc.v3.global.config.logger
 import jakarta.validation.ConstraintViolationException
+import org.springframework.dao.DuplicateKeyException
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.HttpRequestMethodNotSupportedException
@@ -124,7 +125,16 @@ class GlobalExceptionHandler(
         warnTrace("The file is too big", ex)
         return CommonApiResponse.error(
             message = "파일이 너무 큽니다, 최대 파일 용량 : ${ex.maxUploadSize}",
-            status = HttpStatus.BAD_REQUEST,
+            status = HttpStatus.CONTENT_TOO_LARGE,
+        )
+    }
+
+    @ExceptionHandler(DuplicateKeyException::class)
+    fun handleDuplicateKeyException(ex: DuplicateKeyException): CommonApiResponse<Nothing> {
+        warnTrace("Duplicate Key Exception", ex)
+        return CommonApiResponse.error(
+            message = "중복된 데이터가 존재합니다.",
+            status = HttpStatus.CONFLICT,
         )
     }
 

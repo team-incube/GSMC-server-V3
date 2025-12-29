@@ -8,7 +8,7 @@ import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.ApproveScoreService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
-import com.team.incube.gsmc.v3.global.event.alert.CreateAlertEvent
+import com.team.incube.gsmc.v3.global.event.alert.CreateScoreAlertEvent
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.context.ApplicationEventPublisher
@@ -44,7 +44,7 @@ class ApproveScoreServiceImpl(
             )
 
             eventPublisher.publishEvent(
-                CreateAlertEvent(
+                CreateScoreAlertEvent(
                     senderId = currentMember.id,
                     receiverId = score.member.id,
                     scoreId = scoreId,

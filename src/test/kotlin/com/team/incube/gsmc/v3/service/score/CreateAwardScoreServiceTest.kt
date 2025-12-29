@@ -115,6 +115,13 @@ class CreateAwardScoreServiceTest :
 
             every { c.fileRepo.existsById(fileId) } returns true
             justRun { c.scoreLimitValidator.validateScoreLimit(0L, CategoryType.AWARD) }
+            every {
+                c.scoreRepo.findByMemberIdAndCategoryTypeAndSourceIdForUpdate(
+                    memberId = 0L,
+                    categoryType = CategoryType.AWARD,
+                    sourceId = fileId,
+                )
+            } returns null
             every { c.scoreRepo.save(any()) } returns score
 
             When("execute를 호출하면") {
@@ -127,6 +134,13 @@ class CreateAwardScoreServiceTest :
                 Then("저장소 메서드가 호출된다") {
                     verify(exactly = 1) { c.fileRepo.existsById(fileId) }
                     verify(exactly = 1) { c.scoreLimitValidator.validateScoreLimit(0L, CategoryType.AWARD) }
+                    verify(exactly = 1) {
+                        c.scoreRepo.findByMemberIdAndCategoryTypeAndSourceIdForUpdate(
+                            memberId = 0L,
+                            categoryType = CategoryType.AWARD,
+                            sourceId = fileId,
+                        )
+                    }
                     verify(exactly = 1) { c.scoreRepo.save(any()) }
                 }
             }

@@ -1,5 +1,6 @@
 package com.team.incube.gsmc.v3.service.project
 
+import com.team.incube.gsmc.v3.domain.alert.repository.AlertExposedRepository
 import com.team.incube.gsmc.v3.domain.evidence.repository.EvidenceExposedRepository
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.member.dto.Member
@@ -30,6 +31,7 @@ class DeleteProjectServiceTest :
             val scoreRepo: ScoreExposedRepository,
             val evidenceRepo: EvidenceExposedRepository,
             val fileRepo: FileExposedRepository,
+            val alertRepo: AlertExposedRepository,
             val eventPublisher: ApplicationEventPublisher,
             val currentMemberProvider: CurrentMemberProvider,
             val service: DeleteProjectServiceImpl,
@@ -40,6 +42,7 @@ class DeleteProjectServiceTest :
             val scoreRepo = mockk<ScoreExposedRepository>()
             val evidenceRepo = mockk<EvidenceExposedRepository>()
             val fileRepo = mockk<FileExposedRepository>()
+            val alertRepo = mockk<AlertExposedRepository>()
             val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
             val currentMemberProvider = mockk<CurrentMemberProvider>()
 
@@ -61,9 +64,10 @@ class DeleteProjectServiceTest :
                     scoreExposedRepository = scoreRepo,
                     evidenceExposedRepository = evidenceRepo,
                     fileExposedRepository = fileRepo,
+                    alertExposedRepository = alertRepo,
                     eventPublisher = eventPublisher,
                 )
-            return TestData(projectRepo, scoreRepo, evidenceRepo, fileRepo, eventPublisher, currentMemberProvider, service)
+            return TestData(projectRepo, scoreRepo, evidenceRepo, fileRepo, alertRepo, eventPublisher, currentMemberProvider, service)
         }
 
         val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
@@ -101,6 +105,8 @@ class DeleteProjectServiceTest :
             every { c.projectRepo.findScoreIdsByProjectId(projectId) } returns emptyList()
             every { c.scoreRepo.findAllByIdIn(emptyList()) } returns emptyList()
             every { c.evidenceRepo.findAllByIdIn(emptyList()) } returns emptyList()
+            every { c.alertRepo.deleteAllByScoreIdIn(emptyList()) } returns 0
+            every { c.alertRepo.deleteByProjectId(projectId) } returns 0
             justRun { c.evidenceRepo.deleteAllByIdIn(emptyList()) }
             justRun { c.scoreRepo.deleteAllByIdIn(emptyList()) }
             justRun { c.projectRepo.deleteProjectById(projectId) }

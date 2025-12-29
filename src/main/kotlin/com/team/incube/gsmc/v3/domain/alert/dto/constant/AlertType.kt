@@ -15,4 +15,7 @@ enum class AlertType(
     TEACHER_SIGNUP_REQUEST(
         title = "선생님 회원가입 요청",
     ),
+    PROJECT_INVITATION(
+        title = "프로젝트 초대 알림",
+    ),
 }

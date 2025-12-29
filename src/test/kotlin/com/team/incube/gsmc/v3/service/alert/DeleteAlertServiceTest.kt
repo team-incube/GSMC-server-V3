@@ -91,6 +91,7 @@ class DeleteAlertServiceTest :
                 sender = teacher(),
                 receiver = receiver,
                 score = mockk(relaxed = true),
+                projectId = null,
                 alertType = mockk(relaxed = true),
                 isRead = false,
                 content = "알림",

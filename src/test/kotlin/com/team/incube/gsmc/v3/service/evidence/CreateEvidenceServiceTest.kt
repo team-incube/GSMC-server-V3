@@ -137,8 +137,7 @@ class CreateEvidenceServiceTest :
                     files = files,
                 )
 
-            every { c.scoreRepo.findById(scoreId) } returns score
-            every { c.scoreRepo.existsWithSource(scoreId) } returns false
+            every { c.scoreRepo.findByIdForUpdate(scoreId) } returns score
             every { c.fileRepo.existsByIdIn(fileIds) } returns true
             every { c.evidenceRepo.save(userId = 0L, title = "title", content = "content", fileIds = fileIds) } returns
                 saved
@@ -159,8 +158,7 @@ class CreateEvidenceServiceTest :
                 }
 
                 Then("점수, 파일 검증과 저장 및 score source 업데이트가 호출된다") {
-                    verify(exactly = 1) { c.scoreRepo.findById(scoreId) }
-                    verify(exactly = 1) { c.scoreRepo.existsWithSource(scoreId) }
+                    verify(exactly = 1) { c.scoreRepo.findByIdForUpdate(scoreId) }
                     verify(exactly = 1) { c.fileRepo.existsByIdIn(fileIds) }
                     verify(
                         exactly = 1,
@@ -176,7 +174,7 @@ class CreateEvidenceServiceTest :
                 val c = ctx()
                 val scoreId = 999L
                 val fileIds = listOf(10L)
-                every { c.scoreRepo.findById(scoreId) } returns null
+                every { c.scoreRepo.findByIdForUpdate(scoreId) } returns null
 
                 Then("SCORE_NOT_FOUND 예외가 발생한다") {
                     val ex = shouldThrow<GsmcException> { c.service.execute(scoreId, "t", "c", fileIds) }
@@ -210,8 +208,7 @@ class CreateEvidenceServiceTest :
                     rejectionReason = null,
                     updatedAt = null,
                 )
-            every { c.scoreRepo.findById(scoreId) } returns score
-            every { c.scoreRepo.existsWithSource(scoreId) } returns true
+            every { c.scoreRepo.findByIdForUpdate(scoreId) } returns score
 
             When("execute를 호출하면") {
                 Then("SCORE_ALREADY_HAS_EVIDENCE 예외가 발생한다") {
@@ -247,8 +244,7 @@ class CreateEvidenceServiceTest :
                         rejectionReason = null,
                         updatedAt = null,
                     )
-                every { c.scoreRepo.findById(scoreId) } returns score
-                every { c.scoreRepo.existsWithSource(scoreId) } returns false
+                every { c.scoreRepo.findByIdForUpdate(scoreId) } returns score
                 every { c.fileRepo.existsByIdIn(fileIds) } returns false
 
                 Then("FILE_NOT_FOUND 예외가 발생한다") {
@@ -295,8 +291,7 @@ class CreateEvidenceServiceTest :
                     files = emptyList(),
                 )
 
-            every { c.scoreRepo.findById(scoreId) } returns score
-            every { c.scoreRepo.existsWithSource(scoreId) } returns false
+            every { c.scoreRepo.findByIdForUpdate(scoreId) } returns score
             every { c.evidenceRepo.save(userId = 0L, title = "t", content = "c", fileIds = fileIds) } returns saved
             justRun { c.scoreRepo.updateSourceId(scoreId, saved.id) }
             every { c.scoreRepo.updateStatusByScoreId(scoreId, ScoreStatus.PENDING) } returns 1

@@ -62,8 +62,6 @@ class DomainAuthorizationConfig {
             .requestMatchers("/api/v3/projects/**")
             .hasAnyRole(MemberRole.STUDENT.name, MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
             // Score
-            .requestMatchers(HttpMethod.POST, "/api/v3/scores/volunteer", "/api/v3/scores/academic-grade")
-            .hasAnyRole(MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
             .requestMatchers(HttpMethod.PUT, "/api/v3/scores/*/status")
             .hasAnyRole(MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
             .requestMatchers(HttpMethod.PATCH, "/api/v3/scores/*/approve", "/api/v3/scores/*/reject")
@@ -81,8 +79,10 @@ class DomainAuthorizationConfig {
                 "/api/v3/scores/toeic-academy",
                 "/api/v3/scores/jlpt",
                 "/api/v3/scores/read-a-thon",
+                "/api/v3/scores/volunteer",
                 "/api/v3/scores/ncs",
                 "/api/v3/scores/newrrow-school",
+                "/api/v3/scores/academic-grade",
                 "/api/v3/scores/external-activity",
                 "/api/v3/scores/project-participation",
             ).hasRole(MemberRole.STUDENT.name)

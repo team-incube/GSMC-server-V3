@@ -10,7 +10,7 @@ import com.team.incube.gsmc.v3.domain.score.service.BaseCreateOrUpdateBasedScore
 import com.team.incube.gsmc.v3.domain.score.service.CreateAcademicGradeScoreService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
-import com.team.incube.gsmc.v3.global.event.alert.CreateAlertEvent
+import com.team.incube.gsmc.v3.global.event.alert.CreateScoreAlertEvent
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.springframework.context.ApplicationEventPublisher
@@ -24,10 +24,7 @@ class CreateAcademicGradeScoreServiceImpl(
     private val memberExposedRepository: MemberExposedRepository,
 ) : BaseCreateOrUpdateBasedScoreService(scoreExposedRepository, currentMemberProvider),
     CreateAcademicGradeScoreService {
-    override fun execute(
-        value: String,
-        memberId: Long,
-    ): CreateScoreResponse =
+    override fun execute(value: String): CreateScoreResponse =
         transaction {
             val doubleValue =
                 value.toDoubleOrNull()
@@ -37,17 +34,7 @@ class CreateAcademicGradeScoreServiceImpl(
                 throw GsmcException(ErrorCode.SCORE_VALUE_OUT_OF_RANGE)
             }
 
-            val student =
-                memberExposedRepository.findById(memberId)
-                    ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
-
-            val teacher = currentMemberProvider.getCurrentMember()
-
-            if (teacher.role == MemberRole.HOMEROOM_TEACHER) {
-                if (teacher.grade != student.grade || teacher.classNumber != student.classNumber) {
-                    throw GsmcException(ErrorCode.NOT_ASSIGNED_HOMEROOM_CLASS)
-                }
-            }
+            val student = currentMemberProvider.getCurrentMember()
 
             val score =
                 createOrUpdateScore(
@@ -55,17 +42,27 @@ class CreateAcademicGradeScoreServiceImpl(
                     categoryType = CategoryType.ACADEMIC_GRADE,
                     scoreValue = doubleValue,
                     sourceId = null,
-                    isApprovedByDefault = true,
+                    isApprovedByDefault = false,
                 )
 
-            eventPublisher.publishEvent(
-                CreateAlertEvent(
-                    senderId = teacher.id,
-                    receiverId = student.id,
-                    scoreId = score.scoreId,
-                    alertType = AlertType.ADD_SCORE,
-                ),
-            )
+            val homeroomTeachers =
+                memberExposedRepository.findByGradeAndClassNumberAndRole(
+                    grade = student.grade!!,
+                    classNumber = student.classNumber!!,
+                    role = MemberRole.HOMEROOM_TEACHER,
+                )
+
+            if (homeroomTeachers.isNotEmpty()) {
+                eventPublisher.publishEvent(
+                    CreateScoreAlertEvent(
+                        senderId = student.id,
+                        receiverId = homeroomTeachers.first().id,
+                        scoreId = score.scoreId,
+                        alertType = AlertType.ADD_SCORE,
+                    ),
+                )
+            }
+
             score
         }
 }
