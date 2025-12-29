@@ -14,10 +14,10 @@ class CreateProjectAlertEventListener(
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun handleCreateProjectAlert(event: CreateProjectAlertEvent) {
-        event.receiverIds.forEach { receiverId ->
+        if (event.receiverIds.isNotEmpty()) {
             createProjectAlertService.execute(
                 senderId = event.senderId,
-                receiverId = receiverId,
+                receiverIds = event.receiverIds,
                 projectId = event.projectId,
                 projectTitle = event.projectTitle,
                 alertType = event.alertType,

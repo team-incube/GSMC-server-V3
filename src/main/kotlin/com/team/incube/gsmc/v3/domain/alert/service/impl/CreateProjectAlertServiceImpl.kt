@@ -16,15 +16,14 @@ class CreateProjectAlertServiceImpl(
 ) : CreateProjectAlertService {
     override fun execute(
         senderId: Long,
-        receiverId: Long,
+        receiverIds: List<Long>,
         projectId: Long,
         projectTitle: String,
         alertType: AlertType,
     ) {
         transaction {
             val sender = memberExposedRepository.findById(senderId) ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
-            val receiver =
-                memberExposedRepository.findById(receiverId) ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
+            val receivers = memberExposedRepository.findAllByIdIn(receiverIds)
 
             val content =
                 when (alertType) {
@@ -37,7 +36,9 @@ class CreateProjectAlertServiceImpl(
                     }
                 }
 
-            alertExposedRepository.saveWithoutScore(sender, receiver, alertType, content)
+            receivers.forEach { receiver ->
+                alertExposedRepository.saveWithProject(sender, receiver, projectId, alertType, content)
+            }
         }
     }
 }
