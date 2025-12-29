@@ -7,6 +7,8 @@ import com.team.incube.gsmc.v3.domain.score.dto.constant.ScoreStatus
 import com.team.incube.gsmc.v3.domain.score.presentation.data.dto.CategoryNames
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateScoreResponse
 import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
+import com.team.incube.gsmc.v3.global.common.error.ErrorCode
+import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
 import com.team.incube.gsmc.v3.global.security.jwt.util.CurrentMemberProvider
 
 abstract class BaseCountBasedScoreService(
@@ -20,6 +22,18 @@ abstract class BaseCountBasedScoreService(
         sourceId: Long?,
         status: ScoreStatus = ScoreStatus.PENDING,
     ): CreateScoreResponse {
+        if (sourceId != null) {
+            val existingScore =
+                scoreExposedRepository.findByMemberIdAndCategoryTypeAndSourceIdForUpdate(
+                    memberId = member.id,
+                    categoryType = categoryType,
+                    sourceId = sourceId,
+                )
+            if (existingScore != null) {
+                throw GsmcException(ErrorCode.SCORE_ALREADY_EXISTS)
+            }
+        }
+
         val savedScore =
             scoreExposedRepository.save(
                 Score(
