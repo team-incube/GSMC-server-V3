@@ -82,17 +82,14 @@ class DeleteEvidenceServiceTest :
             When("execute를 호출하면") {
                 c.service.execute(id)
 
-                Then("파일 삭제, S3 이벤트 발행, source null 처리, 증빙 삭제가 각각 1회 호출된다") {
+                Then("파일 삭제, S3 이벤트 발행, source null 처리, 증빙 삭제가 각각 1회 호출되고 이벤트에 올바른 URI가 포함된다") {
                     verify(exactly = 1) { c.evidenceRepo.findById(id) }
                     verify(exactly = 1) { c.fileRepo.deleteAllByIdIn(listOf(file.id)) }
-                    verify(exactly = 1) { c.eventPublisher.publishEvent(any<S3BulkFileDeletionEvent>()) }
                     verify(exactly = 1) { c.scoreRepo.updateSourceIdToNull(id) }
                     verify(exactly = 1) { c.evidenceRepo.deleteById(id) }
-                }
 
-                Then("S3 삭제 이벤트에 올바른 파일 URI가 포함된다") {
                     val eventSlot = slot<S3BulkFileDeletionEvent>()
-                    verify { c.eventPublisher.publishEvent(capture(eventSlot)) }
+                    verify(exactly = 1) { c.eventPublisher.publishEvent(capture(eventSlot)) }
                     eventSlot.captured.fileUris shouldBe listOf(file.uri)
                 }
             }
@@ -173,16 +170,15 @@ class DeleteEvidenceServiceTest :
             When("execute를 호출하면") {
                 c.service.execute(id)
 
-                Then("모든 파일이 삭제되고 모든 URI가 이벤트에 포함된다") {
-                    verify(exactly = 1) { c.fileRepo.deleteAllByIdIn(listOf(10L, 11L, 12L)) }
+                Then("모든 파일이 삭제되고 모든 URI가 이벤트에 포함되며 전체 프로세스가 실행된다") {
+                    verify(exactly = 1) { c.evidenceRepo.findById(id) }
+                    verify(exactly = 1) { c.fileRepo.deleteAllByIdIn(files.map { it.id }) }
+                    verify(exactly = 1) { c.scoreRepo.updateSourceIdToNull(id) }
+                    verify(exactly = 1) { c.evidenceRepo.deleteById(id) }
+
                     val eventSlot = slot<S3BulkFileDeletionEvent>()
-                    verify { c.eventPublisher.publishEvent(capture(eventSlot)) }
-                    eventSlot.captured.fileUris shouldBe
-                        listOf(
-                            "s3://bucket/file1",
-                            "s3://bucket/file2",
-                            "s3://bucket/file3",
-                        )
+                    verify(exactly = 1) { c.eventPublisher.publishEvent(capture(eventSlot)) }
+                    eventSlot.captured.fileUris shouldBe files.map { it.uri }
                 }
             }
         }
