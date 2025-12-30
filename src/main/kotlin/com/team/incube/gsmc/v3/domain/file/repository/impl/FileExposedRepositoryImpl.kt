@@ -5,10 +5,12 @@ import com.team.incube.gsmc.v3.domain.file.entity.EvidenceFileExposedEntity
 import com.team.incube.gsmc.v3.domain.file.entity.FileExposedEntity
 import com.team.incube.gsmc.v3.domain.file.repository.FileExposedRepository
 import com.team.incube.gsmc.v3.domain.project.entity.ProjectFileExposedEntity
+import com.team.incube.gsmc.v3.domain.score.entity.ScoreExposedEntity
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.isNotNull
 import org.jetbrains.exposed.v1.core.notInSubQuery
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -76,25 +78,35 @@ class FileExposedRepositoryImpl : FileExposedRepository {
     override fun findUnusedFilesByUserId(userId: Long): List<File> {
         val usedInProjectSubQuery = ProjectFileExposedEntity.select(ProjectFileExposedEntity.file)
         val usedInEvidenceSubQuery = EvidenceFileExposedEntity.select(EvidenceFileExposedEntity.file)
+        val usedInScoreSubQuery =
+            ScoreExposedEntity
+                .select(ScoreExposedEntity.sourceId)
+                .where { ScoreExposedEntity.sourceId.isNotNull() }
 
         return FileExposedEntity
             .selectAll()
             .where {
                 (FileExposedEntity.member eq userId) and
                     FileExposedEntity.id.notInSubQuery(usedInProjectSubQuery) and
-                    FileExposedEntity.id.notInSubQuery(usedInEvidenceSubQuery)
+                    FileExposedEntity.id.notInSubQuery(usedInEvidenceSubQuery) and
+                    FileExposedEntity.id.notInSubQuery(usedInScoreSubQuery)
             }.map { it.toFile() }
     }
 
     override fun findAllUnusedFiles(): List<File> {
         val usedInProjectSubQuery = ProjectFileExposedEntity.select(ProjectFileExposedEntity.file)
         val usedInEvidenceSubQuery = EvidenceFileExposedEntity.select(EvidenceFileExposedEntity.file)
+        val usedInScoreSubQuery =
+            ScoreExposedEntity
+                .select(ScoreExposedEntity.sourceId)
+                .where { ScoreExposedEntity.sourceId.isNotNull() }
 
         return FileExposedEntity
             .selectAll()
             .where {
                 FileExposedEntity.id.notInSubQuery(usedInProjectSubQuery) and
-                    FileExposedEntity.id.notInSubQuery(usedInEvidenceSubQuery)
+                    FileExposedEntity.id.notInSubQuery(usedInEvidenceSubQuery) and
+                    FileExposedEntity.id.notInSubQuery(usedInScoreSubQuery)
             }.map { it.toFile() }
     }
 

@@ -1,9 +1,14 @@
 package com.team.incube.gsmc.v3.domain.file.presentation
 
+import com.team.incube.gsmc.v3.domain.file.presentation.data.request.ConfirmFileUploadRequest
+import com.team.incube.gsmc.v3.domain.file.presentation.data.request.CreatePresignedUploadUrlRequest
 import com.team.incube.gsmc.v3.domain.file.presentation.data.response.CreateFileResponse
+import com.team.incube.gsmc.v3.domain.file.presentation.data.response.CreatePresignedUploadUrlResponse
 import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetFileResponse
 import com.team.incube.gsmc.v3.domain.file.presentation.data.response.GetMyFilesResponse
+import com.team.incube.gsmc.v3.domain.file.service.ConfirmFileUploadService
 import com.team.incube.gsmc.v3.domain.file.service.CreateFileService
+import com.team.incube.gsmc.v3.domain.file.service.CreatePresignedUploadUrlService
 import com.team.incube.gsmc.v3.domain.file.service.DeleteFileService
 import com.team.incube.gsmc.v3.domain.file.service.FindFileByIdService
 import com.team.incube.gsmc.v3.domain.file.service.FindMyFilesService
@@ -15,10 +20,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -33,6 +40,8 @@ class FileController(
     private val findFileByIdService: FindFileByIdService,
     private val findMyFilesService: FindMyFilesService,
     private val findMyUnusedFilesService: FindMyUnusedFilesService,
+    private val createPresignedUploadUrlService: CreatePresignedUploadUrlService,
+    private val confirmFileUploadService: ConfirmFileUploadService,
 ) {
     @Operation(summary = "파일 업로드", description = "파일을 업로드합니다")
     @ApiResponses(
@@ -127,4 +136,50 @@ class FileController(
         deleteFileService.execute(fileId = fileId)
         return CommonApiResponse.success("OK")
     }
+
+    @Operation(
+        summary = "Pre-signed URL 생성",
+        description = "S3 파일 업로드를 위한 Pre-signed URL을 생성합니다. 클라이언트는 이 URL을 사용하여 S3에 직접 파일을 업로드할 수 있습니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Pre-signed URL 생성 성공",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "잘못된 파일 형식 또는 파일 크기 초과",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/presigned-url")
+    fun createPresignedUploadUrl(
+        @Valid @RequestBody request: CreatePresignedUploadUrlRequest,
+    ): CreatePresignedUploadUrlResponse = createPresignedUploadUrlService.execute(request)
+
+    @Operation(
+        summary = "파일 업로드 확인",
+        description = "Pre-signed URL을 통해 S3에 업로드된 파일을 확인하고 데이터베이스에 등록합니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "파일 업로드 확인 성공",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "S3에서 파일을 찾을 수 없음",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/confirm")
+    fun confirmFileUpload(
+        @Valid @RequestBody request: ConfirmFileUploadRequest,
+    ): CreateFileResponse = confirmFileUploadService.execute(request)
 }

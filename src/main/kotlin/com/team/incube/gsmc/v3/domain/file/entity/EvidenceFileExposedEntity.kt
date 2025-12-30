@@ -1,11 +1,12 @@
 package com.team.incube.gsmc.v3.domain.file.entity
 
 import com.team.incube.gsmc.v3.domain.evidence.entity.EvidenceExposedEntity
+import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
 
 object EvidenceFileExposedEntity : Table(name = "tb_evidence_file") {
-    val evidence = long(name = "evidence_id").references(EvidenceExposedEntity.id)
-    val file = long(name = "file_id").references(FileExposedEntity.id)
+    val evidence = long(name = "evidence_id").references(EvidenceExposedEntity.id, onDelete = ReferenceOption.CASCADE)
+    val file = long(name = "file_id").references(FileExposedEntity.id, onDelete = ReferenceOption.CASCADE)
 
     override val primaryKey = PrimaryKey(evidence, file)
 }

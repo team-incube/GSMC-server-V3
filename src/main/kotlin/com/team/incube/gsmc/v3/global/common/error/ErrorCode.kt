@@ -27,6 +27,7 @@ enum class ErrorCode(
     FILE_EXTENSION_NOT_FOUND("파일 확장자가 없습니다.", 400),
     FILE_EXTENSION_NOT_ALLOWED("허용되지 않는 파일 형식입니다.", 400),
     FILE_UNAUTHORIZED_ACCESS("파일에 대한 접근 권한이 없습니다.", 403),
+    FILE_SIZE_EXCEEDED("파일 크기가 허용 범위를 초과했습니다.", 400),
 
     // Category
     INVALID_CATEGORY("유효하지 않은 카테고리입니다.", 500),
