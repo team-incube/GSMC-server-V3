@@ -7,7 +7,7 @@ interface FileExposedRepository {
 
     fun existsByIdIn(fileIds: List<Long>): Boolean
 
-    fun saveFile(
+    fun save(
         userId: Long,
         originalName: String,
         storedName: String,
@@ -18,9 +18,9 @@ interface FileExposedRepository {
 
     fun findAllByIdIn(fileIds: List<Long>): List<File>
 
-    fun findAllByUserId(userId: Long): List<File>
+    fun findAllByMemberId(memberId: Long): List<File>
 
-    fun findUnusedFilesByUserId(userId: Long): List<File>
+    fun findUnusedFilesByMemberId(memberId: Long): List<File>
 
     fun findAllUnusedFiles(): List<File>
 
