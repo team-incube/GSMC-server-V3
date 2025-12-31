@@ -17,7 +17,7 @@ class FindMyFilesServiceImpl(
         transaction {
             val member = currentMemberProvider.getCurrentMember()
 
-            val files = fileExposedRepository.findAllByUserId(member.id)
+            val files = fileExposedRepository.findAllByMemberId(member.id)
 
             GetMyFilesResponse(
                 files =

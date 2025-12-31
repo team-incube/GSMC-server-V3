@@ -29,7 +29,7 @@ class ConfirmFileUploadServiceImpl(
 
         return transaction {
             val savedFile =
-                fileExposedRepository.saveFile(
+                fileExposedRepository.save(
                     userId = currentMemberProvider.getCurrentMember().id,
                     originalName = request.originalFileName,
                     storedName = storedName,

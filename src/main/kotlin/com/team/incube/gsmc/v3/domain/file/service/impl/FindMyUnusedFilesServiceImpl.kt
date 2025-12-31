@@ -17,7 +17,7 @@ class FindMyUnusedFilesServiceImpl(
         transaction {
             val member = currentMemberProvider.getCurrentMember()
 
-            val unusedFiles = fileExposedRepository.findUnusedFilesByUserId(member.id)
+            val unusedFiles = fileExposedRepository.findUnusedFilesByMemberId(member.id)
 
             GetMyFilesResponse(
                 files =
