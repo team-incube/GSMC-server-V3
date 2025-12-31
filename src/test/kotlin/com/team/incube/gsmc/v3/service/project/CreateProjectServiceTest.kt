@@ -121,7 +121,7 @@ class CreateProjectServiceTest :
                 )
 
             every {
-                c.projectRepo.saveProject(
+                c.projectRepo.save(
                     ownerId = 1L,
                     title = title,
                     description = description,
@@ -149,7 +149,7 @@ class CreateProjectServiceTest :
 
                 Then("프로젝트 저장과 점수 조회가 호출된다") {
                     verify(exactly = 1) {
-                        c.projectRepo.saveProject(
+                        c.projectRepo.save(
                             ownerId = 1L,
                             title = title,
                             description = description,

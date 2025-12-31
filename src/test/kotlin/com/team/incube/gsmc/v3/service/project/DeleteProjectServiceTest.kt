@@ -101,7 +101,7 @@ class DeleteProjectServiceTest :
                     participants = emptyList(),
                 )
 
-            every { c.projectRepo.findProjectById(projectId) } returns project
+            every { c.projectRepo.findById(projectId) } returns project
             every { c.projectRepo.findScoreIdsByProjectId(projectId) } returns emptyList()
             every { c.scoreRepo.findAllByIdIn(emptyList()) } returns emptyList()
             every { c.evidenceRepo.findAllByIdIn(emptyList()) } returns emptyList()
@@ -109,15 +109,15 @@ class DeleteProjectServiceTest :
             every { c.alertRepo.deleteByProjectId(projectId) } returns 0
             justRun { c.evidenceRepo.deleteAllByIdIn(emptyList()) }
             justRun { c.scoreRepo.deleteAllByIdIn(emptyList()) }
-            justRun { c.projectRepo.deleteProjectById(projectId) }
+            justRun { c.projectRepo.deleteById(projectId) }
             justRun { c.fileRepo.deleteAllByIdIn(emptyList()) }
 
             When("execute를 호출하면") {
                 c.service.execute(projectId)
 
                 Then("프로젝트가 삭제된다") {
-                    verify(exactly = 1) { c.projectRepo.findProjectById(projectId) }
-                    verify(exactly = 1) { c.projectRepo.deleteProjectById(projectId) }
+                    verify(exactly = 1) { c.projectRepo.findById(projectId) }
+                    verify(exactly = 1) { c.projectRepo.deleteById(projectId) }
                 }
             }
         }
@@ -126,7 +126,7 @@ class DeleteProjectServiceTest :
             val c = ctx()
             val projectId = 999L
 
-            every { c.projectRepo.findProjectById(projectId) } returns null
+            every { c.projectRepo.findById(projectId) } returns null
 
             When("execute를 호출하면") {
                 Then("PROJECT_NOT_FOUND 예외가 발생한다") {
@@ -149,7 +149,7 @@ class DeleteProjectServiceTest :
                     participants = emptyList(),
                 )
 
-            every { c.projectRepo.findProjectById(projectId) } returns project
+            every { c.projectRepo.findById(projectId) } returns project
 
             When("execute를 호출하면") {
                 Then("PROJECT_FORBIDDEN 예외가 발생한다") {
@@ -158,7 +158,7 @@ class DeleteProjectServiceTest :
                 }
 
                 Then("프로젝트 삭제는 호출되지 않는다") {
-                    verify(exactly = 0) { c.projectRepo.deleteProjectById(any()) }
+                    verify(exactly = 0) { c.projectRepo.deleteById(any()) }
                 }
             }
         }

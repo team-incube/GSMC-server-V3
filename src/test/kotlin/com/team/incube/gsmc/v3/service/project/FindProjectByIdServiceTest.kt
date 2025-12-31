@@ -95,7 +95,7 @@ class FindProjectByIdServiceTest :
                     participants = participants,
                 )
 
-            every { c.projectRepo.findProjectById(projectId) } returns project
+            every { c.projectRepo.findById(projectId) } returns project
             every { c.projectRepo.findScoreIdsByProjectId(projectId) } returns listOf(1L, 2L)
 
             When("execute를 호출하면") {
@@ -111,7 +111,7 @@ class FindProjectByIdServiceTest :
                 }
 
                 Then("프로젝트 조회와 점수 조회가 호출된다") {
-                    verify(exactly = 1) { c.projectRepo.findProjectById(projectId) }
+                    verify(exactly = 1) { c.projectRepo.findById(projectId) }
                     verify(exactly = 1) { c.projectRepo.findScoreIdsByProjectId(projectId) }
                 }
             }
@@ -121,7 +121,7 @@ class FindProjectByIdServiceTest :
             val c = ctx()
             val projectId = 999L
 
-            every { c.projectRepo.findProjectById(projectId) } returns null
+            every { c.projectRepo.findById(projectId) } returns null
 
             When("execute를 호출하면") {
                 Then("PROJECT_NOT_FOUND 예외가 발생한다") {

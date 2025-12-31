@@ -114,7 +114,7 @@ class FindMyProjectsServiceTest :
                     ),
                 )
 
-            every { c.projectRepo.findProjectsByParticipantId(0L) } returns projects
+            every { c.projectRepo.findAllByParticipantId(0L) } returns projects
             every { c.projectRepo.findScoreIdsByProjectId(100L) } returns listOf(1001L, 1002L)
             every { c.projectRepo.findScoreIdsByProjectId(101L) } returns listOf(1003L)
 
@@ -136,7 +136,7 @@ class FindMyProjectsServiceTest :
                 }
 
                 Then("저장소 메서드가 호출된다") {
-                    verify(exactly = 1) { c.projectRepo.findProjectsByParticipantId(0L) }
+                    verify(exactly = 1) { c.projectRepo.findAllByParticipantId(0L) }
                     verify(exactly = 1) { c.projectRepo.findScoreIdsByProjectId(100L) }
                     verify(exactly = 1) { c.projectRepo.findScoreIdsByProjectId(101L) }
                 }
@@ -146,7 +146,7 @@ class FindMyProjectsServiceTest :
         Given("참여한 프로젝트가 없을 때") {
             val c = ctx()
 
-            every { c.projectRepo.findProjectsByParticipantId(0L) } returns emptyList()
+            every { c.projectRepo.findAllByParticipantId(0L) } returns emptyList()
 
             When("execute를 호출하면") {
                 val res = c.service.execute()
@@ -156,7 +156,7 @@ class FindMyProjectsServiceTest :
                 }
 
                 Then("저장소 메서드가 호출된다") {
-                    verify(exactly = 1) { c.projectRepo.findProjectsByParticipantId(0L) }
+                    verify(exactly = 1) { c.projectRepo.findAllByParticipantId(0L) }
                 }
             }
         }
@@ -187,7 +187,7 @@ class FindMyProjectsServiceTest :
                     ),
                 )
 
-            every { c.projectRepo.findProjectsByParticipantId(0L) } returns projects
+            every { c.projectRepo.findAllByParticipantId(0L) } returns projects
             every { c.projectRepo.findScoreIdsByProjectId(100L) } returns emptyList()
 
             When("execute를 호출하면") {
