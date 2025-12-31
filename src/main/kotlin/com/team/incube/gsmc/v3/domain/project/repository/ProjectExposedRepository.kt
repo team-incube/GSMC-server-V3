@@ -5,18 +5,18 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface ProjectExposedRepository {
-    fun findProjectById(projectId: Long): Project?
+    fun findById(projectId: Long): Project?
 
-    fun findProjectsByOwnerId(ownerId: Long): List<Project>
+    fun findAllByOwnerId(ownerId: Long): List<Project>
 
-    fun findProjectsByParticipantId(participantId: Long): List<Project>
+    fun findAllByParticipantId(participantId: Long): List<Project>
 
     fun searchProjects(
         title: String?,
         pageable: Pageable,
     ): Page<Project>
 
-    fun saveProject(
+    fun save(
         ownerId: Long,
         title: String,
         description: String,
@@ -24,7 +24,7 @@ interface ProjectExposedRepository {
         participantIds: List<Long>,
     ): Project
 
-    fun updateProject(
+    fun update(
         id: Long,
         ownerId: Long,
         title: String,
@@ -38,14 +38,14 @@ interface ProjectExposedRepository {
         memberId: Long,
     ): Boolean
 
-    fun findProjectTitleById(projectId: Long): String?
+    fun findTitleById(projectId: Long): String?
 
     fun findProjectTitleAndValidateParticipant(
         projectId: Long,
         memberId: Long,
     ): String?
 
-    fun deleteProjectById(projectId: Long)
+    fun deleteById(projectId: Long)
 
     fun findScoreIdsByProjectId(projectId: Long): List<Long>
 

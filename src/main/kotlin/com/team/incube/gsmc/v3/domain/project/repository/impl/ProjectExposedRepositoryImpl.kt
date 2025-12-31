@@ -29,7 +29,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class ProjectExposedRepositoryImpl : ProjectExposedRepository {
-    override fun findProjectById(projectId: Long): Project? {
+    override fun findById(projectId: Long): Project? {
         val projectRow =
             ProjectExposedEntity
                 .selectAll()
@@ -50,7 +50,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
         )
     }
 
-    override fun findProjectsByOwnerId(ownerId: Long): List<Project> {
+    override fun findAllByOwnerId(ownerId: Long): List<Project> {
         val projectRows =
             ProjectExposedEntity
                 .selectAll()
@@ -77,7 +77,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
         }
     }
 
-    override fun findProjectsByParticipantId(participantId: Long): List<Project> {
+    override fun findAllByParticipantId(participantId: Long): List<Project> {
         val projectIds =
             ProjectParticipantExposedEntity
                 .selectAll()
@@ -151,7 +151,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
         return PageImpl(projects, pageable, total)
     }
 
-    override fun saveProject(
+    override fun save(
         ownerId: Long,
         title: String,
         description: String,
@@ -195,7 +195,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
         )
     }
 
-    override fun updateProject(
+    override fun update(
         id: Long,
         ownerId: Long,
         title: String,
@@ -252,7 +252,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             }.limit(1)
             .empty()
 
-    override fun findProjectTitleById(projectId: Long): String? =
+    override fun findTitleById(projectId: Long): String? =
         ProjectExposedEntity
             .select(ProjectExposedEntity.title)
             .where { ProjectExposedEntity.id eq projectId }
@@ -272,7 +272,7 @@ class ProjectExposedRepositoryImpl : ProjectExposedRepository {
             }.singleOrNull()
             ?.get(ProjectExposedEntity.title)
 
-    override fun deleteProjectById(projectId: Long) {
+    override fun deleteById(projectId: Long) {
         ProjectFileExposedEntity.deleteWhere { ProjectFileExposedEntity.project eq projectId }
         ProjectParticipantExposedEntity.deleteWhere { ProjectParticipantExposedEntity.project eq projectId }
         ProjectExposedEntity.deleteWhere { id eq projectId }
