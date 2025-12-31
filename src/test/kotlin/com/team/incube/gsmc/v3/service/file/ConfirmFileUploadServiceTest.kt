@@ -111,7 +111,7 @@ class ConfirmFileUploadServiceTest :
             every { context.mockS3Client.utilities() } returns mockS3Utilities
             every { mockS3Utilities.getUrl(any<Consumer<GetUrlRequest.Builder>>()) } returns expectedUrl
             every {
-                context.mockFileRepository.saveFile(
+                context.mockFileRepository.save(
                     userId = 1L,
                     originalName = "test-document.pdf",
                     storedName = "20250101120000_abc123.pdf",
@@ -143,7 +143,7 @@ class ConfirmFileUploadServiceTest :
 
                 Then("파일 저장소에 저장되어야 한다") {
                     verify(exactly = 1) {
-                        context.mockFileRepository.saveFile(
+                        context.mockFileRepository.save(
                             userId = 1L,
                             originalName = "test-document.pdf",
                             storedName = "20250101120000_abc123.pdf",
@@ -200,7 +200,7 @@ class ConfirmFileUploadServiceTest :
                     every { context.mockS3Client.utilities() } returns mockS3Utilities
                     every { mockS3Utilities.getUrl(any<Consumer<GetUrlRequest.Builder>>()) } returns expectedUrl
                     every {
-                        context.mockFileRepository.saveFile(
+                        context.mockFileRepository.save(
                             userId = 1L,
                             originalName = "test-file.$extension",
                             storedName = "20250101120000_test.$extension",
