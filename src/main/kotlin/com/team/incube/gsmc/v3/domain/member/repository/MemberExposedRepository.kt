@@ -41,12 +41,12 @@ interface MemberExposedRepository {
 
     fun existsById(id: Long): Boolean
 
-    fun updateMemberRoleByEmail(
+    fun updateRoleByEmail(
         email: String,
         role: MemberRole,
     ): Int
 
-    fun deleteMemberByEmail(email: String): Int
+    fun deleteByEmail(email: String): Int
 
     fun update(
         id: Long,

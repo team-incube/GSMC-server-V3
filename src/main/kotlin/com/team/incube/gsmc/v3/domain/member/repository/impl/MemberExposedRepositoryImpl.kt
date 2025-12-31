@@ -137,7 +137,7 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
             .empty()
             .not()
 
-    override fun updateMemberRoleByEmail(
+    override fun updateRoleByEmail(
         email: String,
         role: MemberRole,
     ): Int =
@@ -145,7 +145,7 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
             it[MemberExposedEntity.role] = role
         }
 
-    override fun deleteMemberByEmail(email: String): Int = MemberExposedEntity.deleteWhere { MemberExposedEntity.email eq email }
+    override fun deleteByEmail(email: String): Int = MemberExposedEntity.deleteWhere { MemberExposedEntity.email eq email }
 
     override fun update(
         id: Long,

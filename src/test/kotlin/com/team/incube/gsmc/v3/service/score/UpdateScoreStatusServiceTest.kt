@@ -64,11 +64,11 @@ class UpdateScoreStatusServiceTest :
 
             every { score.member } returns student
             every { c.scoreRepo.findById(scoreId) } returns score
-            every { c.scoreRepo.updateStatusByScoreId(scoreId, status) } returns 1
+            every { c.scoreRepo.updateStatusById(scoreId, status) } returns 1
 
             c.service.execute(scoreId, status)
 
-            verify(exactly = 1) { c.scoreRepo.updateStatusByScoreId(scoreId, status) }
+            verify(exactly = 1) { c.scoreRepo.updateStatusById(scoreId, status) }
         }
 
         test("존재하지 않는 scoreId로 상태 업데이트를 시도하면 SCORE_NOT_FOUND 예외가 발생한다") {
@@ -91,11 +91,11 @@ class UpdateScoreStatusServiceTest :
 
                 every { score.member } returns student
                 every { c.scoreRepo.findById(scoreId) } returns score
-                every { c.scoreRepo.updateStatusByScoreId(scoreId, status) } returns 1
+                every { c.scoreRepo.updateStatusById(scoreId, status) } returns 1
 
                 c.service.execute(scoreId, status)
 
-                verify(exactly = 1) { c.scoreRepo.updateStatusByScoreId(scoreId, status) }
+                verify(exactly = 1) { c.scoreRepo.updateStatusById(scoreId, status) }
             }
         }
     })

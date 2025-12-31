@@ -28,7 +28,7 @@ class FindMyProjectScoreAndEvidenceServiceImpl(
             val currentMember = currentMemberProvider.getCurrentMember()
 
             val projectTitle =
-                projectExposedRepository.findProjectTitleById(projectId)
+                projectExposedRepository.findTitleById(projectId)
                     ?: throw GsmcException(ErrorCode.PROJECT_NOT_FOUND)
 
             if (!projectExposedRepository.existsProjectParticipantByProjectIdAndMemberId(

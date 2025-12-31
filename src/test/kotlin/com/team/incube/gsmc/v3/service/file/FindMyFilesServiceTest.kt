@@ -96,7 +96,7 @@ class FindMyFilesServiceTest :
                     ),
                 )
 
-            every { context.mockFileRepository.findAllByUserId(userId) } returns mockFiles
+            every { context.mockFileRepository.findAllByMemberId(userId) } returns mockFiles
 
             When("내 파일 목록 조회를 실행하면") {
                 val result = context.findMyFilesService.execute()
@@ -106,7 +106,7 @@ class FindMyFilesServiceTest :
                 }
 
                 Then("사용자 ID로 파일 목록을 조회해야 한다") {
-                    verify(exactly = 1) { context.mockFileRepository.findAllByUserId(userId) }
+                    verify(exactly = 1) { context.mockFileRepository.findAllByMemberId(userId) }
                 }
 
                 Then("모든 파일이 반환되어야 한다") {
@@ -133,7 +133,7 @@ class FindMyFilesServiceTest :
             val context = createTestContext()
             val userId = 1L
 
-            every { context.mockFileRepository.findAllByUserId(userId) } returns emptyList()
+            every { context.mockFileRepository.findAllByMemberId(userId) } returns emptyList()
 
             When("내 파일 목록 조회를 실행하면") {
                 val result = context.findMyFilesService.execute()
@@ -143,7 +143,7 @@ class FindMyFilesServiceTest :
                 }
 
                 Then("파일 저장소를 조회해야 한다") {
-                    verify(exactly = 1) { context.mockFileRepository.findAllByUserId(userId) }
+                    verify(exactly = 1) { context.mockFileRepository.findAllByMemberId(userId) }
                 }
             }
         }
@@ -162,7 +162,7 @@ class FindMyFilesServiceTest :
                     ),
                 )
 
-            every { context.mockFileRepository.findAllByUserId(userId) } returns mockFiles
+            every { context.mockFileRepository.findAllByMemberId(userId) } returns mockFiles
 
             When("내 파일 목록 조회를 실행하면") {
                 val result = context.findMyFilesService.execute()

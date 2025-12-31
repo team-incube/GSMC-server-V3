@@ -33,7 +33,7 @@ class UpdateScoreStatusServiceImpl(
                 throw GsmcException(ErrorCode.SCORE_NOT_OWNED)
             }
         }
-        val updatedCount = scoreExposedRepository.updateStatusByScoreId(scoreId, scoreStatus)
+        val updatedCount = scoreExposedRepository.updateStatusById(scoreId, scoreStatus)
         if (updatedCount == 0) {
             throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
         }

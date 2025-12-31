@@ -115,9 +115,9 @@ class UpdateProjectServiceTest :
                     participants = participants,
                 )
 
-            every { c.projectRepo.findProjectById(projectId) } returns existingProject
+            every { c.projectRepo.findById(projectId) } returns existingProject
             every {
-                c.projectRepo.updateProject(
+                c.projectRepo.update(
                     id = projectId,
                     ownerId = 0L,
                     title = "새 제목",
@@ -141,9 +141,9 @@ class UpdateProjectServiceTest :
                 }
 
                 Then("저장소 메서드가 호출된다") {
-                    verify(exactly = 1) { c.projectRepo.findProjectById(projectId) }
+                    verify(exactly = 1) { c.projectRepo.findById(projectId) }
                     verify(exactly = 1) {
-                        c.projectRepo.updateProject(
+                        c.projectRepo.update(
                             id = projectId,
                             ownerId = 0L,
                             title = "새 제목",
@@ -196,9 +196,9 @@ class UpdateProjectServiceTest :
                     participants = emptyList(),
                 )
 
-            every { c.projectRepo.findProjectById(projectId) } returns existingProject
+            every { c.projectRepo.findById(projectId) } returns existingProject
             every {
-                c.projectRepo.updateProject(
+                c.projectRepo.update(
                     id = projectId,
                     ownerId = 0L,
                     title = "프로젝트",
@@ -223,7 +223,7 @@ class UpdateProjectServiceTest :
             val c = ctx()
             val projectId = 999L
 
-            every { c.projectRepo.findProjectById(projectId) } returns null
+            every { c.projectRepo.findById(projectId) } returns null
 
             When("execute를 호출하면") {
                 Then("PROJECT_NOT_FOUND 예외가 발생한다") {
@@ -246,7 +246,7 @@ class UpdateProjectServiceTest :
                     participants = emptyList(),
                 )
 
-            every { c.projectRepo.findProjectById(projectId) } returns existingProject
+            every { c.projectRepo.findById(projectId) } returns existingProject
 
             When("execute를 호출하면") {
                 Then("PROJECT_FORBIDDEN 예외가 발생한다") {
@@ -255,7 +255,7 @@ class UpdateProjectServiceTest :
                 }
 
                 Then("프로젝트 업데이트는 호출되지 않는다") {
-                    verify(exactly = 0) { c.projectRepo.updateProject(any(), any(), any(), any(), any(), any()) }
+                    verify(exactly = 0) { c.projectRepo.update(any(), any(), any(), any(), any(), any()) }
                 }
             }
         }
@@ -282,9 +282,9 @@ class UpdateProjectServiceTest :
                     participants = emptyList(),
                 )
 
-            every { c.projectRepo.findProjectById(projectId) } returns existingProject
+            every { c.projectRepo.findById(projectId) } returns existingProject
             every {
-                c.projectRepo.updateProject(
+                c.projectRepo.update(
                     id = projectId,
                     ownerId = 0L,
                     title = "새 제목",

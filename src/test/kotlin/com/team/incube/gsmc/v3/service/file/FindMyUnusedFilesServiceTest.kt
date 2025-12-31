@@ -89,7 +89,7 @@ class FindMyUnusedFilesServiceTest :
                     ),
                 )
 
-            every { context.mockFileRepository.findUnusedFilesByUserId(userId) } returns mockUnusedFiles
+            every { context.mockFileRepository.findUnusedFilesByMemberId(userId) } returns mockUnusedFiles
 
             When("미사용 파일 목록 조회를 실행하면") {
                 val result = context.findMyUnusedFilesService.execute()
@@ -99,7 +99,7 @@ class FindMyUnusedFilesServiceTest :
                 }
 
                 Then("사용자 ID로 미사용 파일 목록을 조회해야 한다") {
-                    verify(exactly = 1) { context.mockFileRepository.findUnusedFilesByUserId(userId) }
+                    verify(exactly = 1) { context.mockFileRepository.findUnusedFilesByMemberId(userId) }
                 }
 
                 Then("모든 미사용 파일이 반환되어야 한다") {
@@ -126,7 +126,7 @@ class FindMyUnusedFilesServiceTest :
             val context = createTestContext()
             val userId = 1L
 
-            every { context.mockFileRepository.findUnusedFilesByUserId(userId) } returns emptyList()
+            every { context.mockFileRepository.findUnusedFilesByMemberId(userId) } returns emptyList()
 
             When("미사용 파일 목록 조회를 실행하면") {
                 val result = context.findMyUnusedFilesService.execute()
@@ -136,7 +136,7 @@ class FindMyUnusedFilesServiceTest :
                 }
 
                 Then("파일 저장소를 조회해야 한다") {
-                    verify(exactly = 1) { context.mockFileRepository.findUnusedFilesByUserId(userId) }
+                    verify(exactly = 1) { context.mockFileRepository.findUnusedFilesByMemberId(userId) }
                 }
             }
         }
@@ -155,7 +155,7 @@ class FindMyUnusedFilesServiceTest :
                     ),
                 )
 
-            every { context.mockFileRepository.findUnusedFilesByUserId(userId) } returns mockUnusedFiles
+            every { context.mockFileRepository.findUnusedFilesByMemberId(userId) } returns mockUnusedFiles
 
             When("미사용 파일 목록 조회를 실행하면") {
                 val result = context.findMyUnusedFilesService.execute()
@@ -211,7 +211,7 @@ class FindMyUnusedFilesServiceTest :
                     ),
                 )
 
-            every { context.mockFileRepository.findUnusedFilesByUserId(userId) } returns mockUnusedFiles
+            every { context.mockFileRepository.findUnusedFilesByMemberId(userId) } returns mockUnusedFiles
 
             When("미사용 파일 목록 조회를 실행하면") {
                 val result = context.findMyUnusedFilesService.execute()

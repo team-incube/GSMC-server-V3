@@ -105,16 +105,16 @@ class DeleteMemberByEmailServiceTest :
 
             every { c.memberRepo.findByEmail(email) } returns member
             every { c.scoreRepo.findAllByMemberId(member.id) } returns emptyList()
-            every { c.fileRepo.findAllByUserId(member.id) } returns emptyList()
-            every { c.memberRepo.deleteMemberByEmail(email) } returns 1
-            every { c.projectRepo.findProjectsByOwnerId(member.id) } returns emptyList()
+            every { c.fileRepo.findAllByMemberId(member.id) } returns emptyList()
+            every { c.memberRepo.deleteByEmail(email) } returns 1
+            every { c.projectRepo.findAllByOwnerId(member.id) } returns emptyList()
 
             When("execute를 호출하면") {
                 c.service.execute(email)
 
                 Then("회원 관련 데이터가 삭제된다") {
                     verify(exactly = 1) { c.alertRepo.deleteAllByMemberId(member.id) }
-                    verify(exactly = 1) { c.memberRepo.deleteMemberByEmail(email) }
+                    verify(exactly = 1) { c.memberRepo.deleteByEmail(email) }
                 }
             }
         }
@@ -178,10 +178,10 @@ class DeleteMemberByEmailServiceTest :
 
             every { c.memberRepo.findByEmail(email) } returns member
             every { c.scoreRepo.findAllByMemberId(member.id) } returns listOf(score1, score2)
-            every { c.fileRepo.findAllByUserId(member.id) } returns emptyList()
+            every { c.fileRepo.findAllByMemberId(member.id) } returns emptyList()
             every { c.scoreRepo.deleteAllByIdIn(listOf(10L, 20L)) } just runs
-            every { c.memberRepo.deleteMemberByEmail(email) } returns 1
-            every { c.projectRepo.findProjectsByOwnerId(member.id) } returns emptyList()
+            every { c.memberRepo.deleteByEmail(email) } returns 1
+            every { c.projectRepo.findAllByOwnerId(member.id) } returns emptyList()
 
             When("execute를 호출하면") {
                 c.service.execute(email)
@@ -200,7 +200,7 @@ class DeleteMemberByEmailServiceTest :
 
                 Then("회원이 삭제된다") {
                     verify(exactly = 1) {
-                        c.memberRepo.deleteMemberByEmail(email)
+                        c.memberRepo.deleteByEmail(email)
                     }
                 }
             }
@@ -232,17 +232,17 @@ class DeleteMemberByEmailServiceTest :
 
             every { c.memberRepo.findByEmail(email) } returns member
             every { c.scoreRepo.findAllByMemberId(member.id) } returns emptyList()
-            every { c.fileRepo.findAllByUserId(member.id) } returns emptyList()
-            every { c.projectRepo.findProjectsByOwnerId(member.id) } returns listOf(project1, project2)
-            every { c.projectRepo.deleteProjectById(any()) } just runs
-            every { c.memberRepo.deleteMemberByEmail(email) } returns 1
+            every { c.fileRepo.findAllByMemberId(member.id) } returns emptyList()
+            every { c.projectRepo.findAllByOwnerId(member.id) } returns listOf(project1, project2)
+            every { c.projectRepo.deleteById(any()) } just runs
+            every { c.memberRepo.deleteByEmail(email) } returns 1
 
             When("execute를 호출하면") {
                 c.service.execute(email)
 
                 Then("소유한 프로젝트가 모두 삭제된다") {
-                    verify(exactly = 1) { c.projectRepo.deleteProjectById(100L) }
-                    verify(exactly = 1) { c.projectRepo.deleteProjectById(200L) }
+                    verify(exactly = 1) { c.projectRepo.deleteById(100L) }
+                    verify(exactly = 1) { c.projectRepo.deleteById(200L) }
                 }
             }
         }

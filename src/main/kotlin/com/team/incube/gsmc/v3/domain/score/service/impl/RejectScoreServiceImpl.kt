@@ -38,7 +38,7 @@ class RejectScoreServiceImpl(
                     throw GsmcException(ErrorCode.SCORE_NOT_OWNED)
                 }
             }
-            scoreExposedRepository.updateStatusAndRejectionReasonByScoreId(
+            scoreExposedRepository.updateStatusAndRejectionReasonById(
                 scoreId = scoreId,
                 status = ScoreStatus.REJECTED,
                 rejectionReason = rejectionReason,

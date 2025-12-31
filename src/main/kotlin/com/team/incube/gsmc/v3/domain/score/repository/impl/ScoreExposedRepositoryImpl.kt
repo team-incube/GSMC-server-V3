@@ -76,7 +76,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         return score
     }
 
-    override fun updateSourceId(
+    override fun updateSourceIdById(
         scoreId: Long,
         sourceId: Long,
     ) {
@@ -93,7 +93,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
         }
     }
 
-    override fun updateStatusByScoreId(
+    override fun updateStatusById(
         scoreId: Long,
         status: ScoreStatus,
     ): Int =
@@ -102,7 +102,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
             it[updatedAt] = Instant.now()
         }
 
-    override fun updateStatusAndRejectionReasonByScoreId(
+    override fun updateStatusAndRejectionReasonById(
         scoreId: Long,
         status: ScoreStatus,
         rejectionReason: String?,
@@ -313,7 +313,7 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
             }.limit(1)
             .empty()
 
-    override fun updateActivityName(
+    override fun updateActivityNameById(
         scoreId: Long,
         activityName: String,
     ) {

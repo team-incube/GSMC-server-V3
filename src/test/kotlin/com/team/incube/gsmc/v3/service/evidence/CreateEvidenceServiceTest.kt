@@ -141,8 +141,8 @@ class CreateEvidenceServiceTest :
             every { c.fileRepo.existsByIdIn(fileIds) } returns true
             every { c.evidenceRepo.save(userId = 0L, title = "title", content = "content", fileIds = fileIds) } returns
                 saved
-            justRun { c.scoreRepo.updateSourceId(scoreId, saved.id) }
-            every { c.scoreRepo.updateStatusByScoreId(scoreId, ScoreStatus.PENDING) } returns 1
+            justRun { c.scoreRepo.updateSourceIdById(scoreId, saved.id) }
+            every { c.scoreRepo.updateStatusById(scoreId, ScoreStatus.PENDING) } returns 1
 
             When("execute를 호출하면") {
                 val res: CreateEvidenceResponse = c.service.execute(scoreId, "title", "content", fileIds)
@@ -163,8 +163,8 @@ class CreateEvidenceServiceTest :
                     verify(
                         exactly = 1,
                     ) { c.evidenceRepo.save(userId = 0L, title = "title", content = "content", fileIds = fileIds) }
-                    verify(exactly = 1) { c.scoreRepo.updateSourceId(scoreId, saved.id) }
-                    verify(exactly = 1) { c.scoreRepo.updateStatusByScoreId(scoreId, ScoreStatus.PENDING) }
+                    verify(exactly = 1) { c.scoreRepo.updateSourceIdById(scoreId, saved.id) }
+                    verify(exactly = 1) { c.scoreRepo.updateStatusById(scoreId, ScoreStatus.PENDING) }
                 }
             }
         }
@@ -293,8 +293,8 @@ class CreateEvidenceServiceTest :
 
             every { c.scoreRepo.findByIdForUpdate(scoreId) } returns score
             every { c.evidenceRepo.save(userId = 0L, title = "t", content = "c", fileIds = fileIds) } returns saved
-            justRun { c.scoreRepo.updateSourceId(scoreId, saved.id) }
-            every { c.scoreRepo.updateStatusByScoreId(scoreId, ScoreStatus.PENDING) } returns 1
+            justRun { c.scoreRepo.updateSourceIdById(scoreId, saved.id) }
+            every { c.scoreRepo.updateStatusById(scoreId, ScoreStatus.PENDING) } returns 1
 
             When("execute를 호출하면") {
                 val res = c.service.execute(scoreId, "t", "c", fileIds)
@@ -305,8 +305,8 @@ class CreateEvidenceServiceTest :
                     verify(
                         exactly = 1,
                     ) { c.evidenceRepo.save(userId = 0L, title = "t", content = "c", fileIds = fileIds) }
-                    verify(exactly = 1) { c.scoreRepo.updateSourceId(scoreId, saved.id) }
-                    verify(exactly = 1) { c.scoreRepo.updateStatusByScoreId(scoreId, ScoreStatus.PENDING) }
+                    verify(exactly = 1) { c.scoreRepo.updateSourceIdById(scoreId, saved.id) }
+                    verify(exactly = 1) { c.scoreRepo.updateStatusById(scoreId, ScoreStatus.PENDING) }
                 }
             }
         }

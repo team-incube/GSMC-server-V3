@@ -16,7 +16,7 @@ class FindMyProjectsServiceImpl(
     override fun execute(): List<GetProjectResponse> =
         transaction {
             val currentUser = currentMemberProvider.getCurrentMember()
-            val projects = projectExposedRepository.findProjectsByParticipantId(currentUser.id)
+            val projects = projectExposedRepository.findAllByParticipantId(currentUser.id)
 
             projects.map { project ->
                 val scoreIds = projectExposedRepository.findScoreIdsByProjectId(project.id!!)

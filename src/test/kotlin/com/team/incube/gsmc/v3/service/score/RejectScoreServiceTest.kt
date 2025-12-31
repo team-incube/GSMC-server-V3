@@ -79,7 +79,7 @@ class RejectScoreServiceTest :
             every { score.member } returns member
             every { c.scoreRepo.findById(scoreId) } returns score
             every {
-                c.scoreRepo.updateStatusAndRejectionReasonByScoreId(
+                c.scoreRepo.updateStatusAndRejectionReasonById(
                     scoreId = scoreId,
                     status = ScoreStatus.REJECTED,
                     rejectionReason = rejectionReason,
@@ -91,7 +91,7 @@ class RejectScoreServiceTest :
 
                 Then("상태가 REJECTED로 업데이트되고 rejectionReason이 설정된다") {
                     verify(exactly = 1) {
-                        c.scoreRepo.updateStatusAndRejectionReasonByScoreId(
+                        c.scoreRepo.updateStatusAndRejectionReasonById(
                             scoreId = scoreId,
                             status = ScoreStatus.REJECTED,
                             rejectionReason = rejectionReason,
