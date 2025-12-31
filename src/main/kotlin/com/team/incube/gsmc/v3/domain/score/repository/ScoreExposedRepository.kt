@@ -15,17 +15,17 @@ interface ScoreExposedRepository {
 
     fun update(score: Score): Score
 
-    fun updateSourceId(
+    fun updateSourceIdById(
         scoreId: Long,
         sourceId: Long,
     )
 
-    fun updateStatusByScoreId(
+    fun updateStatusById(
         scoreId: Long,
         status: ScoreStatus,
     ): Int
 
-    fun updateStatusAndRejectionReasonByScoreId(
+    fun updateStatusAndRejectionReasonById(
         scoreId: Long,
         status: ScoreStatus,
         rejectionReason: String?,
@@ -81,7 +81,7 @@ interface ScoreExposedRepository {
         projectId: Long,
     ): Boolean
 
-    fun updateActivityName(
+    fun updateActivityNameById(
         scoreId: Long,
         activityName: String,
     )
