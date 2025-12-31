@@ -31,7 +31,7 @@ class UpdateProjectServiceImpl(
         transaction {
             val currentUser = currentMemberProvider.getCurrentMember()
             val project =
-                projectExposedRepository.findProjectById(projectId)
+                projectExposedRepository.findById(projectId)
                     ?: throw GsmcException(ErrorCode.PROJECT_NOT_FOUND)
             if (project.ownerId != currentUser.id) {
                 throw GsmcException(ErrorCode.PROJECT_FORBIDDEN)
@@ -45,7 +45,7 @@ class UpdateProjectServiceImpl(
             val existingParticipantIds = project.participants.map { it.id }.toSet()
 
             val updatedProject =
-                projectExposedRepository.updateProject(
+                projectExposedRepository.update(
                     id = projectId,
                     ownerId = project.ownerId,
                     title = newTitle,

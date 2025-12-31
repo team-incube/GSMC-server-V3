@@ -39,7 +39,7 @@ class CreateProjectParticipationServiceImpl(
                     memberId = member.id,
                 ) ?: run {
                     val errorCode =
-                        if (projectExposedRepository.findProjectTitleById(projectId) == null) {
+                        if (projectExposedRepository.findTitleById(projectId) == null) {
                             ErrorCode.PROJECT_NOT_FOUND
                         } else {
                             ErrorCode.NOT_PROJECT_PARTICIPANT

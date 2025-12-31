@@ -27,7 +27,7 @@ class CreateProjectServiceImpl(
             val currentUser = currentMemberProvider.getCurrentMember()
 
             val project =
-                projectExposedRepository.saveProject(
+                projectExposedRepository.save(
                     ownerId = currentUser.id,
                     title = title,
                     description = description,

@@ -16,7 +16,7 @@ class FindProjectByIdServiceImpl(
     override fun execute(projectId: Long): GetProjectResponse =
         transaction {
             val project =
-                projectExposedRepository.findProjectById(projectId)
+                projectExposedRepository.findById(projectId)
                     ?: throw GsmcException(ErrorCode.PROJECT_NOT_FOUND)
 
             val scoreIds = projectExposedRepository.findScoreIdsByProjectId(projectId)

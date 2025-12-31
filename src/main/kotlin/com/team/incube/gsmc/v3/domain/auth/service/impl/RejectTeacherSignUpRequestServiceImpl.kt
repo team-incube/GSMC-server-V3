@@ -24,7 +24,7 @@ class RejectTeacherSignUpRequestServiceImpl(
         transaction {
             alertExposedRepository.deleteAllByMemberId(memberId)
 
-            memberExposedRepository.deleteMemberByEmail(
+            memberExposedRepository.deleteByEmail(
                 memberExposedRepository.findById(memberId)?.email
                     ?: throw GsmcException(ErrorCode.MEMBER_NOT_FOUND),
             )

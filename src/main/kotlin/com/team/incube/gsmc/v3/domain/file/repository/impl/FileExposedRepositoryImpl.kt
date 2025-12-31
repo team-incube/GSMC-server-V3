@@ -33,7 +33,7 @@ class FileExposedRepositoryImpl : FileExposedRepository {
             .map { it[FileExposedEntity.id] }
             .size == fileIds.size
 
-    override fun saveFile(
+    override fun save(
         userId: Long,
         originalName: String,
         storedName: String,
@@ -69,13 +69,13 @@ class FileExposedRepositoryImpl : FileExposedRepository {
             .where { FileExposedEntity.id inList fileIds }
             .map { it.toFile() }
 
-    override fun findAllByUserId(userId: Long): List<File> =
+    override fun findAllByMemberId(memberId: Long): List<File> =
         FileExposedEntity
             .selectAll()
-            .where { FileExposedEntity.member eq userId }
+            .where { FileExposedEntity.member eq memberId }
             .map { it.toFile() }
 
-    override fun findUnusedFilesByUserId(userId: Long): List<File> {
+    override fun findUnusedFilesByMemberId(memberId: Long): List<File> {
         val usedInProjectSubQuery = ProjectFileExposedEntity.select(ProjectFileExposedEntity.file)
         val usedInEvidenceSubQuery = EvidenceFileExposedEntity.select(EvidenceFileExposedEntity.file)
         val usedInScoreSubQuery =
@@ -86,7 +86,7 @@ class FileExposedRepositoryImpl : FileExposedRepository {
         return FileExposedEntity
             .selectAll()
             .where {
-                (FileExposedEntity.member eq userId) and
+                (FileExposedEntity.member eq memberId) and
                     FileExposedEntity.id.notInSubQuery(usedInProjectSubQuery) and
                     FileExposedEntity.id.notInSubQuery(usedInEvidenceSubQuery) and
                     FileExposedEntity.id.notInSubQuery(usedInScoreSubQuery)

@@ -37,7 +37,7 @@ class ApproveScoreServiceImpl(
                 }
             }
 
-            scoreExposedRepository.updateStatusAndRejectionReasonByScoreId(
+            scoreExposedRepository.updateStatusAndRejectionReasonById(
                 scoreId = scoreId,
                 status = ScoreStatus.APPROVED,
                 rejectionReason = null,

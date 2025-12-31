@@ -28,7 +28,7 @@ class DeleteProjectServiceImpl(
         transaction {
             val currentUser = currentMemberProvider.getCurrentMember()
             val project =
-                projectExposedRepository.findProjectById(projectId)
+                projectExposedRepository.findById(projectId)
                     ?: throw GsmcException(ErrorCode.PROJECT_NOT_FOUND)
             if (project.ownerId != currentUser.id) {
                 throw GsmcException(ErrorCode.PROJECT_FORBIDDEN)
@@ -43,7 +43,7 @@ class DeleteProjectServiceImpl(
             alertExposedRepository.deleteByProjectId(projectId)
             evidenceExposedRepository.deleteAllByIdIn(evidenceIds)
             scoreExposedRepository.deleteAllByIdIn(scoreIds)
-            projectExposedRepository.deleteProjectById(projectId)
+            projectExposedRepository.deleteById(projectId)
             val fileIds = allFiles.map { it.id }
             fileExposedRepository.deleteAllByIdIn(fileIds)
             val fileUris = allFiles.map { it.uri }

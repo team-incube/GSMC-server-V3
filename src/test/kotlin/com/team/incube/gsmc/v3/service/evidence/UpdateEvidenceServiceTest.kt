@@ -94,7 +94,7 @@ class UpdateEvidenceServiceTest :
             every { c.fileRepo.existsByIdIn(newFileIds) } returns true
             every { c.scoreRepo.existsById(newScoreId) } returns true
             justRun { c.scoreRepo.updateSourceIdToNull(id) }
-            justRun { c.scoreRepo.updateSourceId(newScoreId, id) }
+            justRun { c.scoreRepo.updateSourceIdById(newScoreId, id) }
             every {
                 c.evidenceRepo.update(id = id, title = "new-title", content = "new-content", fileIds = newFileIds)
             } returns updated
@@ -119,7 +119,7 @@ class UpdateEvidenceServiceTest :
                     verify(exactly = 1) { c.fileRepo.existsByIdIn(newFileIds) }
                     verify(exactly = 1) { c.scoreRepo.existsById(newScoreId) }
                     verify(exactly = 1) { c.scoreRepo.updateSourceIdToNull(id) }
-                    verify(exactly = 1) { c.scoreRepo.updateSourceId(newScoreId, id) }
+                    verify(exactly = 1) { c.scoreRepo.updateSourceIdById(newScoreId, id) }
                     verify(exactly = 1) {
                         c.evidenceRepo.update(
                             id = id,
@@ -186,7 +186,7 @@ class UpdateEvidenceServiceTest :
                         }
                     ex.errorCode shouldBe ErrorCode.SCORE_NOT_FOUND
                     verify(exactly = 0) { c.scoreRepo.updateSourceIdToNull(any()) }
-                    verify(exactly = 0) { c.scoreRepo.updateSourceId(any(), any()) }
+                    verify(exactly = 0) { c.scoreRepo.updateSourceIdById(any(), any()) }
                 }
             }
         }
@@ -216,7 +216,7 @@ class UpdateEvidenceServiceTest :
                     ) { c.evidenceRepo.update(id = id, title = "t0", content = "c0", fileIds = listOf(10L)) }
                     verify(exactly = 0) { c.fileRepo.existsByIdIn(any()) }
                     verify(exactly = 0) { c.scoreRepo.updateSourceIdToNull(any()) }
-                    verify(exactly = 0) { c.scoreRepo.updateSourceId(any(), any()) }
+                    verify(exactly = 0) { c.scoreRepo.updateSourceIdById(any(), any()) }
                 }
             }
         }

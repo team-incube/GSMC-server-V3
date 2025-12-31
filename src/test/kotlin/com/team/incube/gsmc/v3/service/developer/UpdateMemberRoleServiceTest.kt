@@ -48,18 +48,18 @@ class UpdateMemberRoleServiceTest :
         Given("존재하는 회원의 역할을 TEACHER로 변경할 때") {
             val c = ctx()
             val email = "test@test.com"
-            every { c.memberRepo.updateMemberRoleByEmail(email, MemberRole.TEACHER) } returns 1
+            every { c.memberRepo.updateRoleByEmail(email, MemberRole.TEACHER) } returns 1
             When("execute를 호출하면") {
                 c.service.execute(email, MemberRole.TEACHER)
                 Then("역할이 TEACHER로 변경된다") {
-                    verify(exactly = 1) { c.memberRepo.updateMemberRoleByEmail(email, MemberRole.TEACHER) }
+                    verify(exactly = 1) { c.memberRepo.updateRoleByEmail(email, MemberRole.TEACHER) }
                 }
             }
         }
         Given("존재하지 않는 이메일로 역할을 변경하려고 할 때") {
             val c = ctx()
             val email = "none@test.com"
-            every { c.memberRepo.updateMemberRoleByEmail(email, MemberRole.TEACHER) } returns 0
+            every { c.memberRepo.updateRoleByEmail(email, MemberRole.TEACHER) } returns 0
             When("execute를 호출하면") {
                 Then("MEMBER_NOT_FOUND 예외가 발생한다") {
                     val ex = shouldThrow<GsmcException> { c.service.execute(email, MemberRole.TEACHER) }

@@ -60,7 +60,7 @@ class DeleteMemberByEmailServiceImpl(
                 scoreExposedRepository.deleteAllByIdIn(scoreIds)
             }
 
-            val memberFiles = fileExposedRepository.findAllByUserId(member.id)
+            val memberFiles = fileExposedRepository.findAllByMemberId(member.id)
             val memberFileIds = memberFiles.map { it.id }
 
             memberFiles.forEach { file ->
@@ -74,14 +74,14 @@ class DeleteMemberByEmailServiceImpl(
                 fileExposedRepository.deleteAllByIdIn(memberFileIds)
             }
 
-            val ownedProjects = projectExposedRepository.findProjectsByOwnerId(member.id)
+            val ownedProjects = projectExposedRepository.findAllByOwnerId(member.id)
             ownedProjects.forEach { project ->
                 val projectId = project.id ?: return@forEach
                 alertExposedRepository.deleteByProjectId(projectId)
-                projectExposedRepository.deleteProjectById(projectId)
+                projectExposedRepository.deleteById(projectId)
             }
 
-            val deleted = memberExposedRepository.deleteMemberByEmail(email)
+            val deleted = memberExposedRepository.deleteByEmail(email)
             if (deleted == 0) {
                 throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
             }

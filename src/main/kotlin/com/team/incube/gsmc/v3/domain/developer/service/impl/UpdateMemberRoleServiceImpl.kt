@@ -18,7 +18,7 @@ class UpdateMemberRoleServiceImpl(
         role: MemberRole,
     ) {
         transaction {
-            val updated = memberExposedRepository.updateMemberRoleByEmail(email, role)
+            val updated = memberExposedRepository.updateRoleByEmail(email, role)
             if (updated == 0) {
                 logger().info("Member role change failed: member not found. email={}", email)
                 throw GsmcException(ErrorCode.MEMBER_NOT_FOUND)
