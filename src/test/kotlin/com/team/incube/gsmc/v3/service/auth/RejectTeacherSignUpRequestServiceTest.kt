@@ -94,7 +94,7 @@ class RejectTeacherSignUpRequestServiceTest :
             every { c.teacherSignUpRequestRedisRepository.findById(memberId) } returns Optional.of(request)
             every { c.teacherSignUpRequestRedisRepository.deleteById(memberId) } returns Unit
             every { c.memberExposedRepository.findById(memberId) } returns member
-            every { c.memberExposedRepository.deleteMemberByEmail(email) } returns 1
+            every { c.memberExposedRepository.deleteByEmail(email) } returns 1
             every { c.alertExposedRepository.deleteAllByMemberId(memberId) } returns 0
 
             When("execute를 호출하면") {
@@ -105,7 +105,7 @@ class RejectTeacherSignUpRequestServiceTest :
                 }
 
                 Then("DB에서 회원이 삭제된다") {
-                    verify(exactly = 1) { c.memberExposedRepository.deleteMemberByEmail(email) }
+                    verify(exactly = 1) { c.memberExposedRepository.deleteByEmail(email) }
                 }
 
                 Then("Redis에서 요청이 삭제된다") {
@@ -125,7 +125,7 @@ class RejectTeacherSignUpRequestServiceTest :
                     val ex = shouldThrow<GsmcException> { c.service.execute(memberId) }
                     ex.errorCode shouldBe ErrorCode.TEACHER_SIGNUP_REQUEST_NOT_FOUND
                     verify(exactly = 0) { c.teacherSignUpRequestRedisRepository.deleteById(any()) }
-                    verify(exactly = 0) { c.memberExposedRepository.deleteMemberByEmail(any()) }
+                    verify(exactly = 0) { c.memberExposedRepository.deleteByEmail(any()) }
                 }
             }
         }
@@ -143,7 +143,7 @@ class RejectTeacherSignUpRequestServiceTest :
                     val ex = shouldThrow<GsmcException> { c.service.execute(memberId) }
                     ex.errorCode shouldBe ErrorCode.MEMBER_NOT_FOUND
                     verify(exactly = 0) { c.teacherSignUpRequestRedisRepository.deleteById(memberId) }
-                    verify(exactly = 0) { c.memberExposedRepository.deleteMemberByEmail(any()) }
+                    verify(exactly = 0) { c.memberExposedRepository.deleteByEmail(any()) }
                 }
             }
         }
