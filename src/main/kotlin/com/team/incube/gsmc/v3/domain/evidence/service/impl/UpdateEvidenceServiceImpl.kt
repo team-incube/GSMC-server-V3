@@ -38,7 +38,7 @@ class UpdateEvidenceServiceImpl(
                     throw GsmcException(ErrorCode.SCORE_NOT_FOUND)
                 }
                 scoreExposedRepository.updateSourceIdToNull(evidenceId)
-                scoreExposedRepository.updateSourceId(scoreId, evidenceId)
+                scoreExposedRepository.updateSourceIdById(scoreId, evidenceId)
             }
 
             val updatedEvidence =

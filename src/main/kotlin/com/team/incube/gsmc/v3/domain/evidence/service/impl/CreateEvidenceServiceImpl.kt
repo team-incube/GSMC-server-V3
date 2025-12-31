@@ -54,10 +54,10 @@ class CreateEvidenceServiceImpl(
                     fileIds = fileIds,
                 )
 
-            scoreExposedRepository.updateSourceId(scoreId, evidence.id)
+            scoreExposedRepository.updateSourceIdById(scoreId, evidence.id)
 
             if (score.status == ScoreStatus.INCOMPLETE) {
-                scoreExposedRepository.updateStatusByScoreId(scoreId, ScoreStatus.PENDING)
+                scoreExposedRepository.updateStatusById(scoreId, ScoreStatus.PENDING)
             }
 
             val member = currentMemberProvider.getCurrentMember()
