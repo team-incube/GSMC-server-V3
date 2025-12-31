@@ -64,7 +64,7 @@ class ApproveScoreServiceTest :
             every { score.id } returns scoreId
             every { c.scoreRepo.findById(scoreId) } returns score
             every {
-                c.scoreRepo.updateStatusAndRejectionReasonByScoreId(
+                c.scoreRepo.updateStatusAndRejectionReasonById(
                     scoreId = scoreId,
                     status = ScoreStatus.APPROVED,
                     rejectionReason = null,
@@ -76,7 +76,7 @@ class ApproveScoreServiceTest :
 
                 Then("점수 상태가 업데이트되고 알림이 발행된다") {
                     verify(exactly = 1) {
-                        c.scoreRepo.updateStatusAndRejectionReasonByScoreId(
+                        c.scoreRepo.updateStatusAndRejectionReasonById(
                             scoreId = scoreId,
                             status = ScoreStatus.APPROVED,
                             rejectionReason = null,

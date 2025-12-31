@@ -160,7 +160,7 @@ class CreateProjectParticipationServiceTest :
             every {
                 c.projectRepo.findProjectTitleAndValidateParticipant(projectId, 0L)
             } returns null
-            every { c.projectRepo.findProjectTitleById(projectId) } returns null
+            every { c.projectRepo.findTitleById(projectId) } returns null
 
             When("execute를 호출하면") {
                 Then("PROJECT_NOT_FOUND 예외가 발생한다") {
@@ -177,7 +177,7 @@ class CreateProjectParticipationServiceTest :
             every {
                 c.projectRepo.findProjectTitleAndValidateParticipant(projectId, 0L)
             } returns null
-            every { c.projectRepo.findProjectTitleById(projectId) } returns "프로젝트 제목"
+            every { c.projectRepo.findTitleById(projectId) } returns "프로젝트 제목"
 
             When("execute를 호출하면") {
                 Then("NOT_PROJECT_PARTICIPANT 예외가 발생한다") {
