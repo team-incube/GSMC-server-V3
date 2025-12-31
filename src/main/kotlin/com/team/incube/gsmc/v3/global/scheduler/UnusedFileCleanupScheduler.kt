@@ -3,7 +3,6 @@ package com.team.incube.gsmc.v3.global.scheduler
 import com.team.incube.gsmc.v3.domain.file.service.DeleteUnusedFilesService
 import com.team.incube.gsmc.v3.global.common.discord.service.DiscordNotificationService
 import com.team.incube.gsmc.v3.global.config.logger
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
