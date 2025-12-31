@@ -11,7 +11,7 @@ class UnusedFileCleanupScheduler(
     private val deleteUnusedFilesService: DeleteUnusedFilesService,
     private val discordNotificationService: DiscordNotificationService?,
 ) {
-    @Scheduled(cron = "0 0 3 * * *")
+    // @Scheduled(cron = "0 0 3 * * *")
     fun cleanupOrphanFiles() {
         discordNotificationService?.sendSchedulerStartNotification()
         try {
