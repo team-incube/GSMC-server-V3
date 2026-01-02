@@ -164,9 +164,9 @@ class FindMyPercentInClassServiceTest :
             When("백분위수 조회를 하면") {
                 val result = c.service.execute()
 
-                Then("상위 약 33.33%, 하위 약 66.67%가 반환된다") {
-                    result.topPercentile shouldBe 33.333333333333336
-                    result.bottomPercentile shouldBe 66.66666666666666
+                Then("상위 약 66.67%, 하위 약 33.33%가 반환된다") {
+                    result.topPercentile shouldBe 66.66666666666667
+                    result.bottomPercentile shouldBe 33.33333333333333
                 }
             }
         }
@@ -218,9 +218,9 @@ class FindMyPercentInClassServiceTest :
             When("백분위수 조회를 하면") {
                 val result = c.service.execute()
 
-                Then("상위 약 66.67%, 하위 약 33.33%가 반환된다") {
-                    result.topPercentile shouldBe 66.66666666666666
-                    result.bottomPercentile shouldBe 33.33333333333334
+                Then("상위 약 33.33%, 하위 약 66.67%가 반환된다") {
+                    result.topPercentile shouldBe 33.33333333333334
+                    result.bottomPercentile shouldBe 66.66666666666666
                 }
             }
         }
@@ -272,9 +272,9 @@ class FindMyPercentInClassServiceTest :
             When("백분위수 조회를 하면") {
                 val result = c.service.execute()
 
-                Then("상위 0%, 하위 100%가 반환된다") {
-                    result.topPercentile shouldBe 0.0
-                    result.bottomPercentile shouldBe 100.0
+                Then("상위 100%, 하위 0%가 반환된다") {
+                    result.topPercentile shouldBe 100.0
+                    result.bottomPercentile shouldBe 0.0
                 }
             }
         }
@@ -338,8 +338,8 @@ class FindMyPercentInClassServiceTest :
                 val result = c.service.execute()
 
                 Then("나보다 낮은 점수를 가진 학생만 카운트된다") {
-                    result.topPercentile shouldBe 25.0
-                    result.bottomPercentile shouldBe 75.0
+                    result.topPercentile shouldBe 75.0
+                    result.bottomPercentile shouldBe 25.0
                 }
             }
         }
