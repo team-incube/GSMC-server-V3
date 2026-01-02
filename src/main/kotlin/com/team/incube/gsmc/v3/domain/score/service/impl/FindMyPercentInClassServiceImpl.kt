@@ -50,8 +50,9 @@ class FindMyPercentInClassServiceImpl(
             val lowerScoreCount = totalScoresByMember.count { it.second < myTotalScore }
             val totalCount = totalScoresByMember.size
 
-            val topPercentile = (lowerScoreCount.toDouble() / totalCount) * 100
-            val bottomPercentile = 100.0 - topPercentile
+            val percentileRank = (lowerScoreCount.toDouble() / totalCount) * 100
+            val topPercentile = 100.0 - percentileRank
+            val bottomPercentile = percentileRank
 
             GetStudentPercentResponse(
                 topPercentile = topPercentile,
