@@ -70,6 +70,8 @@ class DomainAuthorizationConfig {
             .hasAnyRole(MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
             .requestMatchers(HttpMethod.GET, "/api/v3/scores", "/api/v3/scores/by-category", "/api/v3/scores/total")
             .hasRole(MemberRole.STUDENT.name)
+            .requestMatchers(HttpMethod.GET, "/api/v3/scores/percent/class", "/api/v3/scores/percent/grade")
+            .hasAnyRole(MemberRole.STUDENT.name, MemberRole.ROOT.name)
             .requestMatchers(
                 HttpMethod.POST,
                 "/api/v3/scores/certificate",
