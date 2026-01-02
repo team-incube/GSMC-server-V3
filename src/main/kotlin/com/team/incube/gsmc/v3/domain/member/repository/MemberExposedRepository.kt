@@ -71,4 +71,11 @@ interface MemberExposedRepository {
         classNumber: Int,
         number: Int,
     ): Member?
+
+    fun findStudentsByGradeAndClassNumber(
+        grade: Int,
+        classNumber: Int,
+    ): List<Member>
+
+    fun findStudentsByGrade(grade: Int): List<Member>
 }
