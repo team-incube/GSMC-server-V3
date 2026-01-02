@@ -754,9 +754,10 @@ class ScoreController(
 
     @Operation(
         summary = "학급 내 백분위수 조회",
-        description = "현재 인증된 사용자의 학급 내 백분위수를 조회합니다. " +
-            "topPercentile은 상위 몇 %에 속하는지(예: 30이면 상위 30%), " +
-            "bottomPercentile은 하위 몇 %에 속하는지(예: 70이면 하위 70%)를 나타냅니다.",
+        description =
+            "현재 인증된 사용자의 학급 내 백분위수를 조회합니다. " +
+                "topPercentile은 상위 몇 %에 속하는지(예: 30이면 상위 30%), " +
+                "bottomPercentile은 하위 몇 %에 속하는지(예: 70이면 하위 70%)를 나타냅니다.",
     )
     @ApiResponses(
         value = [
@@ -777,9 +778,10 @@ class ScoreController(
 
     @Operation(
         summary = "학년 내 백분위수 조회",
-        description = "현재 인증된 사용자의 학년 내 백분위수를 조회합니다. " +
-            "topPercentile은 상위 몇 %에 속하는지(예: 30이면 상위 30%), " +
-            "bottomPercentile은 하위 몇 %에 속하는지(예: 70이면 하위 70%)를 나타냅니다.",
+        description =
+            "현재 인증된 사용자의 학년 내 백분위수를 조회합니다. " +
+                "topPercentile은 상위 몇 %에 속하는지(예: 30이면 상위 30%), " +
+                "bottomPercentile은 하위 몇 %에 속하는지(예: 70이면 하위 70%)를 나타냅니다.",
     )
     @ApiResponses(
         value = [
