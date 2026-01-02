@@ -3,8 +3,8 @@ package com.team.incube.gsmc.v3.service.score
 import com.team.incube.gsmc.v3.domain.member.dto.Member
 import com.team.incube.gsmc.v3.domain.member.dto.constant.MemberRole
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
-import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
-import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreByMemberIdService
+import com.team.incube.gsmc.v3.domain.score.calculator.TotalScoreCalculator
+import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.impl.FindMyPercentInGradeServiceImpl
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
@@ -23,23 +23,26 @@ class FindMyPercentInGradeServiceTest :
         data class TestData(
             val currentMemberProvider: CurrentMemberProvider,
             val memberRepo: MemberExposedRepository,
-            val calculateTotalScoreByMemberIdService: CalculateTotalScoreByMemberIdService,
+            val scoreRepo: ScoreExposedRepository,
+            val totalScoreCalculator: TotalScoreCalculator,
             val service: FindMyPercentInGradeServiceImpl,
         )
 
         fun ctx(): TestData {
             val currentMemberProvider = mockk<CurrentMemberProvider>()
             val memberRepo = mockk<MemberExposedRepository>()
-            val calculateTotalScoreByMemberIdService = mockk<CalculateTotalScoreByMemberIdService>()
+            val scoreRepo = mockk<ScoreExposedRepository>()
+            val totalScoreCalculator = mockk<TotalScoreCalculator>()
 
             val service =
                 FindMyPercentInGradeServiceImpl(
                     currentMemberProvider = currentMemberProvider,
                     memberExposedRepository = memberRepo,
-                    calculateTotalScoreByMemberIdService = calculateTotalScoreByMemberIdService,
+                    scoreExposedRepository = scoreRepo,
+                    totalScoreCalculator = totalScoreCalculator,
                 )
 
-            return TestData(currentMemberProvider, memberRepo, calculateTotalScoreByMemberIdService, service)
+            return TestData(currentMemberProvider, memberRepo, scoreRepo, totalScoreCalculator, service)
         }
 
         val mockTransaction = mockk<JdbcTransaction>(relaxed = true)
@@ -165,11 +168,9 @@ class FindMyPercentInGradeServiceTest :
 
             every { c.currentMemberProvider.getCurrentMember() } returns student2Class1
             every { c.memberRepo.findStudentsByGrade(1) } returns students
+            every { c.scoreRepo.findApprovedScoresByMemberIds(listOf(1L, 2L, 3L, 4L)) } returns emptyList()
 
-            every { c.calculateTotalScoreByMemberIdService.execute(1L, true) } returns GetTotalScoreResponse(60)
-            every { c.calculateTotalScoreByMemberIdService.execute(2L, true) } returns GetTotalScoreResponse(75)
-            every { c.calculateTotalScoreByMemberIdService.execute(3L, true) } returns GetTotalScoreResponse(80)
-            every { c.calculateTotalScoreByMemberIdService.execute(4L, true) } returns GetTotalScoreResponse(90)
+            every { c.totalScoreCalculator.calculate(emptyList(), true) } returnsMany listOf(60, 75, 80, 90)
 
             When("백분위수 조회를 하면") {
                 val result = c.service.execute()
@@ -221,10 +222,9 @@ class FindMyPercentInGradeServiceTest :
 
             every { c.currentMemberProvider.getCurrentMember() } returns student1
             every { c.memberRepo.findStudentsByGrade(1) } returns students
+            every { c.scoreRepo.findApprovedScoresByMemberIds(listOf(1L, 2L, 3L)) } returns emptyList()
 
-            every { c.calculateTotalScoreByMemberIdService.execute(1L, true) } returns GetTotalScoreResponse(100)
-            every { c.calculateTotalScoreByMemberIdService.execute(2L, true) } returns GetTotalScoreResponse(75)
-            every { c.calculateTotalScoreByMemberIdService.execute(3L, true) } returns GetTotalScoreResponse(50)
+            every { c.totalScoreCalculator.calculate(emptyList(), true) } returnsMany listOf(100, 75, 50)
 
             When("백분위수 조회를 하면") {
                 val result = c.service.execute()
@@ -276,10 +276,9 @@ class FindMyPercentInGradeServiceTest :
 
             every { c.currentMemberProvider.getCurrentMember() } returns student3
             every { c.memberRepo.findStudentsByGrade(1) } returns students
+            every { c.scoreRepo.findApprovedScoresByMemberIds(listOf(1L, 2L, 3L)) } returns emptyList()
 
-            every { c.calculateTotalScoreByMemberIdService.execute(1L, true) } returns GetTotalScoreResponse(100)
-            every { c.calculateTotalScoreByMemberIdService.execute(2L, true) } returns GetTotalScoreResponse(75)
-            every { c.calculateTotalScoreByMemberIdService.execute(3L, true) } returns GetTotalScoreResponse(50)
+            every { c.totalScoreCalculator.calculate(emptyList(), true) } returnsMany listOf(100, 75, 50)
 
             When("백분위수 조회를 하면") {
                 val result = c.service.execute()
@@ -342,11 +341,9 @@ class FindMyPercentInGradeServiceTest :
 
             every { c.currentMemberProvider.getCurrentMember() } returns student2
             every { c.memberRepo.findStudentsByGrade(1) } returns students
+            every { c.scoreRepo.findApprovedScoresByMemberIds(listOf(1L, 2L, 3L, 4L)) } returns emptyList()
 
-            every { c.calculateTotalScoreByMemberIdService.execute(1L, true) } returns GetTotalScoreResponse(100)
-            every { c.calculateTotalScoreByMemberIdService.execute(2L, true) } returns GetTotalScoreResponse(75)
-            every { c.calculateTotalScoreByMemberIdService.execute(3L, true) } returns GetTotalScoreResponse(75)
-            every { c.calculateTotalScoreByMemberIdService.execute(4L, true) } returns GetTotalScoreResponse(50)
+            every { c.totalScoreCalculator.calculate(emptyList(), true) } returnsMany listOf(100, 75, 75, 50)
 
             When("백분위수 조회를 하면") {
                 val result = c.service.execute()
