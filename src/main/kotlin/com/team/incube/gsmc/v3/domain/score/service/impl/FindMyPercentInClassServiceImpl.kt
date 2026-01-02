@@ -1,8 +1,9 @@
 package com.team.incube.gsmc.v3.domain.score.service.impl
 
 import com.team.incube.gsmc.v3.domain.member.repository.MemberExposedRepository
+import com.team.incube.gsmc.v3.domain.score.calculator.TotalScoreCalculator
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetStudentPercentResponse
-import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreByMemberIdService
+import com.team.incube.gsmc.v3.domain.score.repository.ScoreExposedRepository
 import com.team.incube.gsmc.v3.domain.score.service.FindMyPercentInClassService
 import com.team.incube.gsmc.v3.global.common.error.ErrorCode
 import com.team.incube.gsmc.v3.global.common.error.exception.GsmcException
@@ -14,7 +15,8 @@ import org.springframework.stereotype.Service
 class FindMyPercentInClassServiceImpl(
     private val currentMemberProvider: CurrentMemberProvider,
     private val memberExposedRepository: MemberExposedRepository,
-    private val calculateTotalScoreByMemberIdService: CalculateTotalScoreByMemberIdService,
+    private val scoreExposedRepository: ScoreExposedRepository,
+    private val totalScoreCalculator: TotalScoreCalculator,
 ) : FindMyPercentInClassService {
     override fun execute(): GetStudentPercentResponse =
         transaction {
@@ -25,16 +27,21 @@ class FindMyPercentInClassServiceImpl(
 
             val studentsInClass = memberExposedRepository.findStudentsByGradeAndClassNumber(grade, classNumber)
 
-            if (studentsInClass.size == 1) {
+            if (studentsInClass.size <= 1) {
                 return@transaction GetStudentPercentResponse(
                     topPercentile = 100.0,
                     bottomPercentile = 0.0,
                 )
             }
 
+            val memberIds = studentsInClass.map { it.id }
+            val allScores = scoreExposedRepository.findApprovedScoresByMemberIds(memberIds)
+            val scoresByMemberId = allScores.groupBy { it.member.id }
+
             val totalScoresByMember =
                 studentsInClass.map { student ->
-                    val totalScore = calculateTotalScoreByMemberIdService.execute(student.id, includeApprovedOnly = true).totalScore
+                    val studentScores = scoresByMemberId[student.id] ?: emptyList()
+                    val totalScore = totalScoreCalculator.calculate(studentScores, includeApprovedOnly = true)
                     student to totalScore
                 }
 
