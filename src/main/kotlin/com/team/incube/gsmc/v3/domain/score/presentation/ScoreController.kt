@@ -774,7 +774,13 @@ class ScoreController(
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/percent/class")
-    fun getMyPercentInClass(): GetStudentPercentResponse = findMyPercentInClassService.execute()
+    fun getMyPercentInClass(
+        @RequestParam(
+            name = "includeApprovedOnly",
+            defaultValue = "true",
+            required = false,
+        ) includeApprovedOnly: Boolean,
+    ): GetStudentPercentResponse = findMyPercentInClassService.execute(includeApprovedOnly)
 
     @Operation(
         summary = "학년 내 백분위수 조회",
@@ -798,5 +804,11 @@ class ScoreController(
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/percent/grade")
-    fun getMyPercentInGrade(): GetStudentPercentResponse = findMyPercentInGradeService.execute()
+    fun getMyPercentInGrade(
+        @RequestParam(
+            name = "includeApprovedOnly",
+            defaultValue = "true",
+            required = false,
+        ) includeApprovedOnly: Boolean,
+    ): GetStudentPercentResponse = findMyPercentInGradeService.execute(includeApprovedOnly)
 }
