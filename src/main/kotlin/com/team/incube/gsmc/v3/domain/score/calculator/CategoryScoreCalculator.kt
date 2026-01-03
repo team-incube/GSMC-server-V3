@@ -15,6 +15,6 @@ abstract class CategoryScoreCalculator {
         if (includeApprovedOnly) {
             status == ScoreStatus.APPROVED
         } else {
-            status != ScoreStatus.REJECTED
+            status != ScoreStatus.REJECTED && status != ScoreStatus.INCOMPLETE
         }
 }
