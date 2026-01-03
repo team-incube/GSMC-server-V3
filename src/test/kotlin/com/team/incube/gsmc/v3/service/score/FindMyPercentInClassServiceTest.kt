@@ -83,7 +83,7 @@ class FindMyPercentInClassServiceTest :
                 Then("MEMBER_GRADE_CLASS_NOT_SET 예외가 발생한다") {
                     val exception =
                         shouldThrow<GsmcException> {
-                            c.service.execute()
+                            c.service.execute(includeApprovedOnly = true)
                         }
                     exception.errorCode shouldBe ErrorCode.MEMBER_GRADE_CLASS_NOT_SET
                 }
@@ -108,7 +108,7 @@ class FindMyPercentInClassServiceTest :
             every { c.memberRepo.findStudentsByGradeAndClassNumber(1, 1) } returns listOf(currentMember)
 
             When("백분위수 조회를 하면") {
-                val result = c.service.execute()
+                val result = c.service.execute(includeApprovedOnly = true)
 
                 Then("상위 100%, 하위 0%가 반환된다") {
                     result.topPercentile shouldBe 100.0
@@ -157,12 +157,12 @@ class FindMyPercentInClassServiceTest :
 
             every { c.currentMemberProvider.getCurrentMember() } returns student2
             every { c.memberRepo.findStudentsByGradeAndClassNumber(1, 1) } returns students
-            every { c.scoreRepo.findApprovedScoresByMemberIds(listOf(1L, 2L, 3L)) } returns emptyList()
+            every { c.scoreRepo.findAllByMemberIds(listOf(1L, 2L, 3L)) } returns emptyList()
 
             every { c.totalScoreCalculator.calculate(emptyList(), true) } returnsMany listOf(50, 75, 90)
 
             When("백분위수 조회를 하면") {
-                val result = c.service.execute()
+                val result = c.service.execute(includeApprovedOnly = true)
 
                 Then("상위 약 66.67%, 하위 약 33.33%가 반환된다") {
                     result.topPercentile shouldBe 66.66666666666667
@@ -211,12 +211,12 @@ class FindMyPercentInClassServiceTest :
 
             every { c.currentMemberProvider.getCurrentMember() } returns student1
             every { c.memberRepo.findStudentsByGradeAndClassNumber(1, 1) } returns students
-            every { c.scoreRepo.findApprovedScoresByMemberIds(listOf(1L, 2L, 3L)) } returns emptyList()
+            every { c.scoreRepo.findAllByMemberIds(listOf(1L, 2L, 3L)) } returns emptyList()
 
             every { c.totalScoreCalculator.calculate(emptyList(), true) } returnsMany listOf(100, 75, 50)
 
             When("백분위수 조회를 하면") {
-                val result = c.service.execute()
+                val result = c.service.execute(includeApprovedOnly = true)
 
                 Then("상위 약 33.33%, 하위 약 66.67%가 반환된다") {
                     result.topPercentile shouldBe 33.33333333333334
@@ -265,12 +265,12 @@ class FindMyPercentInClassServiceTest :
 
             every { c.currentMemberProvider.getCurrentMember() } returns student3
             every { c.memberRepo.findStudentsByGradeAndClassNumber(1, 1) } returns students
-            every { c.scoreRepo.findApprovedScoresByMemberIds(listOf(1L, 2L, 3L)) } returns emptyList()
+            every { c.scoreRepo.findAllByMemberIds(listOf(1L, 2L, 3L)) } returns emptyList()
 
             every { c.totalScoreCalculator.calculate(emptyList(), true) } returnsMany listOf(100, 75, 50)
 
             When("백분위수 조회를 하면") {
-                val result = c.service.execute()
+                val result = c.service.execute(includeApprovedOnly = true)
 
                 Then("상위 100%, 하위 0%가 반환된다") {
                     result.topPercentile shouldBe 100.0
@@ -330,16 +330,59 @@ class FindMyPercentInClassServiceTest :
 
             every { c.currentMemberProvider.getCurrentMember() } returns student2
             every { c.memberRepo.findStudentsByGradeAndClassNumber(1, 1) } returns students
-            every { c.scoreRepo.findApprovedScoresByMemberIds(listOf(1L, 2L, 3L, 4L)) } returns emptyList()
+            every { c.scoreRepo.findAllByMemberIds(listOf(1L, 2L, 3L, 4L)) } returns emptyList()
 
             every { c.totalScoreCalculator.calculate(emptyList(), true) } returnsMany listOf(100, 75, 75, 50)
 
             When("백분위수 조회를 하면") {
-                val result = c.service.execute()
+                val result = c.service.execute(includeApprovedOnly = true)
 
                 Then("나보다 낮은 점수를 가진 학생만 카운트된다") {
                     result.topPercentile shouldBe 75.0
                     result.bottomPercentile shouldBe 25.0
+                }
+            }
+        }
+
+        Given("includeApprovedOnly가 false인 경우") {
+            val c = ctx()
+
+            val student1 =
+                Member(
+                    id = 1L,
+                    name = "학생1",
+                    email = "student1@test.com",
+                    grade = 1,
+                    classNumber = 1,
+                    number = 1,
+                    role = MemberRole.STUDENT,
+                )
+
+            val student2 =
+                Member(
+                    id = 2L,
+                    name = "학생2",
+                    email = "student2@test.com",
+                    grade = 1,
+                    classNumber = 1,
+                    number = 2,
+                    role = MemberRole.STUDENT,
+                )
+
+            val students = listOf(student1, student2)
+
+            every { c.currentMemberProvider.getCurrentMember() } returns student1
+            every { c.memberRepo.findStudentsByGradeAndClassNumber(1, 1) } returns students
+            every { c.scoreRepo.findAllByMemberIds(listOf(1L, 2L)) } returns emptyList()
+
+            every { c.totalScoreCalculator.calculate(emptyList(), false) } returnsMany listOf(100, 80)
+
+            When("백분위수 조회를 하면") {
+                val result = c.service.execute(includeApprovedOnly = false)
+
+                Then("PENDING 점수도 포함하여 계산된다") {
+                    result.topPercentile shouldBe 50.0
+                    result.bottomPercentile shouldBe 50.0
                 }
             }
         }
