@@ -18,7 +18,7 @@ class FindMyPercentInClassServiceImpl(
     private val scoreExposedRepository: ScoreExposedRepository,
     private val totalScoreCalculator: TotalScoreCalculator,
 ) : FindMyPercentInClassService {
-    override fun execute(): GetStudentPercentResponse =
+    override fun execute(includeApprovedOnly: Boolean): GetStudentPercentResponse =
         transaction {
             val currentMember = currentMemberProvider.getCurrentMember()
 
@@ -35,13 +35,13 @@ class FindMyPercentInClassServiceImpl(
             }
 
             val memberIds = studentsInClass.map { it.id }
-            val allScores = scoreExposedRepository.findApprovedScoresByMemberIds(memberIds)
+            val allScores = scoreExposedRepository.findAllByMemberIds(memberIds)
             val scoresByMemberId = allScores.groupBy { it.member.id }
 
             val totalScoresByMember =
                 studentsInClass.map { student ->
                     val studentScores = scoresByMemberId[student.id] ?: emptyList()
-                    val totalScore = totalScoreCalculator.calculate(studentScores, includeApprovedOnly = true)
+                    val totalScore = totalScoreCalculator.calculate(studentScores, includeApprovedOnly)
                     student to totalScore
                 }
 
