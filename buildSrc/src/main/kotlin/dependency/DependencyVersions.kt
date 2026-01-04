@@ -9,7 +9,7 @@ object DependencyVersions {
     const val KOTEST_VERSION = "6.0.7"
     const val MOCKK_VERSION = "1.14.6"
 
-    const val SWAGGER_VERSION = "3.0.0"
+    const val SWAGGER_VERSION = "3.0.1"
 
     const val AWS_S3_SDK_VERSION = "4.0.0-M1"
     const val AWS_LOGBACK_APPENDER_VERSION = "1.6.0"

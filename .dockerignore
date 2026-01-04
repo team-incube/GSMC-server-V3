@@ -1,6 +1,7 @@
 .claude/
 .github/
 .idea/
+.qodana/
 qodana.yaml
 README.md
 CODE_OF_CONDUCT.md
