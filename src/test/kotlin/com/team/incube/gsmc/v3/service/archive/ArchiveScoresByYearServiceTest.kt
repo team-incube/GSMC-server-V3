@@ -36,7 +36,7 @@ class ArchiveScoresByYearServiceTest :
         fun ctx(): TestContext {
             val scoreRepo = mockk<ScoreExposedRepository>()
             val archiveMapper = mockk<ScoreArchiveMapper>()
-            val objectMapper = ObjectMapper().findAndRegisterModules()
+            val objectMapper = ObjectMapper()
             val service = ArchiveScoresByYearServiceImpl(scoreRepo, archiveMapper, objectMapper)
             return TestContext(scoreRepo, archiveMapper, objectMapper, service)
         }

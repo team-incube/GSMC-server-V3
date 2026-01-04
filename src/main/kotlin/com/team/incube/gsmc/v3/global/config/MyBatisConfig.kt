@@ -20,7 +20,9 @@ class MyBatisConfig {
         )
         sessionFactory.setTypeAliasesPackage("com.team.incube.gsmc.v3.domain.archive.dto")
 
-        val configuration = org.apache.ibatis.session.Configuration()
+        val configuration =
+            org.apache.ibatis.session
+                .Configuration()
         configuration.isMapUnderscoreToCamelCase = true
         configuration.defaultFetchSize = 100
         configuration.defaultStatementTimeout = 30
@@ -29,4 +31,3 @@ class MyBatisConfig {
         return sessionFactory.`object`!!
     }
 }
-
