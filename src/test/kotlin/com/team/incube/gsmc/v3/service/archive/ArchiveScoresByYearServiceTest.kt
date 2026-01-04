@@ -90,9 +90,12 @@ class ArchiveScoresByYearServiceTest :
             val academicYear = 2024
             val score = baseScore()
             val archivesSlot = slot<List<ScoreArchive>>()
+            val accumulatedCategories = CategoryType.getAllCategories().filter { it.isAccumulated }
 
             every { c.archiveMapper.deleteByAcademicYear(academicYear) } returns 0
-            every { c.scoreRepo.findAllByStatus(ScoreStatus.APPROVED) } returns listOf(score)
+            every {
+                c.scoreRepo.findAllByStatusAndCategoryTypeIn(ScoreStatus.APPROVED, accumulatedCategories)
+            } returns listOf(score)
             every { c.archiveMapper.insertBatch(capture(archivesSlot)) } returns 1
 
             When("execute를 호출하면") {
@@ -104,7 +107,9 @@ class ArchiveScoresByYearServiceTest :
 
                 Then("기존 학년도 데이터가 삭제되고 새로 저장된다") {
                     verify(exactly = 1) { c.archiveMapper.deleteByAcademicYear(academicYear) }
-                    verify(exactly = 1) { c.scoreRepo.findAllByStatus(ScoreStatus.APPROVED) }
+                    verify(exactly = 1) {
+                        c.scoreRepo.findAllByStatusAndCategoryTypeIn(ScoreStatus.APPROVED, accumulatedCategories)
+                    }
                     verify(exactly = 1) { c.archiveMapper.insertBatch(any()) }
                 }
 
@@ -121,23 +126,12 @@ class ArchiveScoresByYearServiceTest :
         Given("승인된 점수가 없을 때") {
             val c = ctx()
             val academicYear = 2024
+            val accumulatedCategories = CategoryType.getAllCategories().filter { it.isAccumulated }
 
             every { c.archiveMapper.deleteByAcademicYear(academicYear) } returns 0
-            every { c.scoreRepo.findAllByStatus(ScoreStatus.APPROVED) } returns emptyList()
-
-            Then("NO_SCORES_TO_ARCHIVE 예외가 발생한다") {
-                val ex = shouldThrow<GsmcException> { c.service.execute(academicYear) }
-                ex.errorCode shouldBe ErrorCode.NO_SCORES_TO_ARCHIVE
-            }
-        }
-
-        Given("isAccumulated가 false인 카테고리만 있을 때") {
-            val c = ctx()
-            val academicYear = 2024
-            val score = baseScore(categoryType = CategoryType.PROJECT_PARTICIPATION)
-
-            every { c.archiveMapper.deleteByAcademicYear(academicYear) } returns 0
-            every { c.scoreRepo.findAllByStatus(ScoreStatus.APPROVED) } returns listOf(score)
+            every {
+                c.scoreRepo.findAllByStatusAndCategoryTypeIn(ScoreStatus.APPROVED, accumulatedCategories)
+            } returns emptyList()
 
             Then("NO_SCORES_TO_ARCHIVE 예외가 발생한다") {
                 val ex = shouldThrow<GsmcException> { c.service.execute(academicYear) }
@@ -149,9 +143,12 @@ class ArchiveScoresByYearServiceTest :
             val c = ctx()
             val academicYear = 2024
             val scores = (1L..1500L).map { id -> baseScore(id = id, activityName = "자격증$id") }
+            val accumulatedCategories = CategoryType.getAllCategories().filter { it.isAccumulated }
 
             every { c.archiveMapper.deleteByAcademicYear(academicYear) } returns 0
-            every { c.scoreRepo.findAllByStatus(ScoreStatus.APPROVED) } returns scores
+            every {
+                c.scoreRepo.findAllByStatusAndCategoryTypeIn(ScoreStatus.APPROVED, accumulatedCategories)
+            } returns scores
             every { c.archiveMapper.insertBatch(any()) } returns 1000 andThen 500
 
             When("execute를 호출하면") {
