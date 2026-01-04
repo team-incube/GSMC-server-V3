@@ -49,9 +49,7 @@ class DeleteMemberByEmailServiceImpl(
 
                     EvidenceType.FILE,
                     EvidenceType.UNREQUIRED,
-                    -> {
-                        Unit
-                    }
+                    -> { }
                 }
             }
 

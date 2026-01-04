@@ -53,7 +53,7 @@ class CreateTeacherSignUpRequestServiceImpl(
                     listOf(MemberRole.TEACHER, MemberRole.HOMEROOM_TEACHER, MemberRole.ROOT),
                 )
             targetMembers.forEach { targetMember ->
-                val content = "${name}님이 ${requestedRole.getAuthority()?.removePrefix("ROLE_")} 권한 회원가입을 요청했습니다."
+                val content = "${name}님이 ${requestedRole.authority?.removePrefix("ROLE_")} 권한 회원가입을 요청했습니다."
                 alertExposedRepository.saveWithoutScore(
                     sender = currentMember,
                     receiver = targetMember,
