@@ -68,5 +68,6 @@ object Dependencies {
     const val APACHE_POI_OOXML = "org.apache.poi:poi-ooxml:${DependencyVersions.APACHE_POI_VERSION}"
 
     // MyBatis
-    const val MYBATIS_SPRING_BOOT_STARTER = "org.mybatis.spring.boot:mybatis-spring-boot-starter:${DependencyVersions.MYBATIS_SPRING_BOOT_VERSION}"
+    const val MYBATIS_SPRING_BOOT_STARTER =
+        "org.mybatis.spring.boot:mybatis-spring-boot-starter:${DependencyVersions.MYBATIS_SPRING_BOOT_VERSION}"
 }
