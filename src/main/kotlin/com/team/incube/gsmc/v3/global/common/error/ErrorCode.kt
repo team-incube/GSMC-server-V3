@@ -62,4 +62,8 @@ enum class ErrorCode(
 
     // Sheet
     NOT_ASSIGNED_HOMEROOM_CLASS("해당 학급의 담임 교사가 아닙니다.", 403),
+
+    // Archive
+    NO_SCORES_TO_ARCHIVE("아카이브할 승인된 점수가 없습니다.", 400),
+    ARCHIVE_NOT_FOUND("해당 학년도의 아카이브를 찾을 수 없습니다.", 404),
 }
