@@ -15,9 +15,9 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.data.redis.cache.RedisCacheConfiguration
 import org.springframework.data.redis.cache.RedisCacheManager
 import org.springframework.data.redis.connection.RedisConnectionFactory
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
 import org.springframework.data.redis.serializer.RedisSerializationContext
-import org.springframework.data.redis.serializer.StringRedisSerializer
+import org.springframework.data.redis.serializer.RedisSerializer
+import org.springframework.data.redis.serializer.SerializationException
 
 @Configuration
 @EnableCaching
@@ -44,16 +44,35 @@ class RedisCacheConfig : CachingConfigurer {
                 )
             }
 
+        val jsonSerializer =
+            object : RedisSerializer<Any> {
+                override fun serialize(value: Any?): ByteArray? =
+                    value?.let {
+                        try {
+                            objectMapper.writeValueAsBytes(it)
+                        } catch (e: Exception) {
+                            throw SerializationException("Failed to serialize object", e)
+                        }
+                    }
+
+                override fun deserialize(bytes: ByteArray?): Any? =
+                    bytes?.let {
+                        try {
+                            objectMapper.readValue(it, Any::class.java)
+                        } catch (e: Exception) {
+                            throw SerializationException("Failed to deserialize object", e)
+                        }
+                    }
+            }
+
         val redisCacheConfiguration =
             RedisCacheConfiguration
                 .defaultCacheConfig()
                 .disableCachingNullValues()
                 .serializeKeysWith(
-                    RedisSerializationContext.SerializationPair.fromSerializer(StringRedisSerializer()),
+                    RedisSerializationContext.SerializationPair.fromSerializer(RedisSerializer.string()),
                 ).serializeValuesWith(
-                    RedisSerializationContext.SerializationPair.fromSerializer(
-                        GenericJackson2JsonRedisSerializer(objectMapper),
-                    ),
+                    RedisSerializationContext.SerializationPair.fromSerializer(jsonSerializer),
                 )
 
         return RedisCacheManager
