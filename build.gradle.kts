@@ -122,6 +122,18 @@ jacoco {
     reportsDirectory.set(file("$rootDir/.qodana/code-coverage"))
 }
 
+fun JacocoReportBase.applyServiceOnlyFilter() {
+    classDirectories.setFrom(
+        files(
+            classDirectories.files.map {
+                fileTree(it) {
+                    include("**/service/impl/**")
+                }
+            },
+        ),
+    )
+}
+
 tasks.test {
     useJUnitPlatform()
     finalizedBy(tasks.jacocoTestReport)
@@ -132,22 +144,21 @@ tasks.jacocoTestReport {
         xml.required.set(true)
         html.required.set(false)
     }
-
+    applyServiceOnlyFilter()
     finalizedBy(tasks.jacocoTestCoverageVerification)
 }
 
 tasks.jacocoTestCoverageVerification {
+    applyServiceOnlyFilter()
     violationRules {
         rule {
             enabled = true
             element = "CLASS"
-
             limit {
                 counter = "LINE"
                 value = "COVEREDRATIO"
                 minimum = "0.00".toBigDecimal()
             }
-
             excludes = listOf()
         }
     }

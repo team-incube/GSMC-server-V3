@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 @Component
 class CookieUtil(
     private val environment: Environment,
-    @param:Value("\${server.cookie.domain}")
+    @param:Value($$"${server.cookie.domain}")
     private val cookieDomain: String,
 ) {
     companion object {
