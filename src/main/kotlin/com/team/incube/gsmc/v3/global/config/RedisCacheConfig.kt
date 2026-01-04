@@ -46,19 +46,23 @@ class RedisCacheConfig : CachingConfigurer {
 
         val jsonSerializer =
             object : RedisSerializer<Any> {
-                override fun serialize(value: Any?): ByteArray? =
-                    value?.let {
+                override fun serialize(value: Any?): ByteArray =
+                    if (value == null) {
+                        ByteArray(0)
+                    } else {
                         try {
-                            objectMapper.writeValueAsBytes(it)
+                            objectMapper.writeValueAsBytes(value)
                         } catch (e: Exception) {
                             throw SerializationException("Failed to serialize object", e)
                         }
                     }
 
                 override fun deserialize(bytes: ByteArray?): Any? =
-                    bytes?.let {
+                    if (bytes == null || bytes.isEmpty()) {
+                        null
+                    } else {
                         try {
-                            objectMapper.readValue(it, Any::class.java)
+                            objectMapper.readValue(bytes, Any::class.java)
                         } catch (e: Exception) {
                             throw SerializationException("Failed to deserialize object", e)
                         }
