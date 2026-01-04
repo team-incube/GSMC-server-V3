@@ -111,4 +111,8 @@ interface ScoreExposedRepository {
         categoryType: CategoryType,
         sourceId: Long,
     ): Score?
+
+    fun findApprovedScoresByMemberIds(memberIds: List<Long>): List<Score>
+
+    fun findAllByMemberIds(memberIds: List<Long>): List<Score>
 }

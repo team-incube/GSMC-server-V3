@@ -12,6 +12,7 @@ import com.team.incube.gsmc.v3.domain.score.presentation.data.response.CreateSco
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetMyScoresResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetScoreResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetScoresByCategoryResponse
+import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetStudentPercentResponse
 import com.team.incube.gsmc.v3.domain.score.presentation.data.response.GetTotalScoreResponse
 import com.team.incube.gsmc.v3.domain.score.service.ApproveScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CalculateTotalScoreByMemberIdService
@@ -30,6 +31,8 @@ import com.team.incube.gsmc.v3.domain.score.service.CreateToeicScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateTopcitScoreService
 import com.team.incube.gsmc.v3.domain.score.service.CreateVolunteerScoreService
 import com.team.incube.gsmc.v3.domain.score.service.DeleteScoreService
+import com.team.incube.gsmc.v3.domain.score.service.FindMyPercentInClassService
+import com.team.incube.gsmc.v3.domain.score.service.FindMyPercentInGradeService
 import com.team.incube.gsmc.v3.domain.score.service.FindMyScoresService
 import com.team.incube.gsmc.v3.domain.score.service.FindScoreByScoreIdService
 import com.team.incube.gsmc.v3.domain.score.service.FindScoresByCategoryByMemberIdService
@@ -88,6 +91,8 @@ class ScoreController(
     private val findScoreByScoreIdService: FindScoreByScoreIdService,
     private val findScoresByCategoryService: FindScoresByCategoryService,
     private val findScoresByCategoryByMemberIdService: FindScoresByCategoryByMemberIdService,
+    private val findMyPercentInClassService: FindMyPercentInClassService,
+    private val findMyPercentInGradeService: FindMyPercentInGradeService,
 ) {
     @Operation(summary = "인증제 점수 상태 업데이트", description = "인증제 점수의 승인/거절 상태를 업데이트합니다")
     @ApiResponses(
@@ -746,4 +751,64 @@ class ScoreController(
         value = request.value,
         fileId = request.fileId,
     )
+
+    @Operation(
+        summary = "학급 내 백분위수 조회",
+        description =
+            "현재 인증된 사용자의 학급 내 백분위수를 조회합니다. " +
+                "topPercentile은 상위 몇 %에 속하는지(예: 30이면 상위 30%), " +
+                "bottomPercentile은 하위 몇 %에 속하는지(예: 70이면 하위 70%)를 나타냅니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "학년 또는 반 정보가 설정되지 않음",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/percent/class")
+    fun getMyPercentInClass(
+        @RequestParam(
+            name = "includeApprovedOnly",
+            defaultValue = "true",
+            required = false,
+        ) includeApprovedOnly: Boolean,
+    ): GetStudentPercentResponse = findMyPercentInClassService.execute(includeApprovedOnly)
+
+    @Operation(
+        summary = "학년 내 백분위수 조회",
+        description =
+            "현재 인증된 사용자의 학년 내 백분위수를 조회합니다. " +
+                "topPercentile은 상위 몇 %에 속하는지(예: 30이면 상위 30%), " +
+                "bottomPercentile은 하위 몇 %에 속하는지(예: 70이면 하위 70%)를 나타냅니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "요청이 성공함",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "학년 정보가 설정되지 않음",
+                content = [Content()],
+            ),
+        ],
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @GetMapping("/percent/grade")
+    fun getMyPercentInGrade(
+        @RequestParam(
+            name = "includeApprovedOnly",
+            defaultValue = "true",
+            required = false,
+        ) includeApprovedOnly: Boolean,
+    ): GetStudentPercentResponse = findMyPercentInGradeService.execute(includeApprovedOnly)
 }

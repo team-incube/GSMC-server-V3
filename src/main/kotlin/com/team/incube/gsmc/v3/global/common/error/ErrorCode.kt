@@ -42,6 +42,7 @@ enum class ErrorCode(
     // Auth
     REFRESH_TOKEN_INVALID("리프레시 토큰이 만료되었거나 유효하지 않습니다.", 401),
     OAUTH2_AUTHORIZATION_FAILED("OAuth 2.0 인증에 실패했습니다.", 401),
+
     AUTHENTICATION_FAILED("인증 과정에서 오류가 발생했습니다.", 401),
     INVALID_EMAIL_DOMAIN("허용되지 않는 이메일 도메인입니다.", 403),
     TEACHER_SIGNUP_REQUEST_NOT_FOUND("선생님 회원가입 요청을 찾을 수 없습니다.", 404),
@@ -52,6 +53,7 @@ enum class ErrorCode(
     MEMBER_NOT_FOUND("존재하지 않는 사용자입니다.", 404),
     MEMBER_STUDENT_NUMBER_ALREADY_EXISTS("이미 등록된 학번입니다.", 409),
     MEMBER_INVALID_STUDENT_NUMBER("유효하지 않은 학번입니다.", 400),
+    MEMBER_GRADE_CLASS_NOT_SET("학년 또는 반 정보가 설정되지 않았습니다.", 400),
 
     // Project
     PROJECT_NOT_FOUND("존재하지 않는 프로젝트입니다.", 404),

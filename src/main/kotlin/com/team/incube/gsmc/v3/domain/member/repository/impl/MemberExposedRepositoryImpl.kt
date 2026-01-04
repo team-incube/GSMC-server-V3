@@ -201,6 +201,26 @@ class MemberExposedRepositoryImpl : MemberExposedRepository {
             .firstOrNull()
             ?.toMember()
 
+    override fun findStudentsByGradeAndClassNumber(
+        grade: Int,
+        classNumber: Int,
+    ): List<Member> =
+        MemberExposedEntity
+            .selectAll()
+            .where {
+                (MemberExposedEntity.grade eq grade) and
+                    (MemberExposedEntity.classNumber eq classNumber) and
+                    (MemberExposedEntity.role eq MemberRole.STUDENT)
+            }.map { it.toMember() }
+
+    override fun findStudentsByGrade(grade: Int): List<Member> =
+        MemberExposedEntity
+            .selectAll()
+            .where {
+                (MemberExposedEntity.grade eq grade) and
+                    (MemberExposedEntity.role eq MemberRole.STUDENT)
+            }.map { it.toMember() }
+
     private fun ResultRow.toMember(): Member =
         Member(
             id = this[MemberExposedEntity.id],
