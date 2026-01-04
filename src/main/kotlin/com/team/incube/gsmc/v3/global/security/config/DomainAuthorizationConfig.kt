@@ -93,6 +93,9 @@ class DomainAuthorizationConfig {
             // Sheet
             .requestMatchers("/api/v3/sheets/**")
             .hasAnyRole(MemberRole.TEACHER.name, MemberRole.HOMEROOM_TEACHER.name, MemberRole.ROOT.name)
+            // Archive
+            .requestMatchers("/api/v3/archive/**")
+            .hasRole(MemberRole.ROOT.name)
             .anyRequest()
             .authenticated()
     }

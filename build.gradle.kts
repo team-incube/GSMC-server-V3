@@ -103,6 +103,9 @@ dependencies {
     // Apache POI (Excel)
     implementation(dependency.Dependencies.APACHE_POI)
     implementation(dependency.Dependencies.APACHE_POI_OOXML)
+
+    // MyBatis
+    implementation(dependency.Dependencies.MYBATIS_SPRING_BOOT_STARTER)
 }
 
 dependencyManagement {
