@@ -133,21 +133,38 @@ tasks.jacocoTestReport {
         html.required.set(false)
     }
 
+    classDirectories.setFrom(
+        files(
+            classDirectories.files.map {
+                fileTree(it) {
+                    include("**/service/impl/**")
+                }
+            },
+        ),
+    )
+
     finalizedBy(tasks.jacocoTestCoverageVerification)
 }
 
 tasks.jacocoTestCoverageVerification {
+    classDirectories.setFrom(
+        files(
+            classDirectories.files.map {
+                fileTree(it) {
+                    include("**/service/impl/**")
+                }
+            },
+        ),
+    )
     violationRules {
         rule {
             enabled = true
             element = "CLASS"
-
             limit {
                 counter = "LINE"
                 value = "COVEREDRATIO"
                 minimum = "0.00".toBigDecimal()
             }
-
             excludes = listOf()
         }
     }
