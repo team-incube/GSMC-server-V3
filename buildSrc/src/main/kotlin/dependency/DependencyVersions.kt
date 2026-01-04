@@ -19,4 +19,6 @@ object DependencyVersions {
     const val JJWT_VERSION = "0.13.0"
 
     const val APACHE_POI_VERSION = "5.5.1"
+
+    const val MYBATIS_SPRING_BOOT_VERSION = "3.0.5"
 }
