@@ -126,9 +126,9 @@ class FindScoreByScoreIdServiceTest :
                     res.scoreStatus shouldBe ScoreStatus.APPROVED
                     res.evidence shouldNotBe null
                     res.evidence!!.evidenceId shouldBe 100L
-                    res.evidence!!.title shouldBe "증빙 제목"
-                    res.evidence!!.content shouldBe "증빙 내용"
-                    res.evidence!!.files.size shouldBe 1
+                    res.evidence.title shouldBe "증빙 제목"
+                    res.evidence.content shouldBe "증빙 내용"
+                    res.evidence.files.size shouldBe 1
                     res.file shouldBe null
                 }
 
@@ -187,7 +187,7 @@ class FindScoreByScoreIdServiceTest :
                     res.evidence shouldBe null
                     res.file shouldNotBe null
                     res.file!!.id shouldBe 200L
-                    res.file!!.originalName shouldBe "award.pdf"
+                    res.file.originalName shouldBe "award.pdf"
                 }
 
                 Then("저장소 메서드가 호출된다") {
