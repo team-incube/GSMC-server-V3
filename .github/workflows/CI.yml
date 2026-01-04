@@ -26,7 +26,6 @@ jobs:
 
   Unit-Test-And-Coverage:
     name: Unit Test & Coverage
-    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -55,7 +54,8 @@ jobs:
         run: ./gradlew test
 
       - name: Archive Jacoco Coverage
-        uses: actions/upload-artifact@v5
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v6
         with:
           name: jacoco-coverage
           path: .qodana/code-coverage
@@ -75,7 +75,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Download Coverage Data
-        uses: actions/download-artifact@v6.0.0
+        uses: actions/download-artifact@v7
         with:
           name: jacoco-coverage
           path: .qodana/code-coverage
