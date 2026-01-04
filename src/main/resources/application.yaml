@@ -94,6 +94,13 @@ logging:
   config: classpath:logback-spring.xml
   level:
     org.jetbrains.exposed.sql.transactions: ${EXPOSED_LOG_LEVEL:DEBUG}
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.team.incube.gsmc.v3.domain.archive.dto
+  configuration:
+    map-underscore-to-camel-case: true
+    default-fetch-size: 100
+    default-statement-timeout: 30
 springdoc:
   api-docs:
     path: /api-docs
