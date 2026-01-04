@@ -30,11 +30,10 @@ class ArchiveScoresByYearServiceImpl(
                 .filter { it.isAccumulated }
         val allApprovedScores =
             transaction {
-                scoreExposedRepository
-                    .findAllByStatus(ScoreStatus.APPROVED)
-                    .filter { score ->
-                        accumulatedCategories.any { it == score.categoryType }
-                    }
+                scoreExposedRepository.findAllByStatusAndCategoryTypeIn(
+                    ScoreStatus.APPROVED,
+                    accumulatedCategories,
+                )
             }
         if (allApprovedScores.isEmpty()) {
             throw GsmcException(ErrorCode.NO_SCORES_TO_ARCHIVE)
