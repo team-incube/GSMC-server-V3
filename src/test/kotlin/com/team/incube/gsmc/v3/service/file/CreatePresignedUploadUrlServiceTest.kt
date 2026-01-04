@@ -16,7 +16,7 @@ import io.mockk.verify
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest
-import java.net.URL
+import java.net.URI
 
 class CreatePresignedUploadUrlServiceTest :
     BehaviorSpec({
@@ -51,7 +51,7 @@ class CreatePresignedUploadUrlServiceTest :
 
             val mockPresignedRequest =
                 mockk<PresignedPutObjectRequest> {
-                    every { url() } returns URL("https://test-bucket.s3.amazonaws.com/file/20250101120000_abc123.pdf?signature=xyz")
+                    every { url() } returns URI.create("https://test-bucket.s3.amazonaws.com/file/20250101120000_abc123.pdf?signature=xyz").toURL()
                 }
 
             every { context.mockS3Presigner.presignPutObject(any<PutObjectPresignRequest>()) } returns mockPresignedRequest
@@ -95,7 +95,7 @@ class CreatePresignedUploadUrlServiceTest :
 
                     val mockPresignedRequest =
                         mockk<PresignedPutObjectRequest> {
-                            every { url() } returns URL("https://test-bucket.s3.amazonaws.com/file/test.$extension?signature=xyz")
+                            every { url() } returns URI.create("https://test-bucket.s3.amazonaws.com/file/test.$extension?signature=xyz").toURL()
                         }
 
                     every { context.mockS3Presigner.presignPutObject(any<PutObjectPresignRequest>()) } returns mockPresignedRequest
@@ -205,7 +205,7 @@ class CreatePresignedUploadUrlServiceTest :
 
             val mockPresignedRequest =
                 mockk<PresignedPutObjectRequest> {
-                    every { url() } returns URL("https://test-bucket.s3.amazonaws.com/file/test.pdf?signature=xyz")
+                    every { url() } returns URI.create("https://test-bucket.s3.amazonaws.com/file/test.pdf?signature=xyz").toURL()
                 }
 
             every { context.mockS3Presigner.presignPutObject(any<PutObjectPresignRequest>()) } returns mockPresignedRequest
