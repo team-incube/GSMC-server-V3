@@ -12,11 +12,12 @@ exclude:
   - name: FunctionName
     paths:
       - src/test/kotlin
-excludePaths:
-  - .gradle
-  - build
-  - out
-  - .qodana
-  - .idea
+  - name: All
+    paths:
+      - .gradle
+      - build
+      - out
+      - .qodana
+      - .idea
 projectJDK: "25"
 linter: jetbrains/qodana-jvm:2025.2
