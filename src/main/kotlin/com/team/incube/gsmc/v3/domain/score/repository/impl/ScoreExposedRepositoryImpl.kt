@@ -130,7 +130,8 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
             .selectAll()
             .where {
                 (ScoreExposedEntity.member eq memberId) and
-                    (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName)
+                    (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName) and
+                    (ScoreExposedEntity.status neq ScoreStatus.REJECTED)
             }.count()
 
     override fun findAllByMemberId(memberId: Long): List<Score> {
