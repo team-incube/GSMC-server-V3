@@ -130,7 +130,8 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
             .selectAll()
             .where {
                 (ScoreExposedEntity.member eq memberId) and
-                    (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName)
+                    (ScoreExposedEntity.categoryEnglishName eq categoryType.englishName) and
+                    (ScoreExposedEntity.status neq ScoreStatus.REJECTED)
             }.count()
 
     override fun findAllByMemberId(memberId: Long): List<Score> {
@@ -205,6 +206,35 @@ class ScoreExposedRepositoryImpl : ScoreExposedRepository {
                 }.selectAll()
                 .where { ScoreExposedEntity.status eq status }
                 .toList()
+
+        if (results.isEmpty()) return emptyList()
+
+        val memberMap = mutableMapOf<Long, Member>()
+
+        return results.map { row ->
+            val memberId = row[ScoreExposedEntity.member]
+            val member = memberMap.getOrPut(memberId) { row.toMember() }
+            row.toScore(member)
+        }
+    }
+
+    override fun findAllByStatusAndCategoryTypeIn(
+        status: ScoreStatus,
+        categoryTypes: List<CategoryType>,
+    ): List<Score> {
+        if (categoryTypes.isEmpty()) return emptyList()
+
+        val categoryEnglishNames = categoryTypes.map { it.englishName }
+
+        val results =
+            ScoreExposedEntity
+                .join(MemberExposedEntity, joinType = JoinType.INNER) {
+                    ScoreExposedEntity.member eq MemberExposedEntity.id
+                }.selectAll()
+                .where {
+                    (ScoreExposedEntity.status eq status) and
+                        (ScoreExposedEntity.categoryEnglishName inList categoryEnglishNames)
+                }.toList()
 
         if (results.isEmpty()) return emptyList()
 

@@ -26,10 +26,10 @@ import javax.sql.DataSource
 @Configuration
 @EnableTransactionManagement
 class ExposedConfig(
-    @param:Value("\${spring.exposed.generate-ddl:true}")
+    @param:Value($$"${spring.exposed.generate-ddl:true}")
     private val generateDdl: Boolean,
     // IDEA 워닝 방지를 위한 설정
-    @param:Value("\${spring.exposed.show-sql:true}")
+    @param:Value($$"${spring.exposed.show-sql:true}")
     private val showSql: Boolean,
 ) {
     @Bean

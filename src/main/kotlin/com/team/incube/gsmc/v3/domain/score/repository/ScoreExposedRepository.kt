@@ -54,6 +54,11 @@ interface ScoreExposedRepository {
 
     fun findAllByStatus(status: ScoreStatus): List<Score>
 
+    fun findAllByStatusAndCategoryTypeIn(
+        status: ScoreStatus,
+        categoryTypes: List<CategoryType>,
+    ): List<Score>
+
     fun findByMemberIdAndCategoryType(
         memberId: Long,
         categoryType: CategoryType,

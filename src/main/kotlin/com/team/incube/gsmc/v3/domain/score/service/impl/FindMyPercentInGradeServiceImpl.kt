@@ -51,11 +51,10 @@ class FindMyPercentInGradeServiceImpl(
 
             val percentileRank = (lowerScoreCount.toDouble() / totalCount) * 100
             val topPercentile = 100.0 - percentileRank
-            val bottomPercentile = percentileRank
 
             GetStudentPercentResponse(
                 topPercentile = topPercentile,
-                bottomPercentile = bottomPercentile,
+                bottomPercentile = percentileRank,
             )
         }
 }

@@ -26,7 +26,7 @@ import software.amazon.awssdk.services.s3.model.GetUrlRequest
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException
-import java.net.URL
+import java.net.URI
 import java.util.function.Consumer
 
 class ConfirmFileUploadServiceTest :
@@ -104,7 +104,7 @@ class ConfirmFileUploadServiceTest :
                 )
 
             val mockHeadObjectResponse = mockk<HeadObjectResponse>()
-            val expectedUrl = URL("https://test-bucket.s3.amazonaws.com/file/20250101120000_abc123.pdf")
+            val expectedUrl = URI.create("https://test-bucket.s3.amazonaws.com/file/20250101120000_abc123.pdf").toURL()
             val mockS3Utilities = mockk<S3Utilities>()
 
             every { context.mockS3Client.headObject(any<HeadObjectRequest>()) } returns mockHeadObjectResponse
@@ -193,7 +193,7 @@ class ConfirmFileUploadServiceTest :
                         )
 
                     val mockHeadObjectResponse = mockk<HeadObjectResponse>()
-                    val expectedUrl = URL("https://test-bucket.s3.amazonaws.com/$fileKey")
+                    val expectedUrl = URI.create("https://test-bucket.s3.amazonaws.com/$fileKey").toURL()
                     val mockS3Utilities = mockk<S3Utilities>()
 
                     every { context.mockS3Client.headObject(any<HeadObjectRequest>()) } returns mockHeadObjectResponse

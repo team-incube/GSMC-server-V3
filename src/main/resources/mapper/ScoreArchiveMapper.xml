@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.team.incube.gsmc.v3.domain.archive.mapper.ScoreArchiveMapper">
+
+    <resultMap id="ScoreArchiveResultMap" type="com.team.incube.gsmc.v3.domain.archive.dto.ScoreArchive">
+        <id property="archiveId" column="archive_id"/>
+        <result property="academicYear" column="academic_year"/>
+        <result property="archivedAt" column="archived_at"/>
+        <result property="memberEmail" column="member_email"/>
+        <result property="memberName" column="member_name"/>
+        <result property="memberGrade" column="member_grade"/>
+        <result property="memberClassNumber" column="member_class_number"/>
+        <result property="memberNumber" column="member_number"/>
+        <result property="categoryEnglishName" column="category_english_name"/>
+        <result property="categoryKoreanName" column="category_korean_name"/>
+        <result property="scoreSnapshot" column="score_snapshot"/>
+    </resultMap>
+
+    <delete id="deleteByAcademicYear">
+        DELETE FROM tb_score_archive
+        WHERE academic_year = #{academicYear}
+    </delete>
+
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO tb_score_archive (
+            academic_year,
+            member_email,
+            member_name,
+            member_grade,
+            member_class_number,
+            member_number,
+            category_english_name,
+            category_korean_name,
+            score_snapshot
+        ) VALUES
+        <foreach collection="archives" item="archive" separator=",">
+            (
+                #{archive.academicYear},
+                #{archive.memberEmail},
+                #{archive.memberName},
+                #{archive.memberGrade},
+                #{archive.memberClassNumber},
+                #{archive.memberNumber},
+                #{archive.categoryEnglishName},
+                #{archive.categoryKoreanName},
+                #{archive.scoreSnapshot}
+            )
+        </foreach>
+    </insert>
+
+    <select id="findByAcademicYear" resultMap="ScoreArchiveResultMap">
+        SELECT
+            archive_id,
+            academic_year,
+            archived_at,
+            member_email,
+            member_name,
+            member_grade,
+            member_class_number,
+            member_number,
+            category_english_name,
+            category_korean_name,
+            score_snapshot
+        FROM tb_score_archive
+        WHERE academic_year = #{academicYear}
+        ORDER BY member_email, category_english_name
+    </select>
+
+    <select id="existsByAcademicYear" resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1
+            FROM tb_score_archive
+            WHERE academic_year = #{academicYear}
+            LIMIT 1
+        )
+    </select>
+
+    <select id="countByAcademicYear" resultType="long">
+        SELECT COUNT(*)
+        FROM tb_score_archive
+        WHERE academic_year = #{academicYear}
+    </select>
+
+</mapper>
