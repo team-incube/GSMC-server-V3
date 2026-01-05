@@ -51,7 +51,8 @@ class CreatePresignedUploadUrlServiceTest :
 
             val mockPresignedRequest =
                 mockk<PresignedPutObjectRequest> {
-                    every { url() } returns URI.create("https://test-bucket.s3.amazonaws.com/file/20250101120000_abc123.pdf?signature=xyz").toURL()
+                    every { url() } returns
+                        URI.create("https://test-bucket.s3.amazonaws.com/file/20250101120000_abc123.pdf?signature=xyz").toURL()
                 }
 
             every { context.mockS3Presigner.presignPutObject(any<PutObjectPresignRequest>()) } returns mockPresignedRequest
@@ -95,7 +96,8 @@ class CreatePresignedUploadUrlServiceTest :
 
                     val mockPresignedRequest =
                         mockk<PresignedPutObjectRequest> {
-                            every { url() } returns URI.create("https://test-bucket.s3.amazonaws.com/file/test.$extension?signature=xyz").toURL()
+                            every { url() } returns
+                                URI.create("https://test-bucket.s3.amazonaws.com/file/test.$extension?signature=xyz").toURL()
                         }
 
                     every { context.mockS3Presigner.presignPutObject(any<PutObjectPresignRequest>()) } returns mockPresignedRequest
