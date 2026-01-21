@@ -273,7 +273,7 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/topcit")
+    @PutMapping("/topcit")
     fun addTopcitScore(
         @Valid @RequestBody request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
@@ -302,7 +302,7 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/toeic")
+    @PutMapping("/toeic")
     fun addToeicScore(
         @Valid @RequestBody request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
@@ -311,7 +311,7 @@ class ScoreController(
             fileId = request.fileId,
         )
 
-    @Operation(summary = "토익사관학교 참여 등록 또는 개신", description = "현재 인증된 사용자의 토익사관학교 참여를 등록 또는 갱신합니다")
+    @Operation(summary = "토익사관학교 참여 등록 또는 갱신", description = "현재 인증된 사용자의 토익사관학교 참여를 등록 또는 갱신합니다")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -321,7 +321,7 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/toeic-academy")
+    @PutMapping("/toeic-academy")
     fun addToeicAcademyScore(): CreateScoreResponse = createToeicAcademyScoreService.execute()
 
     @Operation(summary = "JLPT 영역 인증제 점수 추가 또는 갱신", description = "현재 인증된 사용자의 JLPT 영역에 대한 인증제 점수를 추가하거나 갱신합니다")
@@ -344,7 +344,7 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/jlpt")
+    @PutMapping("/jlpt")
     fun addJlptScore(
         @Valid @RequestBody request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
@@ -373,7 +373,7 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/read-a-thon")
+    @PutMapping("/read-a-thon")
     fun addReadAThonScore(
         @Valid @RequestBody request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
@@ -397,7 +397,7 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/volunteer")
+    @PutMapping("/volunteer")
     fun addVolunteerScore(
         @Valid @RequestBody request: CreateScoreWithValueRequest,
     ): CreateScoreResponse = createVolunteerScoreService.execute(value = request.value)
@@ -422,7 +422,7 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/ncs")
+    @PutMapping("/ncs")
     fun addNcsScore(
         @Valid @RequestBody request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
@@ -451,7 +451,7 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/newrrow-school")
+    @PutMapping("/newrrow-school")
     fun addNewrrowSchoolScore(
         @Valid @RequestBody request: CreateScoreWithValueAndFileRequest,
     ): CreateScoreResponse =
@@ -475,7 +475,7 @@ class ScoreController(
         ],
     )
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/academic-grade")
+    @PutMapping("/academic-grade")
     fun addAcademicGradeScore(
         @Valid @RequestBody request: CreateScoreWithValueRequest,
     ): CreateScoreResponse = createAcademicGradeScoreService.execute(value = request.value)
